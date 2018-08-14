@@ -318,7 +318,10 @@ Marker.prototype.setPosition = function(position) {
     console.log('missing value for position');
     return false;
   }
-  this.set('position', position);
+  this.set('position', {
+    'lat': position.lat,
+    'lng': position.lng
+  });
   return this;
 };
 

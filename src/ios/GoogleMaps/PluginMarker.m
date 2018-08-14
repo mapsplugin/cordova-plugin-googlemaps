@@ -996,7 +996,6 @@
       NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\.\\/)+" options:NSRegularExpressionCaseInsensitive error:&error];
       iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
 
-
       // Get the current URL, then calculate the relative path.
       CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
@@ -1477,6 +1476,19 @@
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
+
+    if ([url.absoluteString hasPrefix:@"file:"]) {
+      NSString *iconPath = [url.absoluteString stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if (![fileManager fileExistsAtPath:iconPath]) {
+        NSLog(@"(error)There is no file at '%@'.", iconPath);
+        completionBlock(NO, nil);
+        return;
+      } else {
+        UIImage *image = [UIImage imageNamed:iconPath];
+        completionBlock(YES, image);
+      }
+    }
 
     NSURLRequest *req = [NSURLRequest requestWithURL:url
                                          cachePolicy:NSURLRequestReturnCacheDataElseLoad

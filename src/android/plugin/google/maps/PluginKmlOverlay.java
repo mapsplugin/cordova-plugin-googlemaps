@@ -1,6 +1,7 @@
 package plugin.google.maps;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -50,38 +51,56 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
       return;
     }
 
-    String urlStr = null;
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
 
-    try {
-      urlStr = opts.getString("url");
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-    if (urlStr == null || urlStr.length() == 0) {
-      callbackContext.error("No kml file is specified");
-      return;
-    }
+        String urlStr = null;
 
-    if (!urlStr.contains("://") &&
-        !urlStr.startsWith("/") &&
-        !urlStr.startsWith("www/") &&
-        !urlStr.startsWith("data:image") &&
-        !urlStr.startsWith("./") &&
-        !urlStr.startsWith("../")) {
-      urlStr = "./" + urlStr;
-    }
-    if (urlStr.startsWith("./")  || urlStr.startsWith("../")) {
-      urlStr = urlStr.replace("././", "./");
-      String currentPage = CURRENT_PAGE_URL;
-      currentPage = currentPage.replaceAll("[^\\/]*$", "");
-      urlStr = currentPage + "/" + urlStr;
-    }
-    if (urlStr.startsWith("cdvfile://")) {
-      urlStr = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), urlStr);
-    }
+        try {
+          urlStr = opts.getString("url");
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        if (urlStr == null || urlStr.length() == 0) {
+          callbackContext.error("No kml file is specified");
+          return;
+        }
 
-    Bundle result = loadKml(urlStr);
-    callbackContext.success(PluginUtil.Bundle2Json(result));
+        String currentPageUrl = webView.getUrl();
+        if (!urlStr.contains("://") &&
+            !urlStr.startsWith("/") &&
+            !urlStr.startsWith("www/") &&
+            !urlStr.startsWith("data:image") &&
+            !urlStr.startsWith("./") &&
+            !urlStr.startsWith("../")) {
+          urlStr = "./" + urlStr;
+        }
+        if (urlStr.startsWith("./")  || urlStr.startsWith("../")) {
+          urlStr = urlStr.replace("././", "./");
+          currentPageUrl = currentPageUrl.replaceAll("[^\\/]*$", "");
+          urlStr = currentPageUrl + "/" + urlStr;
+        }
+        if (urlStr.startsWith("cdvfile://")) {
+          urlStr = PluginUtil.getAbsolutePathFromCDVFilePath(webView.getResourceApi(), urlStr);
+        }
+
+        // Avoid WebViewLocalServer (because can not make a connection for some reason)
+        if (urlStr.contains("http://localhost") || urlStr.contains("http://127.0.0.1")) {
+          urlStr = urlStr.replaceAll("^http://[^\\/]+\\//", "file:///android_asset/www/");
+        }
+
+
+        final String finalUrl = urlStr;
+        executorService.submit(new Runnable() {
+          @Override
+          public void run() {
+            Bundle result = loadKml(finalUrl);
+            callbackContext.success(PluginUtil.Bundle2Json(result));
+          }
+        });
+      }
+    });
   }
 
   private Bundle loadKml(String urlStr) {
@@ -307,8 +326,8 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
 
     InputStream inputStream;
     try {
+      //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-        //Log.d("PluginKmlOverlay", "---> url = " + urlStr);
         URL url = new URL(urlStr);
         boolean redirect = true;
         HttpURLConnection http = null;

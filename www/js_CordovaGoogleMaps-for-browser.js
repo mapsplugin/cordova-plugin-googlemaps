@@ -21,8 +21,12 @@ function CordovaGoogleMaps(execCmd) {
 
   self.execCmd = execCmd;
 
+  // random unique number
+  self.saltHash = Math.floor(Math.random() * Date.now());
+
   // Hold map instances.
   self.MAPS = {};
+  self.MAP_CNT = 0;
 
 }
 
@@ -73,7 +77,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   }
   if (!mapId) {
-    mapId = "map_" + Math.floor(Math.random() * Date.now());
+    mapId = "map_" + self.MAP_CNT + "_" + self.saltHash;
   }
   // Create a map instance.
   var map = new Map(mapId, self.execCmd);
@@ -81,6 +85,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   // If the map is removed, clean up the information.
   map.one('remove', self._remove.bind(self, mapId));
+  self.MAP_CNT++;
   self.isThereAnyChange = true;
 
   if (div instanceof Promise) {
@@ -102,7 +107,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
 CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   var self = this;
-  var mapId = "streetview_" + Math.floor(Math.random() * Date.now());
+  var mapId = "streetview_" + self.MAP_CNT + "_" + self.saltHash;
 
   // Create a panorama instance.
   var panorama = new StreetViewPanorama(mapId, self.execCmd);
@@ -111,6 +116,7 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   // (Don't execute this native callback from your code)
   plugin.google.maps[mapId] = nativeCallback.bind(panorama);
 
+  self.MAP_CNT++;
   panorama.one('remove', self._remove.bind(self, mapId));
 
   if (div instanceof Promise) {
@@ -152,7 +158,6 @@ function postPanoramaInit(panorama, div, options) {
   var mapId = panorama.getId();
   self.isThereAnyChange = true;
 
-
   if (!common.isDom(div)) {
     console.error('[GoogleMaps] You need to specify a dom element(such as <div>) for this method', div);
     return;
@@ -166,56 +171,37 @@ function postPanoramaInit(panorama, div, options) {
   // the native side needs to know the map div position
   // before creating the map view.
   div.setAttribute("__pluginMapId", mapId);
-  elemId = common.getPluginDomId(div);
 
-  elem = div;
-  var isCached, zIndexList = [];
-  while(elem && elem.nodeType === Node.ELEMENT_NODE) {
-    elemId = common.getPluginDomId(elem);
-    if (common.shouldWatchByNative(elem)) {
-      isCached = elemId in self.domPositions;
-      self.domPositions[elemId] = {
-        pointerEvents: common.getStyle(elem, 'pointer-events'),
-        isMap: false,
-        size: common.getDivRect(elem),
-        zIndex: common.getZIndex(elem),
-        children: [],
-        overflowX: common.getStyle(elem, "overflow-x"),
-        overflowY: common.getStyle(elem, "overflow-y"),
-        containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
-      };
-      zIndexList.unshift(self.domPositions[elemId].zIndex);
-      self.domPositions[elemId].containMapIDs[mapId] = 1;
-    } else {
-      self.removeDomTree.call(self, element);
+  if (common.isDom(div)) {
+    if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+      console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
+      return;
     }
-    elem = elem.parentNode;
-  }
+    // If the mapDiv is specified,
+    // the native side needs to know the map div position
+    // before creating the map view.
+    div.setAttribute("__pluginMapId", mapId);
 
-  // Calculate the native view z-index
-  var depth = 0;
-  zIndexList.forEach(function(info, idx) {
-    if (!info.isInherit && info.z === 0) {
-      depth *= 10;
+    args.push({
+      id: mapId,
+      depth: 0
+    });
+    args.push(div);
+    if (options) {
+      args.push(options);
     }
-    depth += (info.z + 1) / (1 << idx) + 0.01;
-  });
-  depth = Math.floor(depth * 10000);
-
-  elemId = common.getPluginDomId(div);
-  self.domPositions[elemId].isMap = true;
-
-  var args = Array.prototype.slice.call(arguments, 0);
-  args.unshift({
-    id: mapId,
-    depth: depth
-  });
-
-  cordova_exec(function() {
     panorama.getPanorama.apply(panorama, args);
-  }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
-
-
+  } else {
+    args.push({
+      id: mapId,
+      depth: 0
+    });
+    args.push(null);
+    if (options) {
+      args.push(options);
+    }
+    panorama.getPanorama.apply(panorama, args);
+  }
 }
 
 function postMapInit(map, div, options) {

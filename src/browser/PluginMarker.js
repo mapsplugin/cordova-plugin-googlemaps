@@ -133,6 +133,10 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
       img.src = markerOpts.icon.url;
     }
   }
+
+  setTimeout(function() {
+    marker.setAnimation(null);
+  }, 500);
 };
 PluginMarker.prototype.setTitle = function(onSuccess, onError, args) {
   var self = this;
@@ -155,6 +159,33 @@ PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
 PluginMarker.prototype.hideInfoWindow = function(onSuccess, onError, args) {
   var self = this;
   infoWnd.close();
+  onSuccess();
+};
+PluginMarker.prototype.setIcon = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    var iconOpts = args[1];
+    if (Array.isArray(iconOpts)) {
+      // Specifies color name or rule
+      iconOpts = {
+        'path': 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
+        'fillColor': 'rgb(' + args[1][0] + ',' + args[1][1] + ',' + args[1][2] + ')',
+        'fillOpacity': args[1][3] / 256,
+        'scale': 1.3,
+        'strokeWeight': 0,
+        'anchor': new google.maps.Point(12, 27)
+      };
+    } else if (typeof iconOpts === "object") {
+
+      if (typeof iconOpts.size === "object") {
+        iconOpts.size = new google.maps.Size(iconOpts.size.width, iconOpts.size.height, 'px', 'px');
+        iconOpts.scaledSize = iconOpts.size;
+      }
+    }
+    marker.setIcon(iconOpts);
+  }
   onSuccess();
 };
 PluginMarker.prototype.setPosition = function(onSuccess, onError, args) {

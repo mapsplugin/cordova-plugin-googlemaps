@@ -1,551 +1,528 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.3.6-ext-20180605-1625" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
-    <name>cordova-plugin-googlemaps</name>
-    <js-module name="BaseClass" src="www/BaseClass.js">
-      <runs />
-    </js-module>
-    <js-module name="BaseArrayClass" src="www/BaseArrayClass.js">
-      <runs />
-    </js-module>
-    <js-module name="LatLng" src="www/LatLng.js">
-      <runs />
-    </js-module>
-    <js-module name="LatLngBounds" src="www/LatLngBounds.js">
-      <runs />
-    </js-module>
-    <js-module name="VisibleRegion" src="www/VisibleRegion.js">
-      <runs />
-    </js-module>
-    <js-module name="Location" src="www/Location.js">
-      <runs />
-    </js-module>
-    <js-module name="CameraPosition" src="www/CameraPosition.js">
-      <runs />
-    </js-module>
-    <js-module name="Polyline" src="www/Polyline.js">
-      <runs />
-    </js-module>
-    <js-module name="Polygon" src="www/Polygon.js">
-      <runs />
-    </js-module>
-    <js-module name="Marker" src="www/Marker.js">
-      <runs />
-    </js-module>
-    <js-module name="HtmlInfoWindow" src="www/HtmlInfoWindow.js">
-      <runs />
-    </js-module>
-    <js-module name="Circle" src="www/Circle.js">
-      <runs />
-    </js-module>
-    <js-module name="TileOverlay" src="www/TileOverlay.js">
-      <runs />
-    </js-module>
-    <js-module name="GroundOverlay" src="www/GroundOverlay.js">
-      <runs />
-    </js-module>
-    <js-module name="Common" src="www/Common.js">
-      <runs />
-    </js-module>
-    <js-module name="encoding" src="www/encoding.js">
-      <runs />
-    </js-module>
-    <js-module name="spherical" src="www/spherical.js">
-      <runs />
-    </js-module>
-    <js-module name="poly" src="www/poly.js">
-      <runs />
-    </js-module>
-    <js-module name="Geocoder" src="www/Geocoder.js">
-      <runs />
-    </js-module>
-    <js-module name="LocationService" src="www/LocationService.js">
-      <runs />
-    </js-module>
-    <js-module name="Map" src="www/Map.js">
-      <runs />
-    </js-module>
-    <js-module name="event" src="www/event.js">
-      <runs />
-    </js-module>
-    <js-module name="MapTypeId" src="www/MapTypeId.js">
-      <runs />
-    </js-module>
-    <js-module name="KmlOverlay" src="www/KmlOverlay.js">
-      <runs />
-    </js-module>
-    <js-module name="KmlLoader" src="www/KmlLoader.js">
-      <runs />
-    </js-module>
-    <js-module name="Environment" src="www/Environment.js">
-      <runs />
-    </js-module>
-    <js-module name="MarkerCluster" src="www/MarkerCluster.js">
-      <runs />
-    </js-module>
-    <js-module name="Cluster" src="www/Cluster.js">
-      <runs />
-    </js-module>
-    <js-module name="geomodel" src="www/geomodel.js">
-      <runs />
-    </js-module>
-    <js-module name="commandQueueExecutor" src="www/commandQueueExecutor.js">
-      <runs />
-    </js-module>
-    <js-module name="pluginInit" src="www/pluginInit.js">
-      <runs />
-    </js-module>
-    <js-module name="CordovaGoogleMaps" src="www/CordovaGoogleMaps.js">
-      <runs />
-    </js-module>
-    <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
-      <runs />
-    </js-module>
-    <js-module name="Overlay" src="www/Overlay.js">
-      <runs />
-    </js-module>
+<plugin id="cordova-plugin-googlemaps" version="2.3.12-ext-20180813-1632" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+  <name>cordova-plugin-googlemaps</name>
+  <js-module name="BaseClass" src="www/BaseClass.js">
+    <runs/>
+  </js-module>
+  <js-module name="BaseArrayClass" src="www/BaseArrayClass.js">
+    <runs/>
+  </js-module>
+  <js-module name="LatLng" src="www/LatLng.js">
+    <runs/>
+  </js-module>
+  <js-module name="LatLngBounds" src="www/LatLngBounds.js">
+    <runs/>
+  </js-module>
+  <js-module name="VisibleRegion" src="www/VisibleRegion.js">
+    <runs/>
+  </js-module>
+  <js-module name="Location" src="www/Location.js">
+    <runs/>
+  </js-module>
+  <js-module name="CameraPosition" src="www/CameraPosition.js">
+    <runs/>
+  </js-module>
+  <js-module name="Polyline" src="www/Polyline.js">
+    <runs/>
+  </js-module>
+  <js-module name="Polygon" src="www/Polygon.js">
+    <runs/>
+  </js-module>
+  <js-module name="Marker" src="www/Marker.js">
+    <runs/>
+  </js-module>
+  <js-module name="HtmlInfoWindow" src="www/HtmlInfoWindow.js">
+    <runs/>
+  </js-module>
+  <js-module name="Circle" src="www/Circle.js">
+    <runs/>
+  </js-module>
+  <js-module name="TileOverlay" src="www/TileOverlay.js">
+    <runs/>
+  </js-module>
+  <js-module name="GroundOverlay" src="www/GroundOverlay.js">
+    <runs/>
+  </js-module>
+  <js-module name="Common" src="www/Common.js">
+    <runs/>
+  </js-module>
+  <js-module name="encoding" src="www/encoding.js">
+    <runs/>
+  </js-module>
+  <js-module name="spherical" src="www/spherical.js">
+    <runs/>
+  </js-module>
+  <js-module name="poly" src="www/poly.js">
+    <runs/>
+  </js-module>
+  <js-module name="Geocoder" src="www/Geocoder.js">
+    <runs/>
+  </js-module>
+  <js-module name="LocationService" src="www/LocationService.js">
+    <runs/>
+  </js-module>
+  <js-module name="Map" src="www/Map.js">
+    <runs/>
+  </js-module>
+  <js-module name="event" src="www/event.js">
+    <runs/>
+  </js-module>
+  <js-module name="MapTypeId" src="www/MapTypeId.js">
+    <runs/>
+  </js-module>
+  <js-module name="KmlOverlay" src="www/KmlOverlay.js">
+    <runs/>
+  </js-module>
+  <js-module name="KmlLoader" src="www/KmlLoader.js">
+    <runs/>
+  </js-module>
+  <js-module name="Environment" src="www/Environment.js">
+    <runs/>
+  </js-module>
+  <js-module name="MarkerCluster" src="www/MarkerCluster.js">
+    <runs/>
+  </js-module>
+  <js-module name="Cluster" src="www/Cluster.js">
+    <runs/>
+  </js-module>
+  <js-module name="geomodel" src="www/geomodel.js">
+    <runs/>
+  </js-module>
+  <js-module name="commandQueueExecutor" src="www/commandQueueExecutor.js">
+    <runs/>
+  </js-module>
+  <js-module name="pluginInit" src="www/pluginInit.js">
+    <runs/>
+  </js-module>
+  <js-module name="StreetViewPanorama" src="www/StreetViewPanorama.js">
+    <runs/>
+  </js-module>
+  <js-module name="Overlay" src="www/Overlay.js">
+    <runs/>
+  </js-module>
 
-    <description>Google Maps native SDK for Android and iOS.
-This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3.
-The native map view is faster, use less network usage, display 3D views, and even work on offline network.
-</description>
-    <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps.git</repo>
-    <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
-    <author>Masashi Katsumata</author>
+  <description>Google Maps native SDK for Android and iOS. This plugin allows your application to use the native Google Maps views instead of the Google Maps JavaScript API v3. The native map view is faster, use less network usage, display 3D views,
+    and even work on offline network.
+  </description>
+  <repo>https://github.com/mapsplugin/cordova-plugin-googlemaps.git</repo>
+  <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
+  <author>Masashi Katsumata</author>
 
-    <license>Apache 2.0</license>
+  <license>Apache 2.0</license>
 
-    <keywords>google,maps,geo</keywords>
+  <keywords>google,maps,geo</keywords>
 
-    <engines>
-      <engine name="cordova-android" version=">=5.1.0" />
-      <engine name="cordova-ios" version=">=4.0.0" />
-      <engine name="apple-xcode" version=">=9.0.0" />
-      <engine name="apple-ios" version=">=10.0.0" />
-    </engines>
+  <engines>
+    <engine name="cordova-android" version=">=5.1.0" />
+    <engine name="cordova-ios" version=">=4.0.0" />
+    <engine name="apple-xcode" version=">=9.0.0" />
+    <engine name="apple-ios" version=">=10.0.0" />
+  </engines>
 
-    <hook type="before_plugin_add" src="src/before_plugin_install.js" />
-    <hook type="before_plugin_install" src="src/before_plugin_install.js" />
-    <!--<hook type="after_plugin_install" src="src/after_plugin_install.js" />-->
-    <hook type="before_plugin_rm" src="src/before_plugin_rm.js" />
-
-    <!-- browser -->
-    <platform name="browser">
-      <preference name="API_KEY_FOR_BROWSER" value="" />
-
-      <hook type="after_prepare" src="src/browser/after_prepare.js" />
-      <js-module name="googlemaps-cdv-plugin" src="www/plugin-loader-for-browser.js">
-        <clobbers target="plugin.google.maps" />
-      </js-module>
-      <js-module name="js_CordovaGoogleMaps" src="www/js_CordovaGoogleMaps-for-browser.js">
-        <runs />
-      </js-module>
-      <js-module name="CordovaGoogleMaps" src="src/browser/CordovaGoogleMaps.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginMap" src="src/browser/PluginMap.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginMarker" src="src/browser/PluginMarker.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginCircle" src="src/browser/PluginCircle.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginGroundOverlay" src="src/browser/PluginGroundOverlay.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginKmlOverlay" src="src/browser/PluginKmlOverlay.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginMarkerCluster" src="src/browser/PluginMarkerCluster.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginPolygon" src="src/browser/PluginPolygon.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginPolyline" src="src/browser/PluginPolyline.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginStreetViewPanorama" src="src/browser/PluginStreetViewPanorama.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginTileOverlay" src="src/browser/PluginTileOverlay.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginLocationService" src="src/browser/PluginLocationService.js">
-        <runs />
-      </js-module>
-      <js-module name="PluginGeocoder" src="src/browser/PluginGeocoder.js">
-        <runs />
-      </js-module>
-    </platform>
+  <hook type="before_plugin_add" src="src/before_plugin_install.js"/>
+  <hook type="before_plugin_install" src="src/before_plugin_install.js"/>
+  <!--<hook type="after_plugin_install" src="src/after_plugin_install.js" />-->
+  <hook type="before_plugin_rm" src="src/before_plugin_rm.js"/>
 
   <!-- android -->
   <platform name="android">
-      <preference name="API_KEY_FOR_ANDROID" />
-      <info>
-          Official document
-          https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md
+    <preference name="API_KEY_FOR_ANDROID"/>
+    <info>
+      Official document https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md Please consider to buy a beer for us 🍺 https://github.com/mapsplugin/cordova-plugin-googlemaps#buy-us-a-beer
+    </info>
 
-          Please consider to buy a beer for us 🍺
-          https://github.com/mapsplugin/cordova-plugin-googlemaps#buy-us-a-beer
-      </info>
+    <js-module name="googlemaps-cdv-plugin" src="www/plugin-loader-for-android_ios.js">
+      <clobbers target="plugin.google.maps"/>
+    </js-module>
+    <js-module name="js_CordovaGoogleMaps" src="www/js_CordovaGoogleMaps-for-android_ios.js">
+      <runs/>
+    </js-module>
 
-      <js-module name="googlemaps-cdv-plugin" src="www/plugin-loader-for-android_ios.js">
-        <clobbers target="plugin.google.maps" />
-      </js-module>
-      <js-module name="js_CordovaGoogleMaps" src="www/js_CordovaGoogleMaps-for-android_ios.js">
-        <runs />
-      </js-module>
+    <config-file target="config.xml" parent="/*">
+      <!-- for Crosswalk -->
+      <preference name="xwalkZOrderOnTop" value="true"/>
+      <preference name="BackgroundColor" value="0"/>
 
-      <config-file target="config.xml" parent="/*">
-        <!-- for Crosswalk -->
-        <preference name="xwalkZOrderOnTop" value="true" />
-        <preference name="BackgroundColor" value="0" />
+      <!-- for this plugin -->
+      <preference name="android-minSdkVersion" value="19"/>
+    </config-file>
 
-        <!-- for this plugin -->
-        <preference name="android-minSdkVersion" value="19" />
-      </config-file>
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="CordovaGoogleMaps">
+        <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps"/>
+        <param name="onload" value="true"/>
+        <param name="onreset" value="true"/>
+      </feature>
+      <feature name="Map">
+        <param name="android-package" value="plugin.google.maps.PluginMap"/>
+      </feature>
+      <feature name="Polyline">
+        <param name="android-package" value="plugin.google.maps.PluginPolyline"/>
+      </feature>
+      <feature name="Polygon">
+        <param name="android-package" value="plugin.google.maps.PluginPolygon"/>
+      </feature>
+      <feature name="Marker">
+        <param name="android-package" value="plugin.google.maps.PluginMarker"/>
+      </feature>
+      <feature name="Circle">
+        <param name="android-package" value="plugin.google.maps.PluginCircle"/>
+      </feature>
+      <feature name="TileOverlay">
+        <param name="android-package" value="plugin.google.maps.PluginTileOverlay"/>
+      </feature>
+      <feature name="GroundOverlay">
+        <param name="android-package" value="plugin.google.maps.PluginGroundOverlay"/>
+      </feature>
+      <feature name="KmlOverlay">
+        <param name="android-package" value="plugin.google.maps.PluginKmlOverlay"/>
+      </feature>
+      <feature name="Geocoder">
+        <param name="android-package" value="plugin.google.maps.PluginGeocoder"/>
+      </feature>
+      <feature name="LocationService">
+        <param name="android-package" value="plugin.google.maps.PluginLocationService"/>
+      </feature>
+      <feature name="Environment">
+        <param name="android-package" value="plugin.google.maps.Environment"/>
+      </feature>
+      <feature name="MarkerCluster">
+        <param name="android-package" value="plugin.google.maps.PluginMarkerCluster"/>
+      </feature>
+      <feature name="StreetViewPanorama">
+        <param name="android-package" value="plugin.google.maps.PluginStreetViewPanorama"/>
+      </feature>
+    </config-file>
 
-      <config-file target="res/xml/config.xml" parent="/*">
-          <feature name="CordovaGoogleMaps">
-              <param name="android-package" value="plugin.google.maps.CordovaGoogleMaps" />
-              <param name="onload" value="true" />
-              <param name="onreset" value="true" />
-          </feature>
-          <feature name="Map">
-              <param name="android-package" value="plugin.google.maps.PluginMap" />
-          </feature>
-          <feature name="Polyline">
-              <param name="android-package" value="plugin.google.maps.PluginPolyline" />
-          </feature>
-          <feature name="Polygon">
-              <param name="android-package" value="plugin.google.maps.PluginPolygon" />
-          </feature>
-          <feature name="Marker">
-              <param name="android-package" value="plugin.google.maps.PluginMarker" />
-          </feature>
-          <feature name="Circle">
-              <param name="android-package" value="plugin.google.maps.PluginCircle" />
-          </feature>
-          <feature name="TileOverlay">
-              <param name="android-package" value="plugin.google.maps.PluginTileOverlay" />
-          </feature>
-          <feature name="GroundOverlay">
-              <param name="android-package" value="plugin.google.maps.PluginGroundOverlay" />
-          </feature>
-          <feature name="KmlOverlay">
-              <param name="android-package" value="plugin.google.maps.PluginKmlOverlay" />
-          </feature>
-          <feature name="PluginGeocoder">
-              <param name="android-package" value="plugin.google.maps.PluginGeocoder" />
-          </feature>
-          <feature name="PluginLocationService">
-              <param name="android-package" value="plugin.google.maps.PluginLocationService" />
-          </feature>
-          <feature name="Environment">
-              <param name="android-package" value="plugin.google.maps.Environment" />
-          </feature>
-          <feature name="MarkerCluster">
-              <param name="android-package" value="plugin.google.maps.PluginMarkerCluster" />
-          </feature>
-          <feature name="StreetViewPanorama">
-              <param name="android-package" value="plugin.google.maps.PluginStreetViewPanorama" />
-          </feature>
-      </config-file>
+    <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/Environment.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/CordovaGoogleMaps.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/ObjectCache.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginLocationService.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginMarker.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginPolygon.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginTileProvider.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginStreetViewPanorama.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/IPluginView.java" target-dir="src/plugin/google/maps"/>
 
-      <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/Environment.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/CordovaGoogleMaps.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/ObjectCache.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginLocationService.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginKmlOverlay.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginMap.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginMarker.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginPolygon.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginPolyline.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginTileOverlay.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginTileProvider.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginUtil.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginAsyncInterface.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/BitmapCache.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/PluginStreetViewPanorama.java" target-dir="src/plugin/google/maps" />
-      <source-file src="src/android/plugin/google/maps/IPluginView.java" target-dir="src/plugin/google/maps" />
+    <framework src="src/android/frameworks/tbxml-android.gradle" custom="true" type="gradleReference"/>
+    <resource-file src="src/android/frameworks/tbxml-android.aar" target="libs/tbxml-android.aar"/>
+    <resource-file src="src/android/frameworks/tbxml-android.aar" target="app/src/libs/tbxml-android.aar"/>
 
-      <framework src="src/android/frameworks/tbxml-android.gradle"  custom="true" type="gradleReference" />
-      <resource-file src="src/android/frameworks/tbxml-android.aar"  target="libs/tbxml-android.aar" />
-      <resource-file src="src/android/frameworks/tbxml-android.aar"  target="app/src/libs/tbxml-android.aar" />
+    <config-file target="AndroidManifest.xml" parent="/manifest/application">
+      <meta-data android:name="com.google.android.geo.API_KEY" android:value="$API_KEY_FOR_ANDROID"/>
+      <!-- Google Play Services SDK -->
+      <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
+    </config-file>
 
-      <config-file target="AndroidManifest.xml" parent="/manifest/application">
-          <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="$API_KEY_FOR_ANDROID" />
-          <!-- Google Play Services SDK -->
-          <meta-data android:name="com.google.android.gms.version"
-                     android:value="@integer/google_play_services_version" />
-      </config-file>
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.INTERNET"/>
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+      <!-- The following two permissions are not required to use Google Maps Android API v2, but are recommended. -->
+      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+      <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+      <!-- OpenGL ES version 2 -->
+      <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
+      <!-- GPS -->
+      <uses-feature android:name="android.hardware.location"/>
+      <uses-feature android:name="android.hardware.location.gps"/>
+    </config-file>
 
-      <config-file target="AndroidManifest.xml" parent="/manifest">
-          <uses-permission android:name="android.permission.INTERNET"/>
-          <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-          <!-- The following two permissions are not required to use
-               Google Maps Android API v2, but are recommended. -->
-          <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-          <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-          <!-- OpenGL ES version 2 -->
-          <uses-feature android:glEsVersion="0x00020000" android:required="true" />
-          <!-- GPS -->
-          <uses-feature android:name="android.hardware.location" />
-          <uses-feature android:name="android.hardware.location.gps" />
-      </config-file>
+    <resource-file src="src/android/res/layout/dummy_infowindow.xml" target="res/layout/dummy_infowindow.xml"/>
+    <resource-file src="src/android/res/drawable/dummy_my_location_button.png" target="res/drawable/dummy_my_location_button.png"/>
+    <resource-file src="src/android/res/drawable/dummy_mylocation_button_shadow.xml" target="res/drawable/dummy_mylocation_button_shadow.xml"/>
 
-      <resource-file src="src/android/res/layout/dummy_infowindow.xml" target="res/layout/dummy_infowindow.xml"/>
-      <resource-file src="src/android/res/drawable/dummy_my_location_button.png" target="res/drawable/dummy_my_location_button.png"/>
-      <resource-file src="src/android/res/drawable/dummy_mylocation_button_shadow.xml" target="res/drawable/dummy_mylocation_button_shadow.xml"/>
+    <!-- Minimum required version of Google Play Services SDK for this plugin is 12.0.1. You need to specify this version number for all other plugins that use google play services sdk. https://developers.google.com/android/guides/releases -->
+    <preference name="PLAY_SERVICES_VERSION" default="15.0.1"/>
+    <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION"/>
+    <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION"/>
 
-      <!--
-      Minimum required version of Google Play Services SDK for this plugin is 12.0.1.
-      You need to specify this version number for all other plugins that use google play services sdk.
-      https://developers.google.com/android/guides/releases
-      -->
-      <preference name="PLAY_SERVICES_VERSION" default="15.0.1" />
-      <framework src="com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION" />
-      <framework src="com.google.android.gms:play-services-location:$PLAY_SERVICES_VERSION" />
+    <!-- Minimum required version of Android Support library v4 for this plugin. https://developers.google.com/android/guides/releases -->
+    <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.+"/>
+    <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION"/>
 
-      <!--
-      Minimum required version of Android Support library v4 for this plugin.
-      https://developers.google.com/android/guides/releases
-      -->
-      <preference name="ANDROID_SUPPORT_V4_VERSION" default="26.1.0" />
-      <framework src="com.android.support:support-core-utils:$ANDROID_SUPPORT_V4_VERSION" />
-
-
-      <!-- Base messages -->
-      <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml" />
-      <!-- localized messages for Japanese -->
-      <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml" />
-      <!-- localized messages for Russian -->
-      <resource-file src="src/android/res/values-ru/pgm_strings.xml" target="res/values-ru/pgm_strings.xml" />
-      <!-- localized messages for Ukrainian -->
-      <resource-file src="src/android/res/values-uk/pgm_strings.xml" target="res/values-uk/pgm_strings.xml" />
-      <!-- localized messages for Portuguese -->
-      <resource-file src="src/android/res/values-pt-rPT/pgm_strings.xml" target="res/values-pt-rPT/pgm_strings.xml" />
-      <!-- localized messages for German -->
-      <resource-file src="src/android/res/values-de/pgm_strings.xml" target="res/values-de/pgm_strings.xml" />
-      <!-- localized messages for French -->
-      <resource-file src="src/android/res/values-fr/pgm_strings.xml" target="res/values-fr/pgm_strings.xml" />
-      <!-- localized messages for Hindi -->
-      <resource-file src="src/android/res/values-hi/pgm_strings.xml" target="res/values-hi/pgm_strings.xml" />
-      <!-- localized messages for Arabic -->
-      <resource-file src="src/android/res/values-ar/pgm_strings.xml" target="res/values-ar/pgm_strings.xml" />
-      <!-- localized messages for Dutch -->
-      <resource-file src="src/android/res/values-nl/pgm_strings.xml" target="res/values-nl/pgm_strings.xml" />
-      <!-- localized messages for Polish -->
-      <resource-file src="src/android/res/values-pl/pgm_strings.xml" target="res/values-pl/pgm_strings.xml" />
-      <!-- localized messages for Denmark -->
-      <resource-file src="src/android/res/values-da/pgm_strings.xml" target="res/values-da/pgm_strings.xml" />
-      <!-- localized messages for Vietnamese -->
-      <resource-file src="src/android/res/values-vi/pgm_strings.xml" target="res/values-vi/pgm_strings.xml" />
+    <!-- Base messages -->
+    <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml"/>
+    <!-- localized messages for Japanese -->
+    <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml"/>
+    <!-- localized messages for Russian -->
+    <resource-file src="src/android/res/values-ru/pgm_strings.xml" target="res/values-ru/pgm_strings.xml"/>
+    <!-- localized messages for Ukrainian -->
+    <resource-file src="src/android/res/values-uk/pgm_strings.xml" target="res/values-uk/pgm_strings.xml"/>
+    <!-- localized messages for Portuguese -->
+    <resource-file src="src/android/res/values-pt-rPT/pgm_strings.xml" target="res/values-pt-rPT/pgm_strings.xml"/>
+    <!-- localized messages for German -->
+    <resource-file src="src/android/res/values-de/pgm_strings.xml" target="res/values-de/pgm_strings.xml"/>
+    <!-- localized messages for French -->
+    <resource-file src="src/android/res/values-fr/pgm_strings.xml" target="res/values-fr/pgm_strings.xml"/>
+    <!-- localized messages for Hindi -->
+    <resource-file src="src/android/res/values-hi/pgm_strings.xml" target="res/values-hi/pgm_strings.xml"/>
+    <!-- localized messages for Arabic -->
+    <resource-file src="src/android/res/values-ar/pgm_strings.xml" target="res/values-ar/pgm_strings.xml"/>
+    <!-- localized messages for Dutch -->
+    <resource-file src="src/android/res/values-nl/pgm_strings.xml" target="res/values-nl/pgm_strings.xml"/>
+    <!-- localized messages for Polish -->
+    <resource-file src="src/android/res/values-pl/pgm_strings.xml" target="res/values-pl/pgm_strings.xml"/>
+    <!-- localized messages for Denmark -->
+    <resource-file src="src/android/res/values-da/pgm_strings.xml" target="res/values-da/pgm_strings.xml"/>
+    <!-- localized messages for Vietnamese -->
+    <resource-file src="src/android/res/values-vi/pgm_strings.xml" target="res/values-vi/pgm_strings.xml"/>
   </platform>
 
   <!-- ios -->
   <platform name="ios">
 
-      <preference name="API_KEY_FOR_IOS" />
-      <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
-      <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background." />
+    <preference name="API_KEY_FOR_IOS"/>
+    <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
+    <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background."/>
 
-      <js-module name="googlemaps-cdv-plugin" src="www/plugin-loader-for-android_ios.js">
-        <clobbers target="plugin.google.maps" />
-      </js-module>
-      <js-module name="js_CordovaGoogleMaps" src="www/js_CordovaGoogleMaps-for-android_ios.js">
-        <runs />
-      </js-module>
+    <js-module name="googlemaps-cdv-plugin" src="www/plugin-loader-for-android_ios.js">
+      <clobbers target="plugin.google.maps"/>
+    </js-module>
+    <js-module name="js_CordovaGoogleMaps" src="www/js_CordovaGoogleMaps-for-android_ios.js">
+      <runs/>
+    </js-module>
 
-      <info>
-          Official document
-          https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md
+    <info>
+      Official document https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/README.md Please consider to buy a beer for us 🍺 https://github.com/mapsplugin/cordova-plugin-googlemaps#buy-us-a-beer
+    </info>
 
-          Please consider to buy a beer for us 🍺
-          https://github.com/mapsplugin/cordova-plugin-googlemaps#buy-us-a-beer
-      </info>
+    <config-file target="config.xml" parent="/*">
+      <feature name="CordovaGoogleMaps">
+        <param name="ios-package" value="CordovaGoogleMaps"/>
+        <param name="onload" value="true"/>
+        <param name="onreset" value="true"/>
+      </feature>
+      <feature name="Environment">
+        <param name="ios-package" value="Environment"/>
+      </feature>
+      <feature name="Geocoder">
+        <param name="ios-package" value="PluginGeocoder"/>
+      </feature>
+      <feature name="LocationService">
+        <param name="ios-package" value="PluginLocationService"/>
+      </feature>
+      <feature name="Map">
+        <param name="ios-package" value="PluginMap"/>
+      </feature>
+      <feature name="Circle">
+        <param name="ios-package" value="PluginCircle"/>
+      </feature>
+      <feature name="GroundOverlay">
+        <param name="ios-package" value="PluginGroundOverlay"/>
+      </feature>
+      <feature name="KmlOverlay">
+        <param name="ios-package" value="PluginKmlOverlay"/>
+      </feature>
+      <feature name="Marker">
+        <param name="ios-package" value="PluginMarker"/>
+      </feature>
+      <feature name="Polygon">
+        <param name="ios-package" value="PluginPolygon"/>
+      </feature>
+      <feature name="Polyline">
+        <param name="ios-package" value="PluginPolyline"/>
+      </feature>
+      <feature name="TileOverlay">
+        <param name="ios-package" value="PluginTileOverlay"/>
+      </feature>
+      <feature name="MarkerCluster">
+        <param name="ios-package" value="PluginMarkerCluster"/>
+      </feature>
+      <feature name="StreetViewPanorama">
+        <param name="ios-package" value="PluginStreetViewPanorama"/>
+      </feature>
+    </config-file>
 
-      <config-file target="config.xml" parent="/*">
-          <feature name="CordovaGoogleMaps">
-              <param name="ios-package" value="CordovaGoogleMaps" />
-              <param name="onload" value="true" />
-              <param name="onreset" value="true" />
-          </feature>
-          <feature name="Environment">
-              <param name="ios-package" value="Environment" />
-          </feature>
-          <feature name="PluginGeocoder">
-              <param name="ios-package" value="PluginGeocoder" />
-          </feature>
-          <feature name="PluginLocationService">
-              <param name="ios-package" value="PluginLocationService" />
-          </feature>
-          <feature name="Map">
-              <param name="ios-package" value="PluginMap" />
-          </feature>
-          <feature name="Circle">
-              <param name="ios-package" value="PluginCircle" />
-          </feature>
-          <feature name="GroundOverlay">
-              <param name="ios-package" value="PluginGroundOverlay" />
-          </feature>
-          <feature name="KmlOverlay">
-              <param name="ios-package" value="PluginKmlOverlay" />
-          </feature>
-          <feature name="Marker">
-              <param name="ios-package" value="PluginMarker" />
-          </feature>
-          <feature name="Polygon">
-              <param name="ios-package" value="PluginPolygon" />
-          </feature>
-          <feature name="Polyline">
-              <param name="ios-package" value="PluginPolyline" />
-          </feature>
-          <feature name="TileOverlay">
-              <param name="ios-package" value="PluginTileOverlay" />
-          </feature>
-          <feature name="MarkerCluster">
-              <param name="ios-package" value="PluginMarkerCluster" />
-          </feature>
-          <feature name="StreetViewPanorama">
-              <param name="ios-package" value="PluginStreetViewPanorama" />
-          </feature>
-      </config-file>
+    <header-file src="src/ios/GoogleMaps/PluginObjects.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginObjects.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginCircle.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginCircle.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginGeocoder.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginGeocoder.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginLocationService.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginLocationService.m"/>
+    <header-file src="src/ios/GoogleMaps/Environment.h"/>
+    <source-file src="src/ios/GoogleMaps/Environment.m"/>
+    <header-file src="src/ios/GoogleMaps/CordovaGoogleMaps.h"/>
+    <source-file src="src/ios/GoogleMaps/CordovaGoogleMaps.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginMapViewController.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginMapViewController.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginGroundOverlay.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginGroundOverlay.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginKmlOverlay.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginKmlOverlay.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginMap.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginMap.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginMarker.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginMarker.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginUtil.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginUtil.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginPolygon.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginPolygon.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginPolyline.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginPolyline.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginTileProvider.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginTileProvider.m"/>
+    <header-file src="src/ios/GoogleMaps/TBXML.h"/>
+    <source-file src="src/ios/GoogleMaps/TBXML.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginTileOverlay.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginTileOverlay.m"/>
+    <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.h"/>
+    <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.podspec"/>
+    <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m"/>
+    <header-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h"/>
+    <source-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.m"/>
+    <header-file src="src/ios/GoogleMaps/MyPluginLayer.h"/>
+    <source-file src="src/ios/GoogleMaps/MyPluginLayer.m"/>
+    <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h"/>
+    <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginMarkerCluster.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginMarkerCluster.m"/>
+    <header-file src="src/ios/GoogleMaps/UIImageCache.h"/>
+    <source-file src="src/ios/GoogleMaps/UIImageCache.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.m"/>
+    <header-file src="src/ios/GoogleMaps/PluginViewController.h"/>
+    <source-file src="src/ios/GoogleMaps/PluginViewController.m"/>
+    <header-file src="src/ios/GoogleMaps/IPluginView.h"/>
+    <header-file src="src/ios/GoogleMaps/IPluginProtocol.h"/>
 
-      <header-file src="src/ios/GoogleMaps/PluginObjects.h" />
-      <source-file src="src/ios/GoogleMaps/PluginObjects.m" />
-      <header-file src="src/ios/GoogleMaps/PluginCircle.h" />
-      <source-file src="src/ios/GoogleMaps/PluginCircle.m" />
-      <header-file src="src/ios/GoogleMaps/PluginGeocoder.h" />
-      <source-file src="src/ios/GoogleMaps/PluginGeocoder.m" />
-      <header-file src="src/ios/GoogleMaps/PluginLocationService.h" />
-      <source-file src="src/ios/GoogleMaps/PluginLocationService.m" />
-      <header-file src="src/ios/GoogleMaps/Environment.h" />
-      <source-file src="src/ios/GoogleMaps/Environment.m" />
-      <header-file src="src/ios/GoogleMaps/CordovaGoogleMaps.h" />
-      <source-file src="src/ios/GoogleMaps/CordovaGoogleMaps.m" />
-      <header-file src="src/ios/GoogleMaps/PluginMapViewController.h" />
-      <source-file src="src/ios/GoogleMaps/PluginMapViewController.m" />
-      <header-file src="src/ios/GoogleMaps/PluginGroundOverlay.h" />
-      <source-file src="src/ios/GoogleMaps/PluginGroundOverlay.m" />
-      <header-file src="src/ios/GoogleMaps/PluginKmlOverlay.h" />
-      <source-file src="src/ios/GoogleMaps/PluginKmlOverlay.m" />
-      <header-file src="src/ios/GoogleMaps/PluginMap.h" />
-      <source-file src="src/ios/GoogleMaps/PluginMap.m" />
-      <header-file src="src/ios/GoogleMaps/PluginMarker.h" />
-      <source-file src="src/ios/GoogleMaps/PluginMarker.m" />
-      <header-file src="src/ios/GoogleMaps/PluginUtil.h" />
-      <source-file src="src/ios/GoogleMaps/PluginUtil.m" />
-      <header-file src="src/ios/GoogleMaps/PluginPolygon.h" />
-      <source-file src="src/ios/GoogleMaps/PluginPolygon.m" />
-      <header-file src="src/ios/GoogleMaps/PluginPolyline.h" />
-      <source-file src="src/ios/GoogleMaps/PluginPolyline.m" />
-      <header-file src="src/ios/GoogleMaps/PluginTileProvider.h" />
-      <source-file src="src/ios/GoogleMaps/PluginTileProvider.m" />
-      <header-file src="src/ios/GoogleMaps/TBXML.h" />
-      <source-file src="src/ios/GoogleMaps/TBXML.m" />
-      <header-file src="src/ios/GoogleMaps/PluginTileOverlay.h" />
-      <source-file src="src/ios/GoogleMaps/PluginTileOverlay.m" />
-      <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.h" />
-      <header-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.podspec" />
-      <source-file src="src/ios/GoogleMaps/NSData-Base64/NSData+Base64.m" />
-      <header-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h" />
-      <source-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.m" />
-      <header-file src="src/ios/GoogleMaps/MyPluginLayer.h" />
-      <source-file src="src/ios/GoogleMaps/MyPluginLayer.m" />
-      <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h" />
-      <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m" />
-      <header-file src="src/ios/GoogleMaps/PluginMarkerCluster.h" />
-      <source-file src="src/ios/GoogleMaps/PluginMarkerCluster.m" />
-      <header-file src="src/ios/GoogleMaps/UIImageCache.h" />
-      <source-file src="src/ios/GoogleMaps/UIImageCache.m" />
-      <header-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.h" />
-      <source-file src="src/ios/GoogleMaps/PluginStreetViewPanorama.m" />
-      <header-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.h" />
-      <source-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.m" />
-      <header-file src="src/ios/GoogleMaps/PluginViewController.h" />
-      <source-file src="src/ios/GoogleMaps/PluginViewController.m" />
-      <header-file src="src/ios/GoogleMaps/IPluginView.h" />
-      <header-file src="src/ios/GoogleMaps/IPluginProtocol.h" />
+    <!-- Base messages -->
+    <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json"/>
+    <!-- localized messages for Japanese -->
+    <resource-file src="src/ios/strings/pgm_Localizable_ja.json" target="pgm_Localizable_ja.json"/>
+    <!-- localized messages for Russian -->
+    <resource-file src="src/ios/strings/pgm_Localizable_ru.json" target="pgm_Localizable_ru.json"/>
+    <!-- localized messages for Ukrainian -->
+    <resource-file src="src/ios/strings/pgm_Localizable_uk.json" target="pgm_Localizable_uk.json"/>
+    <!-- localized messages for Brazilian Portuguese -->
+    <resource-file src="src/ios/strings/pgm_Localizable_pt-BR.json" target="pgm_Localizable_pt-BR.json"/>
+    <!-- localized messages for German -->
+    <resource-file src="src/ios/strings/pgm_Localizable_de.json" target="pgm_Localizable_de.json"/>
+    <!-- localized messages for French -->
+    <resource-file src="src/ios/strings/pgm_Localizable_fr.json" target="pgm_Localizable_fr.json"/>
+    <!-- localized messages for Hindi -->
+    <resource-file src="src/ios/strings/pgm_Localizable_hi.json" target="pgm_Localizable_hi.json"/>
+    <!-- localized messages for Arabic -->
+    <resource-file src="src/ios/strings/pgm_Localizable_ar.json" target="pgm_Localizable_ar.json"/>
+    <!-- localized messages for Dutch -->
+    <resource-file src="src/ios/strings/pgm_Localizable_nl.json" target="pgm_Localizable_nl.json"/>
+    <!-- localized messages for Polish -->
+    <resource-file src="src/ios/strings/pgm_Localizable_pl.json" target="pgm_Localizable_pl.json"/>
+    <!-- localized messages for Denmark -->
+    <resource-file src="src/ios/strings/pgm_Localizable_da.json" target="pgm_Localizable_da.json"/>
+    <!-- localized messages for Vietnamese -->
+    <resource-file src="src/ios/strings/pgm_Localizable_vi.json" target="pgm_Localizable_vi.json"/>
 
-      <!-- Base messages -->
-      <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />
-      <!-- localized messages for Japanese -->
-      <resource-file src="src/ios/strings/pgm_Localizable_ja.json" target="pgm_Localizable_ja.json" />
-      <!-- localized messages for Russian -->
-      <resource-file src="src/ios/strings/pgm_Localizable_ru.json" target="pgm_Localizable_ru.json" />
-      <!-- localized messages for Ukrainian -->
-      <resource-file src="src/ios/strings/pgm_Localizable_uk.json" target="pgm_Localizable_uk.json" />
-      <!-- localized messages for Brazilian Portuguese -->
-      <resource-file src="src/ios/strings/pgm_Localizable_pt-BR.json" target="pgm_Localizable_pt-BR.json" />
-      <!-- localized messages for German -->
-      <resource-file src="src/ios/strings/pgm_Localizable_de.json" target="pgm_Localizable_de.json" />
-      <!-- localized messages for French -->
-      <resource-file src="src/ios/strings/pgm_Localizable_fr.json" target="pgm_Localizable_fr.json" />
-      <!-- localized messages for Hindi -->
-      <resource-file src="src/ios/strings/pgm_Localizable_hi.json" target="pgm_Localizable_hi.json" />
-      <!-- localized messages for Arabic -->
-      <resource-file src="src/ios/strings/pgm_Localizable_ar.json" target="pgm_Localizable_ar.json" />
-      <!-- localized messages for Dutch -->
-      <resource-file src="src/ios/strings/pgm_Localizable_nl.json" target="pgm_Localizable_nl.json" />
-      <!-- localized messages for Polish -->
-      <resource-file src="src/ios/strings/pgm_Localizable_pl.json" target="pgm_Localizable_pl.json" />
-      <!-- localized messages for Denmark -->
-      <resource-file src="src/ios/strings/pgm_Localizable_da.json" target="pgm_Localizable_da.json" />
-      <!-- localized messages for Vietnamese -->
-      <resource-file src="src/ios/strings/pgm_Localizable_vi.json" target="pgm_Localizable_vi.json" />
+    <config-file target="*-Info.plist" parent="Google Maps API Key">
+      <string>$API_KEY_FOR_IOS</string>
+    </config-file>
 
-      <config-file target="*-Info.plist" parent="Google Maps API Key">
-          <string>$API_KEY_FOR_IOS</string>
-      </config-file>
+    <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+      <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
+    </config-file>
 
-      <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
-          <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
-      </config-file>
+    <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
+      <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
+    </config-file>
 
-      <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
-          <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
-      </config-file>
+    <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+      <array>
+        <string>googlechromes</string>
+        <string>comgooglemaps</string>
+      </array>
+    </config-file>
 
-      <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
-        <array>
-          <string>googlechromes</string>
-          <string>comgooglemaps</string>
-        </array>
-      </config-file>
-
-      <config-file target="*-Info.plist" parent="CFBundleURLTypes">
-        <array>
-          <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLName</key>
+    <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+      <array>
+        <dict>
+          <key>CFBundleTypeRole</key>
+          <string>Editor</string>
+          <key>CFBundleURLName</key>
+          <string>$PACKAGE_NAME</string>
+          <key>CFBundleURLSchemes</key>
+          <array>
             <string>$PACKAGE_NAME</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-              <string>$PACKAGE_NAME</string>
-            </array>
-          </dict>
-        </array>
-      </config-file>
+          </array>
+        </dict>
+      </array>
+    </config-file>
 
-      <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.7.0"  />
+    <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.7.0"/>
 
-      <hook type="before_platform_add" src="src/ios/check_sdk_version.js" />
-      <hook type="before_plugin_install" src="src/ios/check_sdk_version.js" />
+    <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
+    <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>
 
   </platform>
+
+  <!-- browser -->
+  <platform name="browser">
+    <preference name="API_KEY_FOR_BROWSER" value=""/>
+
+    <hook type="after_prepare" src="src/browser/after_prepare.js"/>
+    <js-module name="googlemaps-cdv-plugin" src="www/plugin-loader-for-browser.js">
+      <clobbers target="plugin.google.maps"/>
+    </js-module>
+    <js-module name="js_CordovaGoogleMaps" src="www/js_CordovaGoogleMaps-for-browser.js">
+      <runs/>
+    </js-module>
+    <js-module name="CordovaGoogleMaps" src="src/browser/CordovaGoogleMaps.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginMap" src="src/browser/PluginMap.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginMarker" src="src/browser/PluginMarker.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginCircle" src="src/browser/PluginCircle.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginGroundOverlay" src="src/browser/PluginGroundOverlay.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginKmlOverlay" src="src/browser/PluginKmlOverlay.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginMarkerCluster" src="src/browser/PluginMarkerCluster.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginPolygon" src="src/browser/PluginPolygon.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginPolyline" src="src/browser/PluginPolyline.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginStreetViewPanorama" src="src/browser/PluginStreetViewPanorama.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginTileOverlay" src="src/browser/PluginTileOverlay.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginLocationService" src="src/browser/PluginLocationService.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginGeocoder" src="src/browser/PluginGeocoder.js">
+      <runs/>
+    </js-module>
+  </platform>
+
 </plugin>

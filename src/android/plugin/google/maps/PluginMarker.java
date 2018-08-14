@@ -1023,7 +1023,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     options.noCaching = noCaching;
     final int taskId = options.hashCode();
 
-    AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
+    final AsyncLoadImageInterface onComplete = new AsyncLoadImageInterface() {
       @Override
       public void onPostExecute(AsyncLoadImage.AsyncLoadImageResult result) {
         iconLoadingTasks.remove(taskId);
@@ -1143,9 +1143,14 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       }
     };
 
-    AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, onComplete);
-    task.execute();
-    iconLoadingTasks.put(taskId, task);
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AsyncLoadImage task = new AsyncLoadImage(cordova, webView, options, onComplete);
+        task.execute();
+        iconLoadingTasks.put(taskId, task);
+      }
+    });
   }
 
 

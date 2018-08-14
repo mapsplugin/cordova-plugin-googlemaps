@@ -8,6 +8,11 @@ module.exports = function(ctx) {
     pluginXmlPath = path.join(__dirname, '..', 'plugin.xml');
 
   var versions = ctx.opts.cordova.version.split(/\./g);
+  if (versions[0] > 6) {
+    // If cordova platform version is higher than 6,
+    // cordova-cli works well, so skip it.
+    return;
+  }
 
   var Module = require('module').Module;
   var NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
@@ -26,7 +31,7 @@ module.exports = function(ctx) {
 
   return Q.Promise(function(resolve, reject, notify) {
     var exec = require('child_process').exec;
-    exec('npm install xml2js minimist --save 2>&1', function(err, stdout) {
+    exec('npm install xml2js@0.4.19 minimist@1.2.0 --save 2>&1', function(err, stdout) {
       if (err) {
         reject(err);
       } else {
