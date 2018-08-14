@@ -1,4 +1,5 @@
-var utils = require('cordova/utils'),
+
+ var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
   Overlay = require('./Overlay'),
@@ -46,7 +47,7 @@ var Map = function(id, _exec) {
   infoWindowLayer.style.width = 0;
   infoWindowLayer.style.height = 0;
   infoWindowLayer.style.overflow = "visible";
-  infoWindowLayer.style["z-index"] = 0;
+  infoWindowLayer.style["z-index"] = 1;
 
   Object.defineProperty(self, "_layers", {
     value: {

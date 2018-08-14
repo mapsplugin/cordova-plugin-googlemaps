@@ -13,6 +13,11 @@ function PluginMarker(pluginMap) {
     enumerable: false,
     writable: false
   });
+  Object.defineProperty(self, "infoWnd", {
+    value: null,
+    enumerable: false,
+    writable: true
+  });
 }
 
 utils.extend(PluginMarker, BaseClass);
@@ -152,13 +157,18 @@ PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
   var overlayId = args[0];
   var marker = self.pluginMap.objects[overlayId];
   if (marker) {
-    onMarkerClick.call(marker);
+    self.pluginMap.activeMarker = marker;
+    onMarkerClick.call(self, marker);
   }
   onSuccess();
 };
 PluginMarker.prototype.hideInfoWindow = function(onSuccess, onError, args) {
   var self = this;
-  infoWnd.close();
+  var overlayId = args[0];
+  if (self.infoWnd) {
+    self.infoWnd.close();
+    self.infoWnd = null;
+  }
   onSuccess();
 };
 PluginMarker.prototype.setIcon = function(onSuccess, onError, args) {
@@ -227,18 +237,19 @@ PluginMarker.prototype._onMarkerEvent = function(marker, evtName) {
 };
 module.exports = PluginMarker;
 
-var infoWnd = null;
-function onMarkerClick() {
-  if (!infoWnd) {
-    infoWnd = new google.maps.InfoWindow();
+function onMarkerClick(marker) {
+  var self = this;
+  if (!self.infoWnd) {
+    self.infoWnd = new google.maps.InfoWindow();
   }
-  var marker = this;
+  self.pluginMap.activeMarker = marker;
+  self.pluginMap._syncInfoWndPosition.call(self);
   var maxWidth = marker.getMap().getDiv().offsetWidth * 0.7;
   var content = marker.get('content');
-  infoWnd.setOptions({
+  self.infoWnd.setOptions({
     content: content,
     disableAutoPan: marker.disableAutoPan,
     maxWidth: maxWidth
   });
-  infoWnd.open(marker.getMap(), marker);
+  self.infoWnd.open(marker.getMap(), marker);
 }

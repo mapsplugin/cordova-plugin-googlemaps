@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -56,6 +55,11 @@ function PluginMap(mapId, options, mapDivId) {
     value: {},
     enumerable: false,
     writable: false
+  });
+  Object.defineProperty(self, "activeMarker", {
+    value: null,
+    enumerable: false,
+    writable: true
   });
   self.set('clickable', true);
 
@@ -237,9 +241,13 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
 };
 
 PluginMap.prototype.setActiveMarkerId = function(onSuccess, onError, args) {
+  var self = this,
+    markerId = args[0];
+  self.activeMarker = self.objects[markerId];
   onSuccess();
 };
 PluginMap.prototype.clear = function(onSuccess, onError, args) {
+  self.activeMarker = null;
   onSuccess();
 };
 
@@ -451,9 +459,20 @@ PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
   var lat = args[0],
     lng = args[1];
 
-  var projection = map.getProjection();
-  var point = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng));
-  onSuccess([point.x, point.y]);
+  var projection = map.getProjection(),
+    bounds = map.getBounds(),
+    ne = bounds.getNorthEast(),
+    sw = bounds.getSouthWest(),
+    zoom = map.getZoom(),
+    latLng = new google.maps.LatLng(lat, lng);
+
+
+  var topRight = projection.fromLatLngToPoint(ne);
+  var bottomLeft = projection.fromLatLngToPoint(sw);
+  var scale = Math.pow(2, zoom);
+  var worldPoint = projection.fromLatLngToPoint(latLng);
+
+  onSuccess([(worldPoint.x - bottomLeft.x) * scale, (worldPoint.y - topRight.y) * scale]);
 
 };
 PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
@@ -462,8 +481,17 @@ PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
   var x = args[0],
     y = args[1];
 
-  var projection = map.getProjection();
-  var latLng = projection.fromPointToLatLng(new google.maps.Point(x, y));
+  var projection = map.getProjection(),
+    bounds = map.getBounds(),
+    ne = bounds.getNorthEast(),
+    sw = bounds.getSouthWest(),
+    zoom = map.getZoom();
+
+  var topRight = projection.fromLatLngToPoint(ne);
+  var bottomLeft = projection.fromLatLngToPoint(sw);
+  var scale = Math.pow(2, zoom);
+  var worldPoint = new google.maps.Point(x / scale + bottomLeft.x, y / scale + topRight.y);
+  var latLng = map.getProjection().fromPointToLatLng(worldPoint);
   onSuccess([latLng.lat(), latLng.lng()]);
 
 };
@@ -474,6 +502,37 @@ PluginMap.prototype.setIndoorEnabled = function(onSuccess, onError, args) {
 
 PluginMap.prototype.toDataURL = function(onSuccess, onError, args) {
   onError('map.toDataURL() is not available for this platform.');
+};
+
+PluginMap.prototype._syncInfoWndPosition = function() {
+  var self = this;
+
+  if (!self.activeMarker) {
+    return;
+  }
+
+  var latLng = self.activeMarker.getPosition();
+  var map = self.get("map");
+
+  var projection = map.getProjection(),
+    bounds = map.getBounds(),
+    ne = bounds.getNorthEast(),
+    sw = bounds.getSouthWest(),
+    zoom = map.getZoom();
+
+
+  var topRight = projection.fromLatLngToPoint(ne);
+  var bottomLeft = projection.fromLatLngToPoint(sw);
+  var scale = Math.pow(2, zoom);
+  var worldPoint = projection.fromLatLngToPoint(latLng);
+  var x = (worldPoint.x - bottomLeft.x) * scale;
+  var y = (worldPoint.y - topRight.y) * scale;
+
+  plugin.google.maps[self.id]({
+    'evtName': 'syncPosition',
+    'callback': '_onSyncInfoWndPosition',
+    'args': [{'x': x, 'y': y}]
+  });
 };
 
 PluginMap.prototype._onMapEvent = function(evtName, evt) {
@@ -522,6 +581,7 @@ PluginMap.prototype._onCameraEvent = function(evtName) {
     ne = bounds.getNorthEast(),
     sw = bounds.getSouthWest();
 
+  self._syncInfoWndPosition();
 
   var cameraInfo = {
     'target': {'lat': center.lat(), 'lng': center.lng()},

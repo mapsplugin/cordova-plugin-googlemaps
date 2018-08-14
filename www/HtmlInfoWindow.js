@@ -1,4 +1,5 @@
-var utils = require('cordova/utils'),
+
+ var utils = require('cordova/utils'),
   event = require('./event'),
   common = require('./Common'),
   BaseClass = require('./BaseClass');
