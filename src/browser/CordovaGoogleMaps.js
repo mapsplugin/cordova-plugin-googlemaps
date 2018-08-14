@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils');
 var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
     PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
@@ -22,11 +21,6 @@ document.addEventListener("load_googlemaps", function() {
     flag = true;
     // Get API key from config.xml
     var API_KEY_FOR_BROWSER = configs.getPreferenceValue("API_KEY_FOR_BROWSER");
-    API_KEY_FOR_BROWSER = "AIzaSyBzTWTKaMEeABaeBSa3_E6ZMxseK4xXl4k";
-    if (!API_KEY_FOR_BROWSER) {
-      alert("Google Maps API key is required.");
-      return;
-    }
 
     // API_LOADED = true;
     // var maps = Object.values(MAPS);
@@ -36,8 +30,12 @@ document.addEventListener("load_googlemaps", function() {
     // return;
 
     var secureStripeScript = document.createElement('script');
-    secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
-    //secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
+    if (API_KEY_FOR_BROWSER) {
+      secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
+    } else {
+      // for development only
+      secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
+    }
     secureStripeScript.addEventListener("load", function() {
       API_LOADED = true;
 
