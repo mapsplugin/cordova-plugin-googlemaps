@@ -1,5 +1,6 @@
 
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -632,7 +633,7 @@ PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
         dummyObj[key] = plugin[key];
       }
     });
-    require('cordova/exec/proxy').add(self.id + '-marker', dummyObj);
+    require('cordova/exec/proxy').add(self.id + '-' + className.toLowerCase(), dummyObj);
   }
 
   plugin._create.call(plugin, onSuccess, onError, args);
