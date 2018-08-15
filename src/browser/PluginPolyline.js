@@ -80,6 +80,19 @@ PluginPolyline.prototype.remove = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginPolyline.prototype.setPointAt = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    var index = args[1];
+    var latLng = new google.maps.LatLng(args[2].lat, args[2].lng);
+    var opts = self.pluginMap.objects['polyline_property_' + overlayId];
+    opts.path.setAt(index, latLng);
+  }
+  onSuccess();
+};
+
 PluginPolyline.prototype._onPolylineEvent = function(polyline, polyMouseEvt) {
   var self = this,
     mapId = self.pluginMap.id;
