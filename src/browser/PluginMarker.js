@@ -1,5 +1,6 @@
 
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -142,6 +143,20 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
   setTimeout(function() {
     marker.setAnimation(null);
   }, 500);
+};
+PluginMarker.prototype.setRotation = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var rotation = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    var icon = marker.getIcon();
+    if (icon && icon.path) {
+      icon.rotation = rotation;
+      marker.setIcon(icon);
+    }
+  }
+  onSuccess();
 };
 PluginMarker.prototype.setTitle = function(onSuccess, onError, args) {
   var self = this;

@@ -61,7 +61,6 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
       var stOptions = {
         'addressControl': options.controls.streetNames,
         'showRoadLabels': options.controls.streetNames,
-        'clickToGo': options.controls.navigation,
         'linksControl': options.controls.navigation,
         'panControl': options.gestures.panning,
         'zoomControl': options.gestures.zoom,
@@ -83,12 +82,33 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
         }
         stOptions.pov = pov;
       }
+
+      google.maps.event.addDomListener(container, 'click', function(evt) {
+        var pov = panorama.getPov();
+        var clickInfo = {
+          'orientation': {
+            'bearing': pov.heading,
+            'tilt': pov.pitch
+          },
+          'point': [evt.clientX, evt.clientY]
+        };
+        if (self.id in plugin.google.maps) {
+          plugin.google.maps[self.id]({
+            'evtName': event.PANORAMA_CLICK,
+            'callback': '_onPanoramaEvent',
+            'args': [clickInfo]
+          });
+        }
+      });
       var panorama = new google.maps.StreetViewPanorama(container, stOptions);
       self.set('panorama', panorama);
 
-      //google.maps.event.addListenerOnce(panorama, "pano_changed", function() {
-        self.trigger(event.MAP_READY);
-      //});
+      self.trigger(event.PANORAMA_READY);
+
+      panorama.addListener("pano_changed", self._onPanoChangedEvent.bind(self, panorama));
+      panorama.addListener("pov_changed", self._onCameraEvent.bind(self, panorama));
+      panorama.addListener("zoom_changed", self._onCameraEvent.bind(self, panorama));
+
     });
 
 
@@ -97,5 +117,49 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
 }
 
 utils.extend(PluginStreetViewPanorama, BaseClass);
+
+PluginStreetViewPanorama.prototype._onCameraEvent = function(panorama) {
+  var self = this;
+  var pov = panorama.getPov();
+  var camera = {
+    'bearing': pov.heading,
+    'tilt': pov.pitch,
+    'zoom': panorama.getZoom()
+  };
+  if (self.id in plugin.google.maps) {
+    plugin.google.maps[self.id]({
+      'evtName': event.PANORAMA_CAMERA_CHANGE,
+      'callback': '_onPanoramaCameraChange',
+      'args': [camera]
+    });
+  }
+};
+PluginStreetViewPanorama.prototype._onPanoChangedEvent = function(panorama) {
+  var self = this;
+  var location = panorama.getLocation();
+
+  var locationInfo = {
+    'panoId': location.pano,
+    'latLng': {
+      'lat': location.latLng.lat(),
+      'lng': location.latLng.lng()
+    }
+  };
+
+  var links = panorama.getLinks();
+  locationInfo.links = links.map(function(link) {
+    return {
+      'panoId': link.pano,
+      'bearing': link.heading
+    };
+  });
+  if (self.id in plugin.google.maps) {
+    plugin.google.maps[self.id]({
+      'evtName': event.PANORAMA_LOCATION_CHANGE,
+      'callback': '_onPanoramaLocationChange',
+      'args': [locationInfo]
+    });
+  }
+};
 
 module.exports = PluginStreetViewPanorama;
