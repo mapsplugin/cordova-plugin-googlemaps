@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   common = require('cordova-plugin-googlemaps.Common'),
   cordova_exec = require('cordova/exec'),
@@ -118,7 +117,6 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
 
   self.MAP_CNT++;
   panorama.one('remove', self._remove.bind(self, mapId));
-
   if (div instanceof Promise) {
     // This hack code for @ionic-native/google-maps
     div.then(function(params) {
@@ -172,36 +170,21 @@ function postPanoramaInit(panorama, div, options) {
   // before creating the map view.
   div.setAttribute("__pluginMapId", mapId);
 
-  if (common.isDom(div)) {
-    if (div.offsetWidth < 100 || div.offsetHeight < 100) {
-      console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
-      return;
-    }
-    // If the mapDiv is specified,
-    // the native side needs to know the map div position
-    // before creating the map view.
-    div.setAttribute("__pluginMapId", mapId);
-
-    args.push({
-      id: mapId,
-      depth: 0
-    });
-    args.push(div);
-    if (options) {
-      args.push(options);
-    }
-    panorama.getPanorama.apply(panorama, args);
-  } else {
-    args.push({
-      id: mapId,
-      depth: 0
-    });
-    args.push(null);
-    if (options) {
-      args.push(options);
-    }
-    panorama.getPanorama.apply(panorama, args);
+  if (div.offsetWidth < 100 || div.offsetHeight < 100) {
+    console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
+    return;
   }
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.unshift({
+    id: mapId
+  });
+
+  // If the mapDiv is specified,
+  // the native side needs to know the map div position
+  // before creating the map view.
+  div.setAttribute("__pluginMapId", mapId);
+
+  panorama.getPanorama.apply(panorama, args);
 }
 
 function postMapInit(map, div, options) {

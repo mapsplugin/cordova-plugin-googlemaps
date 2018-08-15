@@ -1,5 +1,5 @@
 
- var utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
   Overlay = require('./Overlay'),

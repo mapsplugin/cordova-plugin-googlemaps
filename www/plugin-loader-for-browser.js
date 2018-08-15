@@ -24,6 +24,9 @@ module.exports = {
   Map: {
     getMap: cordovaGoogleMaps.getMap.bind(cordovaGoogleMaps)
   },
+  StreetView: {
+    getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps)
+  },
   HtmlInfoWindow: require('cordova-plugin-googlemaps.HtmlInfoWindow'),
   LatLng: require('cordova-plugin-googlemaps.LatLng'),
   LatLngBounds: require('cordova-plugin-googlemaps.LatLngBounds'),
@@ -37,6 +40,7 @@ module.exports = {
       poly: require('cordova-plugin-googlemaps.poly')
   }
 };
+
 
 cordova.addConstructor(function() {
   if (!window.Cordova) {
