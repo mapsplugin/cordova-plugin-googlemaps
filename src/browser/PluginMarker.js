@@ -1,6 +1,7 @@
 
 
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -28,6 +29,14 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     map = self.pluginMap.get('map'),
     markerId = 'marker_' + args[2],
     pluginOptions = args[1];
+  self.__create.call(self, markerId, pluginOptions, function(marker, properties) {
+    onSuccess(properties);
+  });
+};
+
+PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
+  var self = this,
+    map = self.pluginMap.get('map');
 
   var markerOpts = {
     'overlayId': markerId,
@@ -111,7 +120,7 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects['marker_property_' + markerId] = markerOpts;
 
   if (iconSize) {
-    onSuccess({
+    onSuccess(marker, {
       'id': markerId,
       'width': iconSize.width,
       'height': iconSize.height
@@ -120,14 +129,14 @@ PluginMarker.prototype._create = function(onSuccess, onError, args) {
     var img = new Image();
     img.onload = function() {
       console.log(markerId, img.width, img.height);
-      onSuccess({
+      onSuccess(marker, {
         'id': markerId,
         'width': img.width,
         'height': img.height
       });
     };
     img.onerror = function() {
-      onSuccess({
+      onSuccess(marker, {
         'id': markerId,
         'width': 20,
         'height': 42

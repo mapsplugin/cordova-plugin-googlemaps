@@ -76,7 +76,6 @@ var CordovaGoogleMaps = {
       mapId = meta.id;
     args[0] = mapId;
     args.unshift(this);
-    console.log("----->81");
 
     var pluginMap = new (PluginMap.bind.apply(PluginMap, args));
     MAPS[mapId] = pluginMap;

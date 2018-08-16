@@ -1,210 +1,265 @@
 
 
+
+
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+  PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
+  Thread = require('cordova-plugin-googlemaps.Thread'),
   LatLng = require('cordova-plugin-googlemaps.LatLng');
+
+var STATUS = {
+  'WORKING': 0,
+  'CREATED': 1,
+  'DELETED': 2
+};
 
 function PluginMarkerCluster(pluginMap) {
   var self = this;
-  BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
-    value: pluginMap,
-    enumerable: false,
+  PluginMarker.call(self, pluginMap);
+
+  Object.defineProperty(self, "pluginMarkers", {
+    value: {},
+    enumerable: true,
+    writable: false
+  });
+  Object.defineProperty(self, "waitCntManager", {
+    value: {},
+    enumerable: true,
+    writable: false
+  });
+  Object.defineProperty(self, "debugFlags", {
+    value: {},
+    enumerable: true,
+    writable: false
+  });
+  Object.defineProperty(self, "deleteMarkers", {
+    value: [],
+    enumerable: true,
     writable: false
   });
 }
 
-utils.extend(PluginMarkerCluster, BaseClass);
+utils.extend(PluginMarkerCluster, PluginMarker);
 
 PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
   var self = this,
-    map = self.pluginMap.get('map'),
-    markerId = 'marker_' + args[2],
-    pluginOptions = args[1];
+    //map = self.pluginMap.get('map'),
+    params = args[1],
+    hashCode = args[2],
+    positionList = params.positionList;
 
-  var markerOpts = {
-    'overlayId': markerId,
-    'position': pluginOptions.position,
-    'map': map,
-    'disableAutoPan': pluginOptions.disableAutoPan === true,
-    'draggable': pluginOptions.draggable === true
-  };
-  var iconSize = null;
-  if (pluginOptions.animation) {
-    markerOpts.animation = google.maps.Animation[pluginOptions.animation.toUpperCase()];
+  //---------------------------------------------
+  // Calculate geocell hashCode on multi thread
+  //---------------------------------------------
+  var tasks = [];
+  while(positionList.length > 0) {
+    var list = positionList.splice(0, 10);
+
+    tasks.push(new Promise(function(resolve, reject) {
+
+      var thread = new Thread(function(params) {
+
+
+
+        var GEOCELL_GRID_SIZE = 4;
+        var GEOCELL_ALPHABET = "0123456789abcdef";
+
+        function getGeocell(lat, lng, resolution) {
+          var north = 90.0,
+            south = -90.0,
+            east = 180.0,
+            west = -180.0,
+            subcell_lng_span, subcell_lat_span,
+            x, y, cell = [];
+
+          while(cell.length < resolution + 1) {
+            subcell_lng_span = (east - west) / GEOCELL_GRID_SIZE;
+            subcell_lat_span = (north - south) / GEOCELL_GRID_SIZE;
+
+            x = Math.min(Math.floor(GEOCELL_GRID_SIZE * (lng - west) / (east - west)), GEOCELL_GRID_SIZE - 1);
+            y = Math.min(Math.floor(GEOCELL_GRID_SIZE * (lat - south) / (north - south)), GEOCELL_GRID_SIZE - 1);
+            cell.push(_subdiv_char(x, y));
+
+            south += subcell_lat_span * y;
+            north = south + subcell_lat_span;
+
+            west += subcell_lng_span * x;
+            east = west + subcell_lng_span;
+          }
+          return cell.join("");
+        }
+        function _subdiv_char(posX, posY) {
+          return GEOCELL_ALPHABET.charAt(
+            (posY & 2) << 2 |
+            (posX & 2) << 1 |
+            (posY & 1) << 1 |
+            (posX & 1) << 0);
+        }
+
+
+
+
+
+
+        return params.positionList.map(function(position) {
+          return getGeocell(position.lat, position.lng, params.resolution);
+        });
+      });
+
+      thread
+        .once({
+          'positionList': list,
+          'resolution': 12
+        })
+        .done(resolve)
+        .fail(reject);
+    }));
   }
-  if (pluginOptions.icon) {
-    var icon = pluginOptions.icon;
-    markerOpts.icon = {};
-    if (typeof pluginOptions.icon === 'string') {
-      // Specifies path or url to icon image
-      markerOpts.icon = pluginOptions.icon;
-    } else if (typeof pluginOptions.icon === 'object') {
-      if (Array.isArray(pluginOptions.icon.url)) {
-        // Specifies color name or rule
-        markerOpts.icon = {
-          'path': 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
-          'fillColor': 'rgb(' + pluginOptions.icon.url[0] + ',' + pluginOptions.icon.url[1] + ',' + pluginOptions.icon.url[2] + ')',
-          'fillOpacity': pluginOptions.icon.url[3] / 256,
-          'scale': 1.3,
-          'strokeWeight': 0,
-          'anchor': new google.maps.Point(12, 27)
-        };
-        iconSize = {
-          'width': 22,
-          'height': 28
-        };
-      } else {
-        markerOpts.icon.url = pluginOptions.icon.url;
-        if (pluginOptions.icon.size) {
-          markerOpts.icon.scaledSize = new google.maps.Size(icon.size.width, icon.size.height);
-          iconSize = icon.size;
+
+  Promise.all(tasks)
+    .then(function(results) {
+      var id = "markerclister_" + hashCode;
+      self.debugFlags[id] = params.debug;
+
+      var result = {
+        'geocellList': Array.prototype.concat.apply([], results),
+        'hashCode': hashCode,
+        'id': id
+      };
+
+      onSuccess(result);
+    })
+    .catch(onError);
+
+};
+
+
+PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args) {
+  var self = this;
+
+  var updateClusterIDs = [],
+    changeProperties = {};
+    clusterId = args[0],
+    isDebug = self.debugFlags[clusterId],
+    params = args[1];
+
+console.log(params);
+
+  if ('new_or_update' in params) {
+
+    //---------------------------
+    // Determine new or update
+    //---------------------------
+    var new_or_updateCnt = params.new_or_update.length;
+
+    params.new_or_update.forEach(function(clusterData, i) {
+      var positionJSON = clusterData.position,
+        markerId = clusterData.__pgmId,
+        clusterId_markerId = clusterId + "-" + markerId;
+
+      // Save the marker properties
+      self.pluginMap.objects['marker_property_' + clusterId_markerId] = clusterData;
+
+      // Set the WORKING status flag
+      self.pluginMarkers[clusterId_markerId] = STATUS.WORKING;
+      updateClusterIDs.push(clusterId_markerId);
+
+      // Prepare the marker properties for addMarker()
+      var properties = {
+        'lat': positionJSON.lat,
+        'lng': positionJSON.lng,
+        'id': clusterId_markerId
+      };
+      if ('title' in clusterData) {
+        properties.title = clusterData.title;
+      }
+
+      if ('icon' in clusterData) {
+        var iconObj = clusterData.icon,
+          iconProperties = {},
+          icon,
+          label;
+        if (typeof iconObj === "string") {
+          iconProperties.url = iconObj;
+          properties.icon = iconProperties;
+        } else if (typeof iconObj === "object") {
+          if (clusterData.isClusterIcon) {
+            if (iconObj.label) {
+              label = iconObj.label;
+              if (isDebug) {
+                label.text = markerId;
+              } else {
+                label.text = clusterData.count;
+              }
+            } else {
+              label = {};
+              if (isDebug) {
+                label.text = markerId;
+              } else {
+                label.fontSize = 15;
+                label.bold = true;
+                label.text = clusterData.count;
+              }
+            }
+            iconProperties.label = label;
+          }
+          if ('anchor' in iconObj) {
+            iconProperties.anchor = iconObj.anchor;
+          }
+          if ('infoWindowAnchor' in iconObj) {
+            iconProperties.anchor = iconObj.infoWindowAnchor;
+          }
+          properties.icon = iconProperties;
         }
       }
-    }
-
-    if (icon.anchor) {
-      markerOpts.icon.anchor = new google.maps.Point(icon.anchor[0], icon.anchor[1]);
-    }
-  }
-  if (!markerOpts.icon ||
-      !markerOpts.icon.url && !markerOpts.icon.path) {
-    // default marker
-    markerOpts.icon = {
-      'path': 'm12 0c-4.4183 2.3685e-15 -8 3.5817-8 8 0 1.421 0.3816 2.75 1.0312 3.906 0.1079 0.192 0.221 0.381 0.3438 0.563l6.625 11.531 6.625-11.531c0.102-0.151 0.19-0.311 0.281-0.469l0.063-0.094c0.649-1.156 1.031-2.485 1.031-3.906 0-4.4183-3.582-8-8-8zm0 4c2.209 0 4 1.7909 4 4 0 2.209-1.791 4-4 4-2.2091 0-4-1.791-4-4 0-2.2091 1.7909-4 4-4z',
-      'fillColor': 'rgb(255, 0, 0)',
-      'fillOpacity': 1,
-      'scale': 1.3,
-      'strokeWeight': 0,
-      'anchor': new google.maps.Point(12, 27)
-    };
-    iconSize = {
-      'width': 22,
-      'height': 28
-    };
-  }
-  var marker = new google.maps.Marker(markerOpts);
-  marker.addListener('click', self._onMarkerEvent.bind(self, marker, event.MARKER_CLICK));
-  marker.addListener('dragstart', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_START));
-  marker.addListener('drag', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG));
-  marker.addListener('dragend', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_END));
-
-  if (pluginOptions.title || pluginOptions.snippet) {
-    var html = [];
-    if (pluginOptions.title) {
-      html.push(pluginOptions.title);
-    }
-    if (pluginOptions.snippet) {
-      html.push('<small>' + pluginOptions.snippet + '</small>');
-    }
-    marker.set('content', html.join('<br>'));
-    marker.addListener('click', onMarkerClick);
-  }
-
-  self.pluginMap.objects[markerId] = marker;
-  self.pluginMap.objects['marker_property_' + markerId] = markerOpts;
-
-  if (iconSize) {
-    onSuccess({
-      'id': markerId,
-      'width': iconSize.width,
-      'height': iconSize.height
+      changeProperties[clusterId_markerId] = properties;
     });
-  } else {
-    var img = new Image();
-    img.onload = function() {
-      console.log(markerId, img.width, img.height);
-      onSuccess({
-        'id': markerId,
-        'width': img.width,
-        'height': img.height
-      });
-    };
-    img.onerror = function() {
-      onSuccess({
-        'id': markerId,
-        'width': 20,
-        'height': 42
-      });
-    };
-    if (typeof markerOpts.icon === "string") {
-      img.src = markerOpts.icon;
-    } else {
-      img.src = markerOpts.icon.url;
-    }
-  }
-};
-PluginMarkerCluster.prototype.setTitle = function(onSuccess, onError, args) {
-  var self = this;
-  var overlayId = args[0];
-  var title = args[1];
-  var marker = self.pluginMap.objects[overlayId];
-  marker.set('content', title);
-  onSuccess();
-};
 
-PluginMarkerCluster.prototype.showInfoWindow = function(onSuccess, onError, args) {
-  var self = this;
-  var overlayId = args[0];
-  var marker = self.pluginMap.objects[overlayId];
-  if (marker) {
-    onMarkerClick.call(marker);
-  }
-  onSuccess();
-};
-PluginMarkerCluster.prototype.setPosition = function(onSuccess, onError, args) {
-  var self = this;
-  var overlayId = args[0];
-  var marker = self.pluginMap.objects[overlayId];
-  if (marker) {
-    marker.setPosition({'lat': args[1], 'lng': args[2]});
-  }
-  onSuccess();
-};
+    //---------------------------
+    // mapping markers on the map
+    //---------------------------
+    var allResults = {};
 
-PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
-  var self = this;
-  var overlayId = args[0];
-  var marker = self.pluginMap.objects[overlayId];
-  if (marker) {
-    google.maps.event.clearInstanceListeners(marker);
-    marker.setMap(null);
-    marker = undefined;
-    self.pluginMap.objects[overlayId] = undefined;
-    delete self.pluginMap.objects[overlayId];
-  }
-  onSuccess();
-};
+    //---------------
+    // new or update
+    //---------------
+    var tasks = [];
+    var keys = Object.keys(updateClusterIDs);
+    self.waitCntManager[clusterId] = keys.length;
+    keys.forEach(function(clusterId_markerId, currentCnt) {
+      self.pluginMarkers[clusterId_markerId] = STATUS.WORKING;
+      isNew = !(clusterId_markerId in self.pluginMap.objects);
 
-PluginMarkerCluster.prototype._onMarkerEvent = function(marker, evtName) {
-  var self = this,
-    mapId = self.pluginMap.id;
-console.log(mapId, evtName);
-  if (mapId in plugin.google.maps) {
-    var latLng = marker.getPosition();
-    plugin.google.maps[mapId]({
-      'evtName': evtName,
-      'callback': '_onMarkerEvent',
-      'args': [marker.overlayId, new LatLng(latLng.lat(), latLng.lng())]
+      // Get the marker properties
+      var markerProperties = changeProperties[clusterId_markerId],
+        properties;
+      if (clusterId_markerId.indexOf('-marker_') > -1) {
+        //-------------------
+        // regular marker
+        //-------------------
+        if (isNew) {
+          properties = self.pluginMap.objects["marker_property_" + clusterId_markerId];
+          tasks.push(new Promise(function(resolve, reject) {
+
+            PluginMarker.prototype._create.call(self, clusterId_markerId, properties, function(marker, properties) {
+              if (self.pluginMarkers[clusterId_markerId] === STATUS.DELETED) {
+                PluginMarker.prototype._removeMarker.call(self, marker);
+                delete self.pluginMarkers[clusterId_markerId];
+                resolve(null);
+              } else {
+                self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
+                resolve(properties);
+              }
+            });
+          }));
+
+        }
+      }
     });
+    console.log(tasks);
   }
-
 };
+
 module.exports = PluginMarkerCluster;
-
-var infoWnd = null;
-function onMarkerClick() {
-  if (!infoWnd) {
-    infoWnd = new google.maps.InfoWindow();
-  }
-  var marker = this;
-  var maxWidth = marker.getMap().getDiv().offsetWidth * 0.7;
-  var content = marker.get('content');
-  infoWnd.setOptions({
-    content: content,
-    disableAutoPan: marker.disableAutoPan,
-    maxWidth: maxWidth
-  });
-  infoWnd.open(marker.getMap(), marker);
-}
