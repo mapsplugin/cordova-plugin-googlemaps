@@ -12,15 +12,15 @@ module.exports = {
       navigator.geolocation.getCurrentPosition(function(position) {
         onSuccess({
           'latLng': {
-            'lat': position.latitude,
-            'lng': position.longitude
+            'lat': position.coords.latitude,
+            'lng': position.coords.longitude
           },
           'elapsedRealtimeNanos': 0,
           'time': position.timestamp,
-          'accuracy': position.accuracy,
-          'altitude': position.altitude,
-          'speed': position.speed,
-          'bearing': position.heading,
+          'accuracy': position.coords.accuracy,
+          'altitude': position.coords.altitude,
+          'speed': position.coords.speed,
+          'bearing': position.coords.heading,
           'provider': 'geolocationapi',
           'hashCode': 'dummy',
           'status': true
@@ -31,6 +31,8 @@ module.exports = {
           'error_code': LOCATION_ERROR[error.code],
           'error_message': LOCATION_ERROR_MSG[error.code]
         });
+      }, {
+        'enableHighAccuracy': true
       });
     } else {
       onError({
