@@ -2,12 +2,11 @@
 
 
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
   Thread = require('cordova-plugin-googlemaps.Thread'),
-  LatLng = require('cordova-plugin-googlemaps.LatLng');
+  BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass');
 
 var STATUS = {
   'WORKING': 0,
@@ -24,18 +23,13 @@ function PluginMarkerCluster(pluginMap) {
     enumerable: true,
     writable: false
   });
-  Object.defineProperty(self, "waitCntManager", {
-    value: {},
-    enumerable: true,
-    writable: false
-  });
   Object.defineProperty(self, "debugFlags", {
     value: {},
     enumerable: true,
     writable: false
   });
   Object.defineProperty(self, "deleteMarkers", {
-    value: [],
+    value: new BaseArrayClass(),
     enumerable: true,
     writable: false
   });
@@ -45,7 +39,6 @@ utils.extend(PluginMarkerCluster, PluginMarker);
 
 PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
   var self = this,
-    //map = self.pluginMap.get('map'),
     params = args[1],
     hashCode = args[2],
     positionList = params.positionList;
@@ -143,7 +136,8 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
     changeProperties = {};
     clusterId = args[0],
     isDebug = self.debugFlags[clusterId],
-    params = args[1];
+    params = args[1],
+    map = self.pluginMap.get('map');
 
 console.log(params);
 
@@ -185,6 +179,7 @@ console.log(params);
           iconProperties.url = iconObj;
           properties.icon = iconProperties;
         } else if (typeof iconObj === "object") {
+          iconProperties = iconObj;
           if (clusterData.isClusterIcon) {
             if (iconObj.label) {
               label = iconObj.label;
@@ -226,15 +221,14 @@ console.log(params);
     // new or update
     //---------------
     var tasks = [];
-    var keys = Object.keys(updateClusterIDs);
-    self.waitCntManager[clusterId] = keys.length;
-    keys.forEach(function(clusterId_markerId, currentCnt) {
+    updateClusterIDs.forEach(function(clusterId_markerId, currentCnt) {
       self.pluginMarkers[clusterId_markerId] = STATUS.WORKING;
       isNew = !(clusterId_markerId in self.pluginMap.objects);
 
       // Get the marker properties
       var markerProperties = changeProperties[clusterId_markerId],
-        properties;
+        properties, marker;
+
       if (clusterId_markerId.indexOf('-marker_') > -1) {
         //-------------------
         // regular marker
@@ -243,9 +237,9 @@ console.log(params);
           properties = self.pluginMap.objects["marker_property_" + clusterId_markerId];
           tasks.push(new Promise(function(resolve, reject) {
 
-            PluginMarker.prototype._create.call(self, clusterId_markerId, properties, function(marker, properties) {
+            self.__create.call(self, clusterId_markerId, properties, function(marker, properties) {
               if (self.pluginMarkers[clusterId_markerId] === STATUS.DELETED) {
-                PluginMarker.prototype._removeMarker.call(self, marker);
+                self._removeMarker.call(self, marker);
                 delete self.pluginMarkers[clusterId_markerId];
                 resolve(null);
               } else {
@@ -255,11 +249,133 @@ console.log(params);
             });
           }));
 
+        } else {
+          marker = self.pluginMap.objects[clusterId_markerId];
+          //----------------------------------------
+          // Set the title and snippet properties
+          //----------------------------------------
+          if (markerProperties.title) {
+            marker.set('title', markerProperties.title);
+          }
+          if (markerProperties.snippet) {
+            marker.set('snippet', markerProperties.snippet);
+          }
+          if (self.pluginMarkers[clusterId_markerId] === STATUS.DELETED) {
+            self._removeMarker.call(self, marker);
+            delete self.pluginMarkers[clusterId_markerId];
+          } else {
+            self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
+          }
+
+        }
+      } else {
+        //--------------------------
+        // cluster icon
+        //--------------------------
+        if (isNew) {
+          // If the requested id is new location, create a marker
+          marker = new google.maps.Marker({
+                      'map': map,
+                      'position': {
+                        'lat': markerProperties.lat,
+                        'lng': markerProperties.lng
+                      },
+                      'visible': false,
+                      'tag': clusterId_markerId,
+                      'optimized': false
+                    });
+
+          // Store the marker instance with markerId
+          self.pluginMap.objects[clusterId_markerId] = marker;
+
+        } else {
+          marker = self.pluginMap.objects[clusterId_markerId];
+        }
+        //----------------------------------------
+        // Set the title and snippet properties
+        //----------------------------------------
+        if (markerProperties.title) {
+          marker.set('title', markerProperties.title);
+        }
+        if (markerProperties.snippet) {
+          marker.set('snippet', markerProperties.snippet);
+        }
+        if (markerProperties.icon) {
+          var icon = markerProperties.icon;
+
+          tasks.push(new Promise(function(resolve, reject) {
+
+            self.setIconToClusterMarker.call(self, clusterId_markerId, marker, icon)
+              .then(function() {
+                console.log(clusterId_markerId, marker);
+                //--------------------------------------
+                // Marker was updated
+                //--------------------------------------
+                marker.setVisible(true);
+                self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
+              })
+              .catch(function(error) {
+                console.log('error', clusterId_markerId);
+                //--------------------------------------
+                // Could not read icon for some reason
+                //--------------------------------------
+                if (marker.get('tag')) {
+                  self._removeMarker.call(self, marker);
+                }
+                delete self.pluginMap.objects[markerId];
+                delete self.pluginMap.objects["marker_property_" + markerId];
+                delete self.pluginMarkers[markerId];
+                self.pluginMarkers[clusterId_markerId] = STATUS.DELETED;
+
+                console.error(errorMsg);
+                self.deleteMarkers.push(clusterId_markerId);
+              });
+
+          }));
+
+        } else {
+          //--------------------
+          // No icon for marker
+          //--------------------
+          self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
         }
       }
     });
-    console.log(tasks);
+    Promise.all(tasks).then(onSuccess).catch(onError);
   }
 };
+
+PluginMarkerCluster.prototype.setIconToClusterMarker = function(markerId, marker, iconProperty) {
+  var self = this;
+  return new Promise(function(resolve, reject) {
+
+    if (self.pluginMarkers[markerId] === STATUS.DELETED) {
+      self._removeMarker.call(self, marker);
+      delete self.pluginMap.objects[markerId];
+      delete self.pluginMap.objects["marker_property_" + markerId];
+
+      delete self.pluginMarkers[markerId];
+      reject("marker has been removed");
+      return;
+    }
+    self.setIcon_.call(self, marker, iconProperty)
+    .then(function() {
+      if (self.pluginMarkers[markerId] === STATUS.DELETED) {
+        self._removeMarker.call(self, marker);
+        delete pluginMap.objects[markerId];
+        delete pluginMap.objects["marker_property_" + markerId];
+        pluginMarkers.remove(markerId);
+        resolve();
+        return;
+      }
+      marker.setVisible(true);
+      self.pluginMarkers[markerId] = STATUS.CREATED;
+      resolve();
+      return
+    });
+  });
+
+};
+
 
 module.exports = PluginMarkerCluster;
