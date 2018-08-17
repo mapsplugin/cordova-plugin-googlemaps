@@ -11,12 +11,10 @@ function PluginMarker(pluginMap) {
   BaseClass.apply(self);
   Object.defineProperty(self, "pluginMap", {
     value: pluginMap,
-    enumerable: false,
     writable: false
   });
   Object.defineProperty(self, "infoWnd", {
     value: null,
-    enumerable: false,
     writable: true
   });
 }
@@ -98,21 +96,18 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
     };
   }
   var marker = new google.maps.Marker(markerOpts);
-  marker.addListener('click', self._onMarkerEvent.bind(self, marker, event.MARKER_CLICK), {passive: true});
-  marker.addListener('dragstart', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_START));
-  marker.addListener('drag', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG));
-  marker.addListener('dragend', self._onMarkerEvent.bind(self, marker, event.MARKER_DRAG_END));
+  marker.addListener('click', self.onMarkerClickEvent.bind(self, event.MARKER_CLICK, marker), {passive: true});
+  marker.addListener('dragstart', self.onMarkerEvent.bind(self, event.MARKER_DRAG_START, marker));
+  marker.addListener('drag', self.onMarkerEvent.bind(self, event.MARKER_DRAG, marker));
+  marker.addListener('dragend', self.onMarkerEvent.bind(self, event.MARKER_DRAG_END, marker));
 
-  if (pluginOptions.title || pluginOptions.snippet) {
-    var html = [];
-    if (pluginOptions.title) {
-      html.push(pluginOptions.title);
-    }
-    if (pluginOptions.snippet) {
-      html.push('<small>' + pluginOptions.snippet + '</small>');
-    }
-    marker.set('content', html.join('<br>'));
+  if (pluginOptions.title) {
+    marker.set('title', pluginOptions.title);
   }
+  if (pluginOptions.snippet) {
+    marker.set('snippet', pluginOptions.snippet);
+  }
+
 
   self.pluginMap.objects[markerId] = marker;
   self.pluginMap.objects['marker_property_' + markerId] = markerOpts;
@@ -170,7 +165,16 @@ PluginMarker.prototype.setTitle = function(onSuccess, onError, args) {
   var overlayId = args[0];
   var title = args[1];
   var marker = self.pluginMap.objects[overlayId];
-  marker.set('content', title);
+  marker.set('title', title);
+  onSuccess();
+};
+
+PluginMarker.prototype.setSnippet = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var title = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  marker.set('snippet', title);
   onSuccess();
 };
 
@@ -180,7 +184,7 @@ PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
   var marker = self.pluginMap.objects[overlayId];
   if (marker) {
     self.pluginMap.activeMarker = marker;
-    onMarkerClick.call(self, marker);
+    self._showInfoWindow.call(self, marker);
   }
   onSuccess();
 };
@@ -253,9 +257,10 @@ PluginMarker.prototype.remove = function(onSuccess, onError, args) {
   onSuccess();
 };
 
-PluginMarker.prototype._onMarkerEvent = function(marker, evtName) {
+PluginMarker.prototype.onMarkerEvent = function(evtName, marker) {
   var self = this,
     mapId = self.pluginMap.id;
+
   if (mapId in plugin.google.maps) {
     var latLng = marker.getPosition();
     plugin.google.maps[mapId]({
@@ -266,9 +271,8 @@ PluginMarker.prototype._onMarkerEvent = function(marker, evtName) {
   }
 
 };
-module.exports = PluginMarker;
 
-function onMarkerClick(marker) {
+PluginMarker.prototype._showInfoWindow = function(marker) {
   var self = this;
   if (!self.infoWnd) {
     self.infoWnd = new google.maps.InfoWindow();
@@ -276,11 +280,62 @@ function onMarkerClick(marker) {
   self.pluginMap.activeMarker = marker;
   self.pluginMap._syncInfoWndPosition.call(self);
   var maxWidth = marker.getMap().getDiv().offsetWidth * 0.7;
-  var content = marker.get('content');
-  self.infoWnd.setOptions({
-    content: content,
-    disableAutoPan: marker.disableAutoPan,
-    maxWidth: maxWidth
-  });
-  self.infoWnd.open(marker.getMap(), marker);
-}
+  var html = [];
+  if (marker.get("title")) {
+    html.push(marker.get("title"));
+  }
+  if (marker.get("snippet")) {
+    html.push('<small>' + marker.get("snippet") + '</small>');
+  }
+  if (html.length > 0) {
+    self.infoWnd.setOptions({
+      content: html.join('<br>'),
+      disableAutoPan: marker.disableAutoPan,
+      maxWidth: maxWidth
+    });
+    self.infoWnd.open(marker.getMap(), marker);
+  }
+};
+
+PluginMarker.prototype.onMarkerClickEvent = function(evtName, marker) {
+  var self = this;
+
+  var overlayId = marker.get("overlayId");
+  if (overlayId.indexOf("markercluster_") > -1) {
+    if (overlayId.indexOf("-marker_") > -1) {
+      self.pluginMap.activeMarker = marker;
+      self.onClusterEvent(event.MARKER_CLICK, marker);
+    } else {
+      if (activeMarker != null) {
+        self.onMarkerEvent(event.INFO_CLOSE, marker);
+      } else {
+        self._showInfoWindow(marker);
+      }
+    }
+    self.onClusterEvent("cluster_click", marker);
+  } else {
+    self.onMarkerEvent(event.MARKER_CLICK, marker);
+  }
+
+};
+
+PluginMarker.prototype.onClusterEvent = function(evtName, marker) {
+
+  var self = this,
+    mapId = self.pluginMap.id;
+
+  var overlayId = marker.get("overlayId");
+  var tmp = overlayId.split("-");
+  var clusterId = tmp[0];
+  var markerId = tmp[1];
+  var latLng = marker.getPosition();
+  if (mapId in plugin.google.maps) {
+    plugin.google.maps[mapId]({
+      'evtName': evtName,
+      'callback': '_onClusterEvent',
+      'args': [clusterId, markerId, new LatLng(latLng.lat(), latLng.lng())]
+    });
+  }
+};
+
+module.exports = PluginMarker;

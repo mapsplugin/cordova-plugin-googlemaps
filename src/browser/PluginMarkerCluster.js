@@ -20,17 +20,14 @@ function PluginMarkerCluster(pluginMap) {
 
   Object.defineProperty(self, "pluginMarkers", {
     value: {},
-    enumerable: true,
     writable: false
   });
   Object.defineProperty(self, "debugFlags", {
     value: {},
-    enumerable: true,
     writable: false
   });
   Object.defineProperty(self, "deleteMarkers", {
     value: new BaseArrayClass(),
-    enumerable: true,
     writable: false
   });
 }
@@ -133,13 +130,11 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
   var self = this;
 
   var updateClusterIDs = [],
-    changeProperties = {};
+    changeProperties = {},
     clusterId = args[0],
     isDebug = self.debugFlags[clusterId],
     params = args[1],
     map = self.pluginMap.get('map');
-
-console.log(params);
 
   if ('new_or_update' in params) {
 
@@ -238,13 +233,23 @@ console.log(params);
           tasks.push(new Promise(function(resolve, reject) {
 
             self.__create.call(self, clusterId_markerId, properties, function(marker, properties) {
+              if (markerProperties.title) {
+                marker.set('title', markerProperties.title);
+              }
+              if (markerProperties.snippet) {
+                marker.set('snippet', markerProperties.snippet);
+              }
               if (self.pluginMarkers[clusterId_markerId] === STATUS.DELETED) {
                 self._removeMarker.call(self, marker);
                 delete self.pluginMarkers[clusterId_markerId];
-                resolve(null);
+                resolve();
               } else {
                 self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
-                resolve(properties);
+                allResults[clusterId_markerId.split("-")[1]] = {
+                  'width': properties.width,
+                  'height': properties.height
+                };
+                resolve();
               }
             });
           }));
@@ -307,15 +312,14 @@ console.log(params);
 
             self.setIconToClusterMarker.call(self, clusterId_markerId, marker, icon)
               .then(function() {
-                console.log(clusterId_markerId, marker);
                 //--------------------------------------
                 // Marker was updated
                 //--------------------------------------
                 marker.setVisible(true);
                 self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
+                resolve();
               })
               .catch(function(error) {
-                console.log('error', clusterId_markerId);
                 //--------------------------------------
                 // Could not read icon for some reason
                 //--------------------------------------
@@ -329,6 +333,7 @@ console.log(params);
 
                 console.error(errorMsg);
                 self.deleteMarkers.push(clusterId_markerId);
+                resolve();
               });
 
           }));
@@ -341,7 +346,9 @@ console.log(params);
         }
       }
     });
-    Promise.all(tasks).then(onSuccess).catch(onError);
+    Promise.all(tasks).then(function() {
+      onSuccess(allResults);
+    }).catch(onError);
   }
 };
 
@@ -371,7 +378,6 @@ PluginMarkerCluster.prototype.setIconToClusterMarker = function(markerId, marker
       marker.setVisible(true);
       self.pluginMarkers[markerId] = STATUS.CREATED;
       resolve();
-      return
     });
   });
 

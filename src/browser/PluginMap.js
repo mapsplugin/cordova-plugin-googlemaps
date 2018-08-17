@@ -54,12 +54,10 @@ function PluginMap(mapId, options, mapDivId) {
   });
   Object.defineProperty(self, "objects", {
     value: {},
-    enumerable: false,
     writable: false
   });
   Object.defineProperty(self, "activeMarker", {
     value: null,
-    enumerable: false,
     writable: true
   });
   self.set('clickable', true);
@@ -623,16 +621,13 @@ PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
     // In order to keep indicate the `this` keyword as overlay itself,
     // wrap the method.
     var dummyObj = {};
-    var keys = Object.getOwnPropertyNames(OverlayClass.prototype).filter(function (p) {
-      return p !== "_create";
-    });
-    keys.forEach(function(key) {
+    for (var key in OverlayClass.prototype) {
       if (typeof OverlayClass.prototype[key] === 'function') {
         dummyObj[key] = plugin[key].bind(plugin);
       } else {
         dummyObj[key] = plugin[key];
       }
-    });
+    }
     require('cordova/exec/proxy').add(self.id + '-' + className.toLowerCase(), dummyObj);
   }
 

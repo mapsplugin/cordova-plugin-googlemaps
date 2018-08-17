@@ -11,7 +11,6 @@ function PluginGroundOverlay(pluginMap) {
   BaseClass.apply(self);
   Object.defineProperty(self, "pluginMap", {
     value: pluginMap,
-    enumerable: false,
     writable: false
   });
 }
