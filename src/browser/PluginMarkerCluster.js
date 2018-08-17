@@ -279,15 +279,14 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
         //--------------------------
         if (isNew) {
           // If the requested id is new location, create a marker
-          marker = new google.maps.Marker({
+          marker = newClusterIcon({
                       'map': map,
                       'position': {
                         'lat': markerProperties.lat,
                         'lng': markerProperties.lng
                       },
                       'visible': false,
-                      'tag': clusterId_markerId,
-                      'optimized': false
+                      'overlayId': clusterId_markerId
                     });
 
           // Store the marker instance with markerId
@@ -385,3 +384,183 @@ PluginMarkerCluster.prototype.setIconToClusterMarker = function(markerId, marker
 
 
 module.exports = PluginMarkerCluster;
+
+function newClusterIcon(options) {
+
+  // https://github.com/apache/cordova-js/blob/c75e8059114255d1dbae1ede398e6626708ee9f3/src/common/utils.js#L167
+  if (ClusterIconClass.__super__ !== google.maps.OverlayView.prototype) {
+    var key, defined = {};
+    for (key in ClusterIconClass) {
+      defined[key] = ClusterIconClass[key];
+    }
+    utils.extend(ClusterIconClass, google.maps.OverlayView);
+    for (key in defined) {
+      ClusterIconClass.prototype[key] = defined[key];
+    }
+  }
+
+  return new ClusterIconClass(options);
+}
+function ClusterIconClass(options) {
+  google.maps.OverlayView.apply(this);
+  var self = this;
+  //-----------------------------------------
+  // Create a canvas to draw label
+  //-----------------------------------------
+  var canvas = document.createElement("canvas");
+  canvas.width = 50;
+  canvas.height = 50;
+  canvas.style.visibility = 'hidden';
+  canvas.setAttribute('id', 'canvas_' + options.overlayId);
+  self.set('canvas', canvas);
+
+  //-----------------------------------------
+  // Create two markers for icon and label
+  //-----------------------------------------
+  var iconMarker = new google.maps.Marker({
+    'icon': options.icon,
+    'zIndex': 0,
+    'visible': options.visible
+  });
+  var labelMarker = new google.maps.Marker({
+    'clickable': false,
+    'zIndex': 1,
+    'icon': self.get('label')
+  });
+  self.set('iconMarker', iconMarker);
+  self.set('labelMarker', labelMarker);
+
+  iconMarker.bindTo('visible', labelMarker);
+  iconMarker.bindTo('position', labelMarker);
+  iconMarker.bindTo('map', labelMarker);
+  self.bindTo('icon', iconMarker);
+  self.bindTo('visible', iconMarker);
+  self.bindTo('map', iconMarker);
+  self.bindTo('position', iconMarker);
+
+  for (var key in options) {
+    self.set(key, options[key]);
+  }
+
+}
+
+ClusterIconClass.onAdd = function() {
+  var self = this;
+  var canvas = self.get('canvas');
+  self.get('map').getDiv().appendChild(canvas);
+};
+ClusterIconClass.onRemove = function() {
+  var self = this;
+  self.get('iconMarker').setMap(null);
+  self.get('labelMarker').setMap(null);
+};
+ClusterIconClass.draw = function() {
+  var self = this;
+  var icon = self.get("icon");
+  if (typeof icon === "string") {
+    icon = {
+      'url': icon
+    };
+  }
+
+  (new Promise(function(resolve, reject) {
+    var iconUrl = icon.url;
+    if (typeof icon === "object") {
+      if (typeof icon.size === "object" &&
+          icon.size.width && icon.size.height) {
+        return resolve(icon.size);
+      }
+    }
+    var img = new Image();
+    img.onload = function() {
+      var newIconInfo = {
+        width: img.width,
+        height: img.height
+      };
+      icon.size = newIconInfo;
+      self.set('icon', icon, true);
+      resolve(newIconInfo);
+    };
+    img.onerror = function() {
+      var newIconInfo = {
+        width: img.width,
+        height: img.height
+      };
+      icon.size = newIconInfo;
+      self.set('icon', icon, true);
+      resolve(newIconInfo);
+    };
+    img.src = iconUrl;
+  }))
+  .then(function(iconSize) {
+    var canvas = self.get('canvas'),
+      ctx = canvas.getContext("2d");
+      canvas.width = iconSize.width;
+      canvas.height = iconSize.height;
+
+    var labelOptions =  (self.get("icon") || {}).label || {
+      fontSize: 10,
+      bold: false,
+      italic: false
+    };
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (labelOptions.text) {
+      var fontStyles = [];
+
+      if ('color' in labelOptions) {
+        ctx.fillStyle = [
+          'rgba(',
+          labelOptions.color[0],
+          ",",
+          labelOptions.color[1],
+          ",",
+          labelOptions.color[2],
+          ",",
+          labelOptions.color[3] / 255,
+          ')'].join("");
+      } else {
+        ctx.fillStyle = 'black';
+      }
+
+      if (labelOptions.italic === true) {
+        fontStyles.push("italic");
+      }
+      if (labelOptions.bold === true) {
+        fontStyles.push("bold");
+      }
+
+      fontStyles.push(parseInt(labelOptions.fontSize || "10", 10) + "px");
+
+      fontStyles.push('Arial');
+
+      ctx.font = fontStyles.join(' ');
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.fillText(labelOptions.text, iconSize.width / 2, iconSize.height / 2);
+      // debug
+      //ctx.fillText(self.get('overlayId').split("-")[1], iconSize.width / 2, iconSize.height / 2);
+
+    }
+
+    self.get('labelMarker').set('icon', canvas.toDataURL());
+  });
+
+
+};
+ClusterIconClass.setIcon = function(icon) {
+  var self = this;
+  self.set('icon', icon);
+};
+ClusterIconClass.setVisible = function(visible) {
+  var self = this;
+  self.set('visible', visible);
+};
+ClusterIconClass.setPosition = function(position) {
+  var self = this;
+  self.set('position', position);
+};
+
+ClusterIconClass.setMap = function(map) {
+  var self = this;
+  self.set('map', map);
+};
