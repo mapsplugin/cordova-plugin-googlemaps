@@ -1,7 +1,6 @@
 
 
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
@@ -255,10 +254,14 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
         //-------------------
         if (isNew) {
           properties = self.pluginMap.objects["marker_property_" + clusterId_markerId];
+
           tasks.push(new Promise(function(resolve, reject) {
 
-            markerProperties.opacity = 0;
-            self.__create.call(self, clusterId_markerId, properties, function(marker, properties) {
+            self.__create.call(self, clusterId_markerId, {
+              'position': properties.position,
+              'icon': properties.icon,
+              'disableAutoPan': properties.disableAutoPan
+            }, function(marker, properties) {
               if (markerProperties.title) {
                 marker.set('title', markerProperties.title);
               }
@@ -275,8 +278,6 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                   'width': properties.width,
                   'height': properties.height
                 };
-console.log('---->1');
-                marker.setOpacity(1);
                 resolve();
               }
             });

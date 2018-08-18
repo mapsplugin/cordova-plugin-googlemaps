@@ -37,10 +37,10 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
   var markerOpts = {
     'overlayId': markerId,
     'position': pluginOptions.position,
-    'map': map,
     'disableAutoPan': pluginOptions.disableAutoPan === true,
     'draggable': pluginOptions.draggable === true
   };
+
   var iconSize = null;
   if (pluginOptions.animation) {
     markerOpts.animation = google.maps.Animation[pluginOptions.animation.toUpperCase()];
@@ -73,11 +73,11 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
           iconSize = icon.size;
         }
       }
+      if ('anchor' in icon && Array.isArray(icon.anchor)) {
+        markerOpts.icon.anchor = new google.maps.Point(icon.anchor[0], icon.anchor[1]);
+      }
     }
 
-    if (icon.anchor) {
-      markerOpts.icon.anchor = new google.maps.Point(icon.anchor[0], icon.anchor[1]);
-    }
   }
   if (!markerOpts.icon ||
       !markerOpts.icon.url && !markerOpts.icon.path) {
@@ -95,7 +95,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
       'height': 28
     };
   }
-  markerOpts.optimized = true;
+  markerOpts.map = map;
   var marker = new google.maps.Marker(markerOpts);
   marker.addListener('click', self.onMarkerClickEvent.bind(self, event.MARKER_CLICK, marker), {passive: true});
   marker.addListener('dragstart', self.onMarkerEvent.bind(self, event.MARKER_DRAG_START, marker));
