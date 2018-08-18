@@ -64,14 +64,107 @@ PluginCircle.prototype._create = function(onSuccess, onError, args) {
     'id': circleId
   });
 };
+
+PluginCircle.prototype.setCenter = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var position = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+    circle.setCenter(position);
+  }
+  onSuccess();
+};
+
+PluginCircle.prototype.setFillColor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var fillColor = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+
+    if (Array.isArray(strokeColor)) {
+      circle.setOptions({
+        'fillColor': 'rgb(' + fillColor[0] + ',' + fillColor[1] + ',' + fillColor[2] + ')',
+        'fillOpacity': fillColor[3] / 256
+      });
+    }
+  }
+  onSuccess();
+};
+
+PluginCircle.prototype.setStrokeColor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var strokeColor = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+
+    if (Array.isArray(strokeColor)) {
+      circle.setOptions({
+        'strokeColor': 'rgb(' + strokeColor[0] + ',' + strokeColor[1] + ',' + strokeColor[2] + ')',
+        'strokeOpacity': strokeColor[3] / 256
+      });
+    }
+  }
+  onSuccess();
+};
+
+PluginCircle.prototype.setStrokeWidth = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var width = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+    circle.setOptions({
+      'strokeWeight': width
+    });
+  }
+  onSuccess();
+};
+
 PluginCircle.prototype.setRadius = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var radius = args[1];
   var circle = self.pluginMap.objects[overlayId];
   if (circle) {
-    var index = args[1];
     circle.setRadius(radius);
+  }
+  onSuccess();
+};
+
+PluginCircle.prototype.setZIndex = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var zIndex = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+    circle.setZIndex(zIndex);
+  }
+  onSuccess();
+};
+
+PluginCircle.prototype.setVisible = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var visible = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+    circle.setVisible(visible === true);
+  }
+  onSuccess();
+};
+
+PluginCircle.prototype.setClickable = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var clickable = args[1];
+  var circle = self.pluginMap.objects[overlayId];
+  if (circle) {
+    circle.setOptions({
+      'clickable': clickable === true
+    });
   }
   onSuccess();
 };
