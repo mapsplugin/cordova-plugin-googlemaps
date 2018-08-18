@@ -333,7 +333,7 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
     options.target.forEach(function(pos) {
       bounds.extend(pos);
     });
-    map.panToBounds(bounds, padding);
+    map.fitBounds(bounds, padding);
   } else {
     if (typeof options.zoom === 'number') {
       map.setZoom(options.zoom);

@@ -437,7 +437,6 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
 };
 
 PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
-console.log(evtName);
   var self = this,
     mapId = self.pluginMap.id;
 
