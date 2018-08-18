@@ -50,7 +50,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
     markerOpts.icon = {};
     if (typeof pluginOptions.icon === 'string') {
       // Specifies path or url to icon image
-      markerOpts.icon = pluginOptions.icon;
+      markerOpts.icon.url = pluginOptions.icon;
     } else if (typeof pluginOptions.icon === 'object') {
       if (Array.isArray(pluginOptions.icon.url)) {
         // Specifies color name or rule
@@ -95,6 +95,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
       'height': 28
     };
   }
+  markerOpts.optimized = true;
   var marker = new google.maps.Marker(markerOpts);
   marker.addListener('click', self.onMarkerClickEvent.bind(self, event.MARKER_CLICK, marker), {passive: true});
   marker.addListener('dragstart', self.onMarkerEvent.bind(self, event.MARKER_DRAG_START, marker));
@@ -119,26 +120,34 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
       'height': iconSize.height
     });
   } else {
-    var img = new Image();
-    img.onload = function() {
-      console.log(markerId, img.width, img.height);
-      onSuccess(marker, {
+    var markerIcon = marker.getIcon();
+    if (markerIcon && markerIcon.size) {
+      onSuccess({
         'id': markerId,
-        'width': img.width,
-        'height': img.height
+        'width': markerIcon.size.width,
+        'height': markerIcon.size.height
       });
-    };
-    img.onerror = function() {
-      onSuccess(marker, {
-        'id': markerId,
-        'width': 20,
-        'height': 42
-      });
-    };
-    if (typeof markerOpts.icon === "string") {
-      img.src = markerOpts.icon;
     } else {
-      img.src = markerOpts.icon.url;
+      var img = new Image();
+      img.onload = function() {
+        onSuccess(marker, {
+          'id': markerId,
+          'width': img.width,
+          'height': img.height
+        });
+      };
+      img.onerror = function() {
+        onSuccess(marker, {
+          'id': markerId,
+          'width': 20,
+          'height': 42
+        });
+      };
+      if (typeof markerOpts.icon === "string") {
+        img.src = markerOpts.icon;
+      } else {
+        img.src = markerOpts.icon.url;
+      }
     }
   }
 
@@ -146,6 +155,11 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
     marker.setAnimation(null);
   }, 500);
 };
+PluginMarker.prototype._removeMarker = function(marker) {
+  marker.setMap(null);
+  marker = undefined;
+};
+
 PluginMarker.prototype.setRotation = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];

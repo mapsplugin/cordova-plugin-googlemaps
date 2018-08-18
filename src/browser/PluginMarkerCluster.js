@@ -26,9 +26,28 @@ function PluginMarkerCluster(pluginMap) {
     value: {},
     writable: false
   });
+
+  var deleteMarkers = new BaseArrayClass();
   Object.defineProperty(self, "deleteMarkers", {
-    value: new BaseArrayClass(),
+    value: deleteMarkers,
     writable: false
+  });
+
+  deleteMarkers.on('insert_at', function() {
+    var key = deleteMarkers.removeAt(0);
+    var marker = self.pluginMap.objects[key];
+    if (marker) {
+      self._removeMarker(marker);
+    }
+
+    self.pluginMap.objects[key] = undefined;
+    self.pluginMap.objects["marker_property_" + key] = undefined;
+    self.pluginMarkers[key] = undefined;
+
+    delete self.pluginMap.objects[key];
+    delete self.pluginMap.objects["marker_property_" + key];
+    delete self.pluginMarkers[key];
+    self.pluginMarkers[key] = STATUS.DELETED;
   });
 }
 
@@ -207,6 +226,12 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
       changeProperties[clusterId_markerId] = properties;
     });
 
+    if (updateClusterIDs.length === 0) {
+      self.deleteProcess(clusterId, params);
+      onSuccess({});
+      return;
+    }
+
     //---------------------------
     // mapping markers on the map
     //---------------------------
@@ -232,6 +257,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
           properties = self.pluginMap.objects["marker_property_" + clusterId_markerId];
           tasks.push(new Promise(function(resolve, reject) {
 
+            markerProperties.opacity = 0;
             self.__create.call(self, clusterId_markerId, properties, function(marker, properties) {
               if (markerProperties.title) {
                 marker.set('title', markerProperties.title);
@@ -249,6 +275,8 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                   'width': properties.width,
                   'height': properties.height
                 };
+console.log('---->1');
+                marker.setOpacity(1);
                 resolve();
               }
             });
@@ -285,8 +313,8 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                         'lat': markerProperties.lat,
                         'lng': markerProperties.lng
                       },
-                      'visible': false,
-                      'overlayId': clusterId_markerId
+                      'overlayId': clusterId_markerId,
+                      'opacity': 0
                     });
 
           // Store the marker instance with markerId
@@ -322,12 +350,9 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                 //--------------------------------------
                 // Could not read icon for some reason
                 //--------------------------------------
-                if (marker.get('tag')) {
+                if (marker.get('overlayId')) {
                   self._removeMarker.call(self, marker);
                 }
-                delete self.pluginMap.objects[markerId];
-                delete self.pluginMap.objects["marker_property_" + markerId];
-                delete self.pluginMarkers[markerId];
                 self.pluginMarkers[clusterId_markerId] = STATUS.DELETED;
 
                 console.error(errorMsg);
@@ -346,9 +371,20 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
       }
     });
     Promise.all(tasks).then(function() {
+      self.deleteProcess(clusterId, params);
       onSuccess(allResults);
     }).catch(onError);
   }
+};
+
+PluginMarkerCluster.prototype.deleteProcess = function(clusterId, params) {
+  var self = this;
+  if (!params.delete || params.delete.length === 0) {
+    return;
+  }
+  params.delete.forEach(function(key) {
+    self.deleteMarkers.push(clusterId + "-" + key);
+  });
 };
 
 PluginMarkerCluster.prototype.setIconToClusterMarker = function(markerId, marker, iconProperty) {
@@ -382,6 +418,20 @@ PluginMarkerCluster.prototype.setIconToClusterMarker = function(markerId, marker
 
 };
 
+PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
+  var self = this,
+    clusterId = args[0],
+    keys = Object.keys(self.pluginMarkers);
+
+  keys.forEach(function(key) {
+    if (key.indexOf(clusterId) === 0) {
+      self.pluginMarkers[key] = STATUS.DELETED;
+      delete self.pluginMap.objects[key];
+      delete self.pluginMap.objects['marker_property_' + key];
+    }
+  });
+  onSuccess();
+};
 
 module.exports = PluginMarkerCluster;
 
@@ -420,23 +470,30 @@ function ClusterIconClass(options) {
   var iconMarker = new google.maps.Marker({
     'icon': options.icon,
     'zIndex': 0,
-    'visible': options.visible
+    'opacity': 0,
+    'optimized': true
   });
   var labelMarker = new google.maps.Marker({
     'clickable': false,
     'zIndex': 1,
-    'icon': self.get('label')
+    'icon': self.get('label'),
+    'opacity': 0,
+    'optimized': true
   });
   self.set('iconMarker', iconMarker);
   self.set('labelMarker', labelMarker);
+  self.set('opacity', 0);
 
+  iconMarker.bindTo('opacity', labelMarker);
   iconMarker.bindTo('visible', labelMarker);
   iconMarker.bindTo('position', labelMarker);
   iconMarker.bindTo('map', labelMarker);
+  self.bindTo('opacity', iconMarker);
   self.bindTo('icon', iconMarker);
   self.bindTo('visible', iconMarker);
   self.bindTo('map', iconMarker);
   self.bindTo('position', iconMarker);
+
 
   for (var key in options) {
     self.set(key, options[key]);
@@ -455,13 +512,19 @@ ClusterIconClass.onRemove = function() {
   self.get('labelMarker').setMap(null);
 };
 ClusterIconClass.draw = function() {
-  var self = this;
-  var icon = self.get("icon");
+  var self = this,
+    icon = self.get("icon");
   if (typeof icon === "string") {
     icon = {
       'url': icon
     };
   }
+  icon.label = icon.label || {};
+  if (self.get('prevText') === icon.label.text) {
+    return;
+  }
+  self.set('prevText', icon.label.text);
+  self.get("labelMarker").set("opacity", 0);
 
   (new Promise(function(resolve, reject) {
     var iconUrl = icon.url;
@@ -498,7 +561,7 @@ ClusterIconClass.draw = function() {
       canvas.width = iconSize.width;
       canvas.height = iconSize.height;
 
-    var labelOptions =  (self.get("icon") || {}).label || {
+    var labelOptions =  icon.label || {
       fontSize: 10,
       bold: false,
       italic: false
@@ -543,6 +606,9 @@ ClusterIconClass.draw = function() {
     }
 
     self.get('labelMarker').set('icon', canvas.toDataURL());
+    setTimeout(function() {
+      self.set("opacity", 1);
+    }, 10);
   });
 
 

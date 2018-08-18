@@ -4,6 +4,11 @@ var utils = require('cordova/utils');
 var event = require('cordova-plugin-googlemaps.event');
 var BaseClass = require('cordova-plugin-googlemaps.BaseClass');
 
+var LOCATION_ERROR = {
+  '1': 'service_denied',
+  '2': 'not_available',
+  '3': 'timeout'
+};
 
 module.exports = {
   'getMyLocation': function(onSuccess, onError, args) {
@@ -29,7 +34,7 @@ module.exports = {
         onError({
           'status': false,
           'error_code': LOCATION_ERROR[error.code],
-          'error_message': LOCATION_ERROR_MSG[error.code]
+          'error_message': error.message
         });
       }, {
         'enableHighAccuracy': true
