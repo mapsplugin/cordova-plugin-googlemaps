@@ -315,41 +315,13 @@ PluginMarker.prototype.onMarkerClickEvent = function(evtName, marker) {
   var self = this;
 
   var overlayId = marker.get("overlayId");
+  self.pluginMap.activeMarker = marker;
   if (overlayId.indexOf("markercluster_") > -1) {
-    if (overlayId.indexOf("-marker_") > -1) {
-      self.pluginMap.activeMarker = marker;
-      self.onClusterEvent(event.MARKER_CLICK, marker);
-    } else {
-      if (activeMarker != null) {
-        self.onMarkerEvent(event.INFO_CLOSE, marker);
-      } else {
-        self._showInfoWindow(marker);
-      }
-    }
-    self.onClusterEvent("cluster_click", marker);
+    self.onClusterEvent(event.MARKER_CLICK, marker);
   } else {
     self.onMarkerEvent(event.MARKER_CLICK, marker);
   }
 
-};
-
-PluginMarker.prototype.onClusterEvent = function(evtName, marker) {
-
-  var self = this,
-    mapId = self.pluginMap.id;
-
-  var overlayId = marker.get("overlayId");
-  var tmp = overlayId.split("-");
-  var clusterId = tmp[0];
-  var markerId = tmp[1];
-  var latLng = marker.getPosition();
-  if (mapId in plugin.google.maps) {
-    plugin.google.maps[mapId]({
-      'evtName': evtName,
-      'callback': '_onClusterEvent',
-      'args': [clusterId, markerId, new LatLng(latLng.lat(), latLng.lng())]
-    });
-  }
 };
 
 module.exports = PluginMarker;

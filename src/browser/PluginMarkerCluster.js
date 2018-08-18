@@ -5,6 +5,7 @@ var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
   Thread = require('cordova-plugin-googlemaps.Thread'),
+  LatLng = require('cordova-plugin-googlemaps.LatLng'),
   BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass');
 
 var STATUS = {
@@ -317,6 +318,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                       'overlayId': clusterId_markerId,
                       'opacity': 0
                     });
+          marker.addListener('click', self.onClusterEvent.bind(self, "cluster_click", marker));
 
           // Store the marker instance with markerId
           self.pluginMap.objects[clusterId_markerId] = marker;
@@ -434,6 +436,26 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
+console.log(evtName);
+  var self = this,
+    mapId = self.pluginMap.id;
+
+  var overlayId = marker.get("overlayId");
+  var tmp = overlayId.split("-");
+  var clusterId = tmp[0];
+  var markerId = tmp[1];
+  var latLng = marker.getPosition();
+  if (mapId in plugin.google.maps) {
+    plugin.google.maps[mapId]({
+      'evtName': evtName,
+      'callback': '_onClusterEvent',
+      'args': [clusterId, markerId, new LatLng(latLng.lat(), latLng.lng())]
+    });
+  }
+};
+
+
 module.exports = PluginMarkerCluster;
 
 function newClusterIcon(options) {
@@ -469,17 +491,21 @@ function ClusterIconClass(options) {
   // Create two markers for icon and label
   //-----------------------------------------
   var iconMarker = new google.maps.Marker({
+    'clickable': false,
     'icon': options.icon,
     'zIndex': 0,
     'opacity': 0,
     'optimized': true
   });
   var labelMarker = new google.maps.Marker({
-    'clickable': false,
+    'clickable': true,
     'zIndex': 1,
     'icon': self.get('label'),
     'opacity': 0,
     'optimized': true
+  });
+  labelMarker.addListener('click', function() {
+    google.maps.event.trigger(self, 'click');
   });
   self.set('iconMarker', iconMarker);
   self.set('labelMarker', labelMarker);
@@ -625,6 +651,11 @@ ClusterIconClass.setVisible = function(visible) {
 ClusterIconClass.setPosition = function(position) {
   var self = this;
   self.set('position', position);
+};
+
+ClusterIconClass.getPosition = function(position) {
+  var self = this;
+  return self.get('position');
 };
 
 ClusterIconClass.setMap = function(map) {

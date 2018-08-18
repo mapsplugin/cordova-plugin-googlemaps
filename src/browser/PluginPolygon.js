@@ -72,6 +72,15 @@ PluginPolygon.prototype._create = function(onSuccess, onError, args) {
     'id': polygonId
   });
 };
+PluginPolygon.prototype.setVisible = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    polygon.setVisible(args[1]);
+  }
+  onSuccess();
+};
 PluginPolygon.prototype.setPointAt = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
