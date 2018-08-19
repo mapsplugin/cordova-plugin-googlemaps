@@ -179,6 +179,7 @@ PluginCircle.prototype.remove = function(onSuccess, onError, args) {
     circle = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
+    delete self.pluginMap.objects['circle_property_' + overlayId];
   }
   onSuccess();
 };

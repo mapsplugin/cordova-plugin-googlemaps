@@ -131,6 +131,7 @@ PluginTileOverlay.prototype.remove = function(onSuccess, onError, args) {
     tileoverlay = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
+    delete self.pluginMap.objects['tileoverlay_property_' + overlayId];
   }
   onSuccess();
 };

@@ -94,13 +94,14 @@ PluginGroundOverlay.prototype._createOverlay = function(map, groundoverlayId, pl
 PluginGroundOverlay.prototype.remove = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
-  var groundoverlay = self.pluginMap.objects[overlayId];
-  if (groundoverlay) {
-    google.maps.event.clearInstanceListeners(groundoverlay);
-    groundoverlay.setMap(null);
-    groundoverlay = undefined;
+  var groundOverlay = self.pluginMap.objects[overlayId];
+  if (groundOverlay) {
+    google.maps.event.clearInstanceListeners(groundOverlay);
+    groundOverlay.setMap(null);
+    groundOverlay = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
+    delete self.pluginMap.objects['groundoverlay_property_' + overlayId];
   }
   onSuccess();
 };

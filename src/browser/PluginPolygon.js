@@ -119,6 +119,7 @@ PluginPolygon.prototype.remove = function(onSuccess, onError, args) {
     polygon = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
+    delete self.pluginMap.objects['polygon_property_' + overlayId];
   }
   onSuccess();
 };

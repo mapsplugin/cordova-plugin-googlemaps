@@ -75,6 +75,7 @@ PluginPolyline.prototype.remove = function(onSuccess, onError, args) {
     polyline = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
+    delete self.pluginMap.objects['polyline_property_' + overlayId];
   }
   onSuccess();
 };

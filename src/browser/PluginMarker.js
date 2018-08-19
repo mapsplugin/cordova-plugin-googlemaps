@@ -267,6 +267,7 @@ PluginMarker.prototype.remove = function(onSuccess, onError, args) {
     marker = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
+    delete self.pluginMap.objects['marker_property_' + overlayId];
   }
   onSuccess();
 };
