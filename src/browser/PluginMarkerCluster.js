@@ -462,8 +462,8 @@ function newClusterIcon(options) {
   // https://github.com/apache/cordova-js/blob/c75e8059114255d1dbae1ede398e6626708ee9f3/src/common/utils.js#L167
   if (ClusterIconClass.__super__ !== google.maps.OverlayView.prototype) {
     var key, defined = {};
-    for (key in ClusterIconClass) {
-      defined[key] = ClusterIconClass[key];
+    for (key in ClusterIconClass.prototype) {
+      defined[key] = ClusterIconClass.prototype[key];
     }
     utils.extend(ClusterIconClass, google.maps.OverlayView);
     for (key in defined) {
@@ -483,6 +483,8 @@ function ClusterIconClass(options) {
   canvas.width = 50;
   canvas.height = 50;
   canvas.style.visibility = 'hidden';
+  canvas.style.position = 'absolute';
+  canvas.style.zIndex = -100;
   canvas.setAttribute('id', 'canvas_' + options.overlayId);
   self.set('canvas', canvas);
 
@@ -527,17 +529,22 @@ function ClusterIconClass(options) {
 
 }
 
-ClusterIconClass.onAdd = function() {
+ClusterIconClass.prototype.onAdd = function() {
   var self = this;
   var canvas = self.get('canvas');
   self.get('map').getDiv().appendChild(canvas);
 };
-ClusterIconClass.onRemove = function() {
+ClusterIconClass.prototype.onRemove = function() {
   var self = this;
-  self.get('iconMarker').setMap(null);
-  self.get('labelMarker').setMap(null);
+  var canvas = self.get('canvas');
+  self.set('map', null);
+  var parent = canvas.parentNode;
+  if (parent) {
+    parent.removeChild(canvas);
+  }
+  canvas = undefined;
 };
-ClusterIconClass.draw = function() {
+ClusterIconClass.prototype.draw = function() {
   var self = this,
     icon = self.get("icon");
   if (typeof icon === "string") {
@@ -639,25 +646,25 @@ ClusterIconClass.draw = function() {
 
 
 };
-ClusterIconClass.setIcon = function(icon) {
+ClusterIconClass.prototype.setIcon = function(icon) {
   var self = this;
   self.set('icon', icon);
 };
-ClusterIconClass.setVisible = function(visible) {
+ClusterIconClass.prototype.setVisible = function(visible) {
   var self = this;
   self.set('visible', visible);
 };
-ClusterIconClass.setPosition = function(position) {
+ClusterIconClass.prototype.setPosition = function(position) {
   var self = this;
   self.set('position', position);
 };
 
-ClusterIconClass.getPosition = function(position) {
+ClusterIconClass.prototype.getPosition = function(position) {
   var self = this;
   return self.get('position');
 };
 
-ClusterIconClass.setMap = function(map) {
+ClusterIconClass.prototype.setMap = function(map) {
   var self = this;
   self.set('map', map);
 };
