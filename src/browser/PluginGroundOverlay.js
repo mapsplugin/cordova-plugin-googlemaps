@@ -172,6 +172,19 @@ function CustomGroundOverlay(url, bounds, options) {
     img.style.zIndex = self.get('zIndex');
   });
 
+  var swMarker = new google.maps.Marker({
+    position: bounds.getSouthWest(),
+    'title': "sw",
+    'map': options.map
+  });
+  self.set('swMarker', swMarker);
+
+  var neMarker = new google.maps.Marker({
+    position: bounds.getNorthEast(),
+    'title': "ne",
+    'map': options.map
+  });
+  self.set('neMarker', neMarker);
 
   for (var key in options) {
     self.set(key, options[key]);
@@ -205,15 +218,14 @@ CustomGroundOverlay.prototype.draw = function() {
 
   var img = self.get("img");
   img.style.left = swPx.x + "px";
-  img.style.top = nePx.x + "px";
+  img.style.top = nePx.y + "px";
   img.style.width = (nePx.x - swPx.x) + "px";
   img.style.height = (swPx.y - nePx.y) + "px";
-  console.log(img.style.left, img.style.top, img.style.width, img.style.height);
 };
 
 CustomGroundOverlay.prototype.onAdd = function() {
   var self = this;
-  self.getPanes().overlayMouseTarget.appendChild(self.get("img"));
+  self.getPanes().mapPane.appendChild(self.get("img"));
 };
 
 CustomGroundOverlay.prototype.onRemove = function() {
