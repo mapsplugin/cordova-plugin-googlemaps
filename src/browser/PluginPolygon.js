@@ -72,6 +72,23 @@ PluginPolygon.prototype._create = function(onSuccess, onError, args) {
   });
 };
 
+PluginPolygon.prototype.setFillColor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var fillColor = args[1];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+
+    if (Array.isArray(fillColor)) {
+      polygon.setOptions({
+        'fillColor': 'rgb(' + fillColor[0] + ',' + fillColor[1] + ',' + fillColor[2] + ')',
+        'fillOpacity': fillColor[3] / 256
+      });
+    }
+  }
+  onSuccess();
+};
+
 PluginPolygon.prototype.setStrokeColor = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
@@ -108,7 +125,9 @@ PluginPolygon.prototype.setZIndex = function(onSuccess, onError, args) {
   var zIndex = args[1];
   var polygon = self.pluginMap.objects[overlayId];
   if (polygon) {
-    polygon.setZIndex(zIndex);
+    polygon.setOptions({
+      'zIndex': zIndex
+    });
   }
   onSuccess();
 };
@@ -155,7 +174,9 @@ PluginPolygon.prototype.setGeodesic = function(onSuccess, onError, args) {
   var overlayId = args[0];
   var polygon = self.pluginMap.objects[overlayId];
   if (polygon) {
-    polygon.setGeodesic(args[1] === true)
+    polygon.setOptions({
+      'geodesic': args[1] === true
+    });
   }
   onSuccess();
 };
@@ -192,6 +213,121 @@ PluginPolygon.prototype.removePointAt = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginPolygon.prototype.setHoles = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    var paths = polygon.getPaths(),
+      holeList = args[1],
+      newPaths = new google.maps.MVCArray([paths.getAt(0)]);
+
+    holeList.forEach(function(holeVertixes) {
+      var hole = new google.maps.MVCArray();
+      holeVertixes.forEach(function(vertix) {
+        hole.push(new google.maps.LatLng(vertix.lat, vertix.lng));
+      });
+      newPaths.push(hole);
+    });
+    polygon.setPaths(newPaths);
+  }
+  onSuccess();
+};
+
+PluginPolygon.prototype.insertPointOfHoleAt = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    holeIndex = args[1],
+    pointIndex = args[2],
+    position = args[3],
+    polygon = self.pluginMap.objects[overlayId];
+
+  if (polygon) {
+    var index = args[1];
+    var latLng = new google.maps.LatLng(position.lat, position.lng);
+    polygon.getPaths().getAt(holeIndex).insertAt(pointIndex, latLng);
+  }
+  onSuccess();
+};
+
+PluginPolygon.prototype.setPointOfHoleAt = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    holeIndex = args[1],
+    pointIndex = args[2],
+    position = args[3],
+    polygon = self.pluginMap.objects[overlayId];
+
+  if (polygon) {
+    var index = args[1];
+    var latLng = new google.maps.LatLng(position.lat, position.lng);
+    polygon.getPaths().getAt(holeIndex).setAt(pointIndex, latLng);
+  }
+  onSuccess();
+};
+
+PluginPolygon.prototype.removePointOfHoleAt = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    holeIndex = args[1],
+    pointIndex = args[2],
+    polygon = self.pluginMap.objects[overlayId];
+
+  if (polygon) {
+    polygon.getPaths().getAt(holeIndex).removeAt(pointIndex);
+  }
+  onSuccess();
+};
+
+
+PluginPolygon.prototype.insertHoleAt = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    holeIndex = args[1],
+    vertixes = args[2],
+    polygon = self.pluginMap.objects[overlayId];
+
+  if (polygon) {
+    var hole = new google.maps.MVCArray();
+    vertixes.forEach(function(vertix) {
+      hole.push(new google.maps.LatLng(vertix.lat, vertix.lng));
+    });
+    polygon.getPaths().insertAt(holeIndex, hole);
+  }
+  onSuccess();
+};
+
+
+
+PluginPolygon.prototype.setHoleAt = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    holeIndex = args[1],
+    vertixes = args[2],
+    polygon = self.pluginMap.objects[overlayId];
+
+  if (polygon) {
+    var hole = new google.maps.MVCArray();
+    vertixes.forEach(function(vertix) {
+      hole.push(new google.maps.LatLng(vertix.lat, vertix.lng));
+    });
+    polygon.getPaths().setAt(holeIndex, hole);
+  }
+  onSuccess();
+};
+
+
+PluginPolygon.prototype.removeHoleAt = function(onSuccess, onError, args) {
+  var self = this,
+    overlayId = args[0],
+    holeIndex = args[1],
+    polygon = self.pluginMap.objects[overlayId];
+
+  if (polygon) {
+    polygon.getPaths().removeAt(holeIndex);
+  }
+  onSuccess();
+};
 PluginPolygon.prototype.remove = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];

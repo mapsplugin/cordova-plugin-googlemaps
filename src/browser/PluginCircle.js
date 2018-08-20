@@ -139,7 +139,9 @@ PluginCircle.prototype.setZIndex = function(onSuccess, onError, args) {
   var zIndex = args[1];
   var circle = self.pluginMap.objects[overlayId];
   if (circle) {
-    circle.setZIndex(zIndex);
+    circle.setOptions({
+      'zIndex': zIndex
+    });
   }
   onSuccess();
 };

@@ -59,7 +59,6 @@ PluginPolyline.prototype._create = function(onSuccess, onError, args) {
   });
 
   self.pluginMap.objects[polylineId] = polyline;
-  self.pluginMap.objects['polyline_property_' + polylineId] = polylineOpts;
 
   onSuccess({
     'id': polylineId
@@ -75,11 +74,112 @@ PluginPolyline.prototype.remove = function(onSuccess, onError, args) {
     polyline = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
-    delete self.pluginMap.objects['polyline_property_' + overlayId];
   }
   onSuccess();
 };
 
+PluginPolyline.prototype.setStrokeColor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polyline = self.pluginMap.objects[overlayId];
+  var strokeColor = args[1];
+  if (polyline) {
+    if (Array.isArray(strokeColor)) {
+      polyline.setOptions({
+        'strokeColor': 'rgb(' + strokeColor[0] + ',' + strokeColor[1] + ',' + strokeColor[2] + ')',
+        'strokeOpacity': strokeColor[3] / 256
+      });
+    }
+  }
+  onSuccess();
+};
+
+PluginPolyline.prototype.setStrokeWidth = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var width = args[1];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    polyline.setOptions({
+      'strokeWeight': width
+    });
+  }
+  onSuccess();
+};
+
+
+PluginPolyline.prototype.setZIndex = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var zIndex = args[1];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    polyline.setOptions({
+      'zIndex': zIndex
+    });
+  }
+  onSuccess();
+};
+
+PluginPolyline.prototype.setPoints = function(onSuccess, onError, args) {
+  var self = this,
+    polylineId = args[0],
+    positionList = args[1],
+    polyline = self.pluginMap.objects[polylineId];
+  if (polyline) {
+    //------------------------
+    // Update the points list
+    //------------------------
+    polyline.setPath(positionList);
+  }
+  onSuccess();
+};
+
+PluginPolyline.prototype.setClickable = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var clickable = args[1];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    polyline.setOptions({
+      'clickable': clickable === true
+    });
+  }
+  onSuccess();
+};
+
+PluginPolyline.prototype.setVisible = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    polyline.setVisible(args[1]);
+  }
+  onSuccess();
+};
+
+PluginPolyline.prototype.setGeodesic = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    polyline.setOptions({
+      'geodesic': args[1] === true
+    });
+  }
+  onSuccess();
+};
+PluginPolyline.prototype.insertPointAt = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    var index = args[1];
+    var latLng = new google.maps.LatLng(args[2].lat, args[2].lng);
+    polyline.getPath().insertAt(index, latLng);
+  }
+  onSuccess();
+};
 PluginPolyline.prototype.setPointAt = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
@@ -87,8 +187,17 @@ PluginPolyline.prototype.setPointAt = function(onSuccess, onError, args) {
   if (polyline) {
     var index = args[1];
     var latLng = new google.maps.LatLng(args[2].lat, args[2].lng);
-    var opts = self.pluginMap.objects['polyline_property_' + overlayId];
-    opts.path.setAt(index, latLng);
+    polyline.getPath().setAt(index, latLng);
+  }
+  onSuccess();
+};
+PluginPolyline.prototype.removePointAt = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polyline = self.pluginMap.objects[overlayId];
+  if (polyline) {
+    var index = args[1];
+    polyline.getPath().removeAt(index, latLng);
   }
   onSuccess();
 };
