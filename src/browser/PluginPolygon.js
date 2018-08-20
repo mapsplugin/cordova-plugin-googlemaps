@@ -66,12 +66,53 @@ PluginPolygon.prototype._create = function(onSuccess, onError, args) {
   });
 
   self.pluginMap.objects[polygonId] = polygon;
-  self.pluginMap.objects['polygon_property_' + polygonId] = polygonOpts;
 
   onSuccess({
     'id': polygonId
   });
 };
+
+PluginPolygon.prototype.setStrokeColor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polygon = self.pluginMap.objects[overlayId];
+  var strokeColor = args[1];
+  if (polygon) {
+    if (Array.isArray(strokeColor)) {
+      polygon.setOptions({
+        'strokeColor': 'rgb(' + strokeColor[0] + ',' + strokeColor[1] + ',' + strokeColor[2] + ')',
+        'strokeOpacity': strokeColor[3] / 256
+      });
+    }
+  }
+  onSuccess();
+};
+
+PluginPolygon.prototype.setStrokeWidth = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var width = args[1];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    polygon.setOptions({
+      'strokeWeight': width
+    });
+  }
+  onSuccess();
+};
+
+
+PluginPolygon.prototype.setZIndex = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var zIndex = args[1];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    polygon.setZIndex(zIndex);
+  }
+  onSuccess();
+};
+
 PluginPolygon.prototype.setPoints = function(onSuccess, onError, args) {
   var self = this,
     polygonId = args[0],
@@ -86,12 +127,46 @@ PluginPolygon.prototype.setPoints = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginPolygon.prototype.setClickable = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var clickable = args[1];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    polygon.setOptions({
+      'clickable': clickable === true
+    });
+  }
+  onSuccess();
+};
+
 PluginPolygon.prototype.setVisible = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var polygon = self.pluginMap.objects[overlayId];
   if (polygon) {
     polygon.setVisible(args[1]);
+  }
+  onSuccess();
+};
+
+PluginPolygon.prototype.setGeodesic = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    polygon.setGeodesic(args[1] === true)
+  }
+  onSuccess();
+};
+PluginPolygon.prototype.insertPointAt = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    var index = args[1];
+    var latLng = new google.maps.LatLng(args[2].lat, args[2].lng);
+    polygon.getPath().insertAt(index, latLng);
   }
   onSuccess();
 };
@@ -102,9 +177,17 @@ PluginPolygon.prototype.setPointAt = function(onSuccess, onError, args) {
   if (polygon) {
     var index = args[1];
     var latLng = new google.maps.LatLng(args[2].lat, args[2].lng);
-    var opts = self.pluginMap.objects['polygon_property_' + overlayId];
-    var strokePath = opts.paths.getAt(0);
-    strokePath.setAt(index, latLng);
+    polygon.getPath().setAt(index, latLng);
+  }
+  onSuccess();
+};
+PluginPolygon.prototype.removePointAt = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var polygon = self.pluginMap.objects[overlayId];
+  if (polygon) {
+    var index = args[1];
+    polygon.getPath().removeAt(index, latLng);
   }
   onSuccess();
 };
@@ -119,7 +202,6 @@ PluginPolygon.prototype.remove = function(onSuccess, onError, args) {
     polygon = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
-    delete self.pluginMap.objects['polygon_property_' + overlayId];
   }
   onSuccess();
 };

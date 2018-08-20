@@ -58,7 +58,6 @@ PluginCircle.prototype._create = function(onSuccess, onError, args) {
   });
 
   self.pluginMap.objects[circleId] = circle;
-  self.pluginMap.objects['circle_property_' + circleId] = circleOpts;
 
   onSuccess({
     'id': circleId
@@ -179,7 +178,6 @@ PluginCircle.prototype.remove = function(onSuccess, onError, args) {
     circle = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
-    delete self.pluginMap.objects['circle_property_' + overlayId];
   }
   onSuccess();
 };

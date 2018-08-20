@@ -93,6 +93,9 @@ GroundOverlay.prototype.setOpacity = function (opacity) {
   this.set('opacity', opacity);
 };
 GroundOverlay.prototype.setBearing = function (bearing) {
+  if (bearing > 360) {
+    bearing = bearing - Math.floor(bearing / 360) * 360;
+  }
   this.set('bearing', bearing);
 };
 

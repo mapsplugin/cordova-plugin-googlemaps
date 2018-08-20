@@ -112,6 +112,36 @@ PluginGroundOverlay.prototype.setBounds = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginGroundOverlay.prototype.setZIndex = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var zIndex = args[1];
+  var groundOverlay = self.pluginMap.objects[overlayId];
+  if (groundOverlay) {
+    groundOverlay.setZIndex(zIndex);
+  }
+  onSuccess();
+};
+
+PluginGroundOverlay.prototype.setClickable = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var groundOverlay = self.pluginMap.objects[overlayId];
+  if (groundOverlay) {
+    groundOverlay.setClickable(args[1]);
+  }
+  onSuccess();
+};
+PluginGroundOverlay.prototype.setVisible = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var groundOverlay = self.pluginMap.objects[overlayId];
+  if (groundOverlay) {
+    groundOverlay.setVisible(args[1]);
+  }
+  onSuccess();
+};
+
 PluginGroundOverlay.prototype.remove = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
@@ -192,9 +222,6 @@ function CustomGroundOverlay(url, bounds, options) {
   self.addListener('opacity_changed', function() {
     img.style.opacity = self.get('opacity');
   });
-  self.addListener('zIndex_changed', function() {
-    img.style.zIndex = self.get('zIndex');
-  });
 
   //---------------------------------------------------------
   // Create a transparent rectangle above the groundOverlay,
@@ -209,10 +236,16 @@ function CustomGroundOverlay(url, bounds, options) {
     'strokeOpacity': 0,
     'zIndex': options.zIndex || 0
   });
+  self.addListener('visible_changed', function() {
+    img.style.visibility = self.get('visible') ? 'visible' : 'hidden';
+    touchPolygon.setVisible(self.get('visible'));
+  });
+
   self.addListener('zIndex_changed', function() {
     touchPolygon.setOptions({
       'zIndex': self.get('zIndex')
     });
+    img.style.zIndex = self.get('zIndex');
   });
 
   touchPolygon.addListener('click', function(evt) {
@@ -298,6 +331,10 @@ CustomGroundOverlay.prototype.remove = function() {
   google.maps.event.clearInstanceListeners(self.get('touchPolygon'));
 };
 
+CustomGroundOverlay.prototype.setClickable = function(clickable) {
+  var self = this;
+  self.set('clickable', clickable);
+};
 
 CustomGroundOverlay.prototype.setOpacity = function(opacity) {
   var self = this;
@@ -317,6 +354,16 @@ CustomGroundOverlay.prototype.setBounds = function(bounds) {
 CustomGroundOverlay.prototype.setOpacity = function(opacity) {
   var self = this;
   self.set("opacity", opacity);
+};
+
+CustomGroundOverlay.prototype.setZIndex = function(zIndex) {
+  var self = this;
+  self.set("zIndex", zIndex);
+};
+
+CustomGroundOverlay.prototype.setVisible = function(visible) {
+  var self = this;
+  self.set("visible", visible);
 };
 
 CustomGroundOverlay.prototype.setImage = function(url) {
