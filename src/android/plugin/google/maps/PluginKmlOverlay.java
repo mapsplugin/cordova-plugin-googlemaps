@@ -297,6 +297,11 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
               Bundle node = this.parseXml(tbxml, childNode);
               if (node != null) {
                 if (node.containsKey("styleId")) {
+                  //--------------------------------------------
+                  // writtin in JavaScript
+                  // result.styleIDs = result.styleIDs || [];
+                  // result.styleIDs.push(node.styleId);
+                  //--------------------------------------------
                   styleIDs = result.getStringArrayList("styleIDs");
                   if (styleIDs == null) {
                     styleIDs = new ArrayList<String>();
