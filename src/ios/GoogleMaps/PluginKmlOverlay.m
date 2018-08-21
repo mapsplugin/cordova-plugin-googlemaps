@@ -330,7 +330,7 @@
       NSMutableDictionary *node = [self parseXml:tbxml rootElement:childNode];
       if (node) {
         if ([node objectForKey:@"styleId"]) {
-          styleIDs = [result objectForKey:@"styleIDs"];
+          styleIDs = [node objectForKey:@"styleIDs"];
           if (styleIDs == nil) {
             styleIDs = [NSMutableArray array];
           }
