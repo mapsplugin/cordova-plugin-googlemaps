@@ -46,7 +46,6 @@ var UNESCAPE = {
 var ATTRIBUTE_KEY = "@";
 var CHILD_NODE_KEY = "#";
 
-module.exports = fromXML = _fromXML;
 
 function _fromXML(text, reviver) {
   return toObject(parseXML(text), reviver);
@@ -86,9 +85,9 @@ function parseXML(text) {
         elem = stack.pop();
         if (tagName === closed) break;
       }
-    } else if (firstChar === "?") {
-      // XML declaration
-      appendChild({n: "?", r: tag.substr(1, tagLength - 2)});
+    // } else if (firstChar === "?") {
+    //   // XML declaration
+    //   appendChild({n: "?", r: tag.substr(1, tagLength - 2)});
     } else if (firstChar === "!") {
       if (tag.substr(1, 7) === "[CDATA[" && tag.substr(-2) === "]]") {
         // CDATA section
@@ -232,12 +231,27 @@ function toObject(elem, reviver) {
 
 function addObject(object, key, val) {
   if ("undefined" === typeof val) return;
+  object.attr = object.attr || [];
+  key = key.toLowerCase();
+  if (/^\@/.test(key)) {
+    object.attr.push({
+      'name': key,
+      'value': val
+    });
+    return;
+  }
   var prev = object[key];
   if (prev instanceof Array) {
     prev.push(val);
   } else if (key in object) {
-    object[key] = [prev, val];
+    object[key] = [{'tagName': key, 'value': prev}, {'tagName': key, 'value': val}];
   } else {
-    object[key] = val;
+    object[key] = {
+      'tagName': key,
+      'value': val
+    };
   }
 }
+
+
+module.exports = _fromXML;

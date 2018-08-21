@@ -1,9 +1,8 @@
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  fromXML = require('cordova-plugin-googlemaps.fromXML');
+  parser = require('cordova-plugin-googlemaps.fromXML');
 
 function PluginKmlOverlay(pluginMap) {
   var self = this;
@@ -42,7 +41,11 @@ PluginKmlOverlay.prototype._create = function(onSuccess, onError, args) {
     }
   }))
   .then(function(result) {
-    console.log(fromXML(result));
+    var rootElement = parser(result);
+    console.log(rootElement);
+    var kmlParser = new KmlParserClass();
+
+    kmlParser.parseXml(rootElement["?xml"], "kml");
   })
   .catch(function(error) {
     console.error(error);
@@ -51,6 +54,56 @@ PluginKmlOverlay.prototype._create = function(onSuccess, onError, args) {
 };
 
 module.exports = PluginKmlOverlay;
+
+const KML_TAG = [
+  "NOT_SUPPORTED",
+  "kml",
+  "style",
+  "styleurl",
+  "stylemap",
+  "schema",
+  "coordinates"
+];
+
+function KmlParserClass() {
+  var self = this;
+  self.styleHolder = {}
+  self.schemaHolder = {};
+}
+
+KmlParserClass.prototype.parseXml = function(rootElement, tagName) {
+  var result = {};
+  var styleId, schemaId, txt, attrName;
+  var i;
+  tagName = tagName.toLowerCase();
+
+  var childNode;
+  var styles, schema, extendedData;
+  var children = [];
+  var styleIDs = [];
+
+  console.log("--->tagName = " + tagName + "(" + rootElement + ")");
+  result.tagName = tagName;
+
+  var attributes = Object.keys(rootElement);
+  attributes = attributes.filter(function(keyName) {
+    return /^\@/.test(keyName);
+  });
+  attributes.forEach(function(attrName) {
+    result[attrName] = rootElement[attrName];
+  });
+
+  switch (tagName) {
+    case "styleurl":
+      styleId = tbxml.textForElement(rootElement);
+      result.putString("styleId", styleId);
+      break;
+    default:
+
+  }
+  console.log(result);
+};
+
 
 function createCORSRequest(method, url, asynch) {
     var xhr = new XMLHttpRequest();
