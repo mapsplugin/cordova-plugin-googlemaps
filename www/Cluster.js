@@ -112,7 +112,14 @@ Cluster.prototype.remove = function() {
   });
 };
 Cluster.prototype.getItemLength = function() {
-  return this._markerOptsArray.length;
+  //return this._markerOptsArray.length;
+   var inc = 0;
+      this._markerOptsArray.forEach(function(markerOpts) {
+        if(markerOpts.visible === true){
+          ++inc;
+        }
+      });
+  return inc;
 };
 
 module.exports = Cluster;
