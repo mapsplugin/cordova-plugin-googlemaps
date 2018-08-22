@@ -463,13 +463,18 @@ PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
     bounds = map.getBounds(),
     ne = bounds.getNorthEast(),
     sw = bounds.getSouthWest(),
-    zoom = map.getZoom();
+    zoom = map.getZoom(),
+    south = sw.lat(),
+    north = ne.lat(),
+    west = sw.lng(),
+    east = ne.lng();
+
+  var nowrapFlag = !(west > 0 && east < 0);
 
   var scale = Math.pow(2, zoom),
-    topRight = projection.fromLatLngToPoint(new google.maps.LatLng(ne.lat(), ne.lng() + 360, true)),
-    bottomLeft = projection.fromLatLngToPoint(new google.maps.LatLng(sw.lat(), sw.lng() + 360, true)),
+    topLeft = projection.fromLatLngToPoint(new google.maps.LatLng(north, west + 360, nowrapFlag)),
     worldPoint = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng + 360, true));
-  onSuccess([(topRight.x - worldPoint.x) * scale, (worldPoint.y - topRight.y) * scale]);
+  onSuccess([(worldPoint.x - topLeft.x) * scale, (worldPoint.y - topLeft.y) * scale]);
 };
 
 PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
@@ -509,27 +514,16 @@ PluginMap.prototype._syncInfoWndPosition = function() {
   }
 
   var latLng = self.activeMarker.getPosition();
-  var map = self.get("map");
+  self.fromLatLngToPoint(function(point) {
 
-  var projection = map.getProjection(),
-    bounds = map.getBounds(),
-    ne = bounds.getNorthEast(),
-    sw = bounds.getSouthWest(),
-    zoom = map.getZoom();
+    plugin.google.maps[self.id]({
+      'evtName': 'syncPosition',
+      'callback': '_onSyncInfoWndPosition',
+      'args': [{'x': point[0], 'y': point[1]}]
+    });
 
+  }, null, [latLng.lat(), latLng.lng()]);
 
-  var topRight = projection.fromLatLngToPoint(ne);
-  var bottomLeft = projection.fromLatLngToPoint(sw);
-  var scale = Math.pow(2, zoom);
-  var worldPoint = projection.fromLatLngToPoint(latLng);
-  var x = (worldPoint.x - bottomLeft.x) * scale;
-  var y = (worldPoint.y - topRight.y) * scale;
-
-  plugin.google.maps[self.id]({
-    'evtName': 'syncPosition',
-    'callback': '_onSyncInfoWndPosition',
-    'args': [{'x': x, 'y': y}]
-  });
 };
 
 PluginMap.prototype._onMapEvent = function(evtName, evt) {
