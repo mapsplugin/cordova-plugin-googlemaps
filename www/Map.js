@@ -992,6 +992,9 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
       visible: false
     }));
   }
+  if ('icon' in kmlOverlayOptions) {
+    self.get('invisible_dot').setIcon(kmlOverlayOptions.icon);
+  }
 
   var resolver = function(resolve, reject) {
 
@@ -1014,7 +1017,6 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     return new Promise(resolver);
   }
 };
-
 
 
 //-------------
