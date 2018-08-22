@@ -137,7 +137,7 @@ var CordovaGoogleMaps = {
     });
     require('cordova/exec/proxy').add(mapId, dummyObj);
 
-    pluginStreetView.one(event.MAP_READY, onSuccess);
+    pluginStreetView.one(event.PANORAMA_READY, onSuccess);
 
     switch(API_LOADED_STATUS) {
       case 0:
