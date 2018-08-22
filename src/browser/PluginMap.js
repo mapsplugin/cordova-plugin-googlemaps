@@ -452,6 +452,7 @@ PluginMap.prototype.setTrafficEnabled = function(onSuccess, onError, args) {
 
 };
 
+
 PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
@@ -462,18 +463,15 @@ PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
     bounds = map.getBounds(),
     ne = bounds.getNorthEast(),
     sw = bounds.getSouthWest(),
-    zoom = map.getZoom(),
-    latLng = new google.maps.LatLng(lat, lng);
+    zoom = map.getZoom();
 
-
-  var topRight = projection.fromLatLngToPoint(ne);
-  var bottomLeft = projection.fromLatLngToPoint(sw);
-  var scale = Math.pow(2, zoom);
-  var worldPoint = projection.fromLatLngToPoint(latLng);
-
-  onSuccess([(worldPoint.x - bottomLeft.x) * scale, (worldPoint.y - topRight.y) * scale]);
-
+  var scale = Math.pow(2, zoom),
+    topRight = projection.fromLatLngToPoint(new google.maps.LatLng(ne.lat(), ne.lng() + 360, true)),
+    bottomLeft = projection.fromLatLngToPoint(new google.maps.LatLng(sw.lat(), sw.lng() + 360, true)),
+    worldPoint = projection.fromLatLngToPoint(new google.maps.LatLng(lat, lng + 360, true));
+  onSuccess([(topRight.x - worldPoint.x) * scale, (worldPoint.y - topRight.y) * scale]);
 };
+
 PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
