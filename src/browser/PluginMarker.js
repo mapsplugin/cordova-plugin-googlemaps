@@ -1,6 +1,4 @@
 
-
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -37,8 +35,9 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
   var markerOpts = {
     'overlayId': markerId,
     'position': pluginOptions.position,
-    'disableAutoPan': pluginOptions.disableAutoPan === true,
-    'draggable': pluginOptions.draggable === true
+    'disableAutoPan': pluginOptions.disableAutoPan,
+    'draggable': pluginOptions.draggable,
+    'visible': pluginOptions.visible
   };
 
   var iconSize = null;
@@ -160,6 +159,49 @@ PluginMarker.prototype._removeMarker = function(marker) {
   marker = undefined;
 };
 
+PluginMarker.prototype.setDisableAutoPan = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var disableAutoPan = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.set('disableAutoPan', disableAutoPan);
+  }
+  onSuccess();
+};
+PluginMarker.prototype.setFlat = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var flat = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.set('flat', flat);
+  }
+  onSuccess();
+};
+PluginMarker.prototype.setVisible = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var visible = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setVisible(visible);
+  }
+  onSuccess();
+};
+PluginMarker.prototype.setAnimation = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var animation = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setAnimation(google.maps.Animation[animation]);
+    setTimeout(function() {
+      marker.setAnimation(null);
+    }, 500);
+  }
+  onSuccess();
+};
 PluginMarker.prototype.setRotation = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
@@ -174,24 +216,68 @@ PluginMarker.prototype.setRotation = function(onSuccess, onError, args) {
   }
   onSuccess();
 };
+PluginMarker.prototype.setDraggable = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setDraggable(args[1]);
+  }
+  onSuccess();
+};
+PluginMarker.prototype.setInfoWindowAnchor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setOptions({
+      'anchorPoint': new google.maps.Point(args[1], args[2])
+    });
+  }
+  onSuccess();
+};
 PluginMarker.prototype.setTitle = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   var title = args[1];
   var marker = self.pluginMap.objects[overlayId];
-  marker.set('title', title);
+  if (marker) {
+    marker.set('title', title);
+  }
   onSuccess();
 };
 
 PluginMarker.prototype.setSnippet = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
-  var title = args[1];
+  var snippet = args[1];
   var marker = self.pluginMap.objects[overlayId];
-  marker.set('snippet', title);
+  if (marker) {
+    marker.set('snippet', snippet);
+  }
   onSuccess();
 };
 
+PluginMarker.prototype.setOpacity = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var opacity = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setOpacity(opacity);
+  }
+  onSuccess();
+};
+PluginMarker.prototype.setZIndex = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var zIndex = args[1];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    marker.setZIndex(zIndex);
+  }
+  onSuccess();
+};
 PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
@@ -317,6 +403,9 @@ PluginMarker.prototype.onMarkerClickEvent = function(evtName, marker) {
 
   var overlayId = marker.get("overlayId");
   self.pluginMap.activeMarker = marker;
+  if (marker.get('disableAutoPan') === false) {
+    self.pluginMap.get('map').panTo(marker.getPosition());
+  }
   if (overlayId.indexOf("markercluster_") > -1) {
     self.onClusterEvent(event.MARKER_CLICK, marker);
   } else {
