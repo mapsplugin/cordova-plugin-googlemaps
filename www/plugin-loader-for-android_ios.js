@@ -28,7 +28,7 @@ if (!cordova) {
 
       cordova.exec(null, function(message) {
           alert(message);
-      }, 'Environment', 'isAvailable', ['']);
+      }, 'PluginEnvironment', 'isAvailable', ['']);
     }, {
       once: true
     });
