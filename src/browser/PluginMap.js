@@ -152,7 +152,7 @@ function PluginMap(mapId, options, mapDivId) {
             options.camera.target.forEach(function(pos) {
               bounds.extend(pos);
             });
-            map.fitBounds(bounds, 20);
+            map.fitBounds(bounds, 10);
           } else {
             map.setCenter(options.camera.target);
           }
@@ -250,6 +250,11 @@ PluginMap.prototype.clear = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginMap.prototype.getFocusedBuilding = function(onSuccess, onError, args) {
+  // stub
+  onSuccess(-1);
+};
+
 PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
   var self = this,
     map = self.get('map'),
@@ -319,6 +324,10 @@ PluginMap.prototype.setCameraTilt = function(onSuccess, onError, args) {
   var tilt = args[0];
 
   map.setTilt();
+  onSuccess();
+};
+PluginMap.prototype.setMyLocationEnabled = function(onSuccess, onError, args) {
+  // stub
   onSuccess();
 };
 
@@ -405,7 +414,7 @@ PluginMap.prototype.setVisible = function(onSuccess, onError, args) {
 };
 
 PluginMap.prototype.setPadding = function(onSuccess, onError, args) {
-  console.warn('map.setPadding() is not available for this platform.');
+  // stub
   onSuccess();
 };
 PluginMap.prototype.setAllGesturesEnabled = function(onSuccess, onError, args) {
@@ -500,11 +509,13 @@ PluginMap.prototype.fromPointToLatLng = function(onSuccess, onError, args) {
 };
 
 PluginMap.prototype.setIndoorEnabled = function(onSuccess, onError, args) {
-  onError('map.setIndoorEnabled() is not available for this platform.');
+  // stub
+  onSuccess();
 };
 
 PluginMap.prototype.toDataURL = function(onSuccess, onError, args) {
-  onError('map.toDataURL() is not available for this platform.');
+  // stub
+  onSuccess();
 };
 
 PluginMap.prototype._syncInfoWndPosition = function() {
