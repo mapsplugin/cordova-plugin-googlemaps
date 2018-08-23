@@ -65,9 +65,13 @@ document.addEventListener("load_googlemaps", function() {
   .then(function(configFile) {
     var API_KEY_FOR_BROWSER = null;
     if (configFile.indexOf("API_KEY_FOR_BROWSER") > -1) {
-      var matches = configFile.match(/name\s*?=\s*?[\"\']API_KEY_FOR_BROWSER[\"\']\s+?value\s*?=\s*?[\"\']([^\"]+)[\"\']/i);
+      var matches = configFile.match(/name\s*?=\s*?[\"\']API_KEY_FOR_BROWSER[\"\'][^>]+>/i);
       if (matches) {
-        API_KEY_FOR_BROWSER = matches[1];
+        var line = matches[0];
+        matches = line.match(/value\s*?=\s*?[\"\'](.*?)[\"\']/i);
+        if (matches) {
+          API_KEY_FOR_BROWSER = matches[1];
+        }
       }
     }
 
