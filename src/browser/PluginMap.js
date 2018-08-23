@@ -453,6 +453,7 @@ PluginMap.prototype.setTrafficEnabled = function(onSuccess, onError, args) {
 };
 
 
+
 PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
@@ -469,7 +470,7 @@ PluginMap.prototype.fromLatLngToPoint = function(onSuccess, onError, args) {
     west = sw.lng(),
     east = ne.lng();
 
-  var nowrapFlag = !(west > 0 && east < 0);
+  var nowrapFlag = !bounds.contains(new google.maps.LatLng(north, 179));
 
   var scale = Math.pow(2, zoom),
     topLeft = projection.fromLatLngToPoint(new google.maps.LatLng(north, west + 360, nowrapFlag)),
