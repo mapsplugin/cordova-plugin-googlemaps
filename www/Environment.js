@@ -9,7 +9,7 @@ var argscheck = require('cordova/argscheck'),
 var Environment = {};
 
 Environment.setBackgroundColor = function(color) {
-    cordova.exec(null, null, 'Environment', 'setBackGroundColor', [common.HTMLColor2RGBA(color)]);
+    cordova.exec(null, null, 'PluginEnvironment', 'setBackGroundColor', [common.HTMLColor2RGBA(color)]);
 };
 
 Environment.isAvailable = function(callback) {
@@ -21,14 +21,14 @@ Environment.isAvailable = function(callback) {
         if (typeof callback === "function") {
             callback(false, message);
         }
-    }, 'Environment', 'isAvailable', ['']);
+    }, 'PluginEnvironment', 'isAvailable', ['']);
 };
 
 
 Environment.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
         callback(txt);
-    }, null, 'Environment', 'getLicenseInfo', []);
+    }, null, 'PluginEnvironment', 'getLicenseInfo', []);
 };
 
 

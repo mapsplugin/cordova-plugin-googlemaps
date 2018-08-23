@@ -1,14 +1,14 @@
 //
-//  Environment.m
+//  PluginEnvironment.m
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.
 //
 //
 
-#import "Environment.h"
+#import "PluginEnvironment.h"
 
-@implementation Environment
+@implementation PluginEnvironment
 
 dispatch_queue_t queue;
 

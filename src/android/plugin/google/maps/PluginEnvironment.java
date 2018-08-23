@@ -20,7 +20,7 @@ import org.json.JSONException;
 
 import java.lang.reflect.Method;
 
-public class Environment extends CordovaPlugin {
+public class PluginEnvironment extends CordovaPlugin {
   public PluginManager pluginManager;
 
   @Override
