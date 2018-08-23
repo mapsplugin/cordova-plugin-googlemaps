@@ -29,13 +29,13 @@ function createCORSRequest(method, url, asynch) {
   return xhr;
 }
 
-document.addEventListener("load_googlemaps", function(params) {
-  params = params || {};
+document.addEventListener("load_googlemaps", function(evt) {
+  var params = evt[0] || {};
   API_LOADED_STATUS = 1;
 
   (new Promise(function(resolve, reject) {
     if (params.API_KEY_FOR_BROWSER) {
-      resolve("");
+      resolve("<variables name='API_KEY_FOR_BROWSER' value='" + params.API_KEY_FOR_BROWSER + "' >");
     } else {
       //-----------------
       // Read XML file
@@ -120,7 +120,8 @@ var CordovaGoogleMaps = {
   pause: stub,
   getMap: function(onSuccess, onError, args) {
     var meta = args[0],
-      mapId = meta.id;
+      mapId = meta.id,
+      params = args[1];
     args[0] = mapId;
     args.unshift(this);
 
@@ -139,7 +140,7 @@ var CordovaGoogleMaps = {
 
     switch(API_LOADED_STATUS) {
       case 0:
-        cordova.fireDocumentEvent('load_googlemaps', []);
+        cordova.fireDocumentEvent('load_googlemaps', [params]);
         break;
       case 2:
         pluginMap.trigger("googleready");
@@ -169,7 +170,8 @@ var CordovaGoogleMaps = {
 
   getPanorama: function(onSuccess, onError, args) {
     var meta = args[0],
-      mapId = meta.id;
+      mapId = meta.id,
+      params = args[1];
     args[0] = mapId;
     args.unshift(this);
 
@@ -188,7 +190,7 @@ var CordovaGoogleMaps = {
 
     switch(API_LOADED_STATUS) {
       case 0:
-        cordova.fireDocumentEvent('load_googlemaps', []);
+        cordova.fireDocumentEvent('load_googlemaps', [params]);
         break;
       case 2:
         pluginStreetView.trigger("googleready");
