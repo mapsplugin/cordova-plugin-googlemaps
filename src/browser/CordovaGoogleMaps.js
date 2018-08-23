@@ -1,5 +1,4 @@
 
-
 var utils = require('cordova/utils');
 var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
     PluginStreetViewPanorama = require('cordova-plugin-googlemaps.PluginStreetViewPanorama'),
@@ -37,7 +36,12 @@ document.addEventListener("load_googlemaps", function() {
     //-----------------
     // Read XML file
     //-----------------
-    var xhr = createCORSRequest('GET', '/config.xml', true);
+
+    var link = document.createElement("a");
+    link.href = './config.xml';
+    var url = link.protocol+"//"+link.host+link.pathname;
+
+    var xhr = createCORSRequest('GET', url, true);
     if (xhr) {
       xhr.onreadystatechange = function() {
         try {
