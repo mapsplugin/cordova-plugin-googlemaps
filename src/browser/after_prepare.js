@@ -11,7 +11,7 @@ console.log("script", ctx.opts.cordova.platforms);
   var projectRoot = ctx.opts.projectRoot;
   var projectConfigXml = path.join(projectRoot, 'config.xml');
   var platformConfigXml = path.join(projectRoot, 'platforms', 'browser', 'config.xml');
-  var platformConfigXml2 = path.join(projectRoot, 'platforms', 'browser','www', 'config.xml');
+  var platformConfigXml2 = path.join(projectRoot, 'www', 'config.xml');
 
   // Read (projectDir)/config.xml
   fs.readFile(projectConfigXml, function(err, fileData) {

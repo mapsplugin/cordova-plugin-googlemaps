@@ -11,26 +11,61 @@ var MAPS = {};
 
 var API_LOADED_STATUS = 0; // 0: not loaded, 1: loading, 2: completed
 
+// code: https://stackoverflow.com/q/32912732/697856
+function createCORSRequest(method, url, asynch) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // XHR for Chrome/Firefox/Opera/Safari.
+    xhr.open(method, url, asynch);
+    // xhr.setRequestHeader('MEDIBOX', 'login');
+    xhr.setRequestHeader('Content-Type', 'application/xml; charset=UTF-8');
+  } else if (typeof XDomainRequest != "undefined") {
+    // XDomainRequest for IE.
+    xhr = new XDomainRequest();
+    xhr.open(method, url, asynch);
+  } else {
+    // CORS not supported.
+    xhr = null;
+  }
+  return xhr;
+}
+
 document.addEventListener("load_googlemaps", function() {
   API_LOADED_STATUS = 1;
 
-  var confighelper = require("cordova/confighelper");
-
-  var flag = false;
-  confighelper.readConfig(function(configs) {
-    if (flag) {
-      return;
+  (new Promise(function(resolve, reject) {
+    //-----------------
+    // Read XML file
+    //-----------------
+    var xhr = createCORSRequest('GET', '/config.xml', true);
+    if (xhr) {
+      xhr.onreadystatechange = function() {
+        try {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              resolve(xhr.responseText);
+            } else {
+              resolve("");
+            }
+          }
+        } catch (e) {
+          resolve("");
+        }
+      };
+      xhr.onerror = function(e) {
+        resolve("");
+      };
+      xhr.send();
     }
-    flag = true;
-    // Get API key from config.xml
-    var API_KEY_FOR_BROWSER = configs.getPreferenceValue("API_KEY_FOR_BROWSER");
-
-    // API_LOADED = true;
-    // var maps = Object.values(MAPS);
-    // maps.forEach(function(map) {
-    //   map.trigger("googleready");
-    // });
-    // return;
+  }))
+  .then(function(configFile) {
+    var API_KEY_FOR_BROWSER = null;
+    if (configFile.indexOf("API_KEY_FOR_BROWSER") > -1) {
+      var matches = configFile.match(/name\s*?=\s*?[\"\']API_KEY_FOR_BROWSER[\"\']\s+?value\s*?=\s*?[\"\']([^\"]+)[\"\']/i);
+      if (matches) {
+        API_KEY_FOR_BROWSER = matches[1];
+      }
+    }
 
     var secureStripeScript = document.createElement('script');
     if (API_KEY_FOR_BROWSER) {
@@ -57,8 +92,6 @@ document.addEventListener("load_googlemaps", function() {
     });
     document.getElementsByTagName('head')[0].appendChild(secureStripeScript);
 
-  }, function(error) {
-    console.log(error);
   });
 }, {
   once: true
@@ -72,6 +105,7 @@ var CordovaGoogleMaps = {
   resume: stub,
   pause: stub,
   getMap: function(onSuccess, onError, args) {
+  console.log(`API_LOADED_STATUS = ${API_LOADED_STATUS}`);
     var meta = args[0],
       mapId = meta.id;
     args[0] = mapId;
