@@ -107,14 +107,6 @@ module.exports = function(ctx) {
             }
           });
         }
-        if (!('API_KEY_FOR_BROWSER' in variables)) {
-          plugin.variable.push({
-            '$' : {
-              'name': 'API_KEY_FOR_BROWSER',
-              'value': '(API_KEY_FOR_BROWSER)'
-            }
-          });
-        }
         return plugin;
       });
 
@@ -134,12 +126,6 @@ module.exports = function(ctx) {
               "$": {
                 "name": "API_KEY_FOR_IOS",
                 "value": "(API_KEY_FOR_IOS)"
-              }
-            },
-            {
-              "$": {
-                "name": "API_KEY_FOR_BROWSER",
-                "value": "(API_KEY_FOR_BROWSER)"
               }
             }
           ]

@@ -1,13 +1,30 @@
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
   LatLng = require('cordova-plugin-googlemaps.LatLng');
 
+function displayGrayMap(container) {
+  var gmErrorContent = document.querySelector('.gm-err-container');
+  var gmnoprint = document.querySelector('.gmnoprint');
+  if (!gmErrorContent && !gmnoprint) {
+    container.innerHTML = [
+      '<div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color:rgb(229, 227, 223)">',
+      '<div style="text-align: center; position: absolute; left: 0; top: 0; bottom: 0; right: 0; width: 80%; height: 100px; margin: auto; color: #616161">',
+      '<img src="https://maps.gstatic.com/mapfiles/api-3/images/icon_error.png"><br>',
+      '<h3>Can not display panorama.<br>Check the developer console.</h3>',
+      '</div>',
+      '</div>'
+    ].join("\n");
+  }
+}
+
 function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
   var self = this;
   BaseClass.apply(this);
   var panoramaDiv = document.querySelector("[__pluginMapId='" + panoramaId + "']");
+  panoramaDiv.style.backgroundColor = 'rgb(229, 227, 223)';
   var container = document.createElement("div");
   container.style.userSelect="none";
   container.style["-webkit-user-select"]="none";
@@ -45,13 +62,21 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
           request.source = options.camera.source === "OUTDOOR" ?
             google.maps.StreetViewSource.OUTDOOR : google.maps.StreetViewSource.DEFAULT;
         }
+        var timeoutError = setTimeout(function() {
+          self.trigger('load_error');
+          displayGrayMap(panoramaDiv);
+          reject();
+        }, 3000);
+
         service.getPanorama(request, function(data, status) {
+          clearTimeout(timeoutError);
           if (status === google.maps.StreetViewStatus.OK) {
             resolve(data.location.pano);
           } else {
             reject();
           }
         });
+
       } else {
         resolve();
       }
@@ -104,7 +129,6 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
       self.set('panorama', panorama);
 
       self.trigger(event.PANORAMA_READY);
-
       panorama.addListener("pano_changed", self._onPanoChangedEvent.bind(self, panorama));
       panorama.addListener("pov_changed", self._onCameraEvent.bind(self, panorama));
       panorama.addListener("zoom_changed", self._onCameraEvent.bind(self, panorama));

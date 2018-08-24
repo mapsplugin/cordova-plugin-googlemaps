@@ -1,6 +1,11 @@
-# Cordova GoogleMaps plugin for iOS and Android (version 2.3.11)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.0)
 
-This plugin is a thin wrapper for [Google Maps Android API](https://developers.google.com/maps/documentation/android/) and [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/).
+This plugin displays Google Maps in your application.
+This plugin uses these libraries for each platforms:
+
+- Android : [Google Maps Android API](https://developers.google.com/maps/documentation/android/)
+- iOS : [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/)
+- Browser : [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
 
 Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
 
@@ -33,7 +38,7 @@ $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#mu
 
 ```xml
 <widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.3.11">
+  <plugin name="cordova-plugin-googlemaps" spec="2.4.0">
     <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
     <variable name="API_KEY_FOR_IOS" value="(api key)" />
   </plugin>
@@ -75,70 +80,10 @@ In order to keep this plugin as free, please consider to donate little amount fo
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
-  - **v2.3.11**
-    - Fix: can't load local files if wkwebview hosts the index.html on `file://` protocol
-    - Fix: Some people can't build because of Java errors
-    - Fix: Some JS errors
-
-  - **v2.3.10**
-    - Fix: Can't find variable: `onTransitionFinish`
-
-  - **v2.3.9**
-    - Fix: `polyline.setPoints()` does not work in iOS
-    - Fix: App crashes on iOS if icon url is redirected to another url
-    - Fix: touch is incorrect if another div size is changed
-    - Fix: can not interact with maps at all on ionic 3
-    - Remove debug code
-    - Update: code update for ionic v4 beta (You need to use `@ionic-native/google-maps@5.0.0-beta.14` )
-    - Maybe fix: app crash when map.addMarker() with icon on ionic.
-
-  - **v2.3.8**
-    - Hot fix: v2.3.7 does not work for iOS. Sorry about that.:pensive:
-
-  - **v2.3.7**
-    - Update: Regenerate tbxml-android.aar with `android:minSdkVersion="19"` for the developers who use older cordova verions
-    - Fix: Can't interact with map on Android 4.4.2 if body uses ResetCSS rule
-    - Fix: Fixed bug in "getMyLocation" with last location result
-    - Fix: HtmlInfo window content not clickable if HTML structure is very simple
-    - Fix: MarkerCluster does not work with error "evaluating 'Object.keys(self._markerMap)'"
-    - Fix: Conflicting with Kendo UI framework.
-    - Fix: Clustered marker icons with specified dimensions reverting to default ones when redrawn [iOS]
-    - Update: `NSTimer scheduledTimerWithTimeInterval` code
-    - Fix: Map does not resize when map div is resized.
-
-  - **v2.3.6**
-    - Fix: onPause causes app crashes on Android
-    - Fix: Can't find variable: element
-    - Fix: Can't interact with map on tutorial code
-
-  - **v2.3.5**
-    - Fix: `cordova.fireDocumentEvent('plugin_touch', {})` blocks HTML DOM tree parsing process.
-    - Fix: `Uncaught TypeError: evt.target.hasAttribute is not a function` when device is rotated.
-    - Fix: `marker.setDisableAutoPan()` does not work on iOS.
-    - Fix: `before_plugin_install.js` does not work very if Cordova blows off dependency package installation.
-
-  - **v2.3.4**
-    - Fix: plugin does not recognize HTML elements correctly after moving HTML elements with animations
-    - Fix: map did not attach after coming back from stacked another page
-    - Fix: map does not resize when keyboard is hiding.
-
-  - **v2.3.3**
-    - Comment out debug code (only this)
-
-  - **v2.3.2**
-    - Update: reduce the number of times of DOM tree parse process. (= improve performance.)
-    - Fix: `map.getMyLocation()` and `LocationService.getMyLocation()` do not work.
-    - Fix: can not execute any methods of the marker obtained from `MARKER_CLICK` event of marker cluster
-    - Fix: can not touch Div element which is moved with `css transition` over map view.
-    - Fix: internal event does not work well with ionic 1 project.
-
-  - **v2.3.1**
-    - Fix: incompatible with `@ionic-native/google-maps`
-
-  - [v2.3.0](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/ReleaseNotes/v2.3.0/README.md)
-    - New feature: `StreetView`
-    - A callback is no longer required for the most part.
-    - `Promise` is supported instead of `callback`
+  - **v2.4.0**
+    - Add: `Browser` platform!
+    - Add: `icon` property for KmlOverlayOptions
+    - Fix: map.addKmlOverlay() does not work if page url contains '#hash'
 
 ---------------------------------------------------------------------------------------------------------
 
@@ -146,12 +91,16 @@ In order to keep this plugin as free, please consider to donate little amount fo
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
 
+[Demo (Browser)](https://mapsplugin.github.io/HelloGoogleMap/)
+
 ```js
 document.addEventListener("deviceready", function() {
   var div = document.getElementById("map_canvas");
 
   // Initialize the map view
-  var map = plugin.google.maps.Map.getMap(div);
+  var map = plugin.google.maps.Map.getMap(div, {
+    "API_KEY_FOR_BROWSER": "(YOUR_API_KEY_FOR_BROWSER)" // optional
+  });
 
 
   var button = document.getElementById("button");
@@ -382,23 +331,32 @@ var panorama = plugin.google.maps.StreetView.getPanorama(div, {
 
 ### What is the difference between this plugin and Google Maps JavaScript API v3?
 
-This plugin displays the map view using the native API's via (Java and Objective-C), which is **faster** than Google Maps JavaScript API v3.
+Google Maps JavaScript API v3 works on any platforms,
+but it does not work if device is **offline**.
 
-The native map view even works if the device is **offline**.
+This plugin uses three different APIs:
+- Android : [Google Maps Android API](https://developers.google.com/maps/documentation/android/)
+- iOS : [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/)
+- Browser : [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
 
-This plugin provides the features of the native map view to JS developers.
+In Android and iOS applications, this plugin displays native Google Maps views, which is **faster** than Google Maps JavaScript API v3.
+And it even works if the device is **offline**.
 
+In Browser platform, this plugin displays JS map views (Google Maps JavaScript API v3).
+It should work as PWA (progressive web application), but the device has to be **online**.
+
+In order to work for all platforms, this plugin provides **own API** instead of each original APIs.
 You can write your code `similar to` the Google Maps JavaScript API v3.
 
 **Feature comparison table**
 
-|                | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps             |
-|----------------|-----------------------------------|---------------------------------------|
-|Rendering system| JavaScript + HTML                 | JavaScript + Native API's             |
-|Offline map     | Not possible                      | Possible (only your displayed area)   |
-|3D View         | Not possible                      | Possible                              |
-|Platform        | All browsers                      | Android and iOS applications only     |
-|Tile image      | Bitmap                            | Vector                                |
+|                | Google Maps JavaScript API v3     | Cordova-Plugin-GoogleMaps(Android,iOS)| Cordova-Plugin-GoogleMaps(Browser)    |
+|----------------|-----------------------------------|---------------------------------------|---------------------------------------|
+|Rendering system| JavaScript + HTML                 | JavaScript + Native API's             | JavaScript                            |
+|Offline map     | Not possible                      | Possible (only your displayed area)   | Not possible                          |
+|3D View         | Not possible                      | Possible                              | Not possible                          |
+|Platform        | All browsers                      | Android and iOS applications only     | All browsers                          |
+|Tile image      | Bitmap                            | Vector                                | Bitmap                                |
 
 **Class comparison table**
 
@@ -420,7 +378,7 @@ You can write your code `similar to` the Google Maps JavaScript API v3.
 | google.maps.geometry.encoding     | plugin.google.maps.geometry.encoding  |
 | google.maps.geometry.poly         | plugin.google.maps.geometry.poly      |
 | (not available)                   | MarkerCluster                         |
-| google.maps.KmlLayer              | KMLLayer                              |
+| google.maps.KmlLayer              | KmlOverlay                            |
 | (not available)                   | LocationService                       |
 | google.maps.StreetView            | StreetView :sparkles:                 |
 | google.maps.Data                  | (not available)                       |
@@ -431,7 +389,7 @@ You can write your code `similar to` the Google Maps JavaScript API v3.
 | google.maps.places.*              | (not available)                       |
 | google.maps.visualization.*       | (not available)                       |
 
-### How does this plugin work?
+### How does this plugin work (Android, iOS)?
 
 This plugin generates native map views, and puts them **under the browser**.
 
@@ -452,10 +410,6 @@ The plugin will detect whether your tap is for the header div or for the map vie
 This means **you can use the native Google Maps views similar to HTML elements**.
 
 ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/touch.png)
-
----------------------------------------------------------------------------------------------------------
-## Contributing change
-Please read the [CONTRIBUTING.md](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/CONTRIBUTING.md) for details on how to contribute to this project.
 
 
 ---------------------------------------------------------------------------------------------------------

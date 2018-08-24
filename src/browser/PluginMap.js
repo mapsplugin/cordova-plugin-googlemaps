@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -24,12 +23,27 @@ LOCATION_ERROR_MSG[1] = 'Location service is rejected by user.';
 LOCATION_ERROR_MSG[2] = 'Since this device does not have any location provider, this app can not detect your location.';
 LOCATION_ERROR_MSG[3] = 'Can not detect your location. Try again.';
 
-var mapTypeReg = null;
+function displayGrayMap(container) {
+  var gmErrorContent = document.querySelector('.gm-err-container');
+  var gmnoprint = document.querySelector('.gmnoprint');
+  if (!gmErrorContent && !gmnoprint) {
+    container.innerHTML = [
+      '<div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color:rgb(229, 227, 223)">',
+      '<div style="text-align: center; position: absolute; left: 0; top: 0; bottom: 0; right: 0; width: 80%; height: 100px; margin: auto; color: #616161">',
+      '<img src="https://maps.gstatic.com/mapfiles/api-3/images/icon_error.png"><br>',
+      '<h3>Can not display map.<br>Check the developer console.</h3>',
+      '</div>',
+      '</div>'
+    ].join("\n");
+  }
+}
 
 function PluginMap(mapId, options, mapDivId) {
   var self = this;
   BaseClass.apply(this);
   var mapDiv = document.querySelector("[__pluginMapId='" + mapId + "']");
+  mapDiv.style.backgroundColor = 'rgb(229, 227, 223)';
+
   var container = document.createElement("div");
   container.style.userSelect="none";
   container.style["-webkit-user-select"]="none";
@@ -66,16 +80,14 @@ function PluginMap(mapId, options, mapDivId) {
   self.one("googleready", function() {
     self.set("isGoogleReady", true);
 
-    if (!mapTypeReg) {
-      mapTypeReg = new google.maps.MapTypeRegistry();
-      mapTypeReg.set('none', new google.maps.ImageMapType({
-        'getTileUrl': function(point, zoom) { return null; },
-        'name': 'none_type',
-        'tileSize': new google.maps.Size(256, 256),
-        'minZoom': 0,
-        'maxZoom': 25
-      }));
-    }
+    var mapTypeReg = new google.maps.MapTypeRegistry();
+    mapTypeReg.set('none', new google.maps.ImageMapType({
+      'getTileUrl': function(point, zoom) { return null; },
+      'name': 'none_type',
+      'tileSize': new google.maps.Size(256, 256),
+      'minZoom': 0,
+      'maxZoom': 25
+    }));
 
     var mapInitOptions = {
       mapTypes: mapTypeReg,
@@ -112,7 +124,13 @@ function PluginMap(mapId, options, mapDivId) {
     map.mapTypes = mapTypeReg;
     self.set('map', map);
 
+    var timeoutError = setTimeout(function() {
+      self.trigger('load_error');
+      displayGrayMap(mapDiv);
+    }, 3000);
+
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
+      clearTimeout(timeoutError);
       self.trigger(event.MAP_READY);
       map.addListener("idle", self._onCameraEvent.bind(self, 'camera_move_end'));
       //map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));

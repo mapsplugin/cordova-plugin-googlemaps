@@ -1,6 +1,6 @@
 
 if (!window.Promise) {
-  window.Promise = require('./Promise');
+  window.Promise = require('cordova-plugin-googlemaps.Promise');
 }
 
 var utils = require('cordova/utils'),
