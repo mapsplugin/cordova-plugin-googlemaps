@@ -34,11 +34,11 @@ public class PluginEnvironment extends CordovaPlugin {
       @Override
       public void run() {
         try {
-          Method method = Environment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+          Method method = PluginEnvironment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
           if (!method.isAccessible()) {
             method.setAccessible(true);
           }
-          method.invoke(Environment.this, args, callbackContext);
+          method.invoke(PluginEnvironment.this, args, callbackContext);
         } catch (Exception e) {
           Log.e("CordovaLog", "An error occurred", e);
           callbackContext.error(e.toString());
