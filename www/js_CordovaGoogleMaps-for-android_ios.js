@@ -1,4 +1,7 @@
 
+if (!window.Promise) {
+  window.Promise = require('./Promise');
+}
 var utils = require('cordova/utils'),
   common = require('./Common'),
   cordova_exec = require('cordova/exec'),

@@ -7,12 +7,12 @@ module.exports = function(ctx) {
     configXmlPath = path.join(projectRoot, 'config.xml'),
     pluginXmlPath = path.join(__dirname, '..', 'plugin.xml');
 
-  // var versions = ctx.opts.cordova.version.split(/\./g);
-  // if (versions[0] > 6) {
-  //   // If cordova platform version is higher than 6,
-  //   // cordova-cli works well, so skip it.
-  //   return;
-  // }
+  var versions = ctx.opts.cordova.version.split(/\./g);
+  if (versions[0] > 6) {
+    // If cordova platform version is higher than 6,
+    // cordova-cli works well, so skip it.
+    return;
+  }
 
   var Module = require('module').Module;
   var NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
