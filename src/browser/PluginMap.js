@@ -152,7 +152,7 @@ function PluginMap(mapId, options, mapDivId) {
             options.camera.target.forEach(function(pos) {
               bounds.extend(pos);
             });
-            map.fitBounds(bounds, 10);
+            map.fitBounds(bounds, 5);
           } else {
             map.setCenter(options.camera.target);
           }
@@ -215,7 +215,7 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
           options.camera.target.forEach(function(pos) {
             bounds.extend(pos);
           });
-          map.fitBounds(bounds, 20);
+          map.fitBounds(bounds, 5);
         } else {
           map.setCenter(options.camera.target);
         }
@@ -336,7 +336,7 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
   var map = self.get("map");
 
   var options = args[0];
-  var padding = 20 || options.padding;
+  var padding = 'padding' in options ? options.padding : 5;
   if (Array.isArray(options.target)) {
     var bounds = new google.maps.LatLngBounds();
     options.target.forEach(function(pos) {
@@ -366,7 +366,7 @@ PluginMap.prototype.moveCamera = function(onSuccess, onError, args) {
   var map = self.get("map");
 
   var options = args[0];
-  var padding = 20 || options.padding;
+  var padding = 'padding' in options ? options.padding : 5;
   if (Array.isArray(options.target)) {
     var bounds = new google.maps.LatLngBounds();
     options.target.forEach(function(pos) {
