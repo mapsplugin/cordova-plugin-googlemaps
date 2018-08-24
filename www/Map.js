@@ -456,9 +456,9 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
   if (!target) {
     return Promise.reject("No target field is specified.");
   }
-  if (!("padding" in cameraPosition)) {
-    cameraPosition.padding = 20;
-  }
+  // if (!("padding" in cameraPosition)) {
+  //   cameraPosition.padding = 10;
+  // }
 
   if (utils.isArray(target) || target.type === "LatLngBounds") {
     target = common.convertToPositionArray(target);
@@ -505,9 +505,9 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     return Promise.reject("No target field is specified.");
   }
 
-  if (!("padding" in cameraPosition)) {
-    cameraPosition.padding = 20;
-  }
+  // if (!("padding" in cameraPosition)) {
+  //   cameraPosition.padding = 10;
+  // }
   if (utils.isArray(target) || target.type === "LatLngBounds") {
     target = common.convertToPositionArray(target);
     if (target.length === 0) {
