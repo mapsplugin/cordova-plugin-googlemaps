@@ -1,5 +1,5 @@
 //
-//  Environment.h
+//  PluginEnvironment.h
 //  cordova-googlemaps-plugin v2
 //
 //  Created by Masashi Katsumata.
@@ -9,9 +9,10 @@
 #import <Cordova/CDV.h>
 #import "CordovaGoogleMaps.h"
 
-@interface Environment : CDVPlugin
+@interface PluginEnvironment : CDVPlugin
 
 - (void)isAvailable:(CDVInvokedUrlCommand*)command;
 - (void)setBackGroundColor:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
+- (void)setEnv:(CDVInvokedUrlCommand*)command;
 @end

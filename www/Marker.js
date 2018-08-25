@@ -15,6 +15,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
   var self = this;
 
   if (markerOptions && markerOptions.position) {
+    markerOptions.position.lat = parseFloat(markerOptions.position.lat);
+    markerOptions.position.lng = parseFloat(markerOptions.position.lng);
     self.set('position', markerOptions.position);
   }
 
@@ -27,6 +29,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
 
   self.on("position_changed", function() {
     var position = self.get("position");
+    position.lat = parseFloat(position.lat, 10);
+    position.lng = parseFloat(position.lng, 10);
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPosition', [self.getId(), position.lat, position.lng]);
   });
   self.on("rotation_changed", function() {

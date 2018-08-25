@@ -1,4 +1,5 @@
-var utils = require('cordova/utils'),
+
+ var utils = require('cordova/utils'),
   event = require('./event'),
   common = require('./Common'),
   BaseClass = require('./BaseClass');
@@ -336,6 +337,7 @@ var HTMLInfoWindow = function () {
   };
 
   self._hook.on(self, "infoPosition_changed", function (ignore, point) {
+    if (!point) return;
     var x = point.x + self.get("offsetX");
     var y = point.y + self.get("offsetY");
     anchorDiv.style['-webkit-transform'] = "translate3d(" + x + "px, " + y + "px, 0px)";

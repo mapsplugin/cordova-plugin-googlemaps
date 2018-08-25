@@ -543,8 +543,8 @@ function createMvcArray(array) {
 
 function getLatLng(target) {
   return "getPosition" in target ? target.getPosition() : {
-    "lat": target.lat,
-    "lng": target.lng
+    "lat": parseFloat(target.lat, 10),
+    "lng": parseFloat(target.lng, 10)
   };
 }
 function convertToPositionArray(array) {

@@ -20,7 +20,7 @@ import org.json.JSONException;
 
 import java.lang.reflect.Method;
 
-public class Environment extends CordovaPlugin {
+public class PluginEnvironment extends CordovaPlugin {
   public PluginManager pluginManager;
 
   @Override
@@ -34,11 +34,11 @@ public class Environment extends CordovaPlugin {
       @Override
       public void run() {
         try {
-          Method method = Environment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
+          Method method = PluginEnvironment.this.getClass().getDeclaredMethod(action, JSONArray.class, CallbackContext.class);
           if (!method.isAccessible()) {
             method.setAccessible(true);
           }
-          method.invoke(Environment.this, args, callbackContext);
+          method.invoke(PluginEnvironment.this, args, callbackContext);
         } catch (Exception e) {
           Log.e("CordovaLog", "An error occurred", e);
           callbackContext.error(e.toString());
@@ -124,4 +124,10 @@ public class Environment extends CordovaPlugin {
     return true;
   }
 
+  @SuppressWarnings("unused")
+  public Boolean setEnv(JSONArray args, final CallbackContext callbackContext) {
+    // stub
+    callbackContext.success();
+    return true;
+  }
 }

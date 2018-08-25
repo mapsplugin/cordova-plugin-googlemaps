@@ -29,6 +29,20 @@ module.exports = function(ctx) {
 
   var xml2js = require('xml2js');
 
+  var rmdir = function(dir_path) {
+    if (fs.existsSync(dir_path)) {
+      fs.readdirSync(dir_path).forEach(function(entry) {
+        var entry_path = path.join(dir_path, entry);
+        if (fs.lstatSync(entry_path).isDirectory()) {
+          rmdir(entry_path);
+        } else {
+          fs.unlinkSync(entry_path);
+        }
+      });
+      fs.rmdirSync(dir_path);
+    }
+  };
+
   return Q.Promise(function(resolve, reject, notify) {
     //---------------------------
     // Read the config.xml file
@@ -134,6 +148,15 @@ module.exports = function(ctx) {
           resolve();
         }
       });
+    });
+  })
+  .then(function() {
+    return Q.Promise(function(resolve, reject, notify) {
+      ctx.opts.cordova.platforms.forEach(function(platformName) {
+        rmdir(path.join(projectRoot, 'platforms', platformName, 'platform_www', 'plugins', 'cordova-plugin-googlemaps'));
+        rmdir(path.join(projectRoot, 'platforms', platformName, 'www', 'plugins', 'cordova-plugin-googlemaps'));
+      });
+      resolve();
     });
   });
 
