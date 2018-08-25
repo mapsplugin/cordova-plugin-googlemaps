@@ -149,7 +149,7 @@
                                     // the maps plugin runs under the development mode.
   });
   ```
-  ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/development_mode.png)
+  <img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/development_mode.png" width="300">
 
 ### Which browser supported?
 
