@@ -3,10 +3,7 @@ if (!window.Promise) {
   window.Promise = require('cordova-plugin-googlemaps.Promise');
 }
 
-var utils = require('cordova/utils'),
-  common = require('cordova-plugin-googlemaps.Common'),
-  cordova_exec = require('cordova/exec'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+var common = require('cordova-plugin-googlemaps.Common'),
   Map = require('cordova-plugin-googlemaps.Map'),
   StreetViewPanorama = require('cordova-plugin-googlemaps.StreetViewPanorama');
 
@@ -19,7 +16,6 @@ function nativeCallback(params) {
 
 function CordovaGoogleMaps(execCmd) {
   var self = this;
-  BaseClass.apply(this);
 
   self.execCmd = execCmd;
 
@@ -31,8 +27,6 @@ function CordovaGoogleMaps(execCmd) {
   self.MAP_CNT = 0;
 
 }
-
-utils.extend(CordovaGoogleMaps, BaseClass);
 
 CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   var self = this;

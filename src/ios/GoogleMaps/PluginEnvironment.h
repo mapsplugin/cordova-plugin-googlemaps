@@ -14,4 +14,5 @@
 - (void)isAvailable:(CDVInvokedUrlCommand*)command;
 - (void)setBackGroundColor:(CDVInvokedUrlCommand*)command;
 - (void)getLicenseInfo:(CDVInvokedUrlCommand*)command;
+- (void)setEnv:(CDVInvokedUrlCommand*)command;
 @end

@@ -1,21 +1,30 @@
-var utils = require('cordova/utils');
+
+
 var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
     PluginStreetViewPanorama = require('cordova-plugin-googlemaps.PluginStreetViewPanorama'),
     event = require('cordova-plugin-googlemaps.event'),
-    BaseClass = require('cordova-plugin-googlemaps.BaseClass');
+    Environment = require('cordova-plugin-googlemaps.PluginEnvironment');
 
 var MAP_CNT = 0;
 var MAPS = {};
 
 var API_LOADED_STATUS = 0; // 0: not loaded, 1: loading, 2: completed
 
-document.addEventListener("load_googlemaps", function(evt) {
-  var params = evt[0] || {};
+document.addEventListener("load_googlemaps", function() {
+  var envOptions = Environment._getEnv();
+  var API_KEY_FOR_BROWSER;
+  if (envOptions) {
+    if (location.protocol === 'https:') {
+      API_KEY_FOR_BROWSER = envOptions.API_KEY_FOR_BROWSER_RELEASE;
+    } else {
+      API_KEY_FOR_BROWSER = envOptions.API_KEY_FOR_BROWSER_DEBUG;
+    }
+  }
   API_LOADED_STATUS = 1;
 
   var secureStripeScript = document.createElement('script');
-  if (params.API_KEY_FOR_BROWSER) {
-    secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + params.API_KEY_FOR_BROWSER);
+  if (API_KEY_FOR_BROWSER) {
+    secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
   } else {
     // for development only
     secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
@@ -60,8 +69,7 @@ var CordovaGoogleMaps = {
   pause: stub,
   getMap: function(onSuccess, onError, args) {
     var meta = args[0],
-      mapId = meta.id,
-      params = args[1];
+      mapId = meta.id;
     args[0] = mapId;
     args.unshift(this);
 
@@ -81,7 +89,7 @@ var CordovaGoogleMaps = {
 
     switch(API_LOADED_STATUS) {
       case 0:
-        cordova.fireDocumentEvent('load_googlemaps', [params]);
+        cordova.fireDocumentEvent('load_googlemaps', []);
         break;
       case 2:
         pluginMap.trigger("googleready");
@@ -111,8 +119,7 @@ var CordovaGoogleMaps = {
 
   getPanorama: function(onSuccess, onError, args) {
     var meta = args[0],
-      mapId = meta.id,
-      params = args[1];
+      mapId = meta.id;
     args[0] = mapId;
     args.unshift(this);
 
@@ -132,7 +139,7 @@ var CordovaGoogleMaps = {
 
     switch(API_LOADED_STATUS) {
       case 0:
-        cordova.fireDocumentEvent('load_googlemaps', [params]);
+        cordova.fireDocumentEvent('load_googlemaps', []);
         break;
       case 2:
         pluginStreetView.trigger("googleready");

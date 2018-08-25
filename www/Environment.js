@@ -1,7 +1,5 @@
-var argscheck = require('cordova/argscheck'),
-    utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
-    common = require('./Common');
+
+var common = require('./Common');
 
 /*****************************************************************************
  * Config Class
@@ -29,6 +27,12 @@ Environment.getLicenseInfo = function(callback) {
     cordova.exec(function(txt) {
         callback(txt);
     }, null, 'PluginEnvironment', 'getLicenseInfo', []);
+};
+
+Environment.setEnv = function(options) {
+  if (options) {
+    cordova.exec(null, null, 'PluginEnvironment', 'setEnv', [options]);
+  }
 };
 
 

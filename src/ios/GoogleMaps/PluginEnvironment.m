@@ -91,4 +91,9 @@ dispatch_queue_t queue;
   });
 }
 
+- (void)setEnv:(CDVInvokedUrlCommand *)command {
+  // stub
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 @end

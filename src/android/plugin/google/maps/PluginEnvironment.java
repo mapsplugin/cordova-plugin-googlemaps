@@ -124,4 +124,10 @@ public class PluginEnvironment extends CordovaPlugin {
     return true;
   }
 
+  @SuppressWarnings("unused")
+  public Boolean setEnv(JSONArray args, final CallbackContext callbackContext) {
+    // stub
+    callbackContext.success();
+    return true;
+  }
 }

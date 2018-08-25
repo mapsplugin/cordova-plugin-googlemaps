@@ -1,142 +1,213 @@
 # Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.0)
 
-This plugin displays Google Maps in your application.
-This plugin uses these libraries for each platforms:
+  This plugin displays Google Maps in your application.
+  This plugin uses these libraries for each platforms:
 
-- Android : [Google Maps Android API](https://developers.google.com/maps/documentation/android/)
-- iOS : [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/)
-- Browser : [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
+  - Android : [Google Maps Android API](https://developers.google.com/maps/documentation/android/)
+  - iOS : [Google Maps SDK for iOS](https://developers.google.com/maps/documentation/ios/)
+  - Browser : [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
 
-Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
+  Both [PhoneGap](http://phonegap.com/) and [Apache Cordova](http://cordova.apache.org/) are supported.
+
+<table>
+<tr>
+<td>
+<h3>Android, iOS</h3>
+<img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps-doc/master/v2.3.0/hello-world/image1.gif"  height="300">
+</td>
+<td>
+<h3>Browser</h3>
+<img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/browser_demo.gif" height="300">
+</td>
+</tr>
+</table>
 
 -----
 
 ## Guides
 
-- [How to generate API keys?](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/api_key/README.md)
-- [Hello, World](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/hello-world/README.md)
-- [Hello, World (with PhoneGap Build)](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/hello-world-phonegap-build/README.md)
-- [Trouble shootings](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/tree/master/troubleshootings/README.md)
+  - [How to generate API keys?](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/api_key/README.md)
+  - [Hello, World](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/hello-world/README.md)
+  - [Hello, World (with PhoneGap Build)](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/blob/master/v2.3.0/hello-world-phonegap-build/README.md)
+  - [Trouble shootings](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/tree/master/troubleshootings/README.md)
 
 ## Quick install
 
-- *Stable version(npm)*
-```
-$> cordova plugin add cordova-plugin-googlemaps \
-    --variable API_KEY_FOR_ANDROID="..." \
-    --variable API_KEY_FOR_IOS="..."
-```
+  - *Stable version(npm)*
+    ```
+    $> cordova plugin add cordova-plugin-googlemaps \
+        --variable API_KEY_FOR_ANDROID="..." \
+        --variable API_KEY_FOR_IOS="..."
+    ```
 
-- *Development version(beta version)*
-```
-$> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
-    --variable API_KEY_FOR_ANDROID="..." \
-    --variable API_KEY_FOR_IOS="..."
-```
+  - *Development version(beta version)*
+    ```
+    $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
+        --variable API_KEY_FOR_ANDROID="..." \
+        --variable API_KEY_FOR_IOS="..."
+    ```
 
 ## PhoneGap Build settings
 
-```xml
-<widget ...>
-  <plugin name="cordova-plugin-googlemaps" spec="2.4.0">
-    <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
-    <variable name="API_KEY_FOR_IOS" value="(api key)" />
-  </plugin>
+  ```xml
+  <widget ...>
+    <plugin name="cordova-plugin-googlemaps" spec="2.4.0">
+      <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
+      <variable name="API_KEY_FOR_IOS" value="(api key)" />
+    </plugin>
 
-  <!--
-    You need to specify cli-7.1.0 or greater version.
-    https://build.phonegap.com/current-support
-  -->
-  <preference name="phonegap-version" value="cli-8.0.0" />
-</widget>
-```
+    <!--
+      You need to specify cli-7.1.0 or greater version.
+      https://build.phonegap.com/current-support
+    -->
+    <preference name="phonegap-version" value="cli-8.0.0" />
+  </widget>
+  ```
 
 ## Install optional variables
 
-- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **PLAY_SERVICES_VERSION = (15.0.1)**<br>
-  The Google Play Services SDK version.
-  _You need to specify the same version number with all other plugins._
-  Check out the latest version [here](https://developers.google.com/android/guides/releases).
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **PLAY_SERVICES_VERSION = (15.0.1)**<br>
+    The Google Play Services SDK version.
+    _You need to specify the same version number with all other plugins._
+    Check out the latest version [here](https://developers.google.com/android/guides/releases).
 
-- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **ANDROID_SUPPORT_V4_VERSION = (27.1.1)**<br>
-  This plugin requires the Android support library v4.
-  _The minimum version is 24.1.0._
-  Check out the latest version [here](https://developer.android.com/topic/libraries/support-library/revisions.html).
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **ANDROID_SUPPORT_V4_VERSION = (27.1.1)**<br>
+    This plugin requires the Android support library v4.
+    _The minimum version is 24.1.0._
+    Check out the latest version [here](https://developer.android.com/topic/libraries/support-library/revisions.html).
 
-- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_WHEN_IN_USE_DESCRIPTION**<br>
-  This message is displayed when your application requests **LOCATION PERMISSION for only necessary times**.
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_WHEN_IN_USE_DESCRIPTION**<br>
+    This message is displayed when your application requests **LOCATION PERMISSION for only necessary times**.
 
-- ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_ALWAYS_USAGE_DESCRIPTION**<br>
-  This message is displayed when your application requests **LOCATION PERMISSION for always**.
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_ALWAYS_USAGE_DESCRIPTION**<br>
+    This message is displayed when your application requests **LOCATION PERMISSION for always**.
+
+---------------------------------------------------------------------------------------------------------
+
+## Browser platform
+
+  From cordova-plugin-googlemaps version 2.4.0, we support `browser` platform!
+  You can develop your application with browser, then run it!
+  At the end of development, you can upload the html files to your server, or run it on Android or iOS devices.
+
+  ```
+  $> cordova run browser
+  ```
+
+  If you use [ionic framework](https://ionicframework.com/), it supports `live-reload`.
+
+  ```
+  $> ionic cordova run browser -l
+  ```
+
+  If you want to use `live-reload`, but you don't want to use other framework or without framework,
+  [cordova-plugin-browsersync](https://www.npmjs.com/package/cordova-plugin-browsersync) is useful.
+
+  ```
+  $> cordova plugin add cordova-plugin-browsersync
+
+  $> cordova run -- --live-reload
+  ```
+
+### API key
+
+  In the browser platform, the maps plugin uses [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
+
+  You need to set **two API keys for Google Maps JavaScript API v3**.
+
+  ```js
+  // If your app runs this program on browser,
+  // you need to set `API_KEY_FOR_BROWSER_RELEASE` and `API_KEY_FOR_BROWSER_DEBUG`
+  // before `plugin.google.maps.Map.getMap()`
+  //
+  //   API_KEY_FOR_BROWSER_RELEASE for `https:` protocol
+  //   API_KEY_FOR_BROWSER_DEBUG for `http:` protocol
+  //
+  plugin.google.maps.environment.setEnv({
+    'API_KEY_FOR_BROWSER_RELEASE': '(YOUR_API_KEY_IS_HERE)',
+    'API_KEY_FOR_BROWSER_DEBUG': ''
+  });
+
+  // Create a Google Maps native view under the map_canvas div.
+  var map = plugin.google.maps.Map.getMap(div);
+
+  ```
+
+### Why **two API keys**?
+
+  `JavaScript` code is `text code`. Even if you do obfuscation, it's still readable finally.
+  In order to protect your API key, you need to set `Key restriction` for these keys.
+
+  ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/api_key_restrictions.png)
+
+  If you don't set API key, the maps plugin still work with `development mode`.
+
+  ```js
+  plugin.google.maps.environment.setEnv({
+    'API_KEY_FOR_BROWSER_RELEASE': '(YOUR_API_KEY_IS_HERE)',
+    'API_KEY_FOR_BROWSER_DEBUG': '' // If key is empty or unset,
+                                    // the maps plugin runs under the development mode.
+  });
+  ```
+  ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/development_mode.png)
+
+### Which browser supported?
+
+  Modern browsers should work without any problem.
+  ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/modern_browser.png)
+
+  Internet Explorer 11 might work. We don't confirm all features, but basic features work.
+
+### Behavior differences
+
+  `Google Maps JavaScript API v3` is completely different ecosystem with `Google Maps Android API` and `Google Maps SDK for iOS`.
+
+  `Google Maps JavaScript API v3` :
+  - **can't** draw 3D building,
+  - **does't work** if offline,
+  - **can't** map rotation,
+  - etc...
+
+  In the browser platform, the maps plugin works almost the same behaviors as native platforms(Android, and iOS),
+  but not exactly the same behaviors.
+  So don't expect too much.
+
+### Touch mechanism difference
+
+  As you may know, [this plugin displays native Google Maps view under the browser in Android and iOS](#how-does-this-plugin-work-android-ios).
+  However this plugin displays as `normal HTML element` in browser platform.
+
+  Because of this, touch behavior is different.
+  The maps plugin does not hook the touch position, do not set `background: transparent`, ... etc.
+  But if you use this plugin as normal behavior, you don't need to consider about this.
 
 ---------------------------------------------------------------------------------------------------------
 
 ## Please support this plugin activity.
 
-In order to keep this plugin as free, please consider to donate little amount for this project.
+  In order to keep this plugin as free, please consider to donate little amount for this project.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
+  [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=cordova%2dgooglemaps%2dplugin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
 
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
   - **v2.4.0**
     - Add: `Browser` platform!
+    - Add: `plugin.google.maps.environment.setEnv()` method.
     - Add: `icon` property for KmlOverlayOptions
     - Fix: map.addKmlOverlay() does not work if page url contains '#hash'
 
 ---------------------------------------------------------------------------------------------------------
 
-## Quick demo
+## Demos
+
+
+[Demo (Browser)](https://mapsplugin.github.io/HelloGoogleMap/)
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
 
 [Demo (Browser)](https://mapsplugin.github.io/HelloGoogleMap/)
-
-```js
-document.addEventListener("deviceready", function() {
-  var div = document.getElementById("map_canvas");
-
-  // Initialize the map view
-  var map = plugin.google.maps.Map.getMap(div, {
-    "API_KEY_FOR_BROWSER": "(YOUR_API_KEY_FOR_BROWSER)" // optional
-  });
-
-
-  var button = document.getElementById("button");
-  button.addEventListener("click", function() {
-
-    // Move to the position with animation
-    map.animateCamera({
-      target: {lat: 37.422359, lng: -122.084344},
-      zoom: 17,
-      tilt: 60,
-      bearing: 140,
-      duration: 5000
-    });
-
-    // Add a maker
-    var marker = map.addMarker({
-      position: {lat: 37.422359, lng: -122.084344},
-      title: "Welcome to \n" +
-             "Cordova GoogleMaps plugin for iOS and Android",
-      snippet: "This plugin is awesome!",
-      animation: plugin.google.maps.Animation.BOUNCE
-    });
-
-    // Show the info window
-    marker.showInfoWindow();
-
-    // Catch the click event
-    marker.on(plugin.google.maps.event.INFO_CLICK, function() {
-
-      // To do something...
-      alert("Hello world!");
-
-    });
-  }
-}, false);
-```
 
 ---------------------------------------------------------------------------------------------------------
 
