@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.0)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.1)
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -51,7 +51,7 @@
 
   ```xml
   <widget ...>
-    <plugin name="cordova-plugin-googlemaps" spec="2.4.0">
+    <plugin name="cordova-plugin-googlemaps" spec="2.4.1">
       <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
       <variable name="API_KEY_FOR_IOS" value="(api key)" />
     </plugin>
@@ -154,7 +154,7 @@
 ### Which browser supported?
 
   Modern browsers should work without any problem.
-  ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/modern_browser.png)
+  ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/modern_browsers.png)
 
   Internet Explorer 11 might work. We don't confirm all features, but basic features work.
 
@@ -192,6 +192,10 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.4.1**
+    - Fix: `map.getMap()` does not work when page changing on ionic v4.
+    - Fix: `LocationService.hasPermission()` is not implement for browser platform.
+
   - **v2.4.0**
     - Add: `Browser` platform!
     - Add: `plugin.google.maps.environment.setEnv()` method.
@@ -207,7 +211,6 @@
 
 ![](https://github.com/mapsplugin/cordova-plugin-googlemaps-doc/raw/master/v1.4.0/top/demo.gif)
 
-[Demo (Browser)](https://mapsplugin.github.io/HelloGoogleMap/)
 
 ---------------------------------------------------------------------------------------------------------
 

@@ -26,6 +26,46 @@ function CordovaGoogleMaps(execCmd) {
   self.MAPS = {};
   self.MAP_CNT = 0;
 
+  var removeMapDiv = function(node) {
+    if (node.hasAttribute('__pluginmapid') && !node.parentNode) {
+      var mapId = node.getAttribute('__pluginmapid');
+      var map = self.MAPS[mapId];
+      if (map) {
+        map.remove();
+        delete self.MAPS[mapId];
+      }
+    } else {
+      var childNodes = Array.prototype.slice.call(node.childNodes);
+      childNodes.forEach(function(child) {
+        if (child.outerHTML && child.outerHTML.indexOf('__pluginmapid') > -1) {
+          removeMapDiv(child);
+        }
+      });
+    }
+  };
+
+  //------------------------------------------------------------------------------
+  // Using MutationObserver, observe only added/removed or style changed elements
+  //------------------------------------------------------------------------------
+  var observer = new MutationObserver(function(mutations) {
+    common.nextTick(function() {
+      var mutationRecords = Array.prototype.slice.call(mutations, 0);
+      mutationRecords.forEach(function(record) {
+        if (record.removedNodes.length > 0) {
+          record.removeNodes = Array.prototype.slice.call(record.removedNodes, 0);
+          record.removeNodes.forEach(function(node) {
+            if (node.outerHTML && node.outerHTML.indexOf('__pluginmapid') > -1) {
+              removeMapDiv(node);
+            }
+          });
+        }
+      });
+    });
+  });
+  observer.observe(document.body.parentElement, {
+    childList: true,
+    subtree: true
+  });
 }
 
 CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {

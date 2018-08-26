@@ -115,6 +115,7 @@ var CordovaGoogleMaps = {
     pluginMap = null;
     MAPS[mapId] = undefined;
     delete MAPS[mapId];
+    onSuccess();
   },
 
   getPanorama: function(onSuccess, onError, args) {

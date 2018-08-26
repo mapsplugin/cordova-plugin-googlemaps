@@ -11,6 +11,17 @@ var LOCATION_ERROR = {
 };
 
 module.exports = {
+  'hasPermission': function(onSuccess, onError, args) {
+    if (navigator.permissions) {
+      navigator.permissions.query({'name': 'geolocation'})
+        .then(function(permission) {
+          onSuccess(permission.state === 'granted' ? 1 : 0);
+        })
+        .catch(onError);
+    } else {
+      onError('Browser does not support this feature.');
+    }
+  },
   'getMyLocation': function(onSuccess, onError, args) {
 
     if (navigator.geolocation) {
