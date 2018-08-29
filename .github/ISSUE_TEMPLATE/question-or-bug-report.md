@@ -34,6 +34,7 @@ then I make a private space, then support it.
 **OS:**  (check one with "x")
 - [ ] **Android**
 - [ ] **iOS**
+- [ ] **Browser**
 
 **cordova information:**  (run `$> cordova plugin list`) 
 
