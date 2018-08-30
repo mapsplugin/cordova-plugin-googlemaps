@@ -197,6 +197,13 @@ function postPanoramaInit(panorama, div, options) {
     console.error('[GoogleMaps] You need to specify a dom element(such as <div>) for this method', div);
     return;
   }
+  // If the given div is not fully ready, wait a little
+  if (!common.shouldWatchByNative(div)) {
+    setTimeout(function() {
+      common.nextTick(postPanoramaInit.bind(self, map, div, options));
+    }, 50);
+    return;
+  }
   if (div.offsetWidth < 100 || div.offsetHeight < 100) {
     console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
     return;
@@ -230,6 +237,13 @@ function postMapInit(map, div, options) {
   var args = [];
 
   if (common.isDom(div)) {
+    // If the given div is not fully ready, wait a little
+    if (!common.shouldWatchByNative(div)) {
+      setTimeout(function() {
+        common.nextTick(postMapInit.bind(self, map, div, options));
+      }, 50);
+      return;
+    }
     if (div.offsetWidth < 100 || div.offsetHeight < 100) {
       console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
       return;
