@@ -154,6 +154,7 @@
 ### Which browser supported?
 
   Modern browsers should work without any problem.
+
   ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/modern_browsers.png)
 
   Internet Explorer 11 might work. We don't confirm all features, but basic features work.
@@ -192,6 +193,11 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.4.2**
+    - Fix: If application uses ionic v1, it can't interactive with map view on only iPhone5 because of resetCSS
+    - Fix: `Cannot set property 'isMap' of undefined` error
+    - Update: (Browser) Can not load Google Maps JavaScript API v3 with `libraries=places`
+
   - **v2.4.1**
     - Fix: `map.getMap()` does not work when page changing on ionic v4.
     - Fix: `LocationService.hasPermission()` is not implement for browser platform.
