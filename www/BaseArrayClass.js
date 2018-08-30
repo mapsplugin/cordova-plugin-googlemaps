@@ -1,7 +1,7 @@
 var utils = require('cordova/utils'),
   BaseClass = require('./BaseClass');
 
-var ARRAY_FIELD = typeof Symbol === 'undefined' ? '__array' + Date.now() : Symbol.for('array');
+var ARRAY_FIELD = typeof Symbol === 'undefined' ? '__array' + Date.now() : Symbol('array');
 
 var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
 var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };

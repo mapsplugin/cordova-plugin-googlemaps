@@ -1,11 +1,17 @@
 module.exports = function(ctx) {
 
+  var versions = ctx.opts.cordova.version.split(/\./g);
+  if (versions[0] > 6) {
+    // If cordova platform version is higher than 6,
+    // cordova-cli works well, so skip it.
+    return;
+  }
+
   var fs = ctx.requireCordovaModule('fs'),
       path = ctx.requireCordovaModule('path'),
       Q = ctx.requireCordovaModule('q');
   var projectRoot = ctx.opts.projectRoot,
     configXmlPath = path.join(projectRoot, 'config.xml');
-  var versions = ctx.opts.cordova.version.split(/\./g);
 
   var Module = require('module').Module;
   var NODE_MODULES_DIR = path.join(__dirname, '..', 'node_modules');
@@ -22,6 +28,20 @@ module.exports = function(ctx) {
   }
 
   var xml2js = require('xml2js');
+
+  var rmdir = function(dir_path) {
+    if (fs.existsSync(dir_path)) {
+      fs.readdirSync(dir_path).forEach(function(entry) {
+        var entry_path = path.join(dir_path, entry);
+        if (fs.lstatSync(entry_path).isDirectory()) {
+          rmdir(entry_path);
+        } else {
+          fs.unlinkSync(entry_path);
+        }
+      });
+      fs.rmdirSync(dir_path);
+    }
+  };
 
   return Q.Promise(function(resolve, reject, notify) {
     //---------------------------
@@ -128,6 +148,15 @@ module.exports = function(ctx) {
           resolve();
         }
       });
+    });
+  })
+  .then(function() {
+    return Q.Promise(function(resolve, reject, notify) {
+      ctx.opts.cordova.platforms.forEach(function(platformName) {
+        rmdir(path.join(projectRoot, 'platforms', platformName, 'platform_www', 'plugins', 'cordova-plugin-googlemaps'));
+        rmdir(path.join(projectRoot, 'platforms', platformName, 'www', 'plugins', 'cordova-plugin-googlemaps'));
+      });
+      resolve();
     });
   });
 

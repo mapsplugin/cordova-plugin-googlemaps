@@ -1,4 +1,4 @@
-/*****************************************************************************
+ /*****************************************************************************
  * LocationService class
  *****************************************************************************/
 var LatLng = require('./LatLng');
@@ -54,7 +54,7 @@ var LocationService = function(exec) {
           location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
           resolve.call(self, location);
         },
-        reject.bind(self), 'LocationService', 'getMyLocation', [params], {sync: true});
+        reject.bind(self), 'PluginLocationService', 'getMyLocation', [params], {sync: true});
       };
 
       params.enableHighAccuracy = params.enableHighAccuracy === true;

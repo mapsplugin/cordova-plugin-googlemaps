@@ -1,3 +1,4 @@
+
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -46,7 +47,7 @@ var Map = function(id, _exec) {
   infoWindowLayer.style.width = 0;
   infoWindowLayer.style.height = 0;
   infoWindowLayer.style.overflow = "visible";
-  infoWindowLayer.style["z-index"] = 0;
+  infoWindowLayer.style["z-index"] = 1;
 
   Object.defineProperty(self, "_layers", {
     value: {
@@ -455,9 +456,9 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
   if (!target) {
     return Promise.reject("No target field is specified.");
   }
-  if (!("padding" in cameraPosition)) {
-    cameraPosition.padding = 20;
-  }
+  // if (!("padding" in cameraPosition)) {
+  //   cameraPosition.padding = 10;
+  // }
 
   if (utils.isArray(target) || target.type === "LatLngBounds") {
     target = common.convertToPositionArray(target);
@@ -504,9 +505,9 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     return Promise.reject("No target field is specified.");
   }
 
-  if (!("padding" in cameraPosition)) {
-    cameraPosition.padding = 20;
-  }
+  // if (!("padding" in cameraPosition)) {
+  //   cameraPosition.padding = 10;
+  // }
   if (utils.isArray(target) || target.type === "LatLngBounds") {
     target = common.convertToPositionArray(target);
     if (target.length === 0) {
@@ -790,6 +791,11 @@ Map.prototype.setDiv = function(div) {
 
     self.set("div", div);
 
+    if (cordova.platform === "browser") {
+      return;
+    }
+
+
     positionCSS = common.getStyle(div, "position");
     if (!positionCSS || positionCSS === "static") {
       div.style.position = "relative";
@@ -964,9 +970,6 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
 };
 
 
-//-------------
-// KML Layer
-//-------------
 Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   var self = this;
   kmlOverlayOptions = kmlOverlayOptions || {};
@@ -974,42 +977,57 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   kmlOverlayOptions.clickable = common.defaultTrueOption(kmlOverlayOptions.clickable);
   kmlOverlayOptions.suppressInfoWindows = kmlOverlayOptions.suppressInfoWindows === true;
 
-  var invisible_dot = self.get("invisible_dot");
-  if (!invisible_dot || invisible_dot._isRemoved) {
-    // Create an invisible marker for kmlOverlay
-    self.set("invisible_dot", self.addMarker({
-      position: {
-        lat: 0,
-        lng: 0
-      },
-      icon: "skyblue",
-      visible: false
-    }));
-  }
+  if (kmlOverlayOptions.url) {
 
-  var resolver = function(resolve, reject) {
+    var link = document.createElement("a");
+    link.href = kmlOverlayOptions.url;
+    kmlOverlayOptions.url = link.protocol+"//"+link.host+link.pathname;
 
-    var loader = new KmlLoader(self, self.exec, kmlOverlayOptions);
-    loader.parseKmlFile(function(camera, kmlData) {
-      if (kmlData instanceof BaseClass) {
-        kmlData = new BaseArrayClass([kmlData]);
-      }
-      var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
-      var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
-      self.OVERLAYS[kmlId] = kmlOverlay;
-      resolve.call(self, kmlOverlay);
-    });
+    var invisible_dot = self.get("invisible_dot");
+    if (!invisible_dot || invisible_dot._isRemoved) {
+      // Create an invisible marker for kmlOverlay
+      self.set("invisible_dot", self.addMarker({
+        position: {
+          lat: 0,
+          lng: 0
+        },
+        icon: "skyblue",
+        visible: false
+      }));
+    }
+    if ('icon' in kmlOverlayOptions) {
+      self.get('invisible_dot').setIcon(kmlOverlayOptions.icon);
+    }
 
-  };
+    var resolver = function(resolve, reject) {
 
-  if (typeof callback === "function") {
-    resolver(callback, self.errorHandler);
+      var loader = new KmlLoader(self, self.exec, kmlOverlayOptions);
+      loader.parseKmlFile(function(camera, kmlData) {
+        if (kmlData instanceof BaseClass) {
+          kmlData = new BaseArrayClass([kmlData]);
+        }
+        var kmlId = "kmloverlay_" + Math.floor(Math.random() * Date.now());
+        var kmlOverlay = new KmlOverlay(self, kmlId, camera, kmlData, kmlOverlayOptions);
+        self.OVERLAYS[kmlId] = kmlOverlay;
+        resolve.call(self, kmlOverlay);
+      });
+
+    };
+
+    if (typeof callback === "function") {
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
   } else {
-    return new Promise(resolver);
+
+    if (typeof callback === "function") {
+      throw new Error('KML file url is required.');
+    } else {
+      return Promise.reject('KML file url is required.');
+    }
   }
 };
-
-
 
 //-------------
 // Ground overlay

@@ -4,26 +4,38 @@ about: How to request private support?
 
 ---
 
-<!---
-Since this plugin is open source project, this project asks to make conversation in open space as much as possible.
-However some people, some companies can not do that because of their NDA or privacy policy.
-Yes, we understand your situation.
+This plugin is open source project, thus you can use this plugin as free!
 
-In that case, please consider to choose **"private support"**.
-If we accept the "**private support**", we make a private chat room, then we can discuss your issue.
-We don't discover your code or your application screen captures into public space.
+In order to share the issue knowledges with other people, we would like to ask you to make converstations in open issue threads as much as possible.
 
-------------------
+However some people, some companies do not allow to do that, because of their NDAs or privacy policies.
 
-However we also ask minimum donation $100 USD to the project.
-https://github.com/mapsplugin/cordova-plugin-googlemaps#please-support-this-plugin-activity
+Yes, we understand thier situations.
 
-This helps this plugin project activity is more active.
+In that case, choose **"private support"**.
+If you choose "**private support**", we will make a private chat room for you, then we can discuss your issues.
+We don't discover your code or your application screen captures into public spaces.
 
-In order to make a ticket for private support, please make a donation first, then please describe your issue briefly here.
-We will contact to you by e-mail or here.
---->
+### Fee
 
-**Please describe your issue briefly (you don't need to include screen shots if you don't want to)**
+You can choose one of following options:
 
-**Need NDA signup?**
+- only one time, ask only one issue.
+  Please donate $10 USD.
+  
+- 3 months private support, up to 20 issues.
+  Please donate $100 USD.
+  
+- one year private support, no cap.
+  Please donate $1,000 USD.
+
+
+  
+### How to apply it?
+
+Please make an issue with this template, then donate the fee amount.
+ 
+  https://github.com/mapsplugin/cordova-plugin-googlemaps#please-support-this-plugin-activity
+
+You don't need to discover your information at this issue thread.
+After donation, we will contact the email address which is used for paypal payment.

@@ -124,7 +124,10 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       mOptions.url = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, mOptions.url);
     }
 
-    this.currentPageUrl = CordovaGoogleMaps.CURRENT_URL; //webView.getUrl();
+    this.currentPageUrl = CordovaGoogleMaps.CURRENT_URL;
+    if (this.currentPageUrl == null) {
+      this.currentPageUrl = webView.getUrl();
+    }
     //Log.d(TAG, "-->currentPageUrl = " + this.currentPageUrl);
 
     //View browserView = webView.getView();
@@ -185,6 +188,14 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     // Load image from local path
     //--------------------------------
     if (!iconUrl.startsWith("data:image")) {
+
+      if ((currentPageUrl.startsWith("http://localhost") ||
+          currentPageUrl.startsWith("http://127.0.0.1")) &&
+          !iconUrl.contains("://")) {
+        // Avoid WebViewLocalServer (because can not make a connection for some reason)
+        iconUrl = "file:///android_asset/www/".concat(iconUrl);
+      }
+
       if (!iconUrl.contains("://") &&
           !iconUrl.startsWith("/") &&
           !iconUrl.startsWith("www/") &&
@@ -229,7 +240,6 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
             if (!isAbsolutePath) {
               iconUrl = iconUrl.substring(1);
             }
-            Log.d(TAG, "iconUrl(232) = " + iconUrl);
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -274,29 +284,33 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
           HttpURLConnection.setFollowRedirects(true);
 
           // normally, 3xx is redirect
-          int status = http.getResponseCode();
-          if (status != HttpURLConnection.HTTP_OK) {
-            if (status == HttpURLConnection.HTTP_MOVED_TEMP
-                || status == HttpURLConnection.HTTP_MOVED_PERM
-                || status == HttpURLConnection.HTTP_SEE_OTHER)
-              redirect = true;
-          }
-          if (redirect) {
-            // get redirect url from "location" header field
-            url = new URL(http.getHeaderField("Location"));
+          try {
+            int status = http.getResponseCode();
+            if (status != HttpURLConnection.HTTP_OK) {
+              if (status == HttpURLConnection.HTTP_MOVED_TEMP
+                  || status == HttpURLConnection.HTTP_MOVED_PERM
+                  || status == HttpURLConnection.HTTP_SEE_OTHER)
+                redirect = true;
+            }
+            if (redirect) {
+              // get redirect url from "location" header field
+              url = new URL(http.getHeaderField("Location"));
 
-            // get the cookie if need, for login
-            cookies = http.getHeaderField("Set-Cookie");
+              // get the cookie if need, for login
+              cookies = http.getHeaderField("Set-Cookie");
 
-            // Disconnect the current connection
-            http.disconnect();
-            redirectCnt++;
-            continue;
-          }
-          if (status == HttpURLConnection.HTTP_OK) {
-            break;
-          } else {
-            return null;
+              // Disconnect the current connection
+              http.disconnect();
+              redirectCnt++;
+              continue;
+            }
+            if (status == HttpURLConnection.HTTP_OK) {
+              break;
+            } else {
+              return null;
+            }
+          } catch (Exception e) {
+            Log.e(TAG, "can not connect to " + iconUrl, e);
           }
         }
 

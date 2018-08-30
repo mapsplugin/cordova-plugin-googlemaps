@@ -1,3 +1,7 @@
+
+if (!window.Promise) {
+  window.Promise = require('./Promise');
+}
 var utils = require('cordova/utils'),
   common = require('./Common'),
   cordova_exec = require('cordova/exec'),
@@ -41,6 +45,12 @@ function CordovaGoogleMaps(execCmd) {
 
   // Cache for updateMapPositionOnly
   self.prevMapRects = {};
+
+  // Control variables for followMaps() function
+  self.scrollEndTimer = null;
+  self.transitionEndTimer = null;
+  self.transformTargets = {};
+  self.transitionCnt = 0;
 
   //------------------------------------------------------------------------------
   // Using MutationObserver, observe only added/removed or style changed elements
@@ -383,6 +393,113 @@ CordovaGoogleMaps.prototype.resume = function() {
 };
 
 
+// If the `transitionend` event is ocurred on the observed element,
+// adjust the position and size of the map view
+
+CordovaGoogleMaps.prototype.followMaps = function(evt) {
+  var self = this;
+  if (self.MAP_CNT === 0) {
+    return;
+  }
+  self.transitionCnt++;
+  self.transforming = true;
+  var changes = self.followMapDivPositionOnly.call(self);
+  if (self.scrollEndTimer) {
+    clearTimeout(self.scrollEndTimer);
+    self.scrollEndTimer = null;
+  }
+  if (changes) {
+    self.scrollEndTimer = setTimeout(self.followMaps.bind(self, evt), 100);
+  } else {
+    setTimeout(self.onTransitionEnd.bind(self, evt), 100);
+  }
+};
+
+// CSS event `transitionend` is fired even the target dom element is still moving.
+// In order to detect "correct demention after the transform", wait until stable.
+CordovaGoogleMaps.prototype.onTransitionEnd = function(evt) {
+  var self = this;
+  if (self.MAP_CNT === 0 || !evt) {
+    return;
+  }
+  var target = evt.target;
+  if (!target) {
+    target = document.body;
+  }
+  target = target.getAttribute === "function" ? target : document.body;
+  var elemId = target.getAttribute("__pluginDomId");
+  self.transformTargets[elemId] = {left: -1, top: -1, right: -1, bottom: -1, finish: false, target: target};
+  if (!self.transitionEndTimer) {
+    self.transitionEndTimer = setTimeout(self.detectTransitionFinish.bind(self), 100);
+  }
+};
+
+CordovaGoogleMaps.prototype.detectTransitionFinish = function() {
+  var self = this;
+  var keys = Object.keys(self.transformTargets);
+  var onFilter = function(elemId) {
+    if (self.transformTargets[elemId].finish) {
+      return false;
+    }
+
+    var target = self.transformTargets[elemId].target;
+    var divRect = common.getDivRect(target);
+    var prevRect = self.transformTargets[elemId];
+    if (divRect.left === prevRect.left &&
+        divRect.top === prevRect.top &&
+        divRect.right === prevRect.right &&
+        divRect.bottom === prevRect.bottom) {
+      self.transformTargets[elemId].finish = true;
+    }
+    self.transformTargets[elemId].left = divRect.left;
+    self.transformTargets[elemId].top = divRect.top;
+    self.transformTargets[elemId].right = divRect.right;
+    self.transformTargets[elemId].bottom = divRect.bottom;
+    return !self.transformTargets[elemId].finish;
+  };
+  var notYetTargets = keys.filter(onFilter);
+  onFilter = null;
+
+  if (self.transitionEndTimer) {
+    clearTimeout(self.transitionEndTimer);
+  }
+  self.transitionCnt -= notYetTargets.length > 1 ? 1 : 0;
+  if (notYetTargets.length > 0 && self.transitionCnt == 0) {
+    self.transitionEndTimer = setTimeout(self.detectTransitionFinish.bind(self), 100);
+  } else {
+    clearTimeout(self.transitionEndTimer);
+    self.transitionEndTimer = null;
+    setTimeout(self.onTransitionFinish.bind(self), 100);
+  }
+};
+
+CordovaGoogleMaps.prototype.onTransitionFinish = function() {
+  var self = this;
+  if (self.MAP_CNT === 0) {
+    self.transforming = false;
+    return;
+  }
+  // Don't block by transform flag
+  // because some ionic CSS technique can not trigger `transitionstart` event.
+  // if (!self.transforming) {
+  //   return;
+  // }
+  self.transforming = false;
+  var changes = self.followMapDivPositionOnly.call(self);
+  if (changes) {
+    self.scrollEndTimer = setTimeout(self.onTransitionFinish.bind(self), 100);
+  } else {
+    self.transformTargets = undefined;
+    self.transformTargets = {};
+    self.isThereAnyChange = true;
+    self.checkRequested = false;
+    self.putHtmlElements.call(self);
+    //self.pause();
+    self.scrollEndTimer = null;
+  }
+};
+
+
 CordovaGoogleMaps.prototype.removeDomTree = function(node) {
   //----------------------------------------------------------------------------
   // This procedure removes the DOM tree graph from the specified element(node)
@@ -632,6 +749,10 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       while(elem && elem.nodeType === Node.ELEMENT_NODE) {
         elemId = common.getPluginDomId(elem);
         if (common.shouldWatchByNative(elem)) {
+          if (elem.shadowRoot) {
+            elem.shadowRoot.addEventListener("transitionend", self.onTransitionEnd.bind(self), {capture: true});
+            elem.shadowRoot.addEventListener("scroll", self.followMaps.bind(self), {capture: true});
+          }
           isCached = elemId in self.domPositions;
           self.domPositions[elemId] = {
             pointerEvents: common.getStyle(elem, 'pointer-events'),
@@ -757,6 +878,13 @@ function postPanoramaInit(panorama, div, options) {
     console.error('[GoogleMaps] You need to specify a dom element(such as <div>) for this method', div);
     return;
   }
+  // If the given div is not fully ready, wait a little
+  if (!common.shouldWatchByNative(div)) {
+    setTimeout(function() {
+      common.nextTick(postPanoramaInit.bind(self, map, div, options));
+    }, 50);
+    return;
+  }
   if (div.offsetWidth < 100 || div.offsetHeight < 100) {
     console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
     return;
@@ -824,6 +952,13 @@ function postMapInit(map, div, options) {
   var args = [];
 
   if (common.isDom(div)) {
+    // If the given div is not fully ready, wait a little
+    if (!common.shouldWatchByNative(div)) {
+      setTimeout(function() {
+        common.nextTick(postMapInit.bind(self, map, div, options));
+      }, 50);
+      return;
+    }
     if (div.offsetWidth < 100 || div.offsetHeight < 100) {
       console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
       return;
