@@ -14,12 +14,22 @@
     "type": "git",
     "url": "https://github.com/mapsplugin/cordova-plugin-googlemaps.git"
   },
+  "bin": {
+    "pgm": "cli/index.js"
+  },
+  "dependencies": {
+    "vorpal": "^1.11.4",
+    "xml2json": "^0.11.2",
+    "@octokit/rest": "^15.10.0",
+    "mz": "^2.7.0"
+  },
   "keywords": [
     "google",
     "maps",
     "geo",
     "google maps",
     "ecosystem:cordova",
+    "cordova-browser",
     "cordova-android",
     "cordova-ios"
   ],
