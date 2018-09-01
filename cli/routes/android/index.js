@@ -5,8 +5,10 @@ const fs = require('fs'),
   errors = require('../../errors'),
   values = require('../../values');
 
-module.exports = (req, res, next) => {
-
+module.exports = (args, callback) => {
+  console.log(args);
+  callback();
+  return;
 
   require('./prepare')(req, res, next)
   .then(() => {

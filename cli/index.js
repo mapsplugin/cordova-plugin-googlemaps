@@ -8,8 +8,8 @@ const vorpal = require('vorpal')(),
   values = require('./values');
 
 vorpal
-  .command('upgrade', 'upgrade cordova-plugin-googlemaps itself')
-  .action(require('./routes/upgrade'));
+  .command('set apiKey android [apiKey]', 'set apiKey for Android')
+  .action(require('./routes/android'));
 
 vorpal
   .delimiter('pgm $')
