@@ -342,7 +342,9 @@
       continue;
     }
 
-    UIView *hit = [subview hitTest:point withEvent:event];
+    CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
+    CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y - statusBarFrame.size.height);
+    UIView *hit = [subview hitTest:subviewPoint withEvent:event];
 
     if (hit) {
       if (subview == self.webView) {
