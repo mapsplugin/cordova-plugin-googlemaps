@@ -1,7 +1,6 @@
 package plugin.google.maps;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
@@ -76,6 +75,18 @@ public class PluginKmlOverlay extends MyPlugin implements MyPluginInterface {
             !urlStr.startsWith("../")) {
           urlStr = "./" + urlStr;
         }
+
+        if (currentPageUrl.startsWith("http://localhost") ||
+            currentPageUrl.startsWith("http://127.0.0.1")) {
+          if (urlStr.contains("://")) {
+            urlStr = urlStr.replaceAll("http://.+?/", "file:///android_asset/www/");
+          } else {
+            // Avoid WebViewLocalServer (because can not make a connection for some reason)
+            urlStr = "file:///android_asset/www/".concat(urlStr);
+          }
+        }
+
+
         if (urlStr.startsWith("./")  || urlStr.startsWith("../")) {
           urlStr = urlStr.replace("././", "./");
           currentPageUrl = currentPageUrl.replaceAll("[^\\/]*$", "");

@@ -174,6 +174,16 @@ public class PluginTileProvider implements TileProvider  {
       }
     }
 
+    if (urlStr.startsWith("http://localhost") ||
+        urlStr.startsWith("http://127.0.0.1")) {
+      if (urlStr.contains("://")) {
+        urlStr = urlStr.replaceAll("http://.+?/", "file:///android_asset/www/");
+      } else {
+        // Avoid WebViewLocalServer (because can not make a connection for some reason)
+        urlStr = "file:///android_asset/www/".concat(urlStr);
+      }
+    }
+
     try {
       InputStream inputStream = null;
       if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {

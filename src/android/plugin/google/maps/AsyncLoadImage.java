@@ -189,11 +189,14 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     //--------------------------------
     if (!iconUrl.startsWith("data:image")) {
 
-      if ((currentPageUrl.startsWith("http://localhost") ||
-          currentPageUrl.startsWith("http://127.0.0.1")) &&
-          !iconUrl.contains("://")) {
-        // Avoid WebViewLocalServer (because can not make a connection for some reason)
-        iconUrl = "file:///android_asset/www/".concat(iconUrl);
+      if (currentPageUrl.startsWith("http://localhost") ||
+          currentPageUrl.startsWith("http://127.0.0.1")) {
+        if (iconUrl.contains("://")) {
+          iconUrl = iconUrl.replaceAll("http://.+?/", "file:///android_asset/www/");
+        } else {
+          // Avoid WebViewLocalServer (because can not make a connection for some reason)
+          iconUrl = "file:///android_asset/www/".concat(iconUrl);
+        }
       }
 
       if (!iconUrl.contains("://") &&

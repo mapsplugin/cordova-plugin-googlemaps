@@ -131,7 +131,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
           name.style.fontWeight = 500;
           name.style.fontSize = "medium";
           name.style.marginBottom = 0;
-          name.innerText = overlay.get('name') || "";
+          name.innerText = overlay.get('name').value || "";
           result.appendChild(name);
         }
         if (overlay.get('snippet')) {
