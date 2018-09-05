@@ -330,6 +330,8 @@
   // e.g. PhoneGap-Plugin-ListPicker, etc
   UIView *subview;
   NSArray *subviews = [self.webView.superview subviews];
+  CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
+  CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y - statusBarFrame.size.height);
   for (int i = ((int)[subviews count] - 1); i >= 0; i--) {
     subview = [subviews objectAtIndex: i];
     //NSLog(@"--->subview[%d] = %@", i, subview);
@@ -342,8 +344,6 @@
       continue;
     }
 
-    CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
-    CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y - statusBarFrame.size.height);
     UIView *hit = [subview hitTest:subviewPoint withEvent:event];
 
     if (hit) {
