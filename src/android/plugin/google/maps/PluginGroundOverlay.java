@@ -47,6 +47,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
   public void _createGroundOverlay(final String idBase, final JSONObject opts, final CallbackContext callbackContext) throws JSONException {
     final GroundOverlayOptions options = new GroundOverlayOptions();
     final JSONObject properties = new JSONObject();
+    options.anchor(0.5f, 0.5f);
 
     if (opts.has("anchor")) {
       JSONArray anchor = opts.getJSONArray("anchor");
