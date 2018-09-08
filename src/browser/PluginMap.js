@@ -330,9 +330,10 @@ PluginMap.prototype.setCameraZoom = function(onSuccess, onError, args) {
 PluginMap.prototype.setCameraTarget = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get("map");
-  var center = args[0];
+  var lat = args[0],
+      lng = args[1];
 
-  map.setCenter(center);
+  map.setCenter(new google.maps.LatLng(lat, lng));
   onSuccess();
 };
 
