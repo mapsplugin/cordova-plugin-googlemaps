@@ -92,6 +92,13 @@ Map.prototype.getMap = function(meta, div, options) {
     this.set("myLocationButton", options.controls.myLocationButton === true);
   }
 
+  if (options.preferences && options.preferences.gestureBounds) {
+    if (utils.isArray(options.preferences.gestureBounds) ||
+        options.preferences.gestureBounds.type === "LatLngBounds") {
+      options.preferences.gestureBounds = common.convertToPositionArray(options.preferences.gestureBounds);
+    }
+  }
+
   if (!common.isDom(div)) {
     self.set("visible", false);
     options = div;
@@ -278,6 +285,14 @@ Map.prototype.setOptions = function(options) {
       this.set('camera_tilt', options.camera.tilt);
     }
   }
+
+  if (options.preferences && options.preferences.gestureBounds) {
+    if (utils.isArray(options.preferences.gestureBounds) ||
+        options.preferences.gestureBounds.type === "LatLngBounds") {
+      options.preferences.gestureBounds = common.convertToPositionArray(options.preferences.gestureBounds);
+    }
+  }
+
   if (utils.isArray(options.styles)) {
     options.styles = JSON.stringify(options.styles);
   }

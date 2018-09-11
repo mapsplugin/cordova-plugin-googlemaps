@@ -855,6 +855,23 @@
 
         [self.mapCtrl.map setMinZoom:minZoom maxZoom:maxZoom];
       }
+
+      // gestureBounds
+      if ([preferences valueForKey:@"gestureBounds"] != nil) {
+        NSDictionary *latLng = nil;
+        double latitude, longitude;
+        int i = 0;
+        NSArray *latLngList = [preferences objectForKey:@"gestureBounds"];
+        GMSMutablePath *path = [GMSMutablePath path];
+        for (i = 0; i < [latLngList count]; i++) {
+          latLng = [latLngList objectAtIndex:i];
+          latitude = [[latLng valueForKey:@"lat"] doubleValue];
+          longitude = [[latLng valueForKey:@"lng"] doubleValue];
+          [path addLatitude:latitude longitude:longitude];
+        }
+
+        [self.mapCtrl.map setCameraTargetBounds:[[GMSCoordinateBounds alloc] initWithPath:path]];
+      }
     }
 
     //styles

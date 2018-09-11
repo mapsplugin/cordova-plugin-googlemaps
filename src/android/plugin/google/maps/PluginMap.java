@@ -393,6 +393,18 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     map.setMaxZoomPreference((float)zoom.getDouble("maxZoom"));
                   }
                 }
+
+
+                if (preferences.has("gestureBounds")) {
+                  Object target = preferences.get("gestureBounds");
+                  @SuppressWarnings("rawtypes")
+                  Class targetClass = target.getClass();
+                  if ("org.json.JSONArray".equals(targetClass.getName())) {
+                    JSONArray points = preferences.getJSONArray("gestureBounds");
+                    LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
+                    map.setLatLngBoundsForCameraTarget(bounds);
+                  }
+                }
               }
 
               // Set event listener
@@ -1298,6 +1310,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   map.setMaxZoomPreference((float)zoom.getDouble("maxZoom"));
                 }
               }
+
+
+              if (preferences.has("gestureBounds")) {
+                Object target = preferences.get("gestureBounds");
+                @SuppressWarnings("rawtypes")
+                Class targetClass = target.getClass();
+                if ("org.json.JSONArray".equals(targetClass.getName())) {
+                  JSONArray points = preferences.getJSONArray("gestureBounds");
+                  if (points.length() > 0) {
+                    LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
+                    map.setLatLngBoundsForCameraTarget(bounds);
+                  } else {
+                    map.setLatLngBoundsForCameraTarget(null);
+                  }
+                }
+              }
+
             }
 
             //gestures
