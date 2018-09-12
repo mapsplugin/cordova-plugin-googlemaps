@@ -94,6 +94,10 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
       'height': 28
     };
   }
+
+  if ('zIndex' in pluginOptions) {
+    markerOpts.zIndex = pluginOptions.zIndex;
+  }
   markerOpts.map = map;
   var marker = new google.maps.Marker(markerOpts);
   marker.addListener('click', self.onMarkerClickEvent.bind(self, event.MARKER_CLICK, marker), {passive: true});
@@ -265,6 +269,25 @@ PluginMarker.prototype.setOpacity = function(onSuccess, onError, args) {
   var marker = self.pluginMap.objects[overlayId];
   if (marker) {
     marker.setOpacity(opacity);
+  }
+  onSuccess();
+};
+
+PluginMarker.prototype.setIconAnchor = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var anchorX = args[1],
+    anchorY = args[2];
+  var marker = self.pluginMap.objects[overlayId];
+  if (marker) {
+    var icon = marker.getIcon();
+    if (typeof icon === "string") {
+      icon = {
+        'url': icon
+      };
+    }
+    icon.anchor = new google.maps.Point(anchorX, anchorY);
+    marker.setIcon(icon);
   }
   onSuccess();
 };
