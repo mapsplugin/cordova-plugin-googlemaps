@@ -69,6 +69,19 @@ var CordovaGoogleMaps = {
   resume: stub,
   pause: stub,
   getMap: function(onSuccess, onError, args) {
+    // memory cleanup
+    var mapIDs = Object.keys(MAPS);
+    mapIDs.forEach(function(mapId) {
+      var mapDivId = document.querySelector("[__pluginmapid='" + mapId + "']");
+      if (!mapDivId) {
+        if (MAPS[mapDivId]) {
+          MAPS[mapDivId].destroy();
+        }
+        MAPS[mapDivId] = undefined;
+        delete MAPS[mapDivId];
+      }
+    });
+
     var meta = args[0],
       mapId = meta.id;
     args[0] = mapId;
@@ -108,12 +121,9 @@ var CordovaGoogleMaps = {
       google.maps.event.clearInstanceListeners(map);
       var mapDiv = map.getDiv();
       if (mapDiv) {
-        var container = mapDiv.parentNode.removeChild(mapDiv);
-        container = null;
-        mapDiv = null;
+        mapDiv.parentNode.removeChild(mapDiv);
         pluginMap.set('map', undefined);
       }
-      map = null;
     }
     pluginMap.destroy();
     pluginMap = null;
@@ -123,6 +133,19 @@ var CordovaGoogleMaps = {
   },
 
   getPanorama: function(onSuccess, onError, args) {
+    // memory cleanup
+    var mapIDs = Object.keys(MAPS);
+    mapIDs.forEach(function(mapId) {
+      var mapDivId = document.querySelector("[__pluginmapid='" + mapId + "']");
+      if (!mapDivId) {
+        if (MAPS[mapDivId]) {
+          MAPS[mapDivId].destroy();
+        }
+        MAPS[mapDivId] = undefined;
+        delete MAPS[mapDivId];
+      }
+    });
+
     var meta = args[0],
       mapId = meta.id;
     args[0] = mapId;
