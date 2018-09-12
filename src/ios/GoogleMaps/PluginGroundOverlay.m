@@ -84,6 +84,7 @@
         NSString *groundOverlayId = [NSString stringWithFormat:@"groundoverlay_%@", idBase];
         [self.mapCtrl.objects setObject:groundOverlay forKey: groundOverlayId];
         groundOverlay.title = groundOverlayId;
+        groundOverlay.anchor = CGPointMake(0.5f, 0.5f);
 
         if ([json valueForKey:@"zIndex"]) {
             groundOverlay.zIndex = [[json valueForKey:@"zIndex"] floatValue];
@@ -91,6 +92,10 @@
 
         if ([json valueForKey:@"bearing"]) {
             groundOverlay.bearing = [[json valueForKey:@"bearing"] floatValue];
+        }
+        if ([json valueForKey:@"anchor"]) {
+            NSArray *anchor = [json valueForKey:@"anchor"];
+            groundOverlay.anchor = CGPointMake([[anchor objectAtIndex:0] floatValue], [[anchor objectAtIndex:1] floatValue]);
         }
 
         BOOL isVisible = YES;
