@@ -234,9 +234,19 @@ PluginMarker.prototype.setInfoWindowAnchor = function(onSuccess, onError, args) 
   var overlayId = args[0];
   var marker = self.pluginMap.objects[overlayId];
   if (marker) {
-    marker.setOptions({
-      'anchorPoint': new google.maps.Point(args[1], args[2])
-    });
+    (new Promise(function(resolve, reject) {
+      var icon = marker.getIcon();
+      var anchorX = args[1];
+      anchorX = anchorX - icon.size.width / 2;
+      var anchorY = args[2];
+      anchorY = anchorY - icon.size.height / 2;
+      marker.setOptions({
+        'anchorPoint': new google.maps.Point(anchorX, anchorY)
+      });
+      if (self.infoWnd) {
+        self._showInfoWindow.call(self, marker);
+      }
+    }));
   }
   onSuccess();
 };
@@ -400,7 +410,9 @@ PluginMarker.prototype.onMarkerEvent = function(evtName, marker) {
 PluginMarker.prototype._showInfoWindow = function(marker) {
   var self = this;
   if (!self.infoWnd) {
-    self.infoWnd = new google.maps.InfoWindow();
+    self.infoWnd = new google.maps.InfoWindow({
+      'pixelOffset': new google.maps.Size(0, 0)
+    });
   }
   var container = document.createElement('div');
   self.pluginMap.activeMarker = marker;
@@ -429,7 +441,6 @@ PluginMarker.prototype._showInfoWindow = function(marker) {
       maxWidth: maxWidth
     });
     google.maps.event.addListener(self.infoWnd, 'closeclick', function() {
-      google.maps.event.clearInstanceListeners(container.parentNode.parentNode.parentNode);
       google.maps.event.clearInstanceListeners(self.infoWnd);
       self.onMarkerClickEvent(event.INFO_CLOSE, marker);
     });
