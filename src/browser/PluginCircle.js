@@ -82,7 +82,7 @@ PluginCircle.prototype.setFillColor = function(onSuccess, onError, args) {
   var circle = self.pluginMap.objects[overlayId];
   if (circle) {
 
-    if (Array.isArray(strokeColor)) {
+    if (Array.isArray(fillColor)) {
       circle.setOptions({
         'fillColor': 'rgb(' + fillColor[0] + ',' + fillColor[1] + ',' + fillColor[2] + ')',
         'fillOpacity': fillColor[3] / 256
