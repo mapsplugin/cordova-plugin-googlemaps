@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.1)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.3)
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -193,6 +193,14 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.4.3**
+    - Fix: (Browser) HTMLInfoWindow displays unnecessary scroll bars.
+    - Fix: (Android) Can not load KML file from http://localhost on ionic 3.
+    - Fix: (iOS) Can not click bottom 20px.
+    - Fix: (Browser) map.setCameraTarget() implementation is wrong.
+    - Fix: (iOS) GroundOverlayOptions.anchor property is missing.
+    - Add: (Android/iOS/Browser) `GoogleMapOptions.preferences.gestureBounds` property.
+
   - **v2.4.2**
     - Fix: If application uses ionic v1, it can't interactive with map view on only iPhone5 because of resetCSS
     - Fix: `Cannot set property 'isMap' of undefined` error
