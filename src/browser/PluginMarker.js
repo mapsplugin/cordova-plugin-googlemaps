@@ -58,7 +58,9 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
           'fillColor': 'rgb(' + pluginOptions.icon.url[0] + ',' + pluginOptions.icon.url[1] + ',' + pluginOptions.icon.url[2] + ')',
           'fillOpacity': pluginOptions.icon.url[3] / 256,
           'scale': 1.3,
-          'strokeWeight': 0,
+          'strokeWeight': 1,
+          'strokeColor': 'rgb(255, 255, 255)',
+          'strokeOpacity': 0.65,
           'anchor': new google.maps.Point(12, 27)
         };
         iconSize = {
@@ -86,7 +88,9 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess) {
       'fillColor': 'rgb(255, 0, 0)',
       'fillOpacity': 1,
       'scale': 1.3,
-      'strokeWeight': 0,
+      'strokeWeight': 1,
+      'strokeColor': 'rgb(255, 255, 255)',
+      'strokeOpacity': 0.65,
       'anchor': new google.maps.Point(12, 27)
     };
     iconSize = {
@@ -316,6 +320,9 @@ PluginMarker.prototype.showInfoWindow = function(onSuccess, onError, args) {
   var overlayId = args[0];
   var marker = self.pluginMap.objects[overlayId];
   if (marker) {
+    if (self.pluginMap.activeMarker && self.pluginMap.activeMarker !== marker) {
+      self.onMarkerClickEvent(event.INFO_CLICK, self.pluginMap.activeMarker);
+    }
     self.pluginMap.activeMarker = marker;
     self._showInfoWindow.call(self, marker);
   }
@@ -415,6 +422,9 @@ PluginMarker.prototype._showInfoWindow = function(marker) {
     });
   }
   var container = document.createElement('div');
+  if (self.pluginMap.activeMarker && self.pluginMap.activeMarker !== marker) {
+    self.onMarkerClickEvent(event.INFO_CLICK, self.pluginMap.activeMarker);
+  }
   self.pluginMap.activeMarker = marker;
   self.pluginMap._syncInfoWndPosition.call(self);
   var maxWidth = marker.getMap().getDiv().offsetWidth * 0.7;
@@ -452,6 +462,10 @@ PluginMarker.prototype.onMarkerClickEvent = function(evtName, marker) {
   var self = this;
 
   var overlayId = marker.get("overlayId");
+
+  if (self.pluginMap.activeMarker && self.pluginMap.activeMarker !== marker) {
+    self.onMarkerEvent(event.INFO_CLOSE, self.pluginMap.activeMarker);
+  }
   self.pluginMap.activeMarker = marker;
   if (marker.get('disableAutoPan') === false) {
     self.pluginMap.get('map').panTo(marker.getPosition());
