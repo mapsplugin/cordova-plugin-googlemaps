@@ -367,6 +367,9 @@ PluginMarker.prototype.setIcon_ = function(marker, iconOpts) {
           iconOpts.size = new google.maps.Size(iconOpts.size.width, iconOpts.size.height, 'px', 'px');
           iconOpts.scaledSize = iconOpts.size;
         }
+        if (Array.isArray(iconOpts.anchor)) {
+          iconOpts.anchor = new google.maps.Point(iconOpts.anchor[0], iconOpts.anchor[1]);
+        }
       }
 
       marker.setIcon(iconOpts);
