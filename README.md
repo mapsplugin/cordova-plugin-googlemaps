@@ -86,7 +86,7 @@
 
 ## Browser platform
 
-  From cordova-plugin-googlemaps version 2.4.0, we support `browser` platform!
+  We support browser platform now!
   You can develop your application with browser, then run it!
   At the end of development, you can upload the html files to your server, or run it on Android or iOS devices.
 
@@ -199,7 +199,18 @@
     - Fix: (iOS) Can not click bottom 20px.
     - Fix: (Browser) map.setCameraTarget() implementation is wrong.
     - Fix: (iOS) GroundOverlayOptions.anchor property is missing.
-    - Add: (Android/iOS/Browser) `GoogleMapOptions.preferences.gestureBounds` property.
+    - Add: (Android/iOS/Browser) `GoogleMapOptions.preferences.gestureBounds` property. You can set limit bounds of panning.
+      ```js
+      var map = plugin.google.maps.Map.getMap(mapDiv, {
+        'preferences': {
+          'gestureBounds': [
+            {lat: ..., lng: ...},
+            ... ,
+            {lat: ..., lng: ...}
+          ]
+        }
+      });
+      ```
 
   - **v2.4.2**
     - Fix: If application uses ionic v1, it can't interactive with map view on only iPhone5 because of resetCSS
