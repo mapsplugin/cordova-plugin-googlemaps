@@ -1050,6 +1050,8 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
   var self = this;
   groundOverlayOptions = groundOverlayOptions || {};
+  groundOverlayOptions.anchor = groundOverlayOptions.anchor || [0.5, 0.5];
+  groundOverlayOptions.bearing = 'bearing' in groundOverlayOptions ? groundOverlayOptions.bearing : 0;
   groundOverlayOptions.url = groundOverlayOptions.url || null;
   groundOverlayOptions.clickable = groundOverlayOptions.clickable === true;
   groundOverlayOptions.visible = common.defaultTrueOption(groundOverlayOptions.visible);

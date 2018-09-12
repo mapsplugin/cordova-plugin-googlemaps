@@ -124,13 +124,64 @@ function PluginMap(mapId, options, mapDivId) {
     map.mapTypes = mapTypeReg;
     self.set('map', map);
 
+    var boundsLimit = null;
+    if (options.preferences && options.preferences.gestureBounds &&
+        options.preferences.gestureBounds.length > 0) {
+      boundsLimit = new google.maps.LatLngBounds();
+      options.preferences.gestureBounds.forEach(function(pos) {
+        boundsLimit.extend(pos);
+      });
+    }
+    map.set('boundsLimit', boundsLimit);
+
     var timeoutError = setTimeout(function() {
       self.trigger('load_error');
       displayGrayMap(mapDiv);
     }, 3000);
 
+    map.addListener("bounds_changed", function() {
+      var boundsLimit = map.get('boundsLimit');
+      if (!boundsLimit) {
+        return;
+      }
+      var visibleBounds = map.getBounds();
+      if (boundsLimit.intersects(visibleBounds) ||
+          visibleBounds.contains(boundsLimit.getNorthEast()) && visibleBounds.contains(boundsLimit.getSouthWest()) ||
+          boundsLimit.contains(visibleBounds.getNorthEast()) && boundsLimit.contains(visibleBounds.getSouthWest())) {
+        return;
+      }
+      var center = map.getCenter();
+      var dummyLat = center.lat(),
+        dummyLng = center.lng();
+      var ne = boundsLimit.getNorthEast(),
+        sw = boundsLimit.getSouthWest();
+      if (dummyLat < sw.lat() ) {
+        dummyLat = sw.lat();
+      } else if (dummyLat > ne.lat()) {
+        dummyLat = ne.lat();
+      }
+      if (dummyLng < 0) {
+        // the Western Hemisphere
+        if (dummyLng > ne.lng()) {
+          dummyLng = ne.lng();
+        } else if (dummyLng < sw.lng()) {
+          dummyLng = sw.lng();
+        }
+      } else {
+        // the Eastern Hemisphere
+        if (dummyLng > ne.lng()) {
+          dummyLng = ne.lng();
+        } else if (dummyLng < sw.lng()) {
+          dummyLng = sw.lng();
+        }
+      }
+      var dummyLatLng = new google.maps.LatLng(dummyLat, dummyLng);
+      map.panTo(dummyLatLng);
+    });
+
     google.maps.event.addListenerOnce(map, "projection_changed", function() {
       clearTimeout(timeoutError);
+
       self.trigger(event.MAP_READY);
       map.addListener("idle", self._onCameraEvent.bind(self, 'camera_move_end'));
       //map.addListener("bounce_changed", self._onCameraEvent.bind(self, 'camera_move'));
@@ -220,6 +271,18 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
           mapInitOptions.maxZoom = options.preferences.zoom.maxZoom;
         }
       }
+
+      if ('gestureBounds' in options.preferences) {
+        var boundsLimit = null;
+        if (options.preferences.gestureBounds && options.preferences.gestureBounds.length > 0) {
+          boundsLimit = new google.maps.LatLngBounds();
+          options.preferences.gestureBounds.forEach(function(pos) {
+            boundsLimit.extend(pos);
+          });
+        }
+        map.set('boundsLimit', boundsLimit);
+      }
+
     }
   }
   map.setOptions(mapInitOptions);
