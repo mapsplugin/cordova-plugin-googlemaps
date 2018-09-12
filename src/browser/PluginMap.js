@@ -250,7 +250,8 @@ utils.extend(PluginMap, BaseClass);
 
 PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
   var self = this;
-  var map = self.get("map");
+  var map = self.get("map"),
+    options = args[0];
 
   var mapInitOptions = {};
 
