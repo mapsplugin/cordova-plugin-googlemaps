@@ -35,6 +35,16 @@ PluginPolygon.prototype._create = function(onSuccess, onError, args) {
       strokePath.push(new google.maps.LatLng(point.lat, point.lng));
     });
     polygonOpts.paths.push(strokePath);
+
+    if (Array.isArray(pluginOptions.holes)) {
+      pluginOptions.holes.forEach(function(hole) {
+        var holeMvc = new google.maps.MVCArray();
+        hole.forEach(function(vertix) {
+          holeMvc.push(new google.maps.LatLng(vertix.lat, vertix.lng));
+        });
+        polygonOpts.paths.push(holeMvc);
+      });
+    }
   }
   if (Array.isArray(pluginOptions.strokeColor)) {
     polygonOpts.strokeColor = 'rgb(' + pluginOptions.strokeColor[0] + ',' + pluginOptions.strokeColor[1] + ',' + pluginOptions.strokeColor[2] + ')';
