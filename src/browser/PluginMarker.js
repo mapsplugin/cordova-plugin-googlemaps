@@ -292,6 +292,7 @@ PluginMarker.prototype.hideInfoWindow = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
   if (self.infoWnd) {
+    google.maps.event.trigger(self.infoWnd, 'closeclick');
     self.infoWnd.close();
     self.infoWnd = null;
   }
@@ -378,6 +379,7 @@ PluginMarker.prototype._showInfoWindow = function(marker) {
   if (!self.infoWnd) {
     self.infoWnd = new google.maps.InfoWindow();
   }
+  var container = document.createElement('div');
   self.pluginMap.activeMarker = marker;
   self.pluginMap._syncInfoWndPosition.call(self);
   var maxWidth = marker.getMap().getDiv().offsetWidth * 0.7;
@@ -389,10 +391,24 @@ PluginMarker.prototype._showInfoWindow = function(marker) {
     html.push('<small>' + marker.get("snippet") + '</small>');
   }
   if (html.length > 0) {
+    container.innerHTML = html.join('<br>');
+    google.maps.event.addListenerOnce(self.infoWnd, 'domready', function() {
+      self.onMarkerClickEvent(event.INFO_OPEN, marker);
+
+      google.maps.event.addDomListener(container.parentNode.parentNode.parentNode, 'click', function() {
+        self.onMarkerClickEvent(event.INFO_CLICK, marker);
+      }, true);
+
+    });
     self.infoWnd.setOptions({
-      content: html.join('<br>'),
+      content: container,
       disableAutoPan: marker.disableAutoPan,
       maxWidth: maxWidth
+    });
+    google.maps.event.addListener(self.infoWnd, 'closeclick', function() {
+      google.maps.event.clearInstanceListeners(container.parentNode.parentNode.parentNode);
+      google.maps.event.clearInstanceListeners(self.infoWnd);
+      self.onMarkerClickEvent(event.INFO_CLOSE, marker);
     });
     self.infoWnd.open(marker.getMap(), marker);
   }
@@ -407,9 +423,9 @@ PluginMarker.prototype.onMarkerClickEvent = function(evtName, marker) {
     self.pluginMap.get('map').panTo(marker.getPosition());
   }
   if (overlayId.indexOf("markercluster_") > -1) {
-    self.onClusterEvent(event.MARKER_CLICK, marker);
+    self.onClusterEvent(evtName, marker);
   } else {
-    self.onMarkerEvent(event.MARKER_CLICK, marker);
+    self.onMarkerEvent(evtName, marker);
   }
 
 };
