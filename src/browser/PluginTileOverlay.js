@@ -81,6 +81,17 @@ function TileOverlay(mapId, hashCode, options) {
     releaseTile: function(div) {
       var cacheId = div.getAttribute('cacheId');
       delete tileCaches[cacheId];
+    },
+
+    remove: function() {
+      var keys = Object.keys(tileCaches);
+      keys.forEach(function(key) {
+        if (tileCaches[key].parentNode) {
+          tileCaches[key].parentNode.removeChild(tileCaches[key]);
+        }
+        tileCaches[key] = undefined;
+        delete tileCaches[key];
+      });
     }
   };
 
@@ -177,7 +188,7 @@ PluginTileOverlay.prototype.onGetTileUrlFromJS = function(onSuccess, onError, ar
 
   var tileLayer = self.pluginMap.objects[tileoverlayId];
 
-  if (tileLayer.getTileFromCache(cacheId)) {
+  if (tileLayer && tileLayer.getTileFromCache(cacheId)) {
     var tile = tileLayer.getTileFromCache(cacheId);
     tile.style.backgroundImage = "url('" + tileUrl + "')";
     tile.style.visibility = tileLayer.visible ? 'visible': 'hidden';
@@ -252,7 +263,17 @@ PluginTileOverlay.prototype.remove = function(onSuccess, onError, args) {
   var tileoverlay = self.pluginMap.objects[overlayId];
   if (tileoverlay) {
     google.maps.event.clearInstanceListeners(tileoverlay);
-    tileoverlay.setMap(null);
+    tileoverlay.remove();
+
+
+    var layers = self.pluginMap.get('map').overlayMapTypes.getArray();
+    layers.forEach(function(layer, idx) {
+      if (layer === tileoverlay) {
+        layers.splice(idx, 1);
+      }
+    });
+
+
     tileoverlay = undefined;
     self.pluginMap.objects[overlayId] = undefined;
     delete self.pluginMap.objects[overlayId];
@@ -266,10 +287,11 @@ function fadeInAnimation(el, time, maxOpacity) {
   el.style.opacity = 0;
   var timeFunc = typeof window.requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout;
 
-  var last = +new Date();
+  var last = Date.now();
   var tick = function() {
-    el.style.opacity = +el.style.opacity + (new Date() - last) / time;
-    last = +new Date();
+    var now = Date.now();
+    el.style.opacity = +el.style.opacity + (now - last) / time;
+    last = now;
 
     if (+el.style.opacity < maxOpacity) {
       timeFunc.call(window, tick, 16);
