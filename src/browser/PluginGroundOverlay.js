@@ -165,7 +165,7 @@ PluginGroundOverlay.prototype._onGroundOverlayEvent = function(groundoverlay, mo
     plugin.google.maps[mapId]({
       'evtName': event.GROUND_OVERLAY_CLICK,
       'callback': '_onOverlayEvent',
-      'args': [groundoverlay.overlayId, mouseEvt.latLng]
+      'args': [groundoverlay.overlayId, new LatLng(mouseEvt.latLng.lat(), mouseEvt.latLng.lng())]
     });
   }
 
