@@ -443,9 +443,11 @@ PluginMarker.prototype._showInfoWindow = function(marker) {
     google.maps.event.addListenerOnce(self.infoWnd, 'domready', function() {
       self.onMarkerClickEvent(event.INFO_OPEN, marker);
 
-      google.maps.event.addDomListener(container.parentNode.parentNode.parentNode, 'click', function() {
-        self.onMarkerClickEvent(event.INFO_CLICK, marker);
-      }, true);
+      if (container.parentNode) {
+        google.maps.event.addDomListener(container.parentNode.parentNode.parentNode, 'click', function() {
+          self.onMarkerClickEvent(event.INFO_CLICK, marker);
+        }, true);
+      }
 
     });
     self.infoWnd.setOptions({

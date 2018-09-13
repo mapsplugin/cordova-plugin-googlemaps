@@ -439,7 +439,6 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
 PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
   var self = this,
     mapId = self.pluginMap.id;
-
   var overlayId = marker.get("overlayId");
   var tmp = overlayId.split("-");
   var clusterId = tmp[0];
@@ -518,12 +517,46 @@ function ClusterIconClass(options) {
   iconMarker.bindTo('position', labelMarker);
   iconMarker.bindTo('map', labelMarker);
   self.bindTo('opacity', iconMarker);
-  self.bindTo('icon', iconMarker);
   self.bindTo('visible', iconMarker);
   self.bindTo('map', iconMarker);
   self.bindTo('position', iconMarker);
   self.set('labelMarkerAnchor', new google.maps.Point(canvas.width / 2, canvas.height / 2));
 
+  self.addListener('icon_changed', function() {
+    var icon = self.get('icon');
+    if (typeof icon === "string") {
+      icon = {
+        "url": icon
+      };
+    }
+
+    var iconUrl = icon.url;
+    if (typeof icon === "object") {
+      if (typeof icon.size === "object" &&
+          icon.size.width && icon.size.height) {
+        icon.anchor = new google.maps.Point(icon.size.width / 2, icon.size.height / 2);
+        iconMarker.setIcon(icon);
+        return;
+      }
+    }
+    var img = new Image();
+    img.onload = function() {
+      icon.size = new google.maps.Size(img.width, img.height);
+      icon.scaledSize = new google.maps.Size(img.width, img.height);
+      icon.anchor = new google.maps.Point(img.width / 2, img.height / 2);
+      self.set('labelMarkerAnchor', new google.maps.Point(img.width / 2, img.height / 2));
+      iconMarker.setIcon(icon);
+    };
+    img.onerror = function(e) {
+      console.error(e);
+    };
+    img.src = iconUrl;
+  });
+
+  //debug
+  //var positionConfirmMarker = new google.maps.Marker();
+  //labelMarker.bindTo('position', positionConfirmMarker);
+  //labelMarker.bindTo('map', positionConfirmMarker);
 
   for (var key in options) {
     self.set(key, options[key]);
@@ -608,6 +641,7 @@ ClusterIconClass.prototype.draw = function() {
     // debug
     //ctx.fillStyle="#FF000077";
     //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     if (labelOptions.text) {
       var fontStyles = [];
 
