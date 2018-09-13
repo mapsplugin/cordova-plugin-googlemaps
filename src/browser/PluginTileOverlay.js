@@ -7,7 +7,8 @@ var utils = require('cordova/utils'),
 function TileOverlay(mapId, hashCode, options) {
   var self = this,
     tileSize = 256,
-    tileCaches = {};
+    tileCaches = {},
+    _opacity = 'opacity' in options ? options.opacity : 1;
 
   var mapType = {
     zIndex: options.zIndex || 0,
@@ -16,6 +17,13 @@ function TileOverlay(mapId, hashCode, options) {
     fadeIn: options.fadeIn === false ? false : true,
     visible: true,
 
+    setOpacity: function(opacity) {
+      _opacity = opacity;
+      var keys = Object.keys(tileCaches);
+      keys.forEach(function(key) {
+        tileCaches[key].style.opacity = _opacity;
+      });
+    },
     getTileFromCache: function(cacheId) {
       return tileCaches[cacheId];
     },
@@ -26,7 +34,9 @@ function TileOverlay(mapId, hashCode, options) {
       this.zIndex = parseInt(zIndexVal, 10);
     },
 
-    opacity: 'opacity' in options ? options.opacity : 1,
+    getOpacity: function() {
+      return _opacity;
+    },
 
     tileSize: new google.maps.Size(tileSize, tileSize),
 
@@ -173,9 +183,9 @@ PluginTileOverlay.prototype.onGetTileUrlFromJS = function(onSuccess, onError, ar
     tile.style.visibility = tileLayer.visible ? 'visible': 'hidden';
 
     if (tileLayer.fadeIn) {
-      fadeIn(tile, 500, tileLayer.opacity);
+      fadeIn(tile, 500, tileLayer.getOpacity());
     } else {
-      tile.style.opacity = tileLayer.opacity;
+      tile.style.opacity = tileLayer.getOpacity();
     }
   }
   onSuccess();
@@ -191,6 +201,16 @@ PluginTileOverlay.prototype.setVisible = function(onSuccess, onError, args) {
   onSuccess();
 };
 
+PluginTileOverlay.prototype.setOpacity = function(onSuccess, onError, args) {
+  var self = this;
+  var overlayId = args[0];
+  var opacity = args[1];
+  var tileoverlay = self.pluginMap.objects[overlayId];
+  if (tileoverlay) {
+    tileoverlay.setOpacity(args[1]);
+  }
+  onSuccess();
+};
 PluginTileOverlay.prototype.setFadeIn = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
