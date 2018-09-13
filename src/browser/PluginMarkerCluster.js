@@ -223,7 +223,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
           properties.icon = iconProperties;
         }
       }
-      changeProperties[clusterId_markerId] = properties;
+      changeProperties[clusterId_markerId] =  JSON.parse(JSON.stringify(properties));
     });
 
     if (updateClusterIDs.length === 0) {
@@ -495,15 +495,13 @@ function ClusterIconClass(options) {
     'clickable': false,
     'icon': options.icon,
     'zIndex': 0,
-    'opacity': 0,
-    'optimized': true
+    'opacity': 0
   });
   var labelMarker = new google.maps.Marker({
     'clickable': true,
     'zIndex': 1,
     'icon': self.get('label'),
-    'opacity': 0,
-    'optimized': true
+    'opacity': 0
   });
   labelMarker.addListener('click', function() {
     google.maps.event.trigger(self, 'click');
@@ -521,6 +519,7 @@ function ClusterIconClass(options) {
   self.bindTo('visible', iconMarker);
   self.bindTo('map', iconMarker);
   self.bindTo('position', iconMarker);
+  self.set('labelMarkerAnchor', new google.maps.Point(canvas.width / 2, canvas.height / 2));
 
 
   for (var key in options) {
@@ -574,6 +573,7 @@ ClusterIconClass.prototype.draw = function() {
         height: img.height
       };
       icon.size = newIconInfo;
+      self.set('labelMarkerAnchor', new google.maps.Point(newIconInfo.width / 2, newIconInfo.height / 2));
       self.set('icon', icon, true);
       resolve(newIconInfo);
     };
@@ -600,6 +600,9 @@ ClusterIconClass.prototype.draw = function() {
       italic: false
     };
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // debug
+    //ctx.fillStyle="#FF000077";
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (labelOptions.text) {
       var fontStyles = [];
 
@@ -634,11 +637,14 @@ ClusterIconClass.prototype.draw = function() {
       ctx.textAlign = 'center';
       ctx.fillText(labelOptions.text, iconSize.width / 2, iconSize.height / 2);
       // debug
-      //ctx.fillText(self.get('overlayId').split("-")[1], iconSize.width / 2, iconSize.height / 2);
+      //ctx.fillText(selfId.split("-")[1], iconSize.width / 2, iconSize.height / 2);
 
     }
 
-    self.get('labelMarker').set('icon', canvas.toDataURL());
+    self.get('labelMarker').set('icon', {
+      'url': canvas.toDataURL(),
+      'anchor': self.get('labelMarkerAnchor')
+    });
     setTimeout(function() {
       self.set("opacity", 1);
     }, 10);
