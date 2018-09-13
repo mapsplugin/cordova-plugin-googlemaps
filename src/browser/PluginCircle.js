@@ -67,10 +67,11 @@ PluginCircle.prototype._create = function(onSuccess, onError, args) {
 PluginCircle.prototype.setCenter = function(onSuccess, onError, args) {
   var self = this;
   var overlayId = args[0];
-  var position = args[1];
+  var lat = args[1];
+  var lng = args[2];
   var circle = self.pluginMap.objects[overlayId];
   if (circle) {
-    circle.setCenter(position);
+    circle.setCenter(new google.maps.LatLng(lat, lng));
   }
   onSuccess();
 };
