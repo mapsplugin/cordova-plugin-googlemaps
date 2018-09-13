@@ -175,7 +175,7 @@ PluginTileOverlay.prototype.onGetTileUrlFromJS = function(onSuccess, onError, ar
     if (tileLayer.fadeIn) {
       fadeIn(tile, 500, tileLayer.opacity);
     } else {
-      tile.style.setOpacity = tileLayer.opacity;
+      tile.style.opacity = tileLayer.opacity;
     }
   }
   onSuccess();
