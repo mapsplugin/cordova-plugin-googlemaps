@@ -183,7 +183,7 @@ PluginTileOverlay.prototype.onGetTileUrlFromJS = function(onSuccess, onError, ar
     tile.style.visibility = tileLayer.visible ? 'visible': 'hidden';
 
     if (tileLayer.fadeIn) {
-      fadeIn(tile, 500, tileLayer.getOpacity());
+      fadeInAnimation(tile, 500, tileLayer.getOpacity());
     } else {
       tile.style.opacity = tileLayer.getOpacity();
     }
@@ -262,8 +262,9 @@ PluginTileOverlay.prototype.remove = function(onSuccess, onError, args) {
 
 module.exports = PluginTileOverlay;
 
-function fadeIn(el, time, maxOpacity) {
+function fadeInAnimation(el, time, maxOpacity) {
   el.style.opacity = 0;
+  var timeFunc = typeof window.requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout;
 
   var last = +new Date();
   var tick = function() {
@@ -271,7 +272,7 @@ function fadeIn(el, time, maxOpacity) {
     last = +new Date();
 
     if (+el.style.opacity < maxOpacity) {
-      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+      timeFunc.call(window, tick, 16);
     }
   };
 
