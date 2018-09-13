@@ -22,7 +22,11 @@ module.exports = {
     getMap: cordovaGoogleMaps.getMap.bind(cordovaGoogleMaps)
   },
   StreetView: {
-    getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps)
+    getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps),
+    Source: {
+      DEFAULT: 'DEFAULT',
+      OUTDOOR: 'OUTDOOR'
+    }
   },
   HtmlInfoWindow: require('cordova-plugin-googlemaps.HtmlInfoWindow'),
   LatLng: require('cordova-plugin-googlemaps.LatLng'),
