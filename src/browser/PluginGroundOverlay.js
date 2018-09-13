@@ -402,11 +402,12 @@ CustomGroundOverlay.prototype.draw = function() {
 
 CustomGroundOverlay.prototype.onAdd = function() {
   var self = this;
+  self.set('mapPane', self.getPanes().mapPane);
   self.getPanes().mapPane.appendChild(self.get("img"));
 };
 
 CustomGroundOverlay.prototype.onRemove = function() {
   var self = this;
-  self.getPanes().mapPane.removeChild(self.get("img"));
+  self.get('mapPane').removeChild(self.get("img"));
   google.maps.event.clearInstanceListeners(self.get('img'));
 };
