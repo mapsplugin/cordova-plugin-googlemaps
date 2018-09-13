@@ -446,6 +446,9 @@ PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
   var markerId = tmp[1];
   var latLng = marker.getPosition();
   if (mapId in plugin.google.maps) {
+    if (self.pluginMap.activeMarker) {
+      self.onMarkerEvent(event.INFO_CLOSE, self.pluginMap.activeMarker);
+    }
     plugin.google.maps[mapId]({
       'evtName': evtName,
       'callback': '_onClusterEvent',
@@ -537,6 +540,8 @@ ClusterIconClass.prototype.onRemove = function() {
   var self = this;
   var canvas = self.get('canvas');
   self.set('map', null);
+  google.maps.event.clearInstanceListeners(self.get('iconMarker'));
+  google.maps.event.clearInstanceListeners(self.get('labelMarker'));
   var parent = canvas.parentNode;
   if (parent) {
     parent.removeChild(canvas);
