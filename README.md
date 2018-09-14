@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.3)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.4)
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -51,7 +51,7 @@
 
   ```xml
   <widget ...>
-    <plugin name="cordova-plugin-googlemaps" spec="2.4.1">
+    <plugin name="cordova-plugin-googlemaps">
       <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
       <variable name="API_KEY_FOR_IOS" value="(api key)" />
     </plugin>
@@ -193,6 +193,9 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.4.4**
+    - Fix: (Browser) All methods were tested, and fixed lots of bugs.
+
   - **v2.4.3**
     - Fix: (Browser) HTMLInfoWindow displays unnecessary scroll bars.
     - Fix: (Android) Can not load KML file from http://localhost on ionic 3.

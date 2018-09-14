@@ -153,7 +153,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
                     try {
                       activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
                     } catch (android.content.ActivityNotFoundException anfe) {
-                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=appPackageName")));
+                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
                     }
                   }
                 }
