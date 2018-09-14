@@ -51,6 +51,7 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
     self.set("isGoogleReady", true);
 
     var service = new google.maps.StreetViewService();
+    self.set('service', service);
     new Promise(function(resolve, reject) {
       if (options.camera) {
         var request = {};
@@ -102,10 +103,12 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
           pov.pitch = options.camera.tilt;
         }
         if ('bearing' in options.camera) {
-          pov = pov | {};
+          pov = pov || {};
           pov.heading = options.camera.bearing;
         }
-        stOptions.pov = pov;
+        if (pov) {
+          stOptions.pov = pov;
+        }
       }
 
       google.maps.event.addDomListener(container, 'click', function(evt) {
@@ -129,18 +132,157 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
       self.set('panorama', panorama);
 
       self.trigger(event.PANORAMA_READY);
-      panorama.addListener("pano_changed", self._onPanoChangedEvent.bind(self, panorama));
+      panorama.addListener("position_changed", self._onPanoChangedEvent.bind(self, panorama));
       panorama.addListener("pov_changed", self._onCameraEvent.bind(self, panorama));
       panorama.addListener("zoom_changed", self._onCameraEvent.bind(self, panorama));
 
     });
 
 
-
   });
 }
 
 utils.extend(PluginStreetViewPanorama, BaseClass);
+
+PluginStreetViewPanorama.prototype.setPanningGesturesEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var boolValue = args[0] === true;
+
+  if (panorama) {
+    panorama.setOptions({
+      'panControl': boolValue
+    });
+  }
+
+  onSuccess();
+};
+
+PluginStreetViewPanorama.prototype.setZoomGesturesEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var boolValue = args[0] === true;
+
+  if (panorama) {
+    panorama.setOptions({
+      'zoomControl': boolValue,
+      'scrollwheel': boolValue,
+    });
+  }
+
+  onSuccess();
+};
+
+
+PluginStreetViewPanorama.prototype.setNavigationEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var boolValue = args[0] === true;
+
+  if (panorama) {
+    panorama.setOptions({
+      'linksControl': boolValue
+    });
+  }
+
+  onSuccess();
+};
+
+PluginStreetViewPanorama.prototype.setStreetNamesEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var boolValue = args[0] === true;
+
+  if (panorama) {
+    panorama.setOptions({
+      'addressControl': boolValue,
+      'showRoadLabels': boolValue
+    });
+  }
+
+  onSuccess();
+};
+PluginStreetViewPanorama.prototype.setStreetNamesEnabled = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var boolValue = args[0] === true;
+
+  if (panorama) {
+    panorama.setOptions({
+      'visible': boolValue
+    });
+  }
+
+  onSuccess();
+};
+
+PluginStreetViewPanorama.prototype.setPosition = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var camera = args[0];
+
+  if (panorama) {
+    var service = self.get('service');
+
+    new Promise(function(resolve, reject) {
+      var request = {};
+      if (typeof camera.target === "string") {
+        request.pano = camera.target;
+      } else {
+        request.location = camera.target;
+        request.radius = camera.radius | 50;
+        request.source = camera.source === "OUTDOOR" ?
+          google.maps.StreetViewSource.OUTDOOR : google.maps.StreetViewSource.DEFAULT;
+      }
+      var timeoutError = setTimeout(function() {
+        reject('timeout error');
+      }, 3000);
+
+      service.getPanorama(request, function(data, status) {
+        clearTimeout(timeoutError);
+        if (status === google.maps.StreetViewStatus.OK) {
+          resolve(data.location.pano);
+        } else {
+          reject();
+        }
+      });
+    })
+    .then(function(panoId) {
+      panorama.setPano(panoId);
+      onSuccess();
+    })
+    .catch(onError);
+  } else {
+    onError('panorama has been already removed.');
+  }
+
+};
+
+PluginStreetViewPanorama.prototype.setPov = function(onSuccess, onError, args) {
+  var self = this;
+  var panorama = self.get("panorama");
+  var povRequest = args[0];
+
+  if (panorama) {
+    var options = {};
+    if ('bearing' in povRequest) {
+      options.pov = {};
+      options.pov.heading = povRequest.bearing;
+    }
+    if ('tilt' in povRequest) {
+      options.pov = options.pov || {};
+      options.pov.pitch = povRequest.tilt;
+    }
+    if ('zoom' in povRequest) {
+      options.zoom = povRequest.zoom;
+    }
+    panorama.setOptions(options);
+  }
+
+  onSuccess();
+};
+
+
 
 PluginStreetViewPanorama.prototype._onCameraEvent = function(panorama) {
   var self = this;
@@ -170,13 +312,15 @@ PluginStreetViewPanorama.prototype._onPanoChangedEvent = function(panorama) {
     }
   };
 
-  var links = panorama.getLinks();
-  locationInfo.links = links.map(function(link) {
-    return {
-      'panoId': link.pano,
-      'bearing': link.heading
-    };
-  });
+  var links = panorama.getLinks() || [];
+  if (links) {
+    locationInfo.links = links.map(function(link) {
+      return {
+        'panoId': link.pano,
+        'bearing': link.heading
+      };
+    });
+  }
   if (self.id in plugin.google.maps) {
     plugin.google.maps[self.id]({
       'evtName': event.PANORAMA_LOCATION_CHANGE,
