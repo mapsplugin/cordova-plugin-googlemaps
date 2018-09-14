@@ -36,6 +36,7 @@ function PluginStreetViewPanorama(panoramaId, options, panoramaDivId) {
   container.style.bottom = 0;
   container.style.right = 0;
   container.style.left = 0;
+  container.style.zIndex = 0;
   panoramaDiv.insertBefore(container, panoramaDiv.firstElementChild);
 
   self.set("isGoogleReady", false);
