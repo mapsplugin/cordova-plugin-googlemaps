@@ -169,6 +169,11 @@
       // Hold the mapCtrl instance with mapId.
       [self.pluginScrollView.mapCtrls setObject:pluginViewCtrl forKey:pluginViewCtrl.overlayId];
 
+      //When showing this plugin multiple times, a UIView from other plugin might be overlayed on
+      //top of this plugin so we must switch the view with the view that is right before the webview 
+      //and update the background color for the webview to prevent issues with non transparent webview
+      [self exchangeSubviewAtIndex:[self.subviews indexOfObject:self.webView]-1 withSubviewAtIndex:[self.subviews indexOfObject:self.pluginScrollView]];
+      self.webView.backgroundColor = [UIColor clearColor];
 
       // Add the mapView under the scroll view.
       [pluginViewCtrl.view setTag:pluginViewCtrl.viewDepth];
