@@ -264,13 +264,18 @@ PluginStreetViewPanorama.prototype.setPov = function(onSuccess, onError, args) {
   var povRequest = args[0];
 
   if (panorama) {
-    var options = {};
+    var options = {
+      pov: panorama.getPov()
+    };
+    options.pov = options.pov || {
+      heading: 0,
+      pitch: 0
+    };
+
     if ('bearing' in povRequest) {
-      options.pov = {};
       options.pov.heading = povRequest.bearing;
     }
     if ('tilt' in povRequest) {
-      options.pov = options.pov || {};
       options.pov.pitch = povRequest.tilt;
     }
     if ('zoom' in povRequest) {
@@ -281,7 +286,6 @@ PluginStreetViewPanorama.prototype.setPov = function(onSuccess, onError, args) {
 
   onSuccess();
 };
-
 
 
 PluginStreetViewPanorama.prototype._onCameraEvent = function(panorama) {
