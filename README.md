@@ -195,7 +195,9 @@
 ## Release Notes
   - **v2.4.4**
     - Fix: (Browser) All methods were tested, and fixed lots of bugs.
-    - Fix: (Android/iOS) Executes `map.animateCamera()` while map has been detached automatically causes dead lock. 
+    - Fix: (Android/iOS) Executes `map.animateCamera()` while map has been detached automatically causes dead lock.
+    - Update: (iOS) Fixed issue where plugin could appear behind other plugins
+    - Update: (Android) `getMyLocation()` does not return if application has been launched when location is disabled, then enable the location after soon.
 
   - **v2.4.3**
     - Fix: (Browser) HTMLInfoWindow displays unnecessary scroll bars.
