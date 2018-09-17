@@ -195,6 +195,7 @@
 ## Release Notes
   - **v2.4.4**
     - Fix: (Browser) All methods were tested, and fixed lots of bugs.
+    - Fix: (Android/iOS) Executes `map.animateCamera()` while map has been detached automatically causes dead lock. 
 
   - **v2.4.3**
     - Fix: (Browser) HTMLInfoWindow displays unnecessary scroll bars.

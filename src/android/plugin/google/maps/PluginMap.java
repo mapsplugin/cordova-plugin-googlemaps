@@ -955,52 +955,56 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     int maxWidth = 0;
 
     if (styles != null) {
-      try {
-        int width = 0;
-        String widthString = styles.getString("width");
+      if (styles.has("width")) {
+        try {
+          int width = 0;
+          String widthString = styles.getString("width");
 
-        if (widthString.endsWith("%")) {
-          double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
+          if (widthString.endsWith("%")) {
+            double widthDouble = Double.parseDouble(widthString.replace("%", ""));
 
-          width = (int)((double)mapView.getWidth() * (widthDouble / 100));
-        } else if (PluginUtil.isNumeric(widthString)) {
-          double widthDouble = Double.parseDouble(widthString);
+            width = (int) ((double) mapView.getWidth() * (widthDouble / 100));
+          } else if (PluginUtil.isNumeric(widthString)) {
+            double widthDouble = Double.parseDouble(widthString);
 
-          if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
-            width = (int)((double)mapView.getWidth() * (widthDouble));
-          } else {
-            width = (int)widthDouble;
+            if (widthDouble <= 1.0) {  // for percentage values (e.g. 0.5 = 50%).
+              width = (int) ((double) mapView.getWidth() * (widthDouble));
+            } else {
+              width = (int) widthDouble;
+            }
           }
-        }
 
-        if (width > 0) {
-          layoutParams.width = width;
+          if (width > 0) {
+            layoutParams.width = width;
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-      } catch (Exception e) {
-        e.printStackTrace();
       }
 
-      try {
-        String widthString = styles.getString("maxWidth");
+      if (styles.has("maxWidth")) {
+        try {
+          String widthString = styles.getString("maxWidth");
 
-        if (widthString.endsWith("%")) {
-          double widthDouble = Double.parseDouble(widthString.replace ("%", ""));
+          if (widthString.endsWith("%")) {
+            double widthDouble = Double.parseDouble(widthString.replace("%", ""));
 
-          maxWidth = (int)((double)mapView.getWidth() * (widthDouble / 100));
+            maxWidth = (int) ((double) mapView.getWidth() * (widthDouble / 100));
 
-          // make sure to take padding into account.
-          maxWidth -= (windowLayer.getPaddingLeft() + windowLayer.getPaddingRight());
-        } else if (PluginUtil.isNumeric(widthString)) {
-          double widthDouble = Double.parseDouble(widthString);
+            // make sure to take padding into account.
+            maxWidth -= (windowLayer.getPaddingLeft() + windowLayer.getPaddingRight());
+          } else if (PluginUtil.isNumeric(widthString)) {
+            double widthDouble = Double.parseDouble(widthString);
 
-          if (widthDouble <= 1.0) {	// for percentage values (e.g. 0.5 = 50%).
-            maxWidth = (int)((double)mapView.getWidth() * (widthDouble));
-          } else {
-            maxWidth = (int)widthDouble;
+            if (widthDouble <= 1.0) {  // for percentage values (e.g. 0.5 = 50%).
+              maxWidth = (int) ((double) mapView.getWidth() * (widthDouble));
+            } else {
+              maxWidth = (int) widthDouble;
+            }
           }
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-      } catch (Exception e) {
-        e.printStackTrace();
       }
     }
 
@@ -1013,26 +1017,28 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     int textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
 
     if (styles != null) {
-      try {
-        String textAlignValue = styles.getString("text-align");
+      if (styles.has("text-align")) {
+        try {
+          String textAlignValue = styles.getString("text-align");
 
-        switch(TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
-          case left:
-            gravity = Gravity.LEFT;
-            textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
-            break;
-          case center:
-            gravity = Gravity.CENTER;
-            textAlignment = View.TEXT_ALIGNMENT_CENTER;
-            break;
-          case right:
-            gravity = Gravity.RIGHT;
-            textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
-            break;
+          switch (TEXT_STYLE_ALIGNMENTS.valueOf(textAlignValue)) {
+            case left:
+              gravity = Gravity.LEFT;
+              textAlignment = View.TEXT_ALIGNMENT_GRAVITY;
+              break;
+            case center:
+              gravity = Gravity.CENTER;
+              textAlignment = View.TEXT_ALIGNMENT_CENTER;
+              break;
+            case right:
+              gravity = Gravity.RIGHT;
+              textAlignment = View.TEXT_ALIGNMENT_VIEW_END;
+              break;
+          }
+
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-
-      } catch (Exception e) {
-        e.printStackTrace();
       }
     }
 
@@ -1075,19 +1081,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
         //----------------------------------------
         int fontStyle = Typeface.NORMAL;
         if (styles != null) {
-          try {
-            if ("italic".equals(styles.getString("font-style"))) {
-              fontStyle = Typeface.ITALIC;
+          if (styles.has("font-style")) {
+            try {
+              if ("italic".equals(styles.getString("font-style"))) {
+                fontStyle = Typeface.ITALIC;
+              }
+            } catch (JSONException e) {
+              e.printStackTrace();
             }
-          } catch (JSONException e) {
-            e.printStackTrace();
           }
-          try {
-            if ("bold".equals(styles.getString("font-weight"))) {
-              fontStyle = fontStyle | Typeface.BOLD;
+          if (styles.has("font-weight")) {
+            try {
+              if ("bold".equals(styles.getString("font-weight"))) {
+                fontStyle = fontStyle | Typeface.BOLD;
+              }
+            } catch (JSONException e) {
+              e.printStackTrace();
             }
-          } catch (JSONException e) {
-            e.printStackTrace();
           }
         }
         textView.setTypeface(Typeface.DEFAULT, fontStyle);
