@@ -476,7 +476,7 @@
       </array>
     </config-file>
 
-    <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk.git#2.7.0"/>
+    <dependency id="com.googlemaps.ios" url="github:mapsplugin/cordova-plugin-googlemaps-sdk#2.7.0"/>
 
     <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
     <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>
