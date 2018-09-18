@@ -1044,6 +1044,97 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   }
 };
 
+/*
+//-----------------------------------------
+// Experimental: FusionTableOverlay
+//-----------------------------------------
+Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
+  var self = this;
+  if (!fusionTableOptions) {
+    throw new Error('Please specify fusionTableOptions');
+  }
+  if (!fusionTableOptions.select) {
+    throw new Error('Please specify fusionTableOptions.select');
+  }
+  if (!fusionTableOptions.from) {
+    throw new Error('Please specify fusionTableOptions.from');
+  }
+  var query = ["select+",
+    fusionTableOptions.select,
+    "+from+",
+    fusionTableOptions.from];
+  if (fusionTableOptions.where) {
+    query.push('+where+' + fusiontables.where);
+  }
+  if (fusionTableOptions.orderBy) {
+    query.push('+orderBy+' + fusiontables.orderBy);
+  }
+  if (fusionTableOptions.offset) {
+    query.push('+offset+' + fusiontables.offset);
+  }
+  if (fusionTableOptions.limit) {
+    query.push('+limit+' + fusiontables.limit);
+  } else {
+    query.push('+limit+1000');
+  }
+
+  fusionTableOptions.url =
+     "https://fusiontables.google.com/exporttable?query=" +
+    query.join('') +
+    "&o=kml&g=" + fusionTableOptions.select;
+
+  fusionTableOptions.clickable = common.defaultTrueOption(fusionTableOptions.clickable);
+  fusionTableOptions.suppressInfoWindows = fusionTableOptions.suppressInfoWindows === true;
+
+  if (fusionTableOptions.url) {
+    var invisible_dot = self.get("invisible_dot");
+    if (!invisible_dot || invisible_dot._isRemoved) {
+      // Create an invisible marker for kmlOverlay
+      self.set("invisible_dot", self.addMarker({
+        position: {
+          lat: 0,
+          lng: 0
+        },
+        icon: "skyblue",
+        visible: false
+      }));
+    }
+    if ('icon' in fusionTableOptions) {
+      self.get('invisible_dot').setIcon(fusionTableOptions.icon);
+    }
+
+    var resolver = function(resolve, reject) {
+
+      var loader = new KmlLoader(self, self.exec, fusionTableOptions);
+      loader.parseKmlFile(function(camera, kmlData) {
+        if (kmlData instanceof BaseClass) {
+          kmlData = new BaseArrayClass([kmlData]);
+        }
+        var fusionTableId = "ftoverlay_" + Math.floor(Math.random() * Date.now());
+        var fusionTableOverlay = new FusionTableOverlay(self, fusionTableId, camera, kmlData, fusionTableOptions);
+        self.OVERLAYS[kmlId] = fusionTableOverlay;
+        resolve.call(self, fusionTableOverlay);
+      });
+
+    };
+
+    if (typeof callback === "function") {
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
+  } else {
+
+    if (typeof callback === "function") {
+      throw new Error('KML file url is required.');
+    } else {
+      return Promise.reject('KML file url is required.');
+    }
+  }
+};
+*/
+
+
 //-------------
 // Ground overlay
 //-------------
