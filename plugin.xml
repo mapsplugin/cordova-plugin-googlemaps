@@ -42,6 +42,9 @@
   <js-module name="TileOverlay" src="www/TileOverlay.js">
     <runs/>
   </js-module>
+  <js-module name="FusionTableOverlay" src="www/FusionTableOverlay.js">
+    <runs/>
+  </js-module>
   <js-module name="GroundOverlay" src="www/GroundOverlay.js">
     <runs/>
   </js-module>
@@ -522,6 +525,9 @@
       <runs/>
     </js-module>
     <js-module name="PluginStreetViewPanorama" src="src/browser/PluginStreetViewPanorama.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginFusionTableOverlay" src="src/browser/PluginFusionTableOverlay.js">
       <runs/>
     </js-module>
     <js-module name="PluginTileOverlay" src="src/browser/PluginTileOverlay.js">

@@ -19,6 +19,7 @@ var utils = require('cordova/utils'),
   KmlOverlay = require('./KmlOverlay'),
   KmlLoader = require('./KmlLoader'),
   CameraPosition = require('./CameraPosition'),
+  FusionTableOverlay = require('./FusionTableOverlay'),
   MarkerCluster = require('./MarkerCluster');
 
 /**
@@ -1044,6 +1045,32 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   }
 };
 
+Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
+  var self = this;
+
+  if (!fusionTableOptions) {
+    throw new Error('Please specify fusionTableOptions');
+  }
+  if (!fusionTableOptions.select) {
+    throw new Error('Please specify fusionTableOptions.select');
+  }
+  if (!fusionTableOptions.from) {
+    throw new Error('Please specify fusionTableOptions.from');
+  }
+
+  var fusionTableOverlay = new FusionTableOverlay(self, fusionTableOptions, exec);
+
+  self.exec.call(self, function(result) {
+    fusionTableOverlay._privateInitialize();
+    delete fusionTableOverlay._privateInitialize;
+
+    if (typeof callback === "function") {
+      callback.call(self, tileOverlay);
+    }
+  }, self.errorHandler, self.id, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
+
+  return fusionTableOverlay;
+};
 /*
 //-----------------------------------------
 // Experimental: FusionTableOverlay
