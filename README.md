@@ -193,6 +193,10 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.4.5**
+    - Fix: (Browser) `GeocoderResult.extra.lines` field is incorrect position.
+    - Update: (Android/iOS/Browser) Detecting way of `viewport-fit=cover`.
+
   - **v2.4.4**
     - Fix: (Browser) All methods were tested, and fixed lots of bugs.
     - Fix: (Android/iOS) Executes `map.animateCamera()` while map has been detached automatically causes dead lock.
