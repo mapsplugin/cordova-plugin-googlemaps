@@ -62,13 +62,25 @@ QUEUE.on('next', function() {
           'lat': geocoderResult.geometry.location.lat(),
           'lng': geocoderResult.geometry.location.lng()
         },
-        lines: []
+        extra: {
+          lines: []
+        }
       };
+      if (geocoderResult.place_id) {
+        result.extra.place_id = geocoderResult.place_id;
+      }
+      if (geocoderResult.plus_code) {
+        result.extra.plus_code = geocoderResult.plus_code;
+      }
+      if (geocoderResult.types) {
+        result.extra.types = geocoderResult.types;
+      }
+
       var administrative_area = [];
       var sublocality_area = [];
       var idx;
       geocoderResult.address_components.forEach(function(addrComp) {
-        result.lines.push(addrComp.long_name);
+        result.extra.lines.push(addrComp.long_name);
         if (!result.locality && addrComp.types.indexOf("locality") > -1) {
           result.locality = addrComp.short_name;
         }
