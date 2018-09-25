@@ -1205,7 +1205,17 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (!url || url === "(null)" || url === "undefined" || url === "null") {
       url = "(null)";
     }
-    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, url]);
+    if (url instanceof Promise) {
+      common.promiseTimeout(5000, url)
+        .then(function(finalUrl) {
+          cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
+        })
+        .catch(function() {
+          cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, "(null)"]);
+        });
+    } else {
+      cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, url]);
+    }
   };
   document.addEventListener(self.id + "-" + hashCode + "-tileoverlay", onNativeCallback);
 

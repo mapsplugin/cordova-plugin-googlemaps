@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.5)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.5.0-beta)
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -193,6 +193,22 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.5.0**
+    - Add: (Android/iOS/Browser) `map.addFusionTableOverlay()`
+
+    - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
+      ```js
+      var tileOverlay = map.addTileOverlay({
+        getTile: function(x, y, zoom) {
+          return new Promise(function(resolve, reject) {
+            somethingAsync(function(url) {
+              resolve(url);
+            });
+          });
+        }
+      });
+      ```
+
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
 
