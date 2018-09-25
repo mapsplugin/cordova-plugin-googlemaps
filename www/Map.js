@@ -997,7 +997,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 
     var link = document.createElement("a");
     link.href = kmlOverlayOptions.url;
-    kmlOverlayOptions.url = link.protocol+"//"+link.host+link.pathname;
+    kmlOverlayOptions.url = link.protocol+"//"+link.host+link.pathname + link.search;
 
     var invisible_dot = self.get("invisible_dot");
     if (!invisible_dot || invisible_dot._isRemoved) {
@@ -1045,6 +1045,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   }
 };
 
+/*
 Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
   var self = this;
 
@@ -1058,20 +1059,8 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
     throw new Error('Please specify fusionTableOptions.from');
   }
 
-  var fusionTableOverlay = new FusionTableOverlay(self, fusionTableOptions, exec);
-
-  self.exec.call(self, function(result) {
-    fusionTableOverlay._privateInitialize();
-    delete fusionTableOverlay._privateInitialize;
-
-    if (typeof callback === "function") {
-      callback.call(self, tileOverlay);
-    }
-  }, self.errorHandler, self.id, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
-
-  return fusionTableOverlay;
 };
-/*
+*/
 //-----------------------------------------
 // Experimental: FusionTableOverlay
 //-----------------------------------------
@@ -1086,6 +1075,32 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
   if (!fusionTableOptions.from) {
     throw new Error('Please specify fusionTableOptions.from');
   }
+
+
+  var fusionTableOverlay = new FusionTableOverlay(self, fusionTableOptions, exec);
+  if (cordova.platformId === "browser") {
+    //----------------------------------
+    // Browser: use FusionTable layer
+    //----------------------------------
+
+    self.exec.call(self, function(result) {
+      fusionTableOverlay._privateInitialize();
+      delete fusionTableOverlay._privateInitialize;
+
+      if (typeof callback === "function") {
+        callback.call(self, tileOverlay);
+      }
+    }, self.errorHandler, self.id, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
+
+    if (typeof callback === "function") {
+      callback(fusionTableOverlay);
+      return;
+    } else {
+      return Promise.resolve(fusionTableOverlay);
+    }
+  }
+
+
   var query = ["select+",
     fusionTableOptions.select,
     "+from+",
@@ -1106,60 +1121,16 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
   }
 
   fusionTableOptions.url =
-     "https://fusiontables.google.com/exporttable?query=" +
+     "https://fusiontables.google.com/exporttable\?query=" +
     query.join('') +
     "&o=kml&g=" + fusionTableOptions.select;
 
   fusionTableOptions.clickable = common.defaultTrueOption(fusionTableOptions.clickable);
   fusionTableOptions.suppressInfoWindows = fusionTableOptions.suppressInfoWindows === true;
 
-  if (fusionTableOptions.url) {
-    var invisible_dot = self.get("invisible_dot");
-    if (!invisible_dot || invisible_dot._isRemoved) {
-      // Create an invisible marker for kmlOverlay
-      self.set("invisible_dot", self.addMarker({
-        position: {
-          lat: 0,
-          lng: 0
-        },
-        icon: "skyblue",
-        visible: false
-      }));
-    }
-    if ('icon' in fusionTableOptions) {
-      self.get('invisible_dot').setIcon(fusionTableOptions.icon);
-    }
-
-    var resolver = function(resolve, reject) {
-
-      var loader = new KmlLoader(self, self.exec, fusionTableOptions);
-      loader.parseKmlFile(function(camera, kmlData) {
-        if (kmlData instanceof BaseClass) {
-          kmlData = new BaseArrayClass([kmlData]);
-        }
-        var fusionTableId = "ftoverlay_" + Math.floor(Math.random() * Date.now());
-        var fusionTableOverlay = new FusionTableOverlay(self, fusionTableId, camera, kmlData, fusionTableOptions);
-        self.OVERLAYS[kmlId] = fusionTableOverlay;
-        resolve.call(self, fusionTableOverlay);
-      });
-
-    };
-
-    if (typeof callback === "function") {
-      resolver(callback, self.errorHandler);
-    } else {
-      return new Promise(resolver);
-    }
-  } else {
-
-    if (typeof callback === "function") {
-      throw new Error('KML file url is required.');
-    } else {
-      return Promise.reject('KML file url is required.');
-    }
-  }
+console.log(fusionTableOptions);
+  return self.addKmlOverlay(fusionTableOptions, callback);
 };
-*/
 
 
 //-------------
