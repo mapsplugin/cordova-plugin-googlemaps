@@ -1,4 +1,5 @@
 
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
@@ -519,14 +520,10 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
               markerOptions.icon = markerOptions.icon || {};
               markerOptions.icon.url = style.children[0].value;
               break;
-            case "color":
-              markerOptions.icon = markerOptions.icon || {};
-              markerOptions.icon.color = kmlColorToRGBA(style.value);
-              break;
-            case "icon":
-              markerOptions.icon = markerOptions.icon || {};
-              markerOptions.icon.url = style.children[0].value;
-              break;
+            // case "color":
+            //   markerOptions.icon = markerOptions.icon || {};
+            //   markerOptions.icon.color = kmlColorToRGBA(style.value);
+            //   break;
           }
         });
         break;
@@ -585,31 +582,31 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
 
 //console.log(markerOptions);
   (new Promise(function(resolve, reject) {
-    if (markerOptions.icon && markerOptions.icon.color) {
-      var image = new Image();
-      image.onload = function() {
-
-        var canvas = document.createElement("canvas");
-        var ctx = canvas.getContext('2d');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        ctx.fillStyle = 'rgba(' + markerOptions.icon.color.join(',') + ')';
-        ctx.fillRect(0, 0, image.width, image.height);
-        ctx.drawImage(image, 0, 0);
-        markerOptions.icon.url = canvas.toDataURL();
-        delete markerOptions.icon.color;
-        self.map.addMarker(markerOptions, resolve);
-      };
-      image.onerror = function(e) {
-        //console.warn(e.message || "Can not load " + markerOptions.icon.url);
-        delete markerOptions.icon.color;
-        self.map.addMarker(markerOptions, resolve);
-      };
-
-      image.src = markerOptions.icon.url;
-    } else {
+    // if (markerOptions.icon && markerOptions.icon.color) {
+    //   var image = new Image();
+    //   image.onload = function() {
+    //
+    //     var canvas = document.createElement("canvas");
+    //     var ctx = canvas.getContext('2d');
+    //     canvas.width = image.width;
+    //     canvas.height = image.height;
+    //     ctx.fillStyle = 'rgba(' + markerOptions.icon.color.join(',') + ')';
+    //     ctx.fillRect(0, 0, image.width, image.height);
+    //     ctx.drawImage(image, 0, 0);
+    //     markerOptions.icon.url = canvas.toDataURL();
+    //     delete markerOptions.icon.color;
+    //     self.map.addMarker(markerOptions, resolve);
+    //   };
+    //   image.onerror = function(e) {
+    //     //console.warn(e.message || "Can not load " + markerOptions.icon.url);
+    //     delete markerOptions.icon.color;
+    //     self.map.addMarker(markerOptions, resolve);
+    //   };
+    //
+    //   image.src = markerOptions.icon.url;
+    // } else {
       self.map.addMarker(markerOptions, resolve);
-    }
+//    }
   })).then(callback);
 
 };

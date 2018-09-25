@@ -7,10 +7,14 @@ var argscheck = require('cordova/argscheck'),
     BaseArrayClass = require('./BaseArrayClass'),
     HtmlInfoWindow = require('./HtmlInfoWindow');
 
-var XElementPrototype = Object.create(HTMLElement.prototype);
-var XElement = document.registerElement('pgm-sandbox', {
-    prototype: XElementPrototype
+var XElement = null;
+window.addEventListener('WebComponentsReady', function(e) {
+  var XElementPrototype = Object.create(HTMLElement.prototype);
+  XElement = document.registerElement('pgm-sandbox', {
+      prototype: XElementPrototype
+  });
 });
+
 
 /*****************************************************************************
  * KmlOverlay Class
@@ -153,23 +157,28 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         }
 
         if (text && text.length > 0) {
-          var xElement = new XElement();
-          xElement.innerHTML = text;
-          result.appendChild(xElement);
-        }
+          if (XElement) {
+            var xElement = new XElement();
+            xElement.innerHTML = text;
+            result.appendChild(xElement);
+          } else {
 
-        //var iframe = document.createElement('iframe');
-        //iframe.sandbox = "allow-scripts allow-same-origin";
-        //iframe.frameBorder = "no";
-        //iframe.scrolling = "yes";
-        //iframe.style.overflow = "hidden";
-        ///iframe.addEventListener('load', function() {
-        //  iframe.contentWindow.document.open();
-        //  iframe.contentWindow.document.write(text);
-        //  iframe.contentWindow.document.close();
-        //}, {
-        //  once: true
-        //});
+            var iframe = document.createElement('iframe');
+            iframe.sandbox = "allow-scripts allow-same-origin";
+            iframe.frameBorder = "no";
+            iframe.scrolling = "yes";
+            iframe.style.overflow = "hidden";
+            iframe.addEventListener('load', function() {
+             iframe.contentWindow.document.open();
+             iframe.contentWindow.document.write(text);
+             iframe.contentWindow.document.close();
+            }, {
+             once: true
+            });
+            result.appendChild(iframe);
+
+          }
+        }
 
       } else {
         if (overlay.get("description")) {

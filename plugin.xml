@@ -3,6 +3,7 @@
   <name>cordova-plugin-googlemaps</name>
   <js-module name="Promise" src="www/Promise.js" />
   <asset src="www/promise-7.0.4.min.js.map" target="promise-7.0.4.min.js.map" />
+  <asset src="www/promise-7.0.4.min.js.map" target="plugins/cordova-plugin-googlemaps/www/promise-7.0.4.min.js.map" /> 
   <js-module name="BaseClass" src="www/BaseClass.js">
     <runs/>
   </js-module>
