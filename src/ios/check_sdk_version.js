@@ -21,13 +21,13 @@ module.exports = function(ctx) {
       }
     }
 
-    console.info("--[cordova-plugin-googlemaps]------------------------");
-    console.info("From version 2.4.5, the cordova-plugin-googlemaps uses CocoaPod.");
-    console.info("No longer necessary com.googlemaps.ios plugin.");
-    console.info("Automatic uninstalling com.googlemaps.ios plugin...");
-    console.info("-----------------------------------------------------");
-
     if (needToUninstall) {
+      console.info("--[cordova-plugin-googlemaps]------------------------");
+      console.info("From version 2.4.5, the cordova-plugin-googlemaps uses CocoaPod.");
+      console.info("No longer necessary com.googlemaps.ios plugin.");
+      console.info("Automatic uninstalling com.googlemaps.ios plugin...");
+      console.info("-----------------------------------------------------");
+
       var exec = require('child_process').exec;
       exec('cordova plugin rm com.googlemaps.ios 2>&1', function(err, stdout) {
         if (err) {
