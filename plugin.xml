@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.4.5-beta-20180923-1940" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps" version="2.4.5-beta-20180925-0947" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
   <name>cordova-plugin-googlemaps</name>
   <js-module name="Promise" src="www/Promise.js" />
   <asset src="www/promise-7.0.4.min.js.map" target="promise-7.0.4.min.js.map" />

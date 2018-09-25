@@ -6,6 +6,11 @@ var argscheck = require('cordova/argscheck'),
     BaseArrayClass = require('./BaseArrayClass'),
     HtmlInfoWindow = require('./HtmlInfoWindow');
 
+var XElementPrototype = Object.create(HTMLElement.prototype);
+var XElement = document.registerElement('pgm-sandbox', {
+    prototype: XElementPrototype
+});
+
 /*****************************************************************************
  * KmlOverlay Class
  *****************************************************************************/
@@ -120,43 +125,52 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         descriptionTxt = description.value;
       }
       if (description && (descriptionTxt.indexOf("<html>") > -1 || descriptionTxt.indexOf("script") > -1)) {
+console.log(descriptionTxt, overlay);
         var text = templateRenderer(descriptionTxt, overlay);
+console.log(text);
         // create a sandbox
-        if (text.indexOf("<html") === -1) {
-          text = "<html><body>" + text + "</body></html>";
-        }
+        // if (text.indexOf("<html") === -1) {
+        //   text = "<html><body>" + text + "</body></html>";
+        // }
         result = document.createElement("div");
-        if (overlay.get('name')) {
+        if (overlay.get('name') && overlay.get('name').value ) {
           var name = document.createElement("div");
           name.style.fontWeight = 500;
           name.style.fontSize = "medium";
           name.style.marginBottom = 0;
+          name.style.whiteSpace = "pre";
           name.innerText = overlay.get('name').value || "";
           result.appendChild(name);
         }
-        if (overlay.get('snippet')) {
+        if (overlay.get('snippet') && overlay.get('snippet').value.length > 0) {
           var snippet = document.createElement("div");
           snippet.style.fontWeight = 300;
           snippet.style.fontSize = "small";
           snippet.style.whiteSpace = "normal";
+          snippet.style.whiteSpace = "pre";
           snippet.style.fontFamily = "Roboto,Arial,sans-serif";
           snippet.innerText = overlay.get('snippet').value || "";
           result.appendChild(snippet);
         }
 
-        var iframe = document.createElement('iframe');
-        iframe.sandbox = "allow-scripts allow-same-origin";
-        iframe.frameBorder = "no";
-        iframe.scrolling = "yes";
-        iframe.style.overflow = "hidden";
-        iframe.addEventListener('load', function() {
-          iframe.contentWindow.document.open();
-          iframe.contentWindow.document.write(text);
-          iframe.contentWindow.document.close();
-        }, {
-          once: true
-        });
-        result.appendChild(iframe);
+        if (text && text.length > 0) {
+          var xElement = new XElement();
+          xElement.innerHTML = text;
+          result.appendChild(xElement);
+        }
+
+        //var iframe = document.createElement('iframe');
+        //iframe.sandbox = "allow-scripts allow-same-origin";
+        //iframe.frameBorder = "no";
+        //iframe.scrolling = "yes";
+        //iframe.style.overflow = "hidden";
+        ///iframe.addEventListener('load', function() {
+        //  iframe.contentWindow.document.open();
+        //  iframe.contentWindow.document.write(text);
+        //  iframe.contentWindow.document.close();
+        //}, {
+        //  once: true
+        //});
 
       } else {
         if (overlay.get("name")) {
