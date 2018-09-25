@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.4)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.5)
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -195,7 +195,9 @@
 ## Release Notes
   - **v2.4.5**
     - Fix: (Browser) `GeocoderResult.extra.lines` field is incorrect position.
+    - Fix: (Android/iOS/Browser) `promise-7.0.4.min.js.map` file is missing.
     - Update: (Android/iOS/Browser) Detecting way of `viewport-fit=cover`.
+    - Update: (iOS) No longer use `com.googlemaps.ios`. Use `CocoaPod` installation instead.
 
   - **v2.4.4**
     - Fix: (Browser) All methods were tested, and fixed lots of bugs.
