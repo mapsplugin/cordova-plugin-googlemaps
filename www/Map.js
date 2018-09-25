@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -1045,22 +1046,6 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
   }
 };
 
-/*
-Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
-  var self = this;
-
-  if (!fusionTableOptions) {
-    throw new Error('Please specify fusionTableOptions');
-  }
-  if (!fusionTableOptions.select) {
-    throw new Error('Please specify fusionTableOptions.select');
-  }
-  if (!fusionTableOptions.from) {
-    throw new Error('Please specify fusionTableOptions.from');
-  }
-
-};
-*/
 //-----------------------------------------
 // Experimental: FusionTableOverlay
 //-----------------------------------------
@@ -1123,12 +1108,12 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
   fusionTableOptions.url =
      "https://fusiontables.google.com/exporttable\?query=" +
     query.join('') +
-    "&o=kml&g=" + fusionTableOptions.select;
+    "&o=kml&g=" + fusionTableOptions.select +
+    "&styleId=2&templateId=2"; // including '&styleId=2&templateId=2', FusionTable exports the latest KML file
 
   fusionTableOptions.clickable = common.defaultTrueOption(fusionTableOptions.clickable);
   fusionTableOptions.suppressInfoWindows = fusionTableOptions.suppressInfoWindows === true;
 
-console.log(fusionTableOptions);
   return self.addKmlOverlay(fusionTableOptions, callback);
 };
 

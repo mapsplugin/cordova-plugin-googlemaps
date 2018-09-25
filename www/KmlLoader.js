@@ -1,3 +1,4 @@
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
@@ -59,7 +60,7 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
 
   self.exec.call(self.map, function(kmlData) {
     var rawKmlData = JSON.parse(JSON.stringify(kmlData));
-console.log(rawKmlData);
+//console.log(rawKmlData);
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
       writable: false
@@ -489,17 +490,20 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   var markerOptions = {};
   params.styles.children.forEach(function(child) {
     switch (child.tagName) {
-      case "balloonstyle":
-        child.children.forEach(function(style) {
-          switch (style.tagName) {
-            case "text":
-              markerOptions.description = {
-                value: style.value
-              };
-              break;
-          }
-        });
-        break;
+
+      // // Don't use this code because this replace original 'description' field.
+      // case "balloonstyle":
+      //   child.children.forEach(function(style) {
+      //     switch (style.tagName) {
+      //       case "description":
+      //         markerOptions.description = {
+      //           value: style.value
+      //         };
+      //         break;
+      //     }
+      //   });
+      //   break;
+
       case "iconstyle":
         child.children.forEach(function(style) {
           switch (style.tagName) {
@@ -518,6 +522,10 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
             case "color":
               markerOptions.icon = markerOptions.icon || {};
               markerOptions.icon.color = kmlColorToRGBA(style.value);
+              break;
+            case "icon":
+              markerOptions.icon = markerOptions.icon || {};
+              markerOptions.icon.url = style.children[0].value;
               break;
           }
         });

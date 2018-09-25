@@ -1,3 +1,4 @@
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
@@ -52,7 +53,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
         var text = "";
         if (marker.get(name)) {
-          text = marker.get(name).value || "";
+          text = marker.get(name).value;
         }
         if (extendedData && text) {
           text = text.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match1, name1) {
@@ -125,9 +126,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
         descriptionTxt = description.value;
       }
       if (description && (descriptionTxt.indexOf("<html>") > -1 || descriptionTxt.indexOf("script") > -1)) {
-console.log(descriptionTxt, overlay);
         var text = templateRenderer(descriptionTxt, overlay);
-console.log(text);
         // create a sandbox
         // if (text.indexOf("<html") === -1) {
         //   text = "<html><body>" + text + "</body></html>";
@@ -173,14 +172,15 @@ console.log(text);
         //});
 
       } else {
-        if (overlay.get("name")) {
-          html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
-        }
-        if (overlay.get("_snippet")) {
-          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
-        }
         if (overlay.get("description")) {
-          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>");
+          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:pre;min-width:100px;padding: auto 0.5em;'>${description}</div>");
+        } else {
+          if (overlay.get("name")) {
+            html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
+          }
+          if (overlay.get("_snippet")) {
+            html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
+          }
         }
         var prevMatchedCnt = 0;
         result = html.join("");
