@@ -475,7 +475,7 @@
       </array>
     </config-file>
 
-    <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk/tarball/2.7.0"/>
+    <framework src="GoogleMaps" type="podspec" spec="~> 2.7.0" />
 
     <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
     <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>
