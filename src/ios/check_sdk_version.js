@@ -17,6 +17,7 @@ module.exports = function(ctx) {
       pluginInfo = plugins[i];
       if (pluginInfo.id === "com.googlemaps.ios") {
         needToUninstall = true;
+        break;
       }
     }
 
@@ -26,15 +27,21 @@ module.exports = function(ctx) {
     console.info("Automatic uninstalling com.googlemaps.ios plugin...");
     console.info("-----------------------------------------------------");
 
-    var exec = require('child_process').exec;
-    exec('cordova plugin rm com.googlemaps.ios 2>&1', function(err, stdout) {
-      if (err) {
-        reject(err);
-      } else {
-        console.log(stdout);
-        resolve();
-      }
-    });
+    if (needToUninstall) {
+      var exec = require('child_process').exec;
+      exec('cordova plugin rm com.googlemaps.ios 2>&1', function(err, stdout) {
+        if (err) {
+          reject(err);
+        } else {
+          console.log(stdout);
+          exec('npm uninstall cordova-plugin-googlemaps-sdk --save 2>&1', function() {
+            resolve();
+          });
+        }
+      });
+    } else {
+      resolve();
+    }
   });
 
 };

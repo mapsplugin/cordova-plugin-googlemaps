@@ -193,6 +193,9 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.4.6**
+    - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
+
   - **v2.4.5**
     - Fix: (Browser) `GeocoderResult.extra.lines` field is incorrect position.
     - Fix: (Android/iOS/Browser) `promise-7.0.4.min.js.map` file is missing.
