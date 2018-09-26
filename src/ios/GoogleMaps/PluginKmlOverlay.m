@@ -307,7 +307,7 @@
     NSString *tmp;
     for (int i = 0; i < lines.count; i++) {
       tmp = [lines objectAtIndex:i];
-      tmp = [tmp regReplace:@"[^0-9,.\\-]" replaceTxt:@"" options:0];
+      tmp = [tmp regReplace:@"[^0-9,.eE\\-]" replaceTxt:@"" options:0];
       if ([tmp isEqualToString:@""] == NO) {
         tmpArry = [tmp componentsSeparatedByString:@","];
         latLng = [NSMutableDictionary dictionary];
