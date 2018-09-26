@@ -1,5 +1,6 @@
 
 
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
@@ -348,59 +349,61 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
 
 KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
   var self = this;
-  params.attrHolder.extendeddata = {};
-  params.child.children.forEach(function(child) {
-    switch(child.tagName) {
-      case "data":
-        child.children.forEach(function(data) {
-          var dataName = child.name.toLowerCase();
-          switch(data.tagName) {
-            case "displayname":
-              params.attrHolder.extendeddata[dataName + "/displayname"] = data.value;
-              break;
-            case "value":
-              params.attrHolder.extendeddata[dataName] = data.value;
-              break;
-            default:
-              break;
-          }
-        });
-        break;
-      case "schemadata":
-        self.getSchemaById(child.schemaUrl, function(schemas) {
-          var schemaUrl = schemas.name;
-          schemas.children.forEach(function(simplefield) {
-            if (simplefield.tagName !== "simplefield") {
-              return;
+  if (params.child && params.child.children) {
+    params.attrHolder.extendeddata = {};
+    params.child.children.forEach(function(child) {
+      switch(child.tagName) {
+        case "data":
+          child.children.forEach(function(data) {
+            var dataName = child.name.toLowerCase();
+            switch(data.tagName) {
+              case "displayname":
+                params.attrHolder.extendeddata[dataName + "/displayname"] = data.value;
+                break;
+              case "value":
+                params.attrHolder.extendeddata[dataName] = data.value;
+                break;
+              default:
+                break;
             }
-            if ("children" in simplefield) {
-              simplefield.children.forEach(function(valueTag) {
-                var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+          });
+          break;
+        case "schemadata":
+          self.getSchemaById(child.schemaUrl, function(schemas) {
+            var schemaUrl = schemas.name;
+            schemas.children.forEach(function(simplefield) {
+              if (simplefield.tagName !== "simplefield") {
+                return;
+              }
+              if ("children" in simplefield) {
+                simplefield.children.forEach(function(valueTag) {
+                  var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+                  schemaPath = schemaPath.toLowerCase();
+                  params.attrHolder.extendeddata[schemaPath] = valueTag.value;
+                });
+              } else {
+                var schemaPath = schemaUrl + "/" + simplefield.name;
                 schemaPath = schemaPath.toLowerCase();
-                params.attrHolder.extendeddata[schemaPath] = valueTag.value;
-              });
-            } else {
-              var schemaPath = schemaUrl + "/" + simplefield.name;
+                params.attrHolder.extendeddata[schemaPath] = simplefield.value;
+              }
+            });
+            child.children.forEach(function(simpledata) {
+              var schemaPath = schemaUrl + "/" + simpledata.name;
               schemaPath = schemaPath.toLowerCase();
-              params.attrHolder.extendeddata[schemaPath] = simplefield.value;
-            }
+              params.attrHolder.extendeddata[schemaPath] = simpledata.value;
+            });
           });
-          child.children.forEach(function(simpledata) {
-            var schemaPath = schemaUrl + "/" + simpledata.name;
-            schemaPath = schemaPath.toLowerCase();
-            params.attrHolder.extendeddata[schemaPath] = simpledata.value;
+          break;
+
+        default:
+
+          child.children.forEach(function(data) {
+            params.attrHolder.extendeddata[child.tagName] = child;
           });
-        });
-        break;
-
-      default:
-
-        child.children.forEach(function(data) {
-          params.attrHolder.extendeddata[child.tagName] = child;
-        });
-        break;
-    }
-  });
+          break;
+      }
+    });
+  }
   callback();
 };
 
