@@ -21,7 +21,8 @@
     "google maps",
     "ecosystem:cordova",
     "cordova-android",
-    "cordova-ios"
+    "cordova-ios",
+    "cordova-browser"
   ],
   "engines": [
     {
