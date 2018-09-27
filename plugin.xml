@@ -415,9 +415,9 @@
     <header-file src="src/ios/GoogleMaps/IPluginProtocol.h"/>
 
     <!-- Base messages -->
-    <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json" />
+    <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json"/>
     <!-- localized messages for Spanish -->
-    <resource-file src="src/ios/strings/pgm_Localizable_es.json" target="pgm_Localizable_es.json" />        
+    <resource-file src="src/ios/strings/pgm_Localizable_es.json" target="pgm_Localizable_es.json"/>        
     <!-- localized messages for Japanese -->
     <resource-file src="src/ios/strings/pgm_Localizable_ja.json" target="pgm_Localizable_ja.json"/>
     <!-- localized messages for Russian -->
