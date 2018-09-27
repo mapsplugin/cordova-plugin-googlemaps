@@ -359,7 +359,7 @@ static char CAAnimationGroupBlockKey;
   }
 
   if (!foundFilePath) {
-    foundFilePath  = [mainBundle pathForResource:@"pgm_Localizable-en" ofType:@"json"];
+    foundFilePath  = [mainBundle pathForResource:@"pgm_Localizable_en" ofType:@"json"];
   }
 
   fileContents = [NSString stringWithContentsOfFile:foundFilePath encoding:NSUTF8StringEncoding error:nil];
