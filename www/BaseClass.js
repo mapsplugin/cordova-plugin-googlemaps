@@ -161,6 +161,10 @@ BaseClass.prototype = {
     return this;
   },
 
+  hasEventListener : function (eventName) {
+    return eventName in this[SUBSCRIPTIONS_FIELD];
+  },
+
   destroy: function () {
     this.off();
     this.empty();

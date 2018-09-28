@@ -211,7 +211,7 @@
 
     - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
 
-    - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()` are added.
+    - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()/hasEventListener()` are added.
 
     - Fix: (Android) Can not load icon image file for Marker after external link opened.
 
