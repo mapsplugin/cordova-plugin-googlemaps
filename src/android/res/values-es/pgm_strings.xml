@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="pgm_google_close_button">Cerrar</string>
+  <string name="pgm_api_key_error">Por favor reemplace \'API_KEY_FOR_ANDROID\' en el archivo platforms/android/app/src/AndroidManifest.xml por su API Key!</string>
+  <string name="pgm_google_play_error">Por alguna razón Google Maps Android API v2 no está disponible en este dispositivo.</string>
+  <string name="pgm_google_play_developer_error">La aplicación no está configurada correctamente. Ya que no es posible recuperarse de este error, será tratado como fatal. El desarrollador debe revisar los registros para determinar si existe alguna acción por realizar.</string>
+  <string name="pgm_google_play_internal_error">Ocurrió un error interno en Google Play Services. Por favor inténtalo de nuevo, y el problema debería resolverse.</string>
+  <string name="pgm_google_play_invalid_account">Intentaste conectarte al servicio especificando un nombre de cuenta invalido.</string>
+  <string name="pgm_google_play_license_check_failed">La aplicación no tiene licencia para el usuario. Ya que no es posible recuperarse de este error, será tratado como fatal.</string>
+  <string name="pgm_google_play_network_error">Ocurrió un error de red. Por favor inténtalo de nuevo, y el problema debería resolverse.</string>
+  <string name="pgm_google_play_service_disabled"> La versión instalada de Google Play Services ha sido deshabilitada en este dispositivo. Por favor encienda Google Play Services.</string>
+  <string name="pgm_google_play_service_invalid">La versión instalada de Google Play Services no es autentica. Por favor actualice Google Play Services desde Google Play Store.</string>
+  <string name="pgm_google_play_service_missing">No se encontró Google Play Services en el dispositivo. Por favor instale Google Play Services.</string>
+  <string name="pgm_google_play_service_update_required">La versión instalada de Google Play services está desactualizada. Por favor actualice Google Play Services desde Google Play Store.</string>
+  <string name="pgm_google_play_sign_in_required">Intentaste conectarte a los servicios pero no has iniciado sesión. Por favor revisa la configuración de Google Play Services</string>
+  <string name="pgm_no_location_providers">En vista de que este dispositivo no tiene ningún proveedor de localización, la aplicación no puede detectar tu ubicación.</string>
+  <string name="pgm_no_location_service_is_disabled">Servicio de localización desactivado.</string>
+  <string name="pgm_location_rejected_by_user">El servicio de localización fue rechazado por el usuario.</string>
+  <string name="pgm_can_not_get_location">No se pudo detectar tu ubicación. Inténtalo de nuevo.</string>
+</resources>
