@@ -59,16 +59,29 @@ BaseClass.prototype = {
       return this;
     }
 
-    var listeners = this[SUBSCRIPTIONS_FIELD][eventName];
-    var i = listeners.length;
+    var listenerHashMap = this[SUBSCRIPTIONS_FIELD][eventName];
+    var keys = Object.keys(listenerHashMap);
     var args = Array.prototype.slice.call(arguments, 1);
-    listeners = listeners.filter(function(listener) {
-      return !!listener;
-    });
+    var self = this;
 
-    while (i--) {
-      listeners[i].apply(this, args);
-    }
+    keys.forEach(function(_hashCode) {
+      var info = self[SUBSCRIPTIONS_FIELD][eventName][_hashCode];
+
+      switch (info.kind) {
+        case 'on':
+          info.listener.apply(self, args);
+          break;
+        case 'onThrottled':
+          self[SUBSCRIPTIONS_FIELD][eventName][_hashCode].args = args;
+          if (!self[SUBSCRIPTIONS_FIELD][eventName][_hashCode].timer) {
+            self[SUBSCRIPTIONS_FIELD][eventName][_hashCode].timer = setTimeout(function() {
+              info.listener.apply(this, info.args);
+              info.timer = null;
+            }.bind(self), info.interval);
+          }
+          break;
+      }
+    });
 
     return this;
   },
@@ -77,10 +90,42 @@ BaseClass.prototype = {
     if (!listener || typeof listener !== "function") {
       throw Error('Listener for on()/addEventListener() method is not a function');
     }
-    var topic;
-    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
-    topic = this[SUBSCRIPTIONS_FIELD][eventName];
-    topic.push(listener);
+    if (!listener._hashCode) {
+      Object.defineProperty(listener, '_hashCode', {
+        value: Math.floor(Date.now() * Math.random()),
+        writable: false,
+        enumerable: false
+      });
+    }
+    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || {};
+    this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode] = {
+      'kind': 'on',
+      'listener': listener
+    };
+    return this;
+  },
+
+  onThrottled: function (eventName, listener, interval) {
+    if (!listener || typeof listener !== "function") {
+      throw Error('Listener for on()/addEventListener() method is not a function');
+    }
+    if (typeof interval !== "number" || interval < 1) {
+      throw Error('interval argument must be bigger number than 0');
+    }
+    if (!listener._hashCode) {
+      Object.defineProperty(listener, '_hashCode', {
+        value: Math.floor(Date.now() * Math.random()),
+        writable: false,
+        enumerable: false
+      });
+    }
+    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || {};
+    this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode] ={
+      'kind': 'onThrottled',
+      'interval': interval,
+      'timer': null,
+      'listener': listener
+    };
     return this;
   },
 
@@ -92,12 +137,8 @@ BaseClass.prototype = {
 
     if (eventName && !listener) {
       this[SUBSCRIPTIONS_FIELD][eventName] = null;
-    } else if (this[SUBSCRIPTIONS_FIELD][eventName]) {
-      var index = this[SUBSCRIPTIONS_FIELD][eventName].indexOf(listener);
-
-      if (index !== -1) {
-        this[SUBSCRIPTIONS_FIELD][eventName].splice(index, 1);
-      }
+    } else if (this[SUBSCRIPTIONS_FIELD][eventName] && listener._hashCode) {
+      delete this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode];
     }
 
     return this;
@@ -148,6 +189,7 @@ BaseClass.prototype = {
 };
 
 BaseClass.prototype.addEventListener = BaseClass.prototype.on;
+BaseClass.prototype.addThrottledEventListener = BaseClass.prototype.onThrottled;
 BaseClass.prototype.addEventListenerOnce = BaseClass.prototype.one;
 BaseClass.prototype.removeEventListener = BaseClass.prototype.off;
 
