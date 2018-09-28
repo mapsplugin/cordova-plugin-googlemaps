@@ -271,6 +271,8 @@
 
     <!-- Base messages -->
     <resource-file src="src/android/res/values/pgm_strings.xml" target="res/values/pgm_strings.xml"/>
+    <!-- localized messages for Spanish -->
+    <resource-file src="src/android/res/values-es/pgm_strings.xml" target="res/values-es/pgm_strings.xml"/>
     <!-- localized messages for Japanese -->
     <resource-file src="src/android/res/values-ja/pgm_strings.xml" target="res/values-ja/pgm_strings.xml"/>
     <!-- localized messages for Russian -->
@@ -420,6 +422,8 @@
 
     <!-- Base messages -->
     <resource-file src="src/ios/strings/pgm_Localizable_en.json" target="pgm_Localizable_en.json"/>
+    <!-- localized messages for Spanish -->
+    <resource-file src="src/ios/strings/pgm_Localizable_es.json" target="pgm_Localizable_es.json"/>        
     <!-- localized messages for Japanese -->
     <resource-file src="src/ios/strings/pgm_Localizable_ja.json" target="pgm_Localizable_ja.json"/>
     <!-- localized messages for Russian -->

@@ -1,0 +1,12 @@
+{
+  "CLOSE_BUTTON" : "CERRAR",
+  "APIKEY_IS_UNDEFINED_TITLE" : "Error en API key",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "La variable \"API_KEY_FOR_IOS\" no está registrada.",
+  "APP_NAME_ERROR_TITLE" : "Necesitas cambiar el archivo config.xml",
+  "APP_NAME_ERROR_MESSAGE" : "El SDK de Google Maps para iOS se detiene si CFBundleExecutable contiene caracteres que no pertenecen al inglés. Revisa el comentario en el archivo CordovaGoogleMaps.m",
+  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "El Servicio de Localización no se encuentra disponible",
+  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Esta aplicación necesita acceso a tu localización. Por favor enciéndelo en \"Configuración > Privacidad > Localización\"",
+  "LOCATION_IS_DENIED_MESSAGE" : "Esta aplicación ha rechazado el uso de los Servicios de Localización.",
+  "CAN_NOT_GET_LOCATION_MESSAGE" : "No se puede obtener la ubicación.",
+  "LOCATION_REJECTED_BY_USER_MESSAGE" : "Servicio de localización rechazado por el usuario."
+}
