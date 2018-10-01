@@ -340,6 +340,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.startTimer();
       }
       callbackContext.success();
+      
+      //On resume reapply background because it might have been changed by some other plugin
+      webView.getView().setBackgroundColor(Color.TRANSPARENT);
     }
   }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
