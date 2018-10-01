@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -19,6 +20,7 @@ var utils = require('cordova/utils'),
   KmlOverlay = require('./KmlOverlay'),
   KmlLoader = require('./KmlLoader'),
   CameraPosition = require('./CameraPosition'),
+  FusionTableOverlay = require('./FusionTableOverlay'),
   MarkerCluster = require('./MarkerCluster');
 
 /**
@@ -996,7 +998,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 
     var link = document.createElement("a");
     link.href = kmlOverlayOptions.url;
-    kmlOverlayOptions.url = link.protocol+"//"+link.host+link.pathname;
+    kmlOverlayOptions.url = link.protocol+"//"+link.host+link.pathname + link.search;
 
     var invisible_dot = self.get("invisible_dot");
     if (!invisible_dot || invisible_dot._isRemoved) {
@@ -1043,6 +1045,78 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     }
   }
 };
+
+//-----------------------------------------
+// Experimental: FusionTableOverlay
+//-----------------------------------------
+Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
+  var self = this;
+  if (!fusionTableOptions) {
+    throw new Error('Please specify fusionTableOptions');
+  }
+  if (!fusionTableOptions.select) {
+    throw new Error('Please specify fusionTableOptions.select');
+  }
+  if (!fusionTableOptions.from) {
+    throw new Error('Please specify fusionTableOptions.from');
+  }
+
+
+  var fusionTableOverlay = new FusionTableOverlay(self, fusionTableOptions, exec);
+  if (cordova.platformId === "browser") {
+    //----------------------------------
+    // Browser: use FusionTable layer
+    //----------------------------------
+
+    self.exec.call(self, function(result) {
+      fusionTableOverlay._privateInitialize();
+      delete fusionTableOverlay._privateInitialize;
+
+      if (typeof callback === "function") {
+        callback.call(self, tileOverlay);
+      }
+    }, self.errorHandler, self.id, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
+
+    if (typeof callback === "function") {
+      callback(fusionTableOverlay);
+      return;
+    } else {
+      return Promise.resolve(fusionTableOverlay);
+    }
+  }
+
+
+  var query = ["select+",
+    fusionTableOptions.select,
+    "+from+",
+    fusionTableOptions.from];
+  if (fusionTableOptions.where) {
+    query.push('+where+' + fusiontables.where);
+  }
+  if (fusionTableOptions.orderBy) {
+    query.push('+orderBy+' + fusiontables.orderBy);
+  }
+  if (fusionTableOptions.offset) {
+    query.push('+offset+' + fusiontables.offset);
+  }
+  if (fusionTableOptions.limit) {
+    query.push('+limit+' + fusiontables.limit);
+  } else {
+    query.push('+limit+1000');
+  }
+
+  fusionTableOptions.url =
+     "https://fusiontables.google.com/exporttable\?query=" +
+    query.join('') +
+    "&o=kml&g=" + fusionTableOptions.select +
+    "&styleId=2&templateId=2"; // including '&styleId=2&templateId=2', FusionTable exports the latest KML file
+
+  fusionTableOptions.clickable = common.defaultTrueOption(fusionTableOptions.clickable);
+  fusionTableOptions.suppressInfoWindows = fusionTableOptions.suppressInfoWindows === true;
+
+  return self.addKmlOverlay(fusionTableOptions, callback);
+};
+
 
 //-------------
 // Ground overlay
@@ -1131,7 +1205,17 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (!url || url === "(null)" || url === "undefined" || url === "null") {
       url = "(null)";
     }
-    cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, url]);
+    if (url instanceof Promise) {
+      common.promiseTimeout(5000, url)
+        .then(function(finalUrl) {
+          cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
+        })
+        .catch(function() {
+          cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, "(null)"]);
+        });
+    } else {
+      cordova_exec(null, self.errorHandler, self.id + "-tileoverlay", 'onGetTileUrlFromJS', [hashCode, params.key, url]);
+    }
   };
   document.addEventListener(self.id + "-" + hashCode + "-tileoverlay", onNativeCallback);
 

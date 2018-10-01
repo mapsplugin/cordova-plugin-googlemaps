@@ -18,7 +18,7 @@ PluginKmlOverlay.prototype._create = function(onSuccess, onError, args) {
   //-------------------------------------
   var worker = new InlineWorker(loadKml);
   worker.onmessage = function(evt) {
-    console.log('host message', evt.data);
+    //console.log('host message', evt.data);
     worker.terminate();
     onSuccess(evt.data);
   };
@@ -502,7 +502,6 @@ function loadKml(self) {
       //-----------------
       // Read XML file
       //-----------------
-console.log(params);
       var xhr = createCORSRequest('GET', params.url, true);
       if (xhr) {
         xhr.onreadystatechange = function() {

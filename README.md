@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.4)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.5.0-beta)
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -193,8 +193,42 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.5.0**
+    - Add: (Android/iOS/Browser) `map.addFusionTableOverlay()`
+
+    - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
+      ```js
+      var tileOverlay = map.addTileOverlay({
+        getTile: function(x, y, zoom) {
+          return new Promise(function(resolve, reject) {
+            somethingAsync(function(url) {
+              resolve(url);
+            });
+          });
+        }
+      });
+      ```
+
+    - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
+
+    - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()/hasEventListener()` are added.
+
+    - Fix: (Android) Can not load icon image file for Marker after external link opened.
+
+  - **v2.4.6**
+    - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
+
+  - **v2.4.5**
+    - Fix: (Browser) `GeocoderResult.extra.lines` field is incorrect position.
+    - Fix: (Android/iOS/Browser) `promise-7.0.4.min.js.map` file is missing.
+    - Update: (Android/iOS/Browser) Detecting way of `viewport-fit=cover`.
+    - Update: (iOS) No longer use `com.googlemaps.ios`. Use `CocoaPod` installation instead.
+
   - **v2.4.4**
     - Fix: (Browser) All methods were tested, and fixed lots of bugs.
+    - Fix: (Android/iOS) Executes `map.animateCamera()` while map has been detached automatically causes dead lock.
+    - Update: (iOS) Fixed issue where plugin could appear behind other plugins
+    - Update: (Android) `getMyLocation()` does not return if application has been launched when location is disabled, then enable the location after soon.
 
   - **v2.4.3**
     - Fix: (Browser) HTMLInfoWindow displays unnecessary scroll bars.

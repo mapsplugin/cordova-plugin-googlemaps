@@ -507,12 +507,16 @@ public class PluginLocationService extends CordovaPlugin {
       return;
     }
 
+    // It seems setting the values to both setFastestInterval() and setInterval() is important.
+    // https://akira-watson.com/android/fusedlocationproviderapi.html
     LocationRequest locationRequest= LocationRequest.create()
-        .setNumUpdates(2)
-        .setSmallestDisplacement(0)
+        //.setNumUpdates(2)
+        .setFastestInterval(5000)
+        .setInterval(10000)
+        //.setSmallestDisplacement(0)
         .setPriority(priority)
         .setExpirationDuration(12000)
-        .setMaxWaitTime(6000);
+        .setMaxWaitTime(5000);
 
     LocationServices.getFusedLocationProviderClient(cordova.getActivity()).requestLocationUpdates(locationRequest, new LocationCallback() {
           @Override

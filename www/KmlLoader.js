@@ -1,3 +1,6 @@
+
+
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
@@ -59,6 +62,7 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
 
   self.exec.call(self.map, function(kmlData) {
     var rawKmlData = JSON.parse(JSON.stringify(kmlData));
+//console.log(rawKmlData);
     Object.defineProperty(self, "kmlStyles", {
       value: kmlData.styles,
       writable: false
@@ -345,59 +349,61 @@ KmlLoader.prototype.parseKmlTag = function(params, callback) {
 
 KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
   var self = this;
-  params.attrHolder.extendeddata = {};
-  params.child.children.forEach(function(child) {
-    switch(child.tagName) {
-      case "data":
-        child.children.forEach(function(data) {
-          var dataName = child.name.toLowerCase();
-          switch(data.tagName) {
-            case "displayname":
-              params.attrHolder.extendeddata[dataName + "/displayname"] = data.value;
-              break;
-            case "value":
-              params.attrHolder.extendeddata[dataName] = data.value;
-              break;
-            default:
-              break;
-          }
-        });
-        break;
-      case "schemadata":
-        self.getSchemaById(child.schemaUrl, function(schemas) {
-          var schemaUrl = schemas.name;
-          schemas.children.forEach(function(simplefield) {
-            if (simplefield.tagName !== "simplefield") {
-              return;
+  if (params.child && params.child.children) {
+    params.attrHolder.extendeddata = {};
+    params.child.children.forEach(function(child) {
+      switch(child.tagName) {
+        case "data":
+          child.children.forEach(function(data) {
+            var dataName = child.name.toLowerCase();
+            switch(data.tagName) {
+              case "displayname":
+                params.attrHolder.extendeddata[dataName + "/displayname"] = data.value;
+                break;
+              case "value":
+                params.attrHolder.extendeddata[dataName] = data.value;
+                break;
+              default:
+                break;
             }
-            if ("children" in simplefield) {
-              simplefield.children.forEach(function(valueTag) {
-                var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+          });
+          break;
+        case "schemadata":
+          self.getSchemaById(child.schemaUrl, function(schemas) {
+            var schemaUrl = schemas.name;
+            schemas.children.forEach(function(simplefield) {
+              if (simplefield.tagName !== "simplefield") {
+                return;
+              }
+              if ("children" in simplefield) {
+                simplefield.children.forEach(function(valueTag) {
+                  var schemaPath = schemaUrl + "/" + simplefield.name + "/" + valueTag.tagName;
+                  schemaPath = schemaPath.toLowerCase();
+                  params.attrHolder.extendeddata[schemaPath] = valueTag.value;
+                });
+              } else {
+                var schemaPath = schemaUrl + "/" + simplefield.name;
                 schemaPath = schemaPath.toLowerCase();
-                params.attrHolder.extendeddata[schemaPath] = valueTag.value;
-              });
-            } else {
-              var schemaPath = schemaUrl + "/" + simplefield.name;
+                params.attrHolder.extendeddata[schemaPath] = simplefield.value;
+              }
+            });
+            child.children.forEach(function(simpledata) {
+              var schemaPath = schemaUrl + "/" + simpledata.name;
               schemaPath = schemaPath.toLowerCase();
-              params.attrHolder.extendeddata[schemaPath] = simplefield.value;
-            }
+              params.attrHolder.extendeddata[schemaPath] = simpledata.value;
+            });
           });
-          child.children.forEach(function(simpledata) {
-            var schemaPath = schemaUrl + "/" + simpledata.name;
-            schemaPath = schemaPath.toLowerCase();
-            params.attrHolder.extendeddata[schemaPath] = simpledata.value;
+          break;
+
+        default:
+
+          child.children.forEach(function(data) {
+            params.attrHolder.extendeddata[child.tagName] = child;
           });
-        });
-        break;
-
-      default:
-
-        child.children.forEach(function(data) {
-          params.attrHolder.extendeddata[child.tagName] = child;
-        });
-        break;
-    }
-  });
+          break;
+      }
+    });
+  }
   callback();
 };
 
@@ -488,17 +494,20 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   var markerOptions = {};
   params.styles.children.forEach(function(child) {
     switch (child.tagName) {
-      case "balloonstyle":
-        child.children.forEach(function(style) {
-          switch (style.tagName) {
-            case "text":
-              markerOptions.description = {
-                value: style.value
-              };
-              break;
-          }
-        });
-        break;
+
+      // // Don't use this code because this replace original 'description' field.
+      // case "balloonstyle":
+      //   child.children.forEach(function(style) {
+      //     switch (style.tagName) {
+      //       case "description":
+      //         markerOptions.description = {
+      //           value: style.value
+      //         };
+      //         break;
+      //     }
+      //   });
+      //   break;
+
       case "iconstyle":
         child.children.forEach(function(style) {
           switch (style.tagName) {
@@ -514,6 +523,10 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
               markerOptions.icon = markerOptions.icon || {};
               markerOptions.icon.url = style.children[0].value;
               break;
+            // case "color":
+            //   markerOptions.icon = markerOptions.icon || {};
+            //   markerOptions.icon.color = kmlColorToRGBA(style.value);
+            //   break;
           }
         });
         break;
@@ -571,7 +584,34 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   });
 
 //console.log(markerOptions);
-  self.map.addMarker(markerOptions, callback);
+  (new Promise(function(resolve, reject) {
+    // if (markerOptions.icon && markerOptions.icon.color) {
+    //   var image = new Image();
+    //   image.onload = function() {
+    //
+    //     var canvas = document.createElement("canvas");
+    //     var ctx = canvas.getContext('2d');
+    //     canvas.width = image.width;
+    //     canvas.height = image.height;
+    //     ctx.fillStyle = 'rgba(' + markerOptions.icon.color.join(',') + ')';
+    //     ctx.fillRect(0, 0, image.width, image.height);
+    //     ctx.drawImage(image, 0, 0);
+    //     markerOptions.icon.url = canvas.toDataURL();
+    //     delete markerOptions.icon.color;
+    //     self.map.addMarker(markerOptions, resolve);
+    //   };
+    //   image.onerror = function(e) {
+    //     //console.warn(e.message || "Can not load " + markerOptions.icon.url);
+    //     delete markerOptions.icon.color;
+    //     self.map.addMarker(markerOptions, resolve);
+    //   };
+    //
+    //   image.src = markerOptions.icon.url;
+    // } else {
+      self.map.addMarker(markerOptions, resolve);
+//    }
+  })).then(callback);
+
 };
 
 function findTag(children, tagName, fieldName) {

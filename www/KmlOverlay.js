@@ -1,3 +1,4 @@
+
 var argscheck = require('cordova/argscheck'),
     utils = require('cordova/utils'),
     common = require('./Common'),
@@ -5,6 +6,15 @@ var argscheck = require('cordova/argscheck'),
     event = require('./event'),
     BaseArrayClass = require('./BaseArrayClass'),
     HtmlInfoWindow = require('./HtmlInfoWindow');
+
+var XElement = null;
+window.addEventListener('WebComponentsReady', function(e) {
+  var XElementPrototype = Object.create(HTMLElement.prototype);
+  XElement = document.registerElement('pgm-sandbox', {
+      prototype: XElementPrototype
+  });
+});
+
 
 /*****************************************************************************
  * KmlOverlay Class
@@ -47,7 +57,7 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       return html.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match, name) {
         var text = "";
         if (marker.get(name)) {
-          text = marker.get(name).value || "";
+          text = marker.get(name).value;
         }
         if (extendedData && text) {
           text = text.replace(/\$[\{\[](.+?)[\}\]]/gi, function(match1, name1) {
@@ -122,51 +132,64 @@ var KmlOverlay = function(map, kmlId, camera, kmlData, kmlOverlayOptions) {
       if (description && (descriptionTxt.indexOf("<html>") > -1 || descriptionTxt.indexOf("script") > -1)) {
         var text = templateRenderer(descriptionTxt, overlay);
         // create a sandbox
-        if (text.indexOf("<html") === -1) {
-          text = "<html><body>" + text + "</body></html>";
-        }
+        // if (text.indexOf("<html") === -1) {
+        //   text = "<html><body>" + text + "</body></html>";
+        // }
         result = document.createElement("div");
-        if (overlay.get('name')) {
+        if (overlay.get('name') && overlay.get('name').value ) {
           var name = document.createElement("div");
           name.style.fontWeight = 500;
           name.style.fontSize = "medium";
           name.style.marginBottom = 0;
+          name.style.whiteSpace = "pre";
           name.innerText = overlay.get('name').value || "";
           result.appendChild(name);
         }
-        if (overlay.get('snippet')) {
+        if (overlay.get('snippet') && overlay.get('snippet').value.length > 0) {
           var snippet = document.createElement("div");
           snippet.style.fontWeight = 300;
           snippet.style.fontSize = "small";
           snippet.style.whiteSpace = "normal";
+          snippet.style.whiteSpace = "pre";
           snippet.style.fontFamily = "Roboto,Arial,sans-serif";
           snippet.innerText = overlay.get('snippet').value || "";
           result.appendChild(snippet);
         }
 
-        var iframe = document.createElement('iframe');
-        iframe.sandbox = "allow-scripts allow-same-origin";
-        iframe.frameBorder = "no";
-        iframe.scrolling = "yes";
-        iframe.style.overflow = "hidden";
-        iframe.addEventListener('load', function() {
-          iframe.contentWindow.document.open();
-          iframe.contentWindow.document.write(text);
-          iframe.contentWindow.document.close();
-        }, {
-          once: true
-        });
-        result.appendChild(iframe);
+        if (text && text.length > 0) {
+          if (XElement) {
+            var xElement = new XElement();
+            xElement.innerHTML = text;
+            result.appendChild(xElement);
+          } else {
+
+            var iframe = document.createElement('iframe');
+            iframe.sandbox = "allow-scripts allow-same-origin";
+            iframe.frameBorder = "no";
+            iframe.scrolling = "yes";
+            iframe.style.overflow = "hidden";
+            iframe.addEventListener('load', function() {
+             iframe.contentWindow.document.open();
+             iframe.contentWindow.document.write(text);
+             iframe.contentWindow.document.close();
+            }, {
+             once: true
+            });
+            result.appendChild(iframe);
+
+          }
+        }
 
       } else {
-        if (overlay.get("name")) {
-          html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
-        }
-        if (overlay.get("_snippet")) {
-          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
-        }
         if (overlay.get("description")) {
-          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:normal'>${description}</div>");
+          html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;white-space:pre;min-width:100px;padding: auto 0.5em;'>${description}</div>");
+        } else {
+          if (overlay.get("name")) {
+            html.push("<div style='font-weight: 500; font-size: medium; margin-bottom: 0em'>${name}</div>");
+          }
+          if (overlay.get("_snippet")) {
+            html.push("<div style='font-weight: 300; font-size: small; font-family: Roboto,Arial,sans-serif;'>${_snippet}</div>");
+          }
         }
         var prevMatchedCnt = 0;
         result = html.join("");
