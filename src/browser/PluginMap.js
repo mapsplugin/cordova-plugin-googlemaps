@@ -104,6 +104,9 @@ function PluginMap(mapId, options, mapDivId) {
       if (options.mapType) {
         mapInitOptions.mapTypeId = MAP_TYPES[options.mapType];
       }
+      if (options.styles) {
+        mapInitOptions.styles = JSON.parse(options.styles);
+      }
 
       if (options.controls) {
         if (options.controls.zoom !== undefined) {
@@ -119,6 +122,7 @@ function PluginMap(mapId, options, mapDivId) {
         }
       }
     }
+    console.log(mapInitOptions);
 
     var map = new google.maps.Map(container, mapInitOptions);
     map.mapTypes = mapTypeReg;
@@ -258,6 +262,9 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
   if (options) {
     if (options.mapType) {
       mapInitOptions.mapTypeId = MAP_TYPES[options.mapType];
+    }
+    if (options.styles) {
+      mapInitOptions.styles = JSON.parse(options.styles);
     }
 
     if (options.controls) {

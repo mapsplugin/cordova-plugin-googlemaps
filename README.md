@@ -195,7 +195,6 @@
 ## Release Notes
   - **v2.5.0**
     - Add: (Android/iOS/Browser) `map.addFusionTableOverlay()`
-
     - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
       ```js
       var tileOverlay = map.addTileOverlay({
@@ -210,10 +209,10 @@
       ```
 
     - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
-
     - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()/hasEventListener()` are added.
-
     - Fix: (Android) Can not load icon image file for Marker after external link opened.
+    - Fix: (Browser) `MapOptions.styles` does not work.
+    - Update: (Android) Set `transparent` backgroundColor at `onResume()` because some other plugins change background color.
 
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
