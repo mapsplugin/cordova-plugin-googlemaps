@@ -57,6 +57,9 @@ function PluginMap(mapId, options, mapDivId) {
   container.style.left = 0;
   mapDiv.insertBefore(container, mapDiv.firstElementChild);
 
+  self._cmdQueue.onThrottled('insert_at', function() {
+    console.log(`self._cmdQueue.getLength() = ${self._cmdQueue.getLength()}`);
+  }, 1000);
 
   self.set("isGoogleReady", false);
   self.set("container", container);

@@ -1,3 +1,4 @@
+
 var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol('vars');
 var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol('subscriptions');
 
@@ -65,21 +66,25 @@ BaseClass.prototype = {
     var self = this;
 
     keys.forEach(function(_hashCode) {
-      var info = self[SUBSCRIPTIONS_FIELD][eventName][_hashCode];
+      if (self[SUBSCRIPTIONS_FIELD] &&
+          self[SUBSCRIPTIONS_FIELD][eventName] &&
+          _hashCode in self[SUBSCRIPTIONS_FIELD][eventName]) {
+        var info = self[SUBSCRIPTIONS_FIELD][eventName][_hashCode];
 
-      switch (info.kind) {
-        case 'on':
-          info.listener.apply(self, args);
-          break;
-        case 'onThrottled':
-          self[SUBSCRIPTIONS_FIELD][eventName][_hashCode].args = args;
-          if (!self[SUBSCRIPTIONS_FIELD][eventName][_hashCode].timer) {
-            self[SUBSCRIPTIONS_FIELD][eventName][_hashCode].timer = setTimeout(function() {
-              info.listener.apply(this, info.args);
-              info.timer = null;
-            }.bind(self), info.interval);
-          }
-          break;
+        switch (info.kind) {
+          case 'on':
+            info.listener.apply(self, args);
+            break;
+          case 'onThrottled':
+            info.args = args;
+            if (!info.timer) {
+              info.timer = setTimeout(function() {
+                info.listener.apply(this, info.args);
+                info.timer = null;
+              }.bind(self), info.interval);
+            }
+            break;
+        }
       }
     });
 
