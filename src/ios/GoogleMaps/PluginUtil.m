@@ -198,7 +198,7 @@ static char CAAnimationGroupBlockKey;
   return (wn != 0);
 }
 
-+ (BOOL)isPointOnTheLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
++ (CLLocationCoordinate2D)isPointOnTheLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
   //-------------------------------------------------------------------
   // Intersection for non-geodesic line
   // http://movingahead.seesaa.net/article/299962216.html
@@ -214,13 +214,21 @@ static char CAAnimationGroupBlockKey;
     Sx = (touchPoint.x - p0.x) / (p1.x - p0.x);
     Sy = (touchPoint.y - p0.y) / (p1.y - p0.y);
     if (fabs(Sx - Sy) < 0.05 && Sx < 1 && Sy > 0) {
-      return YES;
+      return [path coordinateAtIndex:i];
     }
   }
-  return NO;
+  return kCLLocationCoordinate2DInvalid;
 }
 
-+ (BOOL)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)point threshold:(double)threshold {
++ (CLLocationCoordinate2D)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)point threshold:(double)threshold projection:(GMSProjection *)projection {
+  
+  int fingerSize = 40;  // assume finger size is 20px
+  CGPoint touchPoint = [projection pointForCoordinate:CLLocationCoordinate2DMake(point.latitude, point.longitude)];
+  GMSCoordinateBounds *possibleBounds = [[GMSCoordinateBounds alloc] init];
+  possibleBounds = [possibleBounds includingCoordinate:[projection coordinateForPoint:CGPointMake(touchPoint.x - fingerSize, touchPoint.y - fingerSize)]];
+  possibleBounds = [possibleBounds includingCoordinate:[projection coordinateForPoint:CGPointMake(touchPoint.x + fingerSize, touchPoint.y + fingerSize)]];
+
+
   //-------------------------------------------------------------------
   // Intersection for geodesic line
   // http://my-clip-devdiary.blogspot.com/2014/01/html5canvas.html
@@ -230,7 +238,9 @@ static char CAAnimationGroupBlockKey;
   NSValue *value;
   //CGPoint touchPoint = CGPointMake(point.latitude * 100000, point.longitude * 100000);
   CLLocationCoordinate2D position1, position2;
+  CLLocationCoordinate2D start, finish;
   NSMutableArray *points = [[NSMutableArray alloc] init];
+  BOOL firstTest = NO;
 
   for (int i = 0; i < [path count]; i++) {
     position1 = [path coordinateAtIndex:i];
@@ -252,11 +262,106 @@ static char CAAnimationGroupBlockKey;
     testDistance2 = GMSGeometryDistance(point, position2);
     // the distance is exactly same if the point is on the straight line
     if (fabs(trueDistance - (testDistance1 + testDistance2)) < threshold) {
-      return YES;
+      start = position1;
+      finish = position2;
+      firstTest = YES;
+      break;
     }
   }
-  return NO;
+  
+  if (firstTest == NO) {
+    return kCLLocationCoordinate2DInvalid;
+  }
+  
+  //----------------------------------------------------------------
+  // Calculate waypoints from start to finish on geodesic line
+  // @ref http://jamesmccaffrey.wordpress.com/2011/04/17/drawing-a-geodesic-line-for-bing-maps-ajax/
+  //----------------------------------------------------------------
+  
+  // convert to radians
+  double lat1 = start.latitude * (M_PI / 180.0);
+  double lng1 = start.longitude * (M_PI / 180.0);
+  double lat2 = finish.latitude * (M_PI / 180.0);
+  double lng2 = finish.longitude * (M_PI / 180.0);
+  
+  double d = 2 * asin(sqrt(pow((sin((lat1 - lat2) / 2)), 2) +
+      cos(lat1) * cos(lat2) * pow((sin((lng1 - lng2) / 2)), 2)));
+  GMSMutablePath *wayPoints = [GMSMutablePath path];
+  double f = 0.00000000f; // fraction of the curve
+  double finc = 0.01000000f; // fraction increment
+
+  while (f <= 1.00000000f) {
+    double A = sin((1.0 - f) * d) / sin(d);
+    double B = sin(f * d) / sin(d);
+
+    double x = A * cos(lat1) * cos(lng1) + B * cos(lat2) * cos(lng2);
+    double y = A * cos(lat1) * sin(lng1) + B * cos(lat2) * sin(lng2);
+    double z = A * sin(lat1) + B * sin(lat2);
+    double lat = atan2(z, sqrt((x*x) + (y*y)));
+    double lng = atan2(y, x);
+
+    CLLocationCoordinate2D wp = CLLocationCoordinate2DMake(lat / (M_PI / 180.0), lng / ( M_PI / 180.0));
+    if ([possibleBounds containsCoordinate:wp]) {
+      [wayPoints addCoordinate:wp];
+    }
+
+    f += finc;
+  } // while
+  
+  // break into waypoints with negative longitudes and those with positive longitudes
+  GMSMutablePath *negLons = [GMSMutablePath path]; // lat-lons where the lon part is negative
+  GMSMutablePath *posLons = [GMSMutablePath path];
+  GMSMutablePath *connect = [GMSMutablePath path];
+
+  for (int i = 0; i < [wayPoints count]; ++i) {
+    if ([wayPoints coordinateAtIndex:i].longitude <= 0.0f)
+      [negLons addCoordinate:[wayPoints coordinateAtIndex:i]];
+    else
+      [posLons addCoordinate:[wayPoints coordinateAtIndex:i]];
+  }
+
+  // we may have to connect over 0.0 longitude
+  for (int i = 0; i < [wayPoints count] - 1; ++i) {
+    if (([wayPoints coordinateAtIndex:i].longitude <= 0.0f && [wayPoints coordinateAtIndex:(i + 1)].longitude >= 0.0f) ||
+        ([wayPoints coordinateAtIndex:i].longitude >= 0.0f && [wayPoints coordinateAtIndex:(i + 1)].longitude <= 0.0f)) {
+      if ((fabs([wayPoints coordinateAtIndex:i].longitude) + fabs([wayPoints coordinateAtIndex:(i + 1)].longitude)) < 100.0f) {
+        [connect addCoordinate:[wayPoints coordinateAtIndex:i]];
+        [connect addCoordinate:[wayPoints coordinateAtIndex:(i + 1)]];
+      }
+    }
+  }
+  
+  GMSMutablePath *inspectPoints = [GMSMutablePath path];
+  if ([negLons count] > 2) {
+    for (int i = 0; i < [negLons count]; i++) {
+      [inspectPoints addCoordinate:[negLons coordinateAtIndex:i]];
+    }
+  }
+  if ([posLons count] > 2) {
+    for (int i = 0; i < [posLons count]; i++) {
+      [inspectPoints addCoordinate:[posLons coordinateAtIndex:i]];
+    }
+  }
+  if ([connect count] > 2) {
+    for (int i = 0; i < [connect count]; i++) {
+      [inspectPoints addCoordinate:[connect coordinateAtIndex:i]];
+    }
+  }
+  
+  double minDistance = 999999999;
+  double distance;
+  CLLocationCoordinate2D mostClosePoint;
+
+  for (int i = 0; i < [inspectPoints count]; i++) {
+    distance = GMSGeometryDistance([inspectPoints coordinateAtIndex:i], point);
+    if (distance < minDistance) {
+      minDistance = distance;
+      mostClosePoint = [inspectPoints coordinateAtIndex:i];
+    }
+  }
+  return mostClosePoint;
 }
+
 + (BOOL) isInDebugMode
 {
     #ifndef __OPTIMIZE__   // Debug Mode

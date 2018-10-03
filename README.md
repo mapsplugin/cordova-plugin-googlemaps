@@ -208,11 +208,19 @@
       });
       ```
 
-    - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
     - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()/hasEventListener()` are added.
+      ```js
+      var marker = map.addMarker({ ... });
+      marker.onThrottled('position_changed', function(latLng) {
+        console.log(latLng);
+      }, 1000);
+      ```
+
+    - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
     - Fix: (Android) Can not load icon image file for Marker after external link opened.
     - Fix: (Browser) `MapOptions.styles` does not work.
     - Update: (Android) Set `transparent` backgroundColor at `onResume()` because some other plugins change background color.
+    - Update: (Android/iOS) Improve accuracy of touch detection on geodesic polyline.
 
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
