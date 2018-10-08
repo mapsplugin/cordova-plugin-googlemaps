@@ -1,5 +1,7 @@
 # Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.5)
 
+![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)
+
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
 
