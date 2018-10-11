@@ -593,11 +593,15 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
     outline: true,
     holes: [],
     strokeWidth: 1,
-    clickable: true
+    clickable: true,
+    visibility: true
   };
   params.child.children.forEach(function(element) {
     var coordinates;
     switch (element.tagName) {
+            case"visibility":
+            polygonOptions.visibility=false;
+            break;
       case "outerboundaryis":
         if (element.children.length === 1) {
           switch(element.children[0].tagName) {
