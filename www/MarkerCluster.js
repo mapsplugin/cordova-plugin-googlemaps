@@ -377,25 +377,30 @@ MarkerCluster.prototype.removeMarkerById = function (markerId) {
     });
   }
 };
-MarkerCluster.prototype.getMarkerById = function (markerId) {
-  var self = this;
-  if (self._isRemoved) {
-    return null;
-  }
-  //if (markerId.indexOf(self.id + '-') === -1) {
-  //  markerId = self.id + '-' + markerId;
-  //}
-  var markerOpts = self._markerMap[markerId];
-  if (!markerOpts) {
-    return null;
-  }
-  var marker = markerOpts._cluster.marker;
-  if (!marker) {
-    marker = self._createMarker(markerOpts);
-    markerOpts._cluster.marker = marker;
-  }
-  return marker;
-};
+
+Object.defineProperty(self, '_getMarkerById', {
+  enumerable: false,
+  value: function (markerId) {
+    var self = this;
+    if (self._isRemoved) {
+      return null;
+    }
+    //if (markerId.indexOf(self.id + '-') === -1) {
+    //  markerId = self.id + '-' + markerId;
+    //}
+    var markerOpts = self._markerMap[markerId];
+    if (!markerOpts) {
+      return null;
+    }
+    var marker = markerOpts._cluster.marker;
+    if (!marker) {
+      marker = self._createMarker(markerOpts);
+      markerOpts._cluster.marker = marker;
+    }
+    return marker;
+  },
+  writable: false
+});
 
 MarkerCluster.prototype.getClusterByClusterId = function (clusterId) {
   var self = this;
