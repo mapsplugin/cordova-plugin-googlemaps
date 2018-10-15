@@ -1,20 +1,14 @@
-
-var event = require('cordova-plugin-googlemaps.event');
-
-var Map = require('cordova-plugin-googlemaps.Map'),
+var event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass');
-
-var cordova_exec = require('cordova/exec');
-
-var execCmd = require("cordova-plugin-googlemaps.commandQueueExecutor");
-var cordovaGoogleMaps = new (require('cordova-plugin-googlemaps.js_CordovaGoogleMaps'))(execCmd);
+  BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass'),
+  execCmd = require('cordova-plugin-googlemaps.commandQueueExecutor'),
+  cordovaGoogleMaps = new(require('cordova-plugin-googlemaps.js_CordovaGoogleMaps'))(execCmd);
 
 module.exports = {
   event: event,
   Animation: {
-      BOUNCE: 'BOUNCE',
-      DROP: 'DROP'
+    BOUNCE: 'BOUNCE',
+    DROP: 'DROP'
   },
   BaseClass: BaseClass,
   BaseArrayClass: BaseArrayClass,
@@ -36,16 +30,15 @@ module.exports = {
   Geocoder: require('cordova-plugin-googlemaps.Geocoder')(execCmd),
   LocationService: require('cordova-plugin-googlemaps.LocationService')(execCmd),
   geometry: {
-      encoding: require('cordova-plugin-googlemaps.encoding'),
-      spherical: require('cordova-plugin-googlemaps.spherical'),
-      poly: require('cordova-plugin-googlemaps.poly')
+    encoding: require('cordova-plugin-googlemaps.encoding'),
+    spherical: require('cordova-plugin-googlemaps.spherical'),
+    poly: require('cordova-plugin-googlemaps.poly')
   }
 };
 
-
-cordova.addConstructor(function() {
+cordova.addConstructor(function () {
   if (!window.Cordova) {
-      window.Cordova = cordova;
+    window.Cordova = cordova;
   }
   window.plugin = window.plugin || {};
   window.plugin.google = window.plugin.google || {};

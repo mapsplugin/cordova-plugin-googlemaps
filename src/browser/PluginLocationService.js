@@ -1,9 +1,4 @@
 
-
-var utils = require('cordova/utils');
-var event = require('cordova-plugin-googlemaps.event');
-var BaseClass = require('cordova-plugin-googlemaps.BaseClass');
-
 var LOCATION_ERROR = {
   '1': 'service_denied',
   '2': 'not_available',
@@ -11,7 +6,7 @@ var LOCATION_ERROR = {
 };
 
 module.exports = {
-  'hasPermission': function(onSuccess, onError, args) {
+  'hasPermission': function(onSuccess, onError) {
     if (navigator.permissions) {
       navigator.permissions.query({'name': 'geolocation'})
         .then(function(permission) {
@@ -22,7 +17,7 @@ module.exports = {
       onError('Browser does not support this feature.');
     }
   },
-  'getMyLocation': function(onSuccess, onError, args) {
+  'getMyLocation': function(onSuccess, onError) {
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {

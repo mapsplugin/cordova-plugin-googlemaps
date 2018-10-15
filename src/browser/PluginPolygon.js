@@ -1,15 +1,11 @@
-
-
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  LatLng = require('cordova-plugin-googlemaps.LatLng');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
 
 function PluginPolygon(pluginMap) {
   var self = this;
   BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
+  Object.defineProperty(self, 'pluginMap', {
     value: pluginMap,
     writable: false
   });
@@ -219,7 +215,7 @@ PluginPolygon.prototype.removePointAt = function(onSuccess, onError, args) {
   var polygon = self.pluginMap.objects[overlayId];
   if (polygon) {
     var index = args[1];
-    polygon.getPath().removeAt(index, latLng);
+    polygon.getPath().removeAt(index);
   }
   onSuccess();
 };
@@ -254,7 +250,6 @@ PluginPolygon.prototype.insertPointOfHoleAt = function(onSuccess, onError, args)
     polygon = self.pluginMap.objects[overlayId];
 
   if (polygon) {
-    var index = args[1];
     var latLng = new google.maps.LatLng(position.lat, position.lng);
     var paths = polygon.getPaths();
     var hole = null;
@@ -279,7 +274,6 @@ PluginPolygon.prototype.setPointOfHoleAt = function(onSuccess, onError, args) {
     polygon = self.pluginMap.objects[overlayId];
 
   if (polygon) {
-    var index = args[1];
     var latLng = new google.maps.LatLng(position.lat, position.lng);
     polygon.getPaths().getAt(holeIndex).setAt(pointIndex, latLng);
   }

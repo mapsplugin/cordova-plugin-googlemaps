@@ -8,13 +8,13 @@
  * @property {Number} [duration] The duration of animation
  *******************************************************************************/
 var CameraPosition = function(params) {
-    var self = this;
-    self.zoom = params.zoom;
-    self.tilt = params.tilt;
-    self.target = params.target;
-    self.bearing = params.bearing;
-    self.hashCode = params.hashCode;
-    self.duration = params.duration;
+  var self = this;
+  self.zoom = params.zoom;
+  self.tilt = params.tilt;
+  self.target = params.target;
+  self.bearing = params.bearing;
+  self.hashCode = params.hashCode;
+  self.duration = params.duration;
 };
 
 module.exports = CameraPosition;

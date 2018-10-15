@@ -1,7 +1,5 @@
-
-/* global cordova, plugin, CSSPrimitiveValue */
 if (!cordova) {
-  document.addEventListener("deviceready", function() {
+  document.addEventListener('deviceready', function () {
     require('cordova/exec')(null, null, 'CordovaGoogleMaps', 'pause', []);
   }, {
     once: true
@@ -9,36 +7,44 @@ if (!cordova) {
 } else {
   var common = require('./Common');
   // The pluginInit.js must execute before loading HTML is completed.
-  require("./pluginInit")();
+  require('./pluginInit')();
 
-  cordova.addConstructor(function() {
+  cordova.addConstructor(function () {
     if (!window.Cordova) {
-        window.Cordova = cordova;
+      window.Cordova = cordova;
     }
     window.plugin = window.plugin || {};
     window.plugin.google = window.plugin.google || {};
     window.plugin.google.maps = window.plugin.google.maps || module.exports;
 
-
-    document.addEventListener("deviceready", function() {
+    document.addEventListener('deviceready', function () {
       // workaround for issue on android-19: Cannot read property 'maps' of undefined
-      if (!window.plugin) { console.warn('re-init window.plugin'); window.plugin = window.plugin || {}; }
-      if (!window.plugin.google) { console.warn('re-init window.plugin.google'); window.plugin.google = window.plugin.google || {}; }
-      if (!window.plugin.google.maps) { console.warn('re-init window.plugin.google.maps'); window.plugin.google.maps = window.plugin.google.maps || module.exports; }
+      if (!window.plugin) {
+        console.warn('re-init window.plugin');
+        window.plugin = window.plugin || {};
+      }
+      if (!window.plugin.google) {
+        console.warn('re-init window.plugin.google');
+        window.plugin.google = window.plugin.google || {};
+      }
+      if (!window.plugin.google.maps) {
+        console.warn('re-init window.plugin.google.maps');
+        window.plugin.google.maps = window.plugin.google.maps || module.exports;
+      }
 
-      cordova.exec(null, function(message) {
-          alert(message);
+      cordova.exec(null, function (message) {
+        alert(message);
       }, 'PluginEnvironment', 'isAvailable', ['']);
     }, {
       once: true
     });
   });
 
-  var execCmd = require("./commandQueueExecutor");
-  var cordovaGoogleMaps = new (require('./js_CordovaGoogleMaps'))(execCmd);
+  var execCmd = require('./commandQueueExecutor');
+  var cordovaGoogleMaps = new(require('./js_CordovaGoogleMaps'))(execCmd);
 
-  (new Promise(function(resolve) {
-    var wait = function() {
+  (new Promise(function (resolve) {
+    var wait = function () {
       if (document.body) {
         wait = undefined;
         cordovaGoogleMaps.trigger('start');
@@ -49,14 +55,14 @@ if (!cordova) {
     };
     wait();
 
-  })).then(function() {
-    common.nextTick(function() {
+  })).then(function () {
+    common.nextTick(function () {
       // If the developer needs to recalculate the DOM tree graph,
       // use `cordova.fireDocumentEvent('plugin_touch')`
-      document.addEventListener("plugin_touch", cordovaGoogleMaps.invalidate.bind(cordovaGoogleMaps));
+      document.addEventListener('plugin_touch', cordovaGoogleMaps.invalidate.bind(cordovaGoogleMaps));
 
       // Repositioning 30 times when the device orientaion is changed.
-      window.addEventListener("orientationchange", cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps, {
+      window.addEventListener('orientationchange', cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps, {
         target: document.body
       }));
 
@@ -66,11 +72,14 @@ if (!cordova) {
       //   return;
       // }
 
-
-      document.addEventListener("transitionstart", cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps), {capture: true});
-      document.body.parentNode.addEventListener("transitionend", cordovaGoogleMaps.onTransitionEnd.bind(cordovaGoogleMaps), {capture: true});
-      // document.body.addEventListener("transitionend", function(e) {
-      //   if (!e.target.hasAttribute("__pluginDomId")) {
+      document.addEventListener('transitionstart', cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps), {
+        capture: true
+      });
+      document.body.parentNode.addEventListener('transitionend', cordovaGoogleMaps.onTransitionEnd.bind(cordovaGoogleMaps), {
+        capture: true
+      });
+      // document.body.addEventListener('transitionend', function(e) {
+      //   if (!e.target.hasAttribute('__pluginDomId')) {
       //     return;
       //   }
       //   cordovaGoogleMaps.invalidateN(5);
@@ -78,8 +87,8 @@ if (!cordova) {
 
       // If the `scroll` event is ocurred on the observed element,
       // adjust the position and size of the map view
-      document.body.parentNode.addEventListener("scroll", cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps), true);
-      window.addEventListener("resize", function() {
+      document.body.parentNode.addEventListener('scroll', cordovaGoogleMaps.followMaps.bind(cordovaGoogleMaps), true);
+      window.addEventListener('resize', function () {
         cordovaGoogleMaps.transforming = true;
         cordovaGoogleMaps.onTransitionFinish.call(cordovaGoogleMaps);
       }, true);
@@ -94,8 +103,8 @@ if (!cordova) {
   module.exports = {
     event: require('./event'),
     Animation: {
-        BOUNCE: 'BOUNCE',
-        DROP: 'DROP'
+      BOUNCE: 'BOUNCE',
+      DROP: 'DROP'
     },
 
     BaseClass: require('./BaseClass'),
@@ -118,9 +127,9 @@ if (!cordova) {
     Geocoder: require('./Geocoder')(execCmd),
     LocationService: require('./LocationService')(execCmd),
     geometry: {
-        encoding: require('./encoding'),
-        spherical: require('./spherical'),
-        poly: require('./poly')
+      encoding: require('./encoding'),
+      spherical: require('./spherical'),
+      poly: require('./poly')
     }
   };
 }

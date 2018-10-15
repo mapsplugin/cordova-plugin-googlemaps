@@ -1,10 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-    utils = require('cordova/utils'),
-    common = require('./Common'),
-    Marker = require('./Marker'),
-    geomodel = require('./geomodel'),
-    BaseClass = require('./BaseClass'),
-    LatLngBounds = require('./LatLngBounds');
+var LatLngBounds = require('./LatLngBounds');
 
 /*****************************************************************************
  * Cluster Class
@@ -13,33 +7,33 @@ var Cluster = function(id, geocell) {
   var obj = {};
 
   var self = this;
-  Object.defineProperty(self, "id", {
+  Object.defineProperty(self, 'id', {
     value: id,
     writable: false
   });
-  Object.defineProperty(self, "geocell", {
+  Object.defineProperty(self, 'geocell', {
     value: geocell,
     writable: false
   });
 
-  Object.defineProperty(self, "type", {
-    value: "Cluster",
+  Object.defineProperty(self, 'type', {
+    value: 'Cluster',
     writable: false
   });
-  Object.defineProperty(self, "_markerOptsArray", {
+  Object.defineProperty(self, '_markerOptsArray', {
     value: [],
     writable: false
   });
 
 
-  Object.defineProperty(self, "set", {
+  Object.defineProperty(self, 'set', {
     value: function(key, value) {
       obj[key] = value;
     },
     writable: false
   });
 
-  Object.defineProperty(self, "get", {
+  Object.defineProperty(self, 'get', {
     value: function(key) {
       return obj[key];
     },
@@ -51,17 +45,17 @@ Cluster.prototype.NO_CLUSTER_MODE = 1;
 Cluster.prototype.CLUSTER_MODE = 2;
 
 Cluster.prototype.getPluginName = function() {
-  return this.map.getId() + "-cluster";
+  return this.map.getId() + '-cluster';
 };
 Cluster.prototype.getBounds = function() {
-  return this.get("bounds");
+  return this.get('bounds');
 };
 /*
 Cluster.prototype.getBounds = function() {
-  var bounds = this.get("bounds");
+  var bounds = this.get('bounds');
   if (!bounds) {
     bounds = geomodel.computeBox(this.geocell);
-    this.set("bounds", bounds);
+    this.set('bounds', bounds);
   }
   return bounds;
 };
@@ -76,7 +70,7 @@ Cluster.prototype.getMarkers = function() {
 
 Cluster.prototype.addMarkers = function(markerRefs) {
   var self = this;
-  var bounds = this.get("bounds") || new LatLngBounds(markerRefs[0].position, markerRefs[0].position);
+  var bounds = this.get('bounds') || new LatLngBounds(markerRefs[0].position, markerRefs[0].position);
 
   markerRefs.forEach(function(markerOpts) {
     if (self._markerOptsArray.indexOf(markerOpts) === -1) {
@@ -86,16 +80,16 @@ Cluster.prototype.addMarkers = function(markerRefs) {
     }
   });
 
-  this.set("bounds", bounds);
+  this.set('bounds', bounds);
 };
 Cluster.prototype.getId = function() {
   return this.id;
 };
 Cluster.prototype.setMode = function(mode) {
-  this.set("mode", mode);
+  this.set('mode', mode);
 };
 Cluster.prototype.getMode = function() {
-  return this.get("mode");
+  return this.get('mode');
 };
 Cluster.prototype.removeMarker = function(markerOpts) {
 
@@ -106,7 +100,7 @@ Cluster.prototype.removeMarker = function(markerOpts) {
 };
 
 Cluster.prototype.remove = function() {
-  this.set("isRemoved", true);
+  this.set('isRemoved', true);
   this._markerOptsArray.forEach(function(markerOpts) {
     markerOpts._cluster.isAdded = false;
   });

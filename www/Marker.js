@@ -1,5 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   common = require('./Common'),
   LatLng = require('./LatLng'),
   event = require('./event'),
@@ -27,69 +26,69 @@ var Marker = function(map, markerOptions, _exec, extras) {
     self.showInfoWindow.apply(self);
   });
 
-  self.on("position_changed", function() {
-    var position = self.get("position");
+  self.on('position_changed', function() {
+    var position = self.get('position');
     position.lat = parseFloat(position.lat, 10);
     position.lng = parseFloat(position.lng, 10);
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPosition', [self.getId(), position.lat, position.lng]);
   });
-  self.on("rotation_changed", function() {
-    var rotation = self.get("rotation");
+  self.on('rotation_changed', function() {
+    var rotation = self.get('rotation');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRotation', [self.getId(), rotation]);
   });
-  self.on("snippet_changed", function() {
-    var snippet = self.get("snippet");
+  self.on('snippet_changed', function() {
+    var snippet = self.get('snippet');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setSnippet', [self.getId(), snippet]);
   });
-  self.on("visible_changed", function() {
-    var visible = self.get("visible");
+  self.on('visible_changed', function() {
+    var visible = self.get('visible');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
-  self.on("title_changed", function() {
-    var title = self.get("title");
+  self.on('title_changed', function() {
+    var title = self.get('title');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setTitle', [self.getId(), title]);
   });
-  self.on("icon_changed", function() {
-    var icon = self.get("icon");
+  self.on('icon_changed', function() {
+    var icon = self.get('icon');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIcon', [self.getId(), icon]);
   });
-  self.on("flat_changed", function() {
-    var flat = self.get("flat");
+  self.on('flat_changed', function() {
+    var flat = self.get('flat');
     flat = flat === true;
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFlat', [self.getId(), flat]);
   });
-  self.on("draggable_changed", function() {
-    var draggable = self.get("draggable");
+  self.on('draggable_changed', function() {
+    var draggable = self.get('draggable');
     draggable = draggable === true;
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setDraggable', [self.getId(), draggable]);
   });
-  self.on("anchor_changed", function() {
-    var anchor = self.get("anchor");
+  self.on('anchor_changed', function() {
+    var anchor = self.get('anchor');
     if (!anchor) {
       return;
     }
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIconAnchor', [self.getId(), anchor[0], anchor[1]]);
   });
-  self.on("infoWindowAnchor_changed", function() {
-    var anchor = self.get("infoWindowAnchor");
+  self.on('infoWindowAnchor_changed', function() {
+    var anchor = self.get('infoWindowAnchor');
     if (!anchor) {
       return;
     }
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setInfoWindowAnchor', [self.getId(), anchor[0], anchor[1]]);
   });
-  self.on("zIndex_changed", function() {
-    var zIndex = self.get("zIndex");
+  self.on('zIndex_changed', function() {
+    var zIndex = self.get('zIndex');
     if (zIndex === null || zIndex === undefined) {
       return;
     }
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
-  self.on("opacity_changed", function() {
-    var opacity = self.get("opacity");
+  self.on('opacity_changed', function() {
+    var opacity = self.get('opacity');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
   });
-  self.on("disableAutoPan_changed", function() {
-    var disableAutoPan = self.get("disableAutoPan");
+  self.on('disableAutoPan_changed', function() {
+    var disableAutoPan = self.get('disableAutoPan');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setDisableAutoPan', [self.getId(), disableAutoPan]);
   });
 
@@ -100,18 +99,18 @@ utils.extend(Marker, Overlay);
 Marker.prototype.remove = function(callback) {
   var self = this;
   if (self._isRemoved) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return;
     } else {
       return Promise.resolve();
     }
   }
-  Object.defineProperty(self, "_isRemoved", {
+  Object.defineProperty(self, '_isRemoved', {
     value: true,
     writable: false
   });
   self.trigger(event.INFO_CLOSE); // close open infowindow, otherwise it will stay
-  self.trigger(self.id + "_remove");
+  self.trigger(self.id + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -125,7 +124,7 @@ Marker.prototype.remove = function(callback) {
       });
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
   } else {
     return new Promise(resolver);
@@ -137,19 +136,19 @@ Marker.prototype.remove = function(callback) {
 Marker.prototype.getOptions = function() {
   var self = this;
   return {
-    "id": self.getId(),
-    "position": self.getPosition(),
-    "disableAutoPan": self.get("disableAutoPan"),
-    "opacity": self.get("opacity"),
-    "icon": self.get("icon"),
-    "zIndex": self.get("zIndex"),
-    "anchor": self.get("anchor"),
-    "infoWindowAnchor": self.get("infoWindowAnchor"),
-    "draggable": self.get("draggable"),
-    "title": self.getTitle(),
-    "snippet": self.getSnippet(),
-    "visible": self.get("visible"),
-    "rotation": self.getRotation()
+    'id': self.getId(),
+    'position': self.getPosition(),
+    'disableAutoPan': self.get('disableAutoPan'),
+    'opacity': self.get('opacity'),
+    'icon': self.get('icon'),
+    'zIndex': self.get('zIndex'),
+    'anchor': self.get('anchor'),
+    'infoWindowAnchor': self.get('infoWindowAnchor'),
+    'draggable': self.get('draggable'),
+    'title': self.getTitle(),
+    'snippet': self.getSnippet(),
+    'visible': self.get('visible'),
+    'rotation': self.getRotation()
   };
 };
 Marker.prototype.getPosition = function() {
@@ -166,13 +165,13 @@ Marker.prototype.setAnimation = function(animation, callback) {
   animation = animation || null;
   if (!animation) {
     // just ignore
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return self;
     } else {
       return Promise.resolve();
     }
   }
-  self.set("animation", animation);
+  self.set('animation', animation);
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -181,7 +180,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
       self.getPluginName(), 'setAnimation', [self.getId(), animation]);
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
     return self;
   } else {
@@ -246,15 +245,15 @@ Marker.prototype.setTitle = function(title) {
     console.log('missing value for title');
     return this;
   }
-  title = "" + title; // Convert to strings mandatory
+  title = '' + title; // Convert to strings mandatory
   this.set('title', title);
   return this;
 };
 Marker.prototype.setVisible = function(visible) {
   visible = common.parseBoolean(visible);
   this.set('visible', visible);
-  if (!visible && this.map.get("active_marker_id") === this.id) {
-    this.map.set("active_marker_id", undefined);
+  if (!visible && this.map.get('active_marker_id') === this.id) {
+    this.map.set('active_marker_id', undefined);
   }
   return this;
 };
@@ -269,7 +268,7 @@ Marker.prototype.getSnippet = function() {
   return this.get('snippet');
 };
 Marker.prototype.setRotation = function(rotation) {
-  if (typeof rotation !== "number") {
+  if (typeof rotation !== 'number') {
     console.log('missing value for rotation');
     return false;
   }
@@ -281,13 +280,13 @@ Marker.prototype.getRotation = function() {
 };
 Marker.prototype.showInfoWindow = function() {
   var self = this;
-  //if (!self.get("title") && !self.get("snippet") ||
-  //    self.get("isInfoWindowVisible")) {
-  if (!self.get("title") && !self.get("snippet")) {
+  //if (!self.get('title') && !self.get('snippet') ||
+  //    self.get('isInfoWindowVisible')) {
+  if (!self.get('title') && !self.get('snippet')) {
     return;
   }
-  self.set("isInfoWindowVisible", true);
-  self.map.set("active_marker_id", self.id);
+  self.set('isInfoWindowVisible', true);
+  self.map.set('active_marker_id', self.id);
   self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'showInfoWindow', [self.getId()], {
     sync: true
   });
@@ -295,11 +294,11 @@ Marker.prototype.showInfoWindow = function() {
 };
 Marker.prototype.hideInfoWindow = function() {
   var self = this;
-  if (self.map.get("active_marker_id") === self.id) {
-    self.map.set("active_marker_id", null);
+  if (self.map.get('active_marker_id') === self.id) {
+    self.map.set('active_marker_id', null);
   }
-  if (self.get("isInfoWindowVisible")) {
-    self.set("isInfoWindowVisible", false);
+  if (self.get('isInfoWindowVisible')) {
+    self.set('isInfoWindowVisible', false);
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'hideInfoWindow', [self.getId()], {
       sync: true
     });
@@ -307,10 +306,10 @@ Marker.prototype.hideInfoWindow = function() {
   return self;
 };
 Marker.prototype.isInfoWindowShown = function() {
-  return this.get("isInfoWindowVisible") === true;
+  return this.get('isInfoWindowVisible') === true;
 };
 Marker.prototype.isVisible = function() {
-  return this.get("visible") === true;
+  return this.get('visible') === true;
 };
 
 Marker.prototype.setPosition = function(position) {

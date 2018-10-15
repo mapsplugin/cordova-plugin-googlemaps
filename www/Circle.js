@@ -1,5 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   common = require('./Common'),
   LatLngBounds = require('./LatLngBounds'),
   Overlay = require('./Overlay');
@@ -15,38 +14,38 @@ var Circle = function (map, circleOptions, _exec) {
   //-----------------------------------------------
   // Sets event listeners
   //-----------------------------------------------
-  self.on("center_changed", function () {
-    var center = self.get("center");
+  self.on('center_changed', function () {
+    var center = self.get('center');
     center.lat = parseFloat(center.lat, 10);
     center.lng = parseFloat(center.lng, 10);
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
   });
-  self.on("fillColor_changed", function () {
-    var color = self.get("fillColor");
+  self.on('fillColor_changed', function () {
+    var color = self.get('fillColor');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
-  self.on("strokeColor_changed", function () {
-    var color = self.get("strokeColor");
+  self.on('strokeColor_changed', function () {
+    var color = self.get('strokeColor');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
-  self.on("strokeWidth_changed", function () {
-    var width = self.get("strokeWidth");
+  self.on('strokeWidth_changed', function () {
+    var width = self.get('strokeWidth');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
   });
-  self.on("clickable_changed", function () {
-    var clickable = self.get("clickable");
+  self.on('clickable_changed', function () {
+    var clickable = self.get('clickable');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
   });
-  self.on("radius_changed", function () {
-    var radius = self.get("radius");
+  self.on('radius_changed', function () {
+    var radius = self.get('radius');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
   });
-  self.on("zIndex_changed", function () {
-    var zIndex = self.get("zIndex");
+  self.on('zIndex_changed', function () {
+    var zIndex = self.get('zIndex');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
-  self.on("visible_changed", function () {
-    var visible = self.get("visible");
+  self.on('visible_changed', function () {
+    var visible = self.get('visible');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
 
@@ -115,18 +114,17 @@ Circle.prototype.setRadius = function (radius) {
 Circle.prototype.remove = function (callback) {
   var self = this;
   if (self._isRemoved) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return;
     } else {
       return Promise.resolve();
     }
-    return;
   }
-  Object.defineProperty(self, "_isRemoved", {
+  Object.defineProperty(self, '_isRemoved', {
     value: true,
     writable: false
   });
-  self.trigger(self.id + "_remove");
+  self.trigger(self.id + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -140,7 +138,7 @@ Circle.prototype.remove = function (callback) {
       });
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
   } else {
     return new Promise(resolver);
@@ -152,8 +150,8 @@ Circle.prototype.getBounds = function () {
   var d2r = Math.PI / 180; // degrees to radians
   var r2d = 180 / Math.PI; // radians to degrees
   var earthsradius = 3963.189; // 3963 is the radius of the earth in miles
-  var radius = this.get("radius");
-  var center = this.get("center");
+  var radius = this.get('radius');
+  var center = this.get('center');
   radius *= 0.000621371192;
 
   // find the raidus in lat/lon

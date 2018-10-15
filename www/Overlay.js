@@ -1,12 +1,11 @@
 var BaseClass = require('./BaseClass'),
-    utils = require('cordova/utils'),
-    BaseArrayClass = require('./BaseArrayClass');
-
+  utils = require('cordova/utils'),
+  BaseArrayClass = require('./BaseArrayClass');
 
 /*****************************************************************************
  * Overlay Class
  *****************************************************************************/
-var Overlay = function(map, options, className, _exec, extras) {
+var Overlay = function (map, options, className, _exec, extras) {
   extras = extras || {};
   BaseClass.apply(this);
 
@@ -15,14 +14,14 @@ var Overlay = function(map, options, className, _exec, extras) {
   //-----------------------------------------------
   // Sets the initialize option to each property
   //-----------------------------------------------
-  var ignores = ["map", "id", "hashCode", "type"];
+  var ignores = ['map', 'id', 'hashCode', 'type'];
   if (extras.ignores) {
     ignores = ignores.concat(extras.ignores);
   }
   for (var key in options) {
-      if (ignores.indexOf(key) === -1) {
-          self.set(key, options[key]);
-      }
+    if (ignores.indexOf(key) === -1) {
+      self.set(key, options[key]);
+    }
   }
 
   //-------------------------------------------------------------------------------
@@ -31,60 +30,59 @@ var Overlay = function(map, options, className, _exec, extras) {
   // If this overlay is ready, execute it.
   //-------------------------------------------------------------------------------
   var cmdQueue = new BaseArrayClass();
-  cmdQueue.on('insert_at', function() {
+  cmdQueue.on('insert_at', function () {
     if (!self._isReady) {
       return;
     }
     var cmd;
-    while(cmdQueue.getLength() > 0) {
+    while (cmdQueue.getLength() > 0) {
       cmd = cmdQueue.removeAt(0, true);
-      if (cmd && cmd.target && cmd.args && cmd.args[0] !== "nop") {
+      if (cmd && cmd.target && cmd.args && cmd.args[0] !== 'nop') {
         _exec.apply(cmd.target, cmd.args);
       }
     }
   });
 
-
-  Object.defineProperty(self, "_cmdQueue", {
+  Object.defineProperty(self, '_cmdQueue', {
     enumerable: false,
     value: cmdQueue,
     writable: false
   });
 
-  Object.defineProperty(self, "_isReady", {
+  Object.defineProperty(self, '_isReady', {
     value: false,
     writable: true
   });
-  Object.defineProperty(self, "map", {
+  Object.defineProperty(self, 'map', {
     value: map,
     writable: false
   });
-  Object.defineProperty(self, "id", {
-    value: extras.id || (className.toLowerCase()) + "_" + this.hashCode,
+  Object.defineProperty(self, 'id', {
+    value: extras.id || (className.toLowerCase()) + '_' + this.hashCode,
     writable: false
   });
-  Object.defineProperty(self, "type", {
+  Object.defineProperty(self, 'type', {
     value: className,
     writable: false
   });
 
-  Object.defineProperty(self, "getPluginName", {
+  Object.defineProperty(self, 'getPluginName', {
     writable: false,
-    value: function() {
-      return this.map.getId() + "-" + className.toLowerCase();
+    value: function () {
+      return this.map.getId() + '-' + className.toLowerCase();
     }
   });
 };
 
 utils.extend(Overlay, BaseClass);
 
-Overlay.prototype._privateInitialize = function(options) {
+Overlay.prototype._privateInitialize = function (options) {
   var self = this;
   //-----------------------------------------------
   // Sets the initialize option to each property
   //-----------------------------------------------
   if (options) {
-    var ignores = ["map", "id", "hashCode", "type"];
+    var ignores = ['map', 'id', 'hashCode', 'type'];
     for (var key in options) {
       if (ignores.indexOf(key) === -1) {
         self.set(key, options[key], true);
@@ -95,27 +93,26 @@ Overlay.prototype._privateInitialize = function(options) {
   //-----------------------------------------------
   // Trigger internal command queue
   //-----------------------------------------------
-  Object.defineProperty(self, "_isReady", {
+  Object.defineProperty(self, '_isReady', {
     value: true,
     writable: false
   });
-  self.exec("nop");
+  self.exec('nop');
 };
 
-
-Overlay.prototype.exec = function() {
+Overlay.prototype.exec = function () {
   this._cmdQueue.push.call(this._cmdQueue, {
     target: this,
     args: Array.prototype.slice.call(arguments, 0)
   });
 };
-Overlay.prototype.getId = function() {
+Overlay.prototype.getId = function () {
   return this.id;
 };
-Overlay.prototype.getMap = function() {
+Overlay.prototype.getMap = function () {
   return this.map;
 };
-Overlay.prototype.getHashCode = function() {
+Overlay.prototype.getHashCode = function () {
   return this.hashCode;
 };
 

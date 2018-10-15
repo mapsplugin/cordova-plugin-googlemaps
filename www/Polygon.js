@@ -1,8 +1,6 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   common = require('./Common'),
-  Overlay = require('./Overlay'),
-  BaseArrayClass = require('./BaseArrayClass');
+  Overlay = require('./Overlay');
 
 /*****************************************************************************
  * Polygon Class
@@ -29,7 +27,7 @@ var Polygon = function (map, polygonOptions, _exec) {
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
   });
 
-  Object.defineProperty(self, "points", {
+  Object.defineProperty(self, 'points', {
     value: pointsProperty,
     writable: false
   });
@@ -66,7 +64,7 @@ var Polygon = function (map, polygonOptions, _exec) {
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
   });
 
-  Object.defineProperty(self, "holes", {
+  Object.defineProperty(self, 'holes', {
     value: holesProperty,
     writable: false
   });
@@ -74,7 +72,7 @@ var Polygon = function (map, polygonOptions, _exec) {
   //--------------------------
   // other properties
   //--------------------------.
-  // var ignores = ["map", "id", "hashCode", "type", "points", "holes"];
+  // var ignores = ['map', 'id', 'hashCode', 'type', 'points', 'holes'];
   // for (var key in polygonOptions) {
   //   if (ignores.indexOf(key) === -1) {
   //     self.set(key, polygonOptions[key]);
@@ -83,32 +81,32 @@ var Polygon = function (map, polygonOptions, _exec) {
   //-----------------------------------------------
   // Sets event listeners
   //-----------------------------------------------
-  self.on("clickable_changed", function () {
-    var clickable = self.get("clickable");
+  self.on('clickable_changed', function () {
+    var clickable = self.get('clickable');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
   });
-  self.on("geodesic_changed", function () {
-    var geodesic = self.get("geodesic");
+  self.on('geodesic_changed', function () {
+    var geodesic = self.get('geodesic');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
   });
-  self.on("zIndex_changed", function () {
-    var zIndex = self.get("zIndex");
+  self.on('zIndex_changed', function () {
+    var zIndex = self.get('zIndex');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
-  self.on("visible_changed", function () {
-    var visible = self.get("visible");
+  self.on('visible_changed', function () {
+    var visible = self.get('visible');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
-  self.on("strokeWidth_changed", function () {
-    var width = self.get("strokeWidth");
+  self.on('strokeWidth_changed', function () {
+    var width = self.get('strokeWidth');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
   });
-  self.on("strokeColor_changed", function () {
-    var color = self.get("strokeColor");
+  self.on('strokeColor_changed', function () {
+    var color = self.get('strokeColor');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
-  self.on("fillColor_changed", function () {
-    var color = self.get("fillColor");
+  self.on('fillColor_changed', function () {
+    var color = self.get('fillColor');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
 
@@ -119,17 +117,17 @@ utils.extend(Polygon, Overlay);
 Polygon.prototype.remove = function (callback) {
   var self = this;
   if (self._isRemoved) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return;
     } else {
       return Promise.resolve();
     }
   }
-  Object.defineProperty(self, "_isRemoved", {
+  Object.defineProperty(self, '_isRemoved', {
     value: true,
     writable: false
   });
-  self.trigger(this.id + "_remove");
+  self.trigger(this.id + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -143,7 +141,7 @@ Polygon.prototype.remove = function (callback) {
       });
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
   } else {
     return new Promise(resolver);
@@ -156,8 +154,7 @@ Polygon.prototype.setPoints = function (points) {
   var mvcArray = self.points;
   mvcArray.empty(true);
 
-  var i,
-    path = [];
+  var i;
 
   for (i = 0; i < points.length; i++) {
     mvcArray.push(common.getLatLng(points[i]), true);

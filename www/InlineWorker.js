@@ -26,7 +26,7 @@ function InlineWorker(func, self) {
     )[1];
 
     return new global.Worker(global.URL.createObjectURL(
-      new global.Blob([ functionBody ], { type: "text/javascript" })
+      new global.Blob([ functionBody ], { type: 'text/javascript' })
     ));
   }
 

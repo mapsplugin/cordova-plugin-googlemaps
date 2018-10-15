@@ -10,7 +10,7 @@ var utils = require('cordova/utils'),
 function PluginGroundOverlay(pluginMap) {
   var self = this;
   BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
+  Object.defineProperty(self, 'pluginMap', {
     value: pluginMap,
     writable: false
   });
@@ -198,14 +198,14 @@ function CustomGroundOverlay(url, bounds, options) {
   //------------------------------------------------------------
   var img = new Image();
   img.src = url;
-  img.style.position = "absolute";
-  img.style.WebkitTransformOrigin = "50% 50%";
-  img.style.MozTransformOrigin = "50% 50%";
-  img.style.transformOrigin = "50% 50%";
-  self.set("img", img);
+  img.style.position = 'absolute';
+  img.style.WebkitTransformOrigin = '50% 50%';
+  img.style.MozTransformOrigin = '50% 50%';
+  img.style.transformOrigin = '50% 50%';
+  self.set('img', img);
 
-  self.set("url", url);
-  self.addListener("url_changed", function() {
+  self.set('url', url);
+  self.addListener('url_changed', function() {
     img.src = self.get('url');
   });
 
@@ -343,58 +343,57 @@ CustomGroundOverlay.prototype.setOpacity = function(opacity) {
 
 CustomGroundOverlay.prototype.setBearing = function(bearing) {
   var self = this;
-  self.set("bearing", bearing);
+  self.set('bearing', bearing);
 };
 
 CustomGroundOverlay.prototype.setBounds = function(bounds) {
   var self = this;
-  self.set("bounds", bounds);
+  self.set('bounds', bounds);
 };
 
 CustomGroundOverlay.prototype.setOpacity = function(opacity) {
   var self = this;
-  self.set("opacity", opacity);
+  self.set('opacity', opacity);
 };
 
 CustomGroundOverlay.prototype.setZIndex = function(zIndex) {
   var self = this;
-  self.set("zIndex", zIndex);
+  self.set('zIndex', zIndex);
 };
 
 CustomGroundOverlay.prototype.setVisible = function(visible) {
   var self = this;
-  self.set("visible", visible);
+  self.set('visible', visible);
 };
 
 CustomGroundOverlay.prototype.setImage = function(url) {
   var self = this;
-  self.set("url", url);
+  self.set('url', url);
 };
 
 CustomGroundOverlay.prototype.getBounds = function() {
   var self = this;
   return new google.maps.LatLngBounds(
-    self.get("sw"), self.get("ne")
+    self.get('sw'), self.get('ne')
   );
 };
 CustomGroundOverlay.prototype.draw = function() {
-  var self = this;
+  var self = this,
     projection = self.getProjection();
   if (!projection) {
     return;
   }
   var bounds = self.get('bounds'),
-    center = bounds.getCenter(),
-    img = self.get("img");
+    img = self.get('img');
 
   // Calculate positions
   var swPx = projection.fromLatLngToDivPixel(bounds.getSouthWest()),
     nePx = projection.fromLatLngToDivPixel(bounds.getNorthEast());
 
-  img.style.left = swPx.x + "px";
-  img.style.top = nePx.y + "px";
-  img.style.width = (nePx.x - swPx.x) + "px";
-  img.style.height = (swPx.y - nePx.y) + "px";
+  img.style.left = swPx.x + 'px';
+  img.style.top = nePx.y + 'px';
+  img.style.width = (nePx.x - swPx.x) + 'px';
+  img.style.height = (swPx.y - nePx.y) + 'px';
   img.style.transform = 'rotate(' + self.get('bearing') + 'deg)';
   img.style.WebkitTransform = 'rotate(' + self.get('bearing') + 'deg)';
   img.style.MozTransform = 'rotate(' + self.get('bearing') + 'deg)';
@@ -403,11 +402,11 @@ CustomGroundOverlay.prototype.draw = function() {
 CustomGroundOverlay.prototype.onAdd = function() {
   var self = this;
   self.set('mapPane', self.getPanes().mapPane);
-  self.getPanes().mapPane.appendChild(self.get("img"));
+  self.getPanes().mapPane.appendChild(self.get('img'));
 };
 
 CustomGroundOverlay.prototype.onRemove = function() {
   var self = this;
-  self.get('mapPane').removeChild(self.get("img"));
+  self.get('mapPane').removeChild(self.get('img'));
   google.maps.event.clearInstanceListeners(self.get('img'));
 };

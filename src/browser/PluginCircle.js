@@ -3,13 +3,12 @@
 
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  LatLng = require('cordova-plugin-googlemaps.LatLng');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
 
 function PluginCircle(pluginMap) {
   var self = this;
   BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
+  Object.defineProperty(self, 'pluginMap', {
     value: pluginMap,
     writable: false
   });

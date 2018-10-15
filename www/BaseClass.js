@@ -1,4 +1,3 @@
-
 var VARS_FIELD = typeof Symbol === 'undefined' ? '__vars' + Date.now() : Symbol('vars');
 var SUBSCRIPTIONS_FIELD = typeof Symbol === 'undefined' ? '__subs' + Date.now() : Symbol('subscriptions');
 
@@ -65,25 +64,25 @@ BaseClass.prototype = {
     var args = Array.prototype.slice.call(arguments, 1);
     var self = this;
 
-    keys.forEach(function(_hashCode) {
+    keys.forEach(function (_hashCode) {
       if (self[SUBSCRIPTIONS_FIELD] &&
-          self[SUBSCRIPTIONS_FIELD][eventName] &&
-          _hashCode in self[SUBSCRIPTIONS_FIELD][eventName]) {
+        self[SUBSCRIPTIONS_FIELD][eventName] &&
+        _hashCode in self[SUBSCRIPTIONS_FIELD][eventName]) {
         var info = self[SUBSCRIPTIONS_FIELD][eventName][_hashCode];
 
         switch (info.kind) {
-          case 'on':
-            info.listener.apply(self, args);
-            break;
-          case 'onThrottled':
-            info.args = args;
-            if (!info.timer) {
-              info.timer = setTimeout(function() {
-                info.listener.apply(this, info.args);
-                info.timer = null;
-              }.bind(self), info.interval);
-            }
-            break;
+        case 'on':
+          info.listener.apply(self, args);
+          break;
+        case 'onThrottled':
+          info.args = args;
+          if (!info.timer) {
+            info.timer = setTimeout(function () {
+              info.listener.apply(this, info.args);
+              info.timer = null;
+            }.bind(self), info.interval);
+          }
+          break;
         }
       }
     });
@@ -92,7 +91,7 @@ BaseClass.prototype = {
   },
 
   on: function (eventName, listener) {
-    if (!listener || typeof listener !== "function") {
+    if (!listener || typeof listener !== 'function') {
       throw Error('Listener for on()/addEventListener() method is not a function');
     }
     if (!listener._hashCode) {
@@ -111,10 +110,10 @@ BaseClass.prototype = {
   },
 
   onThrottled: function (eventName, listener, interval) {
-    if (!listener || typeof listener !== "function") {
+    if (!listener || typeof listener !== 'function') {
       throw Error('Listener for on()/addEventListener() method is not a function');
     }
-    if (typeof interval !== "number" || interval < 1) {
+    if (typeof interval !== 'number' || interval < 1) {
       throw Error('interval argument must be bigger number than 0');
     }
     if (!listener._hashCode) {
@@ -125,7 +124,7 @@ BaseClass.prototype = {
       });
     }
     this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || {};
-    this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode] ={
+    this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode] = {
       'kind': 'onThrottled',
       'interval': interval,
       'timer': null,
@@ -150,7 +149,7 @@ BaseClass.prototype = {
   },
 
   one: function (eventName, listener) {
-    if (!listener || typeof listener !== "function") {
+    if (!listener || typeof listener !== 'function') {
       throw Error('Listener for one()/addEventListenerOnce() method is not a function');
     }
 
@@ -166,7 +165,7 @@ BaseClass.prototype = {
     return this;
   },
 
-  hasEventListener : function (eventName) {
+  hasEventListener: function (eventName) {
     return eventName in this[SUBSCRIPTIONS_FIELD];
   },
 
@@ -177,7 +176,7 @@ BaseClass.prototype = {
 
   errorHandler: function (error) {
     if (error) {
-      if (typeof console.error === "function") {
+      if (typeof console.error === 'function') {
         if (this.id) {
           console.error(this.id, error);
         } else {

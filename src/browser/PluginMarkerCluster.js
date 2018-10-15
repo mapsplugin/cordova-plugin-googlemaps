@@ -1,6 +1,3 @@
-
-
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
@@ -18,17 +15,17 @@ function PluginMarkerCluster(pluginMap) {
   var self = this;
   PluginMarker.call(self, pluginMap);
 
-  Object.defineProperty(self, "pluginMarkers", {
+  Object.defineProperty(self, 'pluginMarkers', {
     value: {},
     writable: false
   });
-  Object.defineProperty(self, "debugFlags", {
+  Object.defineProperty(self, 'debugFlags', {
     value: {},
     writable: false
   });
 
   var deleteMarkers = new BaseArrayClass();
-  Object.defineProperty(self, "deleteMarkers", {
+  Object.defineProperty(self, 'deleteMarkers', {
     value: deleteMarkers,
     writable: false
   });
@@ -41,11 +38,11 @@ function PluginMarkerCluster(pluginMap) {
     }
 
     self.pluginMap.objects[key] = undefined;
-    self.pluginMap.objects["marker_property_" + key] = undefined;
+    self.pluginMap.objects['marker_property_' + key] = undefined;
     self.pluginMarkers[key] = undefined;
 
     delete self.pluginMap.objects[key];
-    delete self.pluginMap.objects["marker_property_" + key];
+    delete self.pluginMap.objects['marker_property_' + key];
     delete self.pluginMarkers[key];
     self.pluginMarkers[key] = STATUS.DELETED;
   });
@@ -73,7 +70,7 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
 
 
         var GEOCELL_GRID_SIZE = 4;
-        var GEOCELL_ALPHABET = "0123456789abcdef";
+        var GEOCELL_ALPHABET = '0123456789abcdef';
 
         function getGeocell(lat, lng, resolution) {
           var north = 90.0,
@@ -97,7 +94,7 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
             west += subcell_lng_span * x;
             east = west + subcell_lng_span;
           }
-          return cell.join("");
+          return cell.join('');
         }
         function _subdiv_char(posX, posY) {
           return GEOCELL_ALPHABET.charAt(
@@ -129,7 +126,7 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
 
   Promise.all(tasks)
     .then(function(results) {
-      var id = "markerclister_" + hashCode;
+      var id = 'markerclister_' + hashCode;
       self.debugFlags[id] = params.debug;
 
       var result = {
@@ -160,12 +157,10 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
     //---------------------------
     // Determine new or update
     //---------------------------
-    var new_or_updateCnt = params.new_or_update.length;
-
-    params.new_or_update.forEach(function(clusterData, i) {
+    params.new_or_update.forEach(function(clusterData) {
       var positionJSON = clusterData.position,
         markerId = clusterData.__pgmId,
-        clusterId_markerId = clusterId + "-" + markerId;
+        clusterId_markerId = clusterId + '-' + markerId;
 
       // Save the marker properties
       self.pluginMap.objects['marker_property_' + clusterId_markerId] = clusterData;
@@ -187,12 +182,11 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
       if ('icon' in clusterData) {
         var iconObj = clusterData.icon,
           iconProperties = {},
-          icon,
           label;
-        if (typeof iconObj === "string") {
+        if (typeof iconObj === 'string') {
           iconProperties.url = iconObj;
           properties.icon = iconProperties;
-        } else if (typeof iconObj === "object") {
+        } else if (typeof iconObj === 'object') {
           iconProperties = iconObj;
           if (clusterData.isClusterIcon) {
             if (iconObj.label) {
@@ -241,9 +235,9 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
     // new or update
     //---------------
     var tasks = [];
-    updateClusterIDs.forEach(function(clusterId_markerId, currentCnt) {
+    updateClusterIDs.forEach(function(clusterId_markerId) {
       self.pluginMarkers[clusterId_markerId] = STATUS.WORKING;
-      isNew = !(clusterId_markerId in self.pluginMap.objects);
+      var isNew = !(clusterId_markerId in self.pluginMap.objects);
 
       // Get the marker properties
       var markerProperties = changeProperties[clusterId_markerId],
@@ -254,9 +248,9 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
         // regular marker
         //-------------------
         if (isNew) {
-          properties = self.pluginMap.objects["marker_property_" + clusterId_markerId];
+          properties = self.pluginMap.objects['marker_property_' + clusterId_markerId];
 
-          tasks.push(new Promise(function(resolve, reject) {
+          tasks.push(new Promise(function(resolve) {
 
             self.__create.call(self, clusterId_markerId, {
               'position': properties.position,
@@ -275,7 +269,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                 resolve();
               } else {
                 self.pluginMarkers[clusterId_markerId] = STATUS.CREATED;
-                allResults[clusterId_markerId.split("-")[1]] = {
+                allResults[clusterId_markerId.split('-')[1]] = {
                   'width': properties.width,
                   'height': properties.height
                 };
@@ -310,15 +304,15 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
         if (isNew) {
           // If the requested id is new location, create a marker
           marker = newClusterIcon({
-                      'map': map,
-                      'position': {
-                        'lat': markerProperties.lat,
-                        'lng': markerProperties.lng
-                      },
-                      'overlayId': clusterId_markerId,
-                      'opacity': 0
-                    });
-          marker.addListener('click', self.onClusterEvent.bind(self, "cluster_click", marker));
+            'map': map,
+            'position': {
+              'lat': markerProperties.lat,
+              'lng': markerProperties.lng
+            },
+            'overlayId': clusterId_markerId,
+            'opacity': 0
+          });
+          marker.addListener('click', self.onClusterEvent.bind(self, 'cluster_click', marker));
 
           // Store the marker instance with markerId
           self.pluginMap.objects[clusterId_markerId] = marker;
@@ -338,7 +332,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
         if (markerProperties.icon) {
           var icon = markerProperties.icon;
 
-          tasks.push(new Promise(function(resolve, reject) {
+          tasks.push(new Promise(function(resolve) {
 
             self.setIconToClusterMarker.call(self, clusterId_markerId, marker, icon)
               .then(function() {
@@ -358,7 +352,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                 }
                 self.pluginMarkers[clusterId_markerId] = STATUS.DELETED;
 
-                console.error(errorMsg);
+                console.warn(error.getMessage());
                 self.deleteMarkers.push(clusterId_markerId);
                 resolve();
               });
@@ -386,7 +380,7 @@ PluginMarkerCluster.prototype.deleteProcess = function(clusterId, params) {
     return;
   }
   params.delete.forEach(function(key) {
-    self.deleteMarkers.push(clusterId + "-" + key);
+    self.deleteMarkers.push(clusterId + '-' + key);
   });
 };
 
@@ -397,26 +391,26 @@ PluginMarkerCluster.prototype.setIconToClusterMarker = function(markerId, marker
     if (self.pluginMarkers[markerId] === STATUS.DELETED) {
       self._removeMarker.call(self, marker);
       delete self.pluginMap.objects[markerId];
-      delete self.pluginMap.objects["marker_property_" + markerId];
+      delete self.pluginMap.objects['marker_property_' + markerId];
 
       delete self.pluginMarkers[markerId];
-      reject("marker has been removed");
+      reject('marker has been removed');
       return;
     }
     self.setIcon_.call(self, marker, iconProperty)
-    .then(function() {
-      if (self.pluginMarkers[markerId] === STATUS.DELETED) {
-        self._removeMarker.call(self, marker);
-        delete pluginMap.objects[markerId];
-        delete pluginMap.objects["marker_property_" + markerId];
-        pluginMarkers.remove(markerId);
+      .then(function() {
+        if (self.pluginMarkers[markerId] === STATUS.DELETED) {
+          self._removeMarker.call(self, marker);
+          delete self.pluginMap.objects[markerId];
+          delete self.pluginMap.objects['marker_property_' + markerId];
+          self.pluginMarkers.remove(markerId);
+          resolve();
+          return;
+        }
+        marker.setVisible(true);
+        self.pluginMarkers[markerId] = STATUS.CREATED;
         resolve();
-        return;
-      }
-      marker.setVisible(true);
-      self.pluginMarkers[markerId] = STATUS.CREATED;
-      resolve();
-    });
+      });
   });
 
 };
@@ -439,8 +433,8 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
 PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
   var self = this,
     mapId = self.pluginMap.id;
-  var overlayId = marker.get("overlayId");
-  var tmp = overlayId.split("-");
+  var overlayId = marker.get('overlayId');
+  var tmp = overlayId.split('-');
   var clusterId = tmp[0];
   var markerId = tmp[1];
   var latLng = marker.getPosition();
@@ -481,7 +475,7 @@ function ClusterIconClass(options) {
   //-----------------------------------------
   // Create a canvas to draw label
   //-----------------------------------------
-  var canvas = document.createElement("canvas");
+  var canvas = document.createElement('canvas');
   canvas.width = 50;
   canvas.height = 50;
   canvas.style.visibility = 'hidden';
@@ -524,15 +518,15 @@ function ClusterIconClass(options) {
 
   self.addListener('icon_changed', function() {
     var icon = self.get('icon');
-    if (typeof icon === "string") {
+    if (typeof icon === 'string') {
       icon = {
-        "url": icon
+        'url': icon
       };
     }
 
     var iconUrl = icon.url;
-    if (typeof icon === "object") {
-      if (typeof icon.size === "object" &&
+    if (typeof icon === 'object') {
+      if (typeof icon.size === 'object' &&
           icon.size.width && icon.size.height) {
         icon.anchor = new google.maps.Point(icon.size.width / 2, icon.size.height / 2);
         iconMarker.setIcon(icon);
@@ -583,8 +577,8 @@ ClusterIconClass.prototype.onRemove = function() {
 };
 ClusterIconClass.prototype.draw = function() {
   var self = this,
-    icon = self.get("icon");
-  if (typeof icon === "string") {
+    icon = self.get('icon');
+  if (typeof icon === 'string') {
     icon = {
       'url': icon
     };
@@ -594,12 +588,12 @@ ClusterIconClass.prototype.draw = function() {
     return;
   }
   self.set('prevText', icon.label.text);
-  self.get("labelMarker").set("opacity", 0);
+  self.get('labelMarker').set('opacity', 0);
 
-  (new Promise(function(resolve, reject) {
+  (new Promise(function(resolve) {
     var iconUrl = icon.url;
-    if (typeof icon === "object") {
-      if (typeof icon.size === "object" &&
+    if (typeof icon === 'object') {
+      if (typeof icon.size === 'object' &&
           icon.size.width && icon.size.height) {
         return resolve(icon.size);
       }
@@ -626,68 +620,68 @@ ClusterIconClass.prototype.draw = function() {
     };
     img.src = iconUrl;
   }))
-  .then(function(iconSize) {
-    var canvas = self.get('canvas'),
-      ctx = canvas.getContext("2d");
+    .then(function(iconSize) {
+      var canvas = self.get('canvas'),
+        ctx = canvas.getContext('2d');
       canvas.width = iconSize.width;
       canvas.height = iconSize.height;
 
-    var labelOptions =  icon.label || {
-      fontSize: 10,
-      bold: false,
-      italic: false
-    };
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // debug
-    //ctx.fillStyle="#FF000077";
-    //ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (labelOptions.text) {
-      var fontStyles = [];
-
-      if ('color' in labelOptions) {
-        ctx.fillStyle = [
-          'rgba(',
-          labelOptions.color[0],
-          ",",
-          labelOptions.color[1],
-          ",",
-          labelOptions.color[2],
-          ",",
-          labelOptions.color[3] / 255,
-          ')'].join("");
-      } else {
-        ctx.fillStyle = 'black';
-      }
-
-      if (labelOptions.italic === true) {
-        fontStyles.push("italic");
-      }
-      if (labelOptions.bold === true) {
-        fontStyles.push("bold");
-      }
-
-      fontStyles.push(parseInt(labelOptions.fontSize || "10", 10) + "px");
-
-      fontStyles.push('Arial');
-
-      ctx.font = fontStyles.join(' ');
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      ctx.fillText(labelOptions.text, iconSize.width / 2, iconSize.height / 2);
+      var labelOptions =  icon.label || {
+        fontSize: 10,
+        bold: false,
+        italic: false
+      };
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       // debug
-      //ctx.fillText(selfId.split("-")[1], iconSize.width / 2, iconSize.height / 2);
+      //ctx.fillStyle="#FF000077";
+      //ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    }
+      if (labelOptions.text) {
+        var fontStyles = [];
 
-    self.get('labelMarker').set('icon', {
-      'url': canvas.toDataURL(),
-      'anchor': self.get('labelMarkerAnchor')
+        if ('color' in labelOptions) {
+          ctx.fillStyle = [
+            'rgba(',
+            labelOptions.color[0],
+            ',',
+            labelOptions.color[1],
+            ',',
+            labelOptions.color[2],
+            ',',
+            labelOptions.color[3] / 255,
+            ')'].join('');
+        } else {
+          ctx.fillStyle = 'black';
+        }
+
+        if (labelOptions.italic === true) {
+          fontStyles.push('italic');
+        }
+        if (labelOptions.bold === true) {
+          fontStyles.push('bold');
+        }
+
+        fontStyles.push(parseInt(labelOptions.fontSize || '10', 10) + 'px');
+
+        fontStyles.push('Arial');
+
+        ctx.font = fontStyles.join(' ');
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.fillText(labelOptions.text, iconSize.width / 2, iconSize.height / 2);
+        // debug
+        //ctx.fillText(selfId.split("-")[1], iconSize.width / 2, iconSize.height / 2);
+
+      }
+
+      self.get('labelMarker').set('icon', {
+        'url': canvas.toDataURL(),
+        'anchor': self.get('labelMarkerAnchor')
+      });
+      setTimeout(function() {
+        self.set('opacity', 1);
+      }, 10);
     });
-    setTimeout(function() {
-      self.set("opacity", 1);
-    }, 10);
-  });
 
 
 };
@@ -704,7 +698,7 @@ ClusterIconClass.prototype.setPosition = function(position) {
   self.set('position', position);
 };
 
-ClusterIconClass.prototype.getPosition = function(position) {
+ClusterIconClass.prototype.getPosition = function() {
   var self = this;
   return self.get('position');
 };

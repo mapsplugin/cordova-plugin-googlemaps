@@ -2,16 +2,15 @@
 
 
 var PluginMap = require('cordova-plugin-googlemaps.PluginMap'),
-    PluginStreetViewPanorama = require('cordova-plugin-googlemaps.PluginStreetViewPanorama'),
-    event = require('cordova-plugin-googlemaps.event'),
-    Environment = require('cordova-plugin-googlemaps.PluginEnvironment');
+  PluginStreetViewPanorama = require('cordova-plugin-googlemaps.PluginStreetViewPanorama'),
+  event = require('cordova-plugin-googlemaps.event'),
+  Environment = require('cordova-plugin-googlemaps.PluginEnvironment');
 
-var MAP_CNT = 0;
 var MAPS = {};
 
 var API_LOADED_STATUS = 0; // 0: not loaded, 1: loading, 2: completed
 
-document.addEventListener("load_googlemaps", function() {
+document.addEventListener('load_googlemaps', function() {
   var envOptions = Environment._getEnv();
   var API_KEY_FOR_BROWSER;
   if (envOptions) {
@@ -30,27 +29,27 @@ document.addEventListener("load_googlemaps", function() {
     // for development only
     secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js');
   }
-  secureStripeScript.addEventListener("load", function() {
+  secureStripeScript.addEventListener('load', function() {
     API_LOADED_STATUS = 2;
 
     var mKeys = Object.keys(MAPS);
     mKeys.forEach(function(mkey) {
       var map = MAPS[mkey];
-      if (!map.get("isGoogleReady")) {
-        map.trigger("googleready");
+      if (!map.get('isGoogleReady')) {
+        map.trigger('googleready');
       }
     });
   });
 
-  secureStripeScript.addEventListener("error", function(error) {
-    console.log("Can not load the Google Maps JavaScript API v3");
+  secureStripeScript.addEventListener('error', function(error) {
+    console.log('Can not load the Google Maps JavaScript API v3');
     console.log(error);
 
     var mKeys = Object.keys(MAPS);
     mKeys.forEach(function(mkey) {
       var map = MAPS[mkey];
       if (map) {
-        map.trigger("load_error");
+        map.trigger('load_error');
       }
     });
   });
@@ -72,7 +71,7 @@ var CordovaGoogleMaps = {
     // memory cleanup
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
-      var mapDivId = document.querySelector("[__pluginmapid='" + mapId + "']");
+      var mapDivId = document.querySelector('[__pluginmapid=\'' + mapId + '\']');
       if (!mapDivId) {
         if (MAPS[mapDivId]) {
           MAPS[mapDivId].destroy();
@@ -105,12 +104,12 @@ var CordovaGoogleMaps = {
     API_LOADED_STATUS = (window.google && window.google.maps) ? 2 : API_LOADED_STATUS;
 
     switch(API_LOADED_STATUS) {
-      case 0:
-        cordova.fireDocumentEvent('load_googlemaps', []);
-        break;
-      case 2:
-        pluginMap.trigger("googleready");
-        break;
+    case 0:
+      cordova.fireDocumentEvent('load_googlemaps', []);
+      break;
+    case 2:
+      pluginMap.trigger('googleready');
+      break;
     }
   },
   removeMap: function(onSuccess, onError, args) {
@@ -136,7 +135,7 @@ var CordovaGoogleMaps = {
     // memory cleanup
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
-      var mapDivId = document.querySelector("[__pluginmapid='" + mapId + "']");
+      var mapDivId = document.querySelector('[__pluginmapid=\'' + mapId + '\']');
       if (!mapDivId) {
         if (MAPS[mapDivId]) {
           MAPS[mapDivId].destroy();
@@ -169,12 +168,12 @@ var CordovaGoogleMaps = {
     API_LOADED_STATUS = (window.google && window.google.maps) ? 2 : API_LOADED_STATUS;
 
     switch(API_LOADED_STATUS) {
-      case 0:
-        cordova.fireDocumentEvent('load_googlemaps', []);
-        break;
-      case 2:
-        pluginStreetView.trigger("googleready");
-        break;
+    case 0:
+      cordova.fireDocumentEvent('load_googlemaps', []);
+      break;
+    case 2:
+      pluginStreetView.trigger('googleready');
+      break;
     }
   },
 };

@@ -1,4 +1,5 @@
 var cordova_exec = require('cordova/exec');
+
 function pluginInit() {
   //-------------------------------------------------------------
   // In some older browsers do not implement these methods.
@@ -7,9 +8,9 @@ function pluginInit() {
   // But this plugin needs them.
   // That's why if the browser does not have it, implement it.
   //-------------------------------------------------------------
-  if (typeof Array.prototype.forEach !== "function") {
-    (function() {
-      Array.prototype.forEach = function(fn, thisArg) {
+  if (typeof Array.prototype.forEach !== 'function') {
+    (function () {
+      Array.prototype.forEach = function (fn, thisArg) {
         thisArg = thisArg || this;
         for (var i = 0; i < this.length; i++) {
           fn.call(thisArg, this[i], i, this);
@@ -17,9 +18,9 @@ function pluginInit() {
       };
     })();
   }
-  if (typeof Array.prototype.filter !== "function") {
-    (function() {
-      Array.prototype.filter = function(fn, thisArg) {
+  if (typeof Array.prototype.filter !== 'function') {
+    (function () {
+      Array.prototype.filter = function (fn, thisArg) {
         thisArg = thisArg || this;
         var results = [];
         for (var i = 0; i < this.length; i++) {
@@ -31,9 +32,9 @@ function pluginInit() {
       };
     })();
   }
-  if (typeof Array.prototype.map !== "function") {
-    (function() {
-      Array.prototype.map = function(fn, thisArg) {
+  if (typeof Array.prototype.map !== 'function') {
+    (function () {
+      Array.prototype.map = function (fn, thisArg) {
         thisArg = thisArg || this;
         var results = [];
         for (var i = 0; i < this.length; i++) {
@@ -51,14 +52,14 @@ function pluginInit() {
   var viewportTag = null;
   var metaTags = document.getElementsByTagName('meta');
   for (var i = 0; i < metaTags.length; i++) {
-      if (metaTags[i].getAttribute('name') === "viewport") {
-          viewportTag = metaTags[i];
-          break;
-      }
+    if (metaTags[i].getAttribute('name') === 'viewport') {
+      viewportTag = metaTags[i];
+      break;
+    }
   }
   if (!viewportTag) {
-      viewportTag = document.createElement("meta");
-      viewportTag.setAttribute('name', 'viewport');
+    viewportTag = document.createElement('meta');
+    viewportTag.setAttribute('name', 'viewport');
   }
 
   var viewportTagContent = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no';
@@ -84,29 +85,27 @@ function pluginInit() {
   // Update viewport tag attribute
   viewportTag.setAttribute('content', viewportTagContent);
 
-
   /*****************************************************************************
    * Prevent background, background-color, background-image properties
    *****************************************************************************/
-  var cssAdjuster = document.createElement("style");
-  cssAdjuster.setAttribute("type", "text/css");
+  var cssAdjuster = document.createElement('style');
+  cssAdjuster.setAttribute('type', 'text/css');
   cssAdjuster.innerText = [
-    "html, body, ._gmaps_cdv_ {",
-    "   background-image: url() !important;",
-    "   background: rgba(0,0,0,0) url() !important;",
-    "   background-color: rgba(0,0,0,0) !important;",
-    "}",
-    "._gmaps_cdv_ .nav-decor {",
-    "   background-color: rgba(0,0,0,0) !important;",
-    "   background: rgba(0,0,0,0) !important;",
-    "   display:none !important;",
-    "}",
-    ".framework7-root .page-previous {",
-    "   display:none !important;",
-    "}"
-  ].join("");
+    'html, body, ._gmaps_cdv_ {',
+    '   background-image: url() !important;',
+    '   background: rgba(0,0,0,0) url() !important;',
+    '   background-color: rgba(0,0,0,0) !important;',
+    '}',
+    '._gmaps_cdv_ .nav-decor {',
+    '   background-color: rgba(0,0,0,0) !important;',
+    '   background: rgba(0,0,0,0) !important;',
+    '   display:none !important;',
+    '}',
+    '.framework7-root .page-previous {',
+    '   display:none !important;',
+    '}'
+  ].join('');
   document.head.appendChild(cssAdjuster);
-
 
   // I guess no longer necessary this code at 2018/March
   // //----------------------------------------------
@@ -114,22 +113,21 @@ function pluginInit() {
   // // http://stackoverflow.com/a/3485654/697856
   // //----------------------------------------------
   // if(document.body){
-  //   document.body.style.backgroundColor = "rgba(0,0,0,0)";
+  //   document.body.style.backgroundColor = 'rgba(0,0,0,0)';
   //   //document.body.style.display='none';
   //   document.body.offsetHeight;
   //   //document.body.style.display='';
   // }
 
-
-
   //--------------------------------------------
   // Hook the backbutton of Android action
   //--------------------------------------------
   var anotherBackbuttonHandler = null;
+
   function onBackButton(e) {
 
     // Check DOM tree for new page
-    cordova.fireDocumentEvent("plugin_touch", {
+    cordova.fireDocumentEvent('plugin_touch', {
       force: true
     });
 
@@ -142,13 +140,13 @@ function pluginInit() {
     }
   }
 
-  document.addEventListener("backbutton", onBackButton);
+  document.addEventListener('backbutton', onBackButton);
 
   var _org_addEventListener = document.addEventListener;
   var _org_removeEventListener = document.removeEventListener;
-  document.addEventListener = function(eventName, callback) {
+  document.addEventListener = function (eventName, callback) {
     var args = Array.prototype.slice.call(arguments, 0);
-    if (eventName.toLowerCase() !== "backbutton") {
+    if (eventName.toLowerCase() !== 'backbutton') {
       _org_addEventListener.apply(this, args);
       return;
     }
@@ -156,9 +154,9 @@ function pluginInit() {
       anotherBackbuttonHandler = callback;
     }
   };
-  document.removeEventListener = function(eventName, callback) {
+  document.removeEventListener = function (eventName, callback) {
     var args = Array.prototype.slice.call(arguments, 0);
-    if (eventName.toLowerCase() !== "backbutton") {
+    if (eventName.toLowerCase() !== 'backbutton') {
       _org_removeEventListener.apply(this, args);
       return;
     }

@@ -1,5 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   common = require('./Common'),
   Overlay = require('./Overlay');
 
@@ -14,20 +13,20 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
   //-----------------------------------------------
   // Sets event listeners
   //-----------------------------------------------
-  self.on("fadeIn_changed", function () {
-    var fadeIn = self.get("fadeIn");
+  self.on('fadeIn_changed', function () {
+    var fadeIn = self.get('fadeIn');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
   });
-  self.on("opacity_changed", function () {
-    var opacity = self.get("opacity");
+  self.on('opacity_changed', function () {
+    var opacity = self.get('opacity');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
   });
-  self.on("zIndex_changed", function () {
-    var zIndex = self.get("zIndex");
+  self.on('zIndex_changed', function () {
+    var zIndex = self.get('zIndex');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
-  self.on("visible_changed", function () {
-    var visible = self.get("visible");
+  self.on('visible_changed', function () {
+    var visible = self.get('visible');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
 };
@@ -35,7 +34,7 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
 utils.extend(TileOverlay, Overlay);
 
 TileOverlay.prototype.getPluginName = function () {
-  return this.map.getId() + "-tileoverlay";
+  return this.map.getId() + '-tileoverlay';
 };
 
 TileOverlay.prototype.getHashCode = function () {
@@ -49,10 +48,10 @@ TileOverlay.prototype.getId = function () {
   return this.id;
 };
 TileOverlay.prototype.getTileSize = function () {
-  return this.get("tileSize");
+  return this.get('tileSize');
 };
 TileOverlay.prototype.getZIndex = function () {
-  return this.get("zIndex");
+  return this.get('zIndex');
 };
 TileOverlay.prototype.setZIndex = function (zIndex) {
   this.set('zIndex', zIndex);
@@ -85,17 +84,17 @@ TileOverlay.prototype.getVisible = function () {
 TileOverlay.prototype.remove = function (callback) {
   var self = this;
   if (self._isRemoved) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return;
     } else {
       return Promise.resolve();
     }
   }
-  Object.defineProperty(self, "_isRemoved", {
+  Object.defineProperty(self, '_isRemoved', {
     value: true,
     writable: false
   });
-  self.trigger(self.id + "_remove");
+  self.trigger(self.id + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -109,7 +108,7 @@ TileOverlay.prototype.remove = function (callback) {
       });
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
   } else {
     return new Promise(resolver);

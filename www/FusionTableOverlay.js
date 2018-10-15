@@ -1,5 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   common = require('./Common'),
   Overlay = require('./Overlay');
 
@@ -14,8 +13,8 @@ var FusionTableOverlay = function (map, FusionTableOverlayOptions, _exec) {
   //-----------------------------------------------
   // Sets event listeners
   //-----------------------------------------------
-  self.on("visible_changed", function () {
-    var visible = self.get("visible");
+  self.on('visible_changed', function () {
+    var visible = self.get('visible');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
 };
@@ -23,7 +22,7 @@ var FusionTableOverlay = function (map, FusionTableOverlayOptions, _exec) {
 utils.extend(FusionTableOverlay, Overlay);
 
 FusionTableOverlay.prototype.getPluginName = function () {
-  return this.map.getId() + "-fusiontableoverlay";
+  return this.map.getId() + '-fusiontableoverlay';
 };
 
 FusionTableOverlay.prototype.getHashCode = function () {
@@ -47,17 +46,17 @@ FusionTableOverlay.prototype.getVisible = function () {
 FusionTableOverlay.prototype.remove = function (callback) {
   var self = this;
   if (self._isRemoved) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return;
     } else {
       return Promise.resolve();
     }
   }
-  Object.defineProperty(self, "_isRemoved", {
+  Object.defineProperty(self, '_isRemoved', {
     value: true,
     writable: false
   });
-  self.trigger(self.id + "_remove");
+  self.trigger(self.id + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -71,7 +70,7 @@ FusionTableOverlay.prototype.remove = function (callback) {
       });
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
   } else {
     return new Promise(resolver);

@@ -1,12 +1,9 @@
 
 var utils = require('cordova/utils'),
-  event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  LatLng = require('cordova-plugin-googlemaps.LatLng');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
 
 function TileOverlay(mapId, hashCode, options) {
-  var self = this,
-    tileSize = 256,
+  var tileSize = 256,
     tileCaches = {},
     _opacity = 'opacity' in options ? options.opacity : 1;
 
@@ -49,9 +46,9 @@ function TileOverlay(mapId, hashCode, options) {
       });
     },
 
-    getTile: function(coord, zoom, owner) {
+    getTile: function(coord, zoom) {
 
-      var cacheId = [mapId, hashCode, coord.x, coord.y, zoom].join("-");
+      var cacheId = [mapId, hashCode, coord.x, coord.y, zoom].join('-');
       if (cacheId in tileCaches) {
         return tileCaches[cacheId];
       } else {
@@ -62,12 +59,12 @@ function TileOverlay(mapId, hashCode, options) {
         div.style.visibility = 'hidden';
 
         if (options.debug) {
-          div.style.borderLeft = "1px solid red";
-          div.style.borderTop = "1px solid red";
+          div.style.borderLeft = '1px solid red';
+          div.style.borderTop = '1px solid red';
           div.style.color = 'red';
           div.style.fontSize = '12px';
           div.style.padding = '1em';
-          div.innerHTML = "x = " + coord.x + ", y = " + coord.y + ", zoom = " + zoom;
+          div.innerHTML = 'x = ' + coord.x + ', y = ' + coord.y + ', zoom = ' + zoom;
         }
 
         div.setAttribute('cacheId', cacheId);
@@ -102,7 +99,7 @@ function TileOverlay(mapId, hashCode, options) {
 function PluginTileOverlay(pluginMap) {
   var self = this;
   BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
+  Object.defineProperty(self, 'pluginMap', {
     value: pluginMap,
     enumerable: false,
     writable: false
@@ -119,7 +116,7 @@ PluginTileOverlay.prototype._create = function(onSuccess, onError, args) {
     tileoverlayId = 'tileoverlay_' + hashCode,
     pluginOptions = args[1],
     mapId = self.pluginMap.id,
-    getTileEventName = mapId + "-" + hashCode + "-tileoverlay";
+    getTileEventName = mapId + '-' + hashCode + '-tileoverlay';
 
   pluginOptions.getTile = function(x, y, zoom, urlCallbackId) {
     cordova.fireDocumentEvent(getTileEventName, {
@@ -141,7 +138,7 @@ PluginTileOverlay.prototype._create = function(onSuccess, onError, args) {
       return;
     }
     if (layer.zIndex === undefined) {
-    layer.zIndex = idx;
+      layer.zIndex = idx;
     }
     if (!layer.getZIndex) {
       layer.getZIndex = function() {
@@ -182,7 +179,7 @@ PluginTileOverlay.prototype.onGetTileUrlFromJS = function(onSuccess, onError, ar
     cacheId = args[1],
     tileUrl = args[2];
 
-  var tmp = cacheId.split(/\-/),
+  var tmp = cacheId.split(/-/),
     hashCode = tmp[1],
     tileoverlayId = 'tileoverlay_' + hashCode;
 
@@ -190,7 +187,7 @@ PluginTileOverlay.prototype.onGetTileUrlFromJS = function(onSuccess, onError, ar
 
   if (tileLayer && tileLayer.getTileFromCache(cacheId)) {
     var tile = tileLayer.getTileFromCache(cacheId);
-    tile.style.backgroundImage = "url('" + tileUrl + "')";
+    tile.style.backgroundImage = 'url(\'' + tileUrl + '\')';
     tile.style.visibility = tileLayer.visible ? 'visible': 'hidden';
 
     if (tileLayer.fadeIn) {
@@ -218,7 +215,7 @@ PluginTileOverlay.prototype.setOpacity = function(onSuccess, onError, args) {
   var opacity = args[1];
   var tileoverlay = self.pluginMap.objects[overlayId];
   if (tileoverlay) {
-    tileoverlay.setOpacity(args[1]);
+    tileoverlay.setOpacity(opacity);
   }
   onSuccess();
 };
@@ -285,7 +282,7 @@ module.exports = PluginTileOverlay;
 
 function fadeInAnimation(el, time, maxOpacity) {
   el.style.opacity = 0;
-  var timeFunc = typeof window.requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout;
+  var timeFunc = typeof window.requestAnimationFrame === 'function' ? requestAnimationFrame : setTimeout;
 
   var last = Date.now();
   var tick = function() {

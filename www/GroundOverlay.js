@@ -1,5 +1,4 @@
-var argscheck = require('cordova/argscheck'),
-  utils = require('cordova/utils'),
+var utils = require('cordova/utils'),
   common = require('./Common'),
   Overlay = require('./Overlay');
 
@@ -20,32 +19,32 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
   //-----------------------------------------------
   // Sets event listeners
   //-----------------------------------------------
-  self.on("visible_changed", function () {
-    var visible = self.get("visible");
+  self.on('visible_changed', function () {
+    var visible = self.get('visible');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
   });
-  self.on("image_changed", function () {
-    var image = self.get("image");
+  self.on('image_changed', function () {
+    var image = self.get('image');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setImage', [self.getId(), image]);
   });
-  self.on("bounds_changed", function () {
-    var bounds = self.get("bounds");
+  self.on('bounds_changed', function () {
+    var bounds = self.get('bounds');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setBounds', [self.getId(), bounds]);
   });
-  self.on("opacity_changed", function () {
-    var opacity = self.get("opacity");
+  self.on('opacity_changed', function () {
+    var opacity = self.get('opacity');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
   });
-  self.on("clickable_changed", function () {
-    var clickable = self.get("clickable");
+  self.on('clickable_changed', function () {
+    var clickable = self.get('clickable');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
   });
-  self.on("bearing_changed", function () {
-    var bearing = self.get("bearing");
+  self.on('bearing_changed', function () {
+    var bearing = self.get('bearing');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setBearing', [self.getId(), bearing]);
   });
-  self.on("zIndex_changed", function () {
-    var zIndex = self.get("zIndex");
+  self.on('zIndex_changed', function () {
+    var zIndex = self.get('zIndex');
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
   });
 
@@ -70,19 +69,19 @@ GroundOverlay.prototype.setBounds = function (points) {
     bounds = [];
   for (i = 0; i < points.length; i++) {
     bounds.push({
-      "lat": parseFloat(points[i].lat, 10),
-      "lng": parseFloat(points[i].lng, 10)
+      'lat': parseFloat(points[i].lat, 10),
+      'lng': parseFloat(points[i].lng, 10)
     });
   }
   this.set('bounds', bounds);
 };
 
 GroundOverlay.prototype.getOpacity = function () {
-  return this.get("opacity");
+  return this.get('opacity');
 };
 
 GroundOverlay.prototype.getBearing = function () {
-  return this.get("bearing");
+  return this.get('bearing');
 };
 
 GroundOverlay.prototype.setOpacity = function (opacity) {
@@ -100,7 +99,7 @@ GroundOverlay.prototype.setBearing = function (bearing) {
 };
 
 GroundOverlay.prototype.getZIndex = function () {
-  return this.get("zIndex");
+  return this.get('zIndex');
 };
 
 GroundOverlay.prototype.setZIndex = function (zIndex) {
@@ -118,17 +117,17 @@ GroundOverlay.prototype.getClickable = function () {
 GroundOverlay.prototype.remove = function (callback) {
   var self = this;
   if (self._isRemoved) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return;
     } else {
       return Promise.resolve();
     }
   }
-  Object.defineProperty(self, "_isRemoved", {
+  Object.defineProperty(self, '_isRemoved', {
     value: true,
     writable: false
   });
-  self.trigger(self.id + "_remove");
+  self.trigger(self.id + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -142,7 +141,7 @@ GroundOverlay.prototype.remove = function (callback) {
       });
   };
 
-  if (typeof callback === "function") {
+  if (typeof callback === 'function') {
     resolver(callback, self.errorHandler);
   } else {
     return new Promise(resolver);
