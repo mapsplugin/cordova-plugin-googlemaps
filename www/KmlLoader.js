@@ -568,10 +568,11 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in markerOptions === false) {
-         if (pName === "visibility") {
-            markerOptions.visible = params.attrHolder[pName].value != 0;
-            }
-        else markerOptions[pName] = params.attrHolder[pName];
+        if (pName === "visibility") {
+          markerOptions.visible = params.attrHolder[pName].value != 0;
+        } else {
+          markerOptions[pName] = params.attrHolder[pName];
+        }
     }
   });
 
@@ -604,9 +605,9 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
   params.child.children.forEach(function(element) {
     var coordinates;
     switch (element.tagName) {
-            case"visibility":
-            polygonOptions.visible=element.value!=0;
-            break;
+      case"visibility":
+        polygonOptions.visible=element.value!=0;
+        break;
       case "outerboundaryis":
         if (element.children.length === 1) {
           switch(element.children[0].tagName) {
@@ -711,8 +712,8 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   };
   if (params.child.children) {
     params.child.children.forEach(function(child) {
-        if(child.tagName === "visibility"){
-              polylineOptions.visible=child.value!=0;
+        if (child.tagName === "visibility") {
+          polylineOptions.visible=child.value!=0;
         }
       if (child.tagName === "coordinates") {
         child.coordinates.forEach(function(latLng) {
