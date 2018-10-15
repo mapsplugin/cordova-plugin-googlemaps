@@ -701,10 +701,14 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   //--------------
   var polylineOptions = {
     points: [],
-    clickable: true
+    clickable: true,
+    visible: true
   };
   if (params.child.children) {
     params.child.children.forEach(function(child) {
+        if(child.tagName === "visibility"){
+              polylineOptions.visible=child.value!=0;
+        }
       if (child.tagName === "coordinates") {
         child.coordinates.forEach(function(latLng) {
           self.camera.target.push(latLng);
