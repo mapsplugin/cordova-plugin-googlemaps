@@ -485,7 +485,9 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   //--------------
   // add a marker
   //--------------
-  var markerOptions = {};
+  var markerOptions = {
+    visible: true
+  };
   params.styles.children.forEach(function(child) {
     switch (child.tagName) {
       case "balloonstyle":
@@ -566,7 +568,10 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in markerOptions === false) {
-      markerOptions[pName] = params.attrHolder[pName];
+         if (pName === "visibility") {
+            markerOptions.visible = params.attrHolder[pName].value != 0;
+            }
+        else markerOptions[pName] = params.attrHolder[pName];
     }
   });
 
