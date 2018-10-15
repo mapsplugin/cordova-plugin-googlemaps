@@ -491,7 +491,9 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   //--------------
   // add a marker
   //--------------
-  var markerOptions = {};
+  var markerOptions = {
+    visible: true
+  };
   params.styles.children.forEach(function(child) {
     switch (child.tagName) {
 
@@ -579,7 +581,11 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
   (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in markerOptions === false) {
-      markerOptions[pName] = params.attrHolder[pName];
+        if (pName === "visibility") {
+          markerOptions.visible = params.attrHolder[pName].value != 0;
+        } else {
+          markerOptions[pName] = params.attrHolder[pName];
+        }
     }
   });
 
@@ -633,11 +639,15 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
     outline: true,
     holes: [],
     strokeWidth: 1,
-    clickable: true
+    clickable: true,
+    visible: true
   };
   params.child.children.forEach(function(element) {
     var coordinates;
     switch (element.tagName) {
+      case"visibility":
+        polygonOptions.visible=element.value!=0;
+        break;
       case "outerboundaryis":
         if (element.children.length === 1) {
           switch(element.children[0].tagName) {
@@ -737,10 +747,14 @@ KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   //--------------
   var polylineOptions = {
     points: [],
-    clickable: true
+    clickable: true,
+    visible: true
   };
   if (params.child.children) {
     params.child.children.forEach(function(child) {
+        if (child.tagName === "visibility") {
+          polylineOptions.visible=child.value!=0;
+        }
       if (child.tagName === "coordinates") {
         child.coordinates.forEach(function(latLng) {
           self.camera.target.push(latLng);
@@ -795,11 +809,15 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
   var groundoveralyOptions = {
     url: null,
     bounds: [],
-    clickable: true
+    clickable: true,
+    visible: true
   };
 
   params.child.children.forEach(function(child) {
     switch (child.tagName) {
+      case"visibility":
+        groundoveralyOptions.visible=child.value!=0;
+        break;
       case "color":
         groundoveralyOptions.opacity = ((kmlColorToRGBA(child.value)).pop() / 256);
         break;
