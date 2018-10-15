@@ -1,3 +1,6 @@
+
+
+
 var utils = require('cordova/utils'),
   event = require('./event'),
   BaseClass = require('./BaseClass'),
@@ -7,12 +10,12 @@ var utils = require('cordova/utils'),
 /*****************************************************************************
  * KmlLoader Class
  *****************************************************************************/
-var KmlLoader = function (map, exec, options) {
+var KmlLoader = function(map, exec, options) {
   BaseClass.apply(this);
 
   var self = this;
-  //self.set('visible', KmlLoaderOptions.visible === undefined ? true : KmlLoaderOptions.visible);
-  //self.set('zIndex', KmlLoaderOptions.zIndex || 0);
+  //self.set("visible", KmlLoaderOptions.visible === undefined ? true : KmlLoaderOptions.visible);
+  //self.set("zIndex", KmlLoaderOptions.zIndex || 0);
   Object.defineProperty(self, '_overlays', {
     value: new BaseArrayClass(),
     writable: false
@@ -51,10 +54,10 @@ var KmlLoader = function (map, exec, options) {
 
 utils.extend(KmlLoader, BaseClass);
 
-KmlLoader.prototype.parseKmlFile = function (callback, errorCallback) {
+KmlLoader.prototype.parseKmlFile = function(callback) {
   var self = this;
 
-  self.exec.call(self.map, function (kmlData) {
+  self.exec.call(self.map, function(kmlData) {
     //var rawKmlData = JSON.parse(JSON.stringify(kmlData));
     //console.log(rawKmlData);
     Object.defineProperty(self, 'kmlStyles', {
@@ -67,7 +70,7 @@ KmlLoader.prototype.parseKmlFile = function (callback, errorCallback) {
     });
 
     var placeMarks = new BaseArrayClass(kmlData.root.children);
-    placeMarks.mapAsync(function (placeMark, cb) {
+    placeMarks.mapAsync(function(placeMark, cb) {
       self.kmlTagProcess.call(self, {
         child: placeMark,
         attrHolder: {},
@@ -75,22 +78,20 @@ KmlLoader.prototype.parseKmlFile = function (callback, errorCallback) {
           children: []
         }
       }, cb);
-    }, function (placeMarkOverlays) {
-      placeMarkOverlays = placeMarkOverlays.filter(function (overlay) {
+    }, function(placeMarkOverlays) {
+      placeMarkOverlays = placeMarkOverlays.filter(function(overlay) {
         return !!overlay;
       });
       var result = placeMarkOverlays.shift();
       //result.set('kmlData', rawKmlData);
       callback.call(self, self.camera, result);
     });
-  }, errorCallback, self.map.id, 'loadPlugin', ['KmlOverlay', {
+  }, self.map.errorHandler, self.map.id, 'loadPlugin', ['KmlOverlay', {
     url: self.options.url
-  }], {
-    sync: true
-  });
+  }], {sync: true});
 };
 
-KmlLoader.prototype.kmlTagProcess = function (params, callback) {
+KmlLoader.prototype.kmlTagProcess = function(params, callback) {
   var self = this;
 
   if (params.child.styleIDs) {
@@ -98,19 +99,19 @@ KmlLoader.prototype.kmlTagProcess = function (params, callback) {
     // Read styles if specified
     //---------------------------
     var styleIDs = new BaseArrayClass(params.child.styleIDs);
-    styleIDs.mapAsync(function (styleId, cb) {
+    styleIDs.mapAsync(function(styleId, cb) {
       self.getStyleById.call(self, styleId, cb);
-    }, function (styleSets) {
+    }, function(styleSets) {
 
       //-----------------------------------
       // Merge styles with parent styles,
       //-----------------------------------
       var merged = {};
       styleSets.unshift(params.styles);
-      styleSets.forEach(function (styleSet) {
-        styleSet.children.forEach(function (style) {
+      styleSets.forEach(function(styleSet) {
+        styleSet.children.forEach(function(style) {
           merged[style.tagName] = merged[style.tagName] || {};
-          style.children.forEach(function (styleEle) {
+          style.children.forEach(function(styleEle) {
             merged[style.tagName][styleEle.tagName] = styleEle;
           });
         });
@@ -118,9 +119,9 @@ KmlLoader.prototype.kmlTagProcess = function (params, callback) {
 
       params.styles = {};
       var keys = Object.keys(merged);
-      params.styles.children = keys.map(function (tagName) {
+      params.styles.children = keys.map(function(tagName) {
         var properties = Object.keys(merged[tagName]);
-        var children = properties.map(function (propName) {
+        var children = properties.map(function(propName) {
           return merged[tagName][propName];
         });
         return {
@@ -142,15 +143,14 @@ KmlLoader.prototype.kmlTagProcess = function (params, callback) {
   }
 };
 
-KmlLoader.prototype.getObjectById = function (requestId, targetProp, callback) {
+KmlLoader.prototype.getObjectById = function(requestId, targetProp, callback) {
   var self = this;
 
   if (!requestId) {
-    return callback.call(self, {
-      children: []
-    });
+    return callback.call(self, {children: []});
   }
-  var results, i, child;
+  var i, child,
+    results = {};
   if (requestId.indexOf('http://') === 0 ||
     requestId.indexOf('https://') === 0 ||
     requestId.indexOf('.kml') !== -1) {
@@ -182,23 +182,17 @@ KmlLoader.prototype.getObjectById = function (requestId, targetProp, callback) {
     var loader = new KmlLoader(self.map, self.exec, {
       url: requestUrl
     });
-    loader.parseKmlFile(function (camera, anotherKmlData) {
+    loader.parseKmlFile(function(camera, anotherKmlData) {
       var extendProps = [
-        {
-          src: 'styles',
-          dst: 'kmlStyles'
-        },
-        {
-          src: 'schemas',
-          dst: 'kmlSchemas'
-        }
+        {src: 'styles', dst: 'kmlStyles'},
+        {src: 'schemas', dst: 'kmlSchemas'}
       ];
-      extendProps.forEach(function (property) {
+      extendProps.forEach(function(property) {
         var properties = anotherKmlData.get('kmlData')[property.src];
         self[property.dst][requestUrl] = {};
 
         var keys = Object.keys(properties);
-        keys.forEach(function (key) {
+        keys.forEach(function(key) {
           self[property.dst][requestUrl][key] = properties[key];
         });
       });
@@ -220,14 +214,12 @@ KmlLoader.prototype.getObjectById = function (requestId, targetProp, callback) {
 
   requestId = requestId.replace('#', '');
   if (requestId in self[targetProp] === false) {
-    callback.call(self, {
-      children: []
-    });
+    callback.call(self, {children: []});
     return;
   }
   results = self[targetProp][requestId];
 
-  results.children.filter(function (style) {
+  results.children.filter(function(style) {
     if (style.tagName !== 'pair') {
       return true;
     }
@@ -253,9 +245,9 @@ KmlLoader.prototype.getObjectById = function (requestId, targetProp, callback) {
   }
 
   //---------------------------------------------------------
-  // should contain 'tagName = 'key', value='normal'' only
+  // should contain 'tagName = "key", value="normal"' only
   //---------------------------------------------------------
-  self.getObjectById.call(self, results.children[0].styleIDs[0], targetProp, function (resultSets) {
+  self.getObjectById.call(self, results.children[0].styleIDs[0], targetProp, function(resultSets) {
     if (resultSets.children) {
       results = resultSets;
     } else {
@@ -266,15 +258,15 @@ KmlLoader.prototype.getObjectById = function (requestId, targetProp, callback) {
 
 };
 
-KmlLoader.prototype.getStyleById = function (requestId, callback) {
+KmlLoader.prototype.getStyleById = function(requestId, callback) {
   this.getObjectById.call(this, requestId, 'kmlStyles', callback);
 };
 
-KmlLoader.prototype.getSchemaById = function (requestId, callback) {
+KmlLoader.prototype.getSchemaById = function(requestId, callback) {
   this.getObjectById.call(this, requestId, 'kmlSchemas', callback);
 };
 
-KmlLoader.prototype.parseKmlTag = function (params, callback) {
+KmlLoader.prototype.parseKmlTag = function(params, callback) {
   var self = this;
   switch (params.child.tagName) {
   case 'kml':
@@ -352,16 +344,16 @@ KmlLoader.prototype.parseKmlTag = function (params, callback) {
   }
 };
 
-KmlLoader.prototype.parseExtendedDataTag = function (params, callback) {
+KmlLoader.prototype.parseExtendedDataTag = function(params, callback) {
   var self = this;
   if (params.child && params.child.children) {
     params.attrHolder.extendeddata = {};
-    params.child.children.forEach(function (child) {
-      switch (child.tagName) {
+    params.child.children.forEach(function(child) {
+      switch(child.tagName) {
       case 'data':
-        child.children.forEach(function (data) {
+        child.children.forEach(function(data) {
           var dataName = child.name.toLowerCase();
-          switch (data.tagName) {
+          switch(data.tagName) {
           case 'displayname':
             params.attrHolder.extendeddata[dataName + '/displayname'] = data.value;
             break;
@@ -374,14 +366,14 @@ KmlLoader.prototype.parseExtendedDataTag = function (params, callback) {
         });
         break;
       case 'schemadata':
-        self.getSchemaById(child.schemaUrl, function (schemas) {
+        self.getSchemaById(child.schemaUrl, function(schemas) {
           var schemaUrl = schemas.name;
-          schemas.children.forEach(function (simplefield) {
+          schemas.children.forEach(function(simplefield) {
             if (simplefield.tagName !== 'simplefield') {
               return;
             }
             if ('children' in simplefield) {
-              simplefield.children.forEach(function (valueTag) {
+              simplefield.children.forEach(function(valueTag) {
                 var schemaPath = schemaUrl + '/' + simplefield.name + '/' + valueTag.tagName;
                 schemaPath = schemaPath.toLowerCase();
                 params.attrHolder.extendeddata[schemaPath] = valueTag.value;
@@ -392,7 +384,7 @@ KmlLoader.prototype.parseExtendedDataTag = function (params, callback) {
               params.attrHolder.extendeddata[schemaPath] = simplefield.value;
             }
           });
-          child.children.forEach(function (simpledata) {
+          child.children.forEach(function(simpledata) {
             var schemaPath = schemaUrl + '/' + simpledata.name;
             schemaPath = schemaPath.toLowerCase();
             params.attrHolder.extendeddata[schemaPath] = simpledata.value;
@@ -402,7 +394,7 @@ KmlLoader.prototype.parseExtendedDataTag = function (params, callback) {
 
       default:
 
-        child.children.forEach(function (data) {
+        child.children.forEach(function(data) {
           params.attrHolder.extendeddata[child.tagName] = data;
         });
         break;
@@ -412,11 +404,11 @@ KmlLoader.prototype.parseExtendedDataTag = function (params, callback) {
   callback();
 };
 
-KmlLoader.prototype.parseContainerTag = function (params, callback) {
+KmlLoader.prototype.parseContainerTag = function(params, callback) {
   var self = this;
 
   var keys = Object.keys(params.placeMark);
-  keys = keys.filter(function (key) {
+  keys = keys.filter(function(key) {
     return key !== 'children';
   });
 
@@ -424,12 +416,12 @@ KmlLoader.prototype.parseContainerTag = function (params, callback) {
   // Generate overlays or load another files...etc
   //--------------------------------------------------------
   var children = new BaseArrayClass(params.placeMark.children);
-  children.mapAsync(function (child, cb) {
+  children.mapAsync(function(child, cb) {
 
     //-------------------------
     // Copy parent information
     //-------------------------
-    keys.forEach(function (key) {
+    keys.forEach(function(key) {
       if (key in child === false) {
         child[key] = params.placeMark[key];
       }
@@ -443,8 +435,8 @@ KmlLoader.prototype.parseContainerTag = function (params, callback) {
       styles: params.styles,
       attrHolder: params.attrHolder
     }, cb);
-  }, function (overlays) {
-    overlays = overlays.filter(function (overlay) {
+  }, function(overlays) {
+    overlays = overlays.filter(function(overlay) {
       return !!overlay;
     });
     var attrNames = Object.keys(params.attrHolder);
@@ -455,11 +447,11 @@ KmlLoader.prototype.parseContainerTag = function (params, callback) {
     if (params.placeMark.tagName === 'placemark') {
       // attrNames.forEach(function(name) {
       //   switch(name) {
-      //     case 'extendeddata':
+      //     case "extendeddata":
       //       overlays[0].set(name, params.attrHolder[name]);
       //       break;
-      //     case 'snippet':
-      //       overlays[0].set('_snippet', params.attrHolder[name].value);
+      //     case "snippet":
+      //       overlays[0].set("_snippet", params.attrHolder[name].value);
       //       break;
       //     default:
       //       overlays[0].set(name, params.attrHolder[name].value);
@@ -474,8 +466,8 @@ KmlLoader.prototype.parseContainerTag = function (params, callback) {
         value: params.placeMark.tagName,
         writable: false
       });
-      attrNames.forEach(function (name) {
-        switch (name) {
+      attrNames.forEach(function(name) {
+        switch(name) {
         case 'extendeddata':
           container.set(name, params.attrHolder[name]);
           break;
@@ -489,22 +481,24 @@ KmlLoader.prototype.parseContainerTag = function (params, callback) {
   });
 };
 
-KmlLoader.prototype.parsePointTag = function (params, callback) {
+KmlLoader.prototype.parsePointTag = function(params, callback) {
   var self = this;
-  //console.log('parsePointTag', params);
+  //console.log("parsePointTag", params);
 
   //--------------
   // add a marker
   //--------------
-  var markerOptions = {};
-  params.styles.children.forEach(function (child) {
+  var markerOptions = {
+    visible: true
+  };
+  params.styles.children.forEach(function(child) {
     switch (child.tagName) {
 
     // // Don't use this code because this replace original 'description' field.
-    // case 'balloonstyle':
+    // case "balloonstyle":
     //   child.children.forEach(function(style) {
     //     switch (style.tagName) {
-    //       case 'description':
+    //       case "description":
     //         markerOptions.description = {
     //           value: style.value
     //         };
@@ -514,7 +508,7 @@ KmlLoader.prototype.parsePointTag = function (params, callback) {
     //   break;
 
     case 'iconstyle':
-      child.children.forEach(function (style) {
+      child.children.forEach(function(style) {
         switch (style.tagName) {
         case 'hotspot':
           markerOptions.icon = markerOptions.icon || {};
@@ -528,10 +522,10 @@ KmlLoader.prototype.parsePointTag = function (params, callback) {
           markerOptions.icon = markerOptions.icon || {};
           markerOptions.icon.url = style.children[0].value;
           break;
-          // case 'color':
-          //   markerOptions.icon = markerOptions.icon || {};
-          //   markerOptions.icon.color = kmlColorToRGBA(style.value);
-          //   break;
+            // case "color":
+            //   markerOptions.icon = markerOptions.icon || {};
+            //   markerOptions.icon.color = kmlColorToRGBA(style.value);
+            //   break;
         }
       });
       break;
@@ -542,10 +536,10 @@ KmlLoader.prototype.parsePointTag = function (params, callback) {
 
   if (params.child.children) {
     var options = new BaseClass();
-    params.child.children.forEach(function (child) {
+    params.child.children.forEach(function(child) {
       options.set(child.tagName, child);
     });
-    params.child.children.forEach(function (child) {
+    params.child.children.forEach(function(child) {
       switch (child.tagName) {
       case 'point':
         var coordinates = findTag(child.children, 'coordinates', 'coordinates');
@@ -556,13 +550,13 @@ KmlLoader.prototype.parsePointTag = function (params, callback) {
       case 'coordinates':
         markerOptions.position = child.coordinates[0];
         break;
-        // case 'description':
+        // case "description":
         //   if (markerOptions.description) {
         //     markerOptions.description = templateRenderer(markerOptions.description, options);
         //   }
         //   markerOptions.description = templateRenderer(markerOptions.description, options);
         //   break;
-        // case 'snippet':
+        // case "snippet":
         //   if (markerOptions.snippet) {
         //     markerOptions.snippet = templateRenderer(markerOptions.snippet, options);
         //   }
@@ -581,20 +575,24 @@ KmlLoader.prototype.parsePointTag = function (params, callback) {
   self.camera.target.push(markerOptions.position);
 
   var ignoreProperties = ['coordinates', 'styleIDs', 'children'];
-  (Object.keys(params.attrHolder)).forEach(function (pName) {
+  (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in markerOptions === false) {
-      markerOptions[pName] = params.attrHolder[pName];
+      if (pName === 'visibility') {
+        markerOptions.visible = params.attrHolder[pName].value != 0;
+      } else {
+        markerOptions[pName] = params.attrHolder[pName];
+      }
     }
   });
 
   //console.log(markerOptions);
-  (new Promise(function (resolve, reject) {
+  (new Promise(function(resolve, reject) {
     // if (markerOptions.icon && markerOptions.icon.color) {
     //   var image = new Image();
     //   image.onload = function() {
     //
-    //     var canvas = document.createElement('canvas');
+    //     var canvas = document.createElement("canvas");
     //     var ctx = canvas.getContext('2d');
     //     canvas.width = image.width;
     //     canvas.height = image.height;
@@ -606,7 +604,7 @@ KmlLoader.prototype.parsePointTag = function (params, callback) {
     //     self.map.addMarker(markerOptions, resolve);
     //   };
     //   image.onerror = function(e) {
-    //     //console.warn(e.message || 'Can not load ' + markerOptions.icon.url);
+    //     //console.warn(e.message || "Can not load " + markerOptions.icon.url);
     //     delete markerOptions.icon.color;
     //     self.map.addMarker(markerOptions, resolve);
     //   };
@@ -626,7 +624,7 @@ function findTag(children, tagName, fieldName) {
     }
   }
 }
-KmlLoader.prototype.parsePolygonTag = function (params, callback) {
+KmlLoader.prototype.parsePolygonTag = function(params, callback) {
   var self = this;
 
   //  console.log('polygonPlacemark', params);
@@ -638,14 +636,18 @@ KmlLoader.prototype.parsePolygonTag = function (params, callback) {
     outline: true,
     holes: [],
     strokeWidth: 1,
-    clickable: true
+    clickable: true,
+    visible: true
   };
-  params.child.children.forEach(function (element) {
+  params.child.children.forEach(function(element) {
     var coordinates;
     switch (element.tagName) {
+    case'visibility':
+      polygonOptions.visible=element.value!=0;
+      break;
     case 'outerboundaryis':
       if (element.children.length === 1) {
-        switch (element.children[0].tagName) {
+        switch(element.children[0].tagName) {
         case 'linearring':
           coordinates = element.children[0].children[0].coordinates;
           break;
@@ -653,14 +655,14 @@ KmlLoader.prototype.parsePolygonTag = function (params, callback) {
           coordinates = findTag(element.children, 'coordinates', 'coordinates');
           break;
         }
-        coordinates.forEach(function (latLng) {
+        coordinates.forEach(function(latLng) {
           self.camera.target.push(latLng);
         });
         polygonOptions.points = coordinates;
       }
       break;
     case 'innerboundaryis':
-      switch (element.children[0].tagName) {
+      switch(element.children[0].tagName) {
       case 'linearring':
         coordinates = element.children[0].children[0].coordinates;
         break;
@@ -673,11 +675,11 @@ KmlLoader.prototype.parsePolygonTag = function (params, callback) {
     }
   });
 
-  params.styles.children.forEach(function (style) {
+  params.styles.children.forEach(function(style) {
     switch (style.tagName) {
     case 'polystyle':
-      style.children.forEach(function (node) {
-        switch (node.tagName) {
+      style.children.forEach(function(node) {
+        switch(node.tagName) {
         case 'color':
           polygonOptions.fillColor = kmlColorToRGBA(node.value);
           break;
@@ -691,9 +693,10 @@ KmlLoader.prototype.parsePolygonTag = function (params, callback) {
       });
       break;
 
+
     case 'linestyle':
-      style.children.forEach(function (node) {
-        switch (node.tagName) {
+      style.children.forEach(function(node) {
+        switch(node.tagName) {
         case 'color':
           polygonOptions.strokeColor = kmlColorToRGBA(node.value);
           break;
@@ -718,8 +721,9 @@ KmlLoader.prototype.parsePolygonTag = function (params, callback) {
     polygonOptions.strokeColor = polygonOptions.strokeColor || [255, 255, 255, 255];
   }
 
+
   var ignoreProperties = ['coordinates', 'styleIDs', 'children'];
-  (Object.keys(params.attrHolder)).forEach(function (pName) {
+  (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in polygonOptions === false) {
       polygonOptions[pName] = params.attrHolder[pName];
@@ -731,7 +735,7 @@ KmlLoader.prototype.parsePolygonTag = function (params, callback) {
 
 };
 
-KmlLoader.prototype.parseLineStringTag = function (params, callback) {
+KmlLoader.prototype.parseLineStringTag = function(params, callback) {
   //console.log(JSON.parse(JSON.stringify(params)));
   var self = this;
   //--------------
@@ -739,12 +743,16 @@ KmlLoader.prototype.parseLineStringTag = function (params, callback) {
   //--------------
   var polylineOptions = {
     points: [],
-    clickable: true
+    clickable: true,
+    visible: true
   };
   if (params.child.children) {
-    params.child.children.forEach(function (child) {
+    params.child.children.forEach(function(child) {
+      if (child.tagName === 'visibility') {
+        polylineOptions.visible=child.value!=0;
+      }
       if (child.tagName === 'coordinates') {
-        child.coordinates.forEach(function (latLng) {
+        child.coordinates.forEach(function(latLng) {
           self.camera.target.push(latLng);
           polylineOptions.points.push(latLng);
         });
@@ -752,12 +760,12 @@ KmlLoader.prototype.parseLineStringTag = function (params, callback) {
     });
   }
 
-  params.styles.children.forEach(function (style) {
+  params.styles.children.forEach(function(style) {
     switch (style.tagName) {
     case 'linestyle':
     case 'polystyle':
-      style.children.forEach(function (node) {
-        switch (node.tagName) {
+      style.children.forEach(function(node) {
+        switch(node.tagName) {
         case 'color':
           polylineOptions.color = kmlColorToRGBA(node.value);
           break;
@@ -773,12 +781,13 @@ KmlLoader.prototype.parseLineStringTag = function (params, callback) {
   });
 
   var ignoreProperties = ['coordinates', 'styleIDs', 'children'];
-  (Object.keys(params.attrHolder)).forEach(function (pName) {
+  (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in polylineOptions === false) {
       polylineOptions[pName] = params.attrHolder[pName];
     }
   });
+
 
   //console.log('polylinePlacemark', polylineOptions);
 
@@ -786,7 +795,7 @@ KmlLoader.prototype.parseLineStringTag = function (params, callback) {
 
 };
 
-KmlLoader.prototype.parseGroundOverlayTag = function (params, callback) {
+KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
   var self = this;
   //  console.log('parseGroundOverlayTag', params);
 
@@ -796,16 +805,20 @@ KmlLoader.prototype.parseGroundOverlayTag = function (params, callback) {
   var groundoveralyOptions = {
     url: null,
     bounds: [],
-    clickable: true
+    clickable: true,
+    visible: true
   };
 
-  params.child.children.forEach(function (child) {
+  params.child.children.forEach(function(child) {
     switch (child.tagName) {
+    case'visibility':
+      groundoveralyOptions.visible=child.value!=0;
+      break;
     case 'color':
       groundoveralyOptions.opacity = ((kmlColorToRGBA(child.value)).pop() / 256);
       break;
     case 'icon':
-      child.children.forEach(function (iconAttrNode) {
+      child.children.forEach(function(iconAttrNode) {
         switch (iconAttrNode.tagName) {
         case 'href':
           groundoveralyOptions.url = iconAttrNode.value;
@@ -821,26 +834,20 @@ KmlLoader.prototype.parseGroundOverlayTag = function (params, callback) {
       break;
     case 'latlonbox':
       var box = {};
-      child.children.forEach(function (latlonboxAttrNode) {
+      child.children.forEach(function(latlonboxAttrNode) {
         box[latlonboxAttrNode.tagName] = parseFloat(latlonboxAttrNode.value);
       });
       if (box.rotation) {
         groundoveralyOptions.bearing = box.rotation;
       }
-      var ne = {
-        lat: box.north,
-        lng: box.east
-      };
-      var sw = {
-        lat: box.south,
-        lng: box.west
-      };
+      var ne = {lat: box.north, lng: box.east};
+      var sw = {lat: box.south, lng: box.west};
       groundoveralyOptions.bounds.push(ne);
       groundoveralyOptions.bounds.push(sw);
       self.camera.target.push(ne);
       self.camera.target.push(sw);
       break;
-      // case 'gx:latlonquad':
+      // case "gx:latlonquad":
       //   groundoveralyOptions.bounds = child.children[0].coordinates;
       //   Array.prototype.push.apply(self.camera.target, child.children[0].coordinates);
       //   break;
@@ -848,10 +855,10 @@ KmlLoader.prototype.parseGroundOverlayTag = function (params, callback) {
     }
   });
   //delete params.child.children;
-  //  console.log('groundoveralyOptions', groundoveralyOptions);
+  //  console.log("groundoveralyOptions", groundoveralyOptions);
 
   var ignoreProperties = ['coordinates', 'styleIDs', 'children'];
-  (Object.keys(params.attrHolder)).forEach(function (pName) {
+  (Object.keys(params.attrHolder)).forEach(function(pName) {
     if (ignoreProperties.indexOf(pName) === -1 &&
       pName in groundoveralyOptions === false) {
       groundoveralyOptions[pName] = params.attrHolder[pName];
@@ -861,47 +868,35 @@ KmlLoader.prototype.parseGroundOverlayTag = function (params, callback) {
   self.map.addGroundOverlay(groundoveralyOptions, callback);
 };
 
-KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
+KmlLoader.prototype.parseNetworkLinkTag = function(params, callback) {
   var self = this;
   var networkLinkOptions = {};
   //console.log('parseNetworkLinkTag', params);
 
   var attrNames = Object.keys(params.attrHolder);
-  attrNames.forEach(function (attrName) {
-    switch (attrName.toLowerCase()) {
+  attrNames.forEach(function(attrName) {
+    switch(attrName.toLowerCase()) {
     case 'region':
       networkLinkOptions.region = networkLinkOptions.region || {};
-      params.attrHolder[attrName].children.forEach(function (gChild) {
-        switch (gChild.tagName) {
+      params.attrHolder[attrName].children.forEach(function(gChild) {
+        switch(gChild.tagName) {
         case 'latlonaltbox':
           var box = {};
-          gChild.children.forEach(function (latlonboxAttrNode) {
+          gChild.children.forEach(function(latlonboxAttrNode) {
             box[latlonboxAttrNode.tagName] = parseFloat(latlonboxAttrNode.value);
           });
           networkLinkOptions.region.bounds = {
-            se: {
-              lat: box.south,
-              lng: box.east
-            },
-            sw: {
-              lat: box.south,
-              lng: box.west
-            },
-            ne: {
-              lat: box.north,
-              lng: box.east
-            },
-            nw: {
-              lat: box.north,
-              lng: box.west
-            }
+            se: {lat: box.south, lng: box.east},
+            sw: {lat: box.south, lng: box.west},
+            ne: {lat: box.north, lng: box.east},
+            nw: {lat: box.north, lng: box.west}
           };
           break;
         case 'lod':
           networkLinkOptions.region.lod = networkLinkOptions.region.lod || {};
           networkLinkOptions.region.lod.minlodpixels = networkLinkOptions.region.lod.minlodpixels || -1;
           networkLinkOptions.region.lod.maxlodpixels = networkLinkOptions.region.lod.maxlodpixels || -1;
-          gChild.children.forEach(function (lodEle) {
+          gChild.children.forEach(function(lodEle) {
             networkLinkOptions.region.lod[lodEle.tagName] = parseInt(lodEle.value);
           });
           break;
@@ -914,50 +909,38 @@ KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
     }
   });
 
-  params.child.children.forEach(function (child) {
-    switch (child.tagName) {
+  params.child.children.forEach(function(child) {
+    switch(child.tagName) {
     case 'visibility':
       networkLinkOptions.visibility = child.value === '1';
       break;
     case 'link':
       networkLinkOptions.link = networkLinkOptions.link || {};
-      child.children.forEach(function (gChild) {
+      child.children.forEach(function(gChild) {
         networkLinkOptions.link[gChild.tagName] = gChild.value;
       });
       break;
     case 'region':
       networkLinkOptions.region = networkLinkOptions.region || {};
-      child.children.forEach(function (gChild) {
-        switch (gChild.tagName) {
+      child.children.forEach(function(gChild) {
+        switch(gChild.tagName) {
         case 'latlonaltbox':
           var box = {};
-          gChild.children.forEach(function (latlonboxAttrNode) {
+          gChild.children.forEach(function(latlonboxAttrNode) {
             box[latlonboxAttrNode.tagName] = parseFloat(latlonboxAttrNode.value);
           });
           networkLinkOptions.region.bounds = {
-            se: {
-              lat: box.south,
-              lng: box.east
-            },
-            sw: {
-              lat: box.south,
-              lng: box.west
-            },
-            ne: {
-              lat: box.north,
-              lng: box.east
-            },
-            nw: {
-              lat: box.north,
-              lng: box.west
-            }
+            se: {lat: box.south, lng: box.east},
+            sw: {lat: box.south, lng: box.west},
+            ne: {lat: box.north, lng: box.east},
+            nw: {lat: box.north, lng: box.west}
           };
           break;
         case 'lod':
           networkLinkOptions.region.lod = networkLinkOptions.region.lod || {};
           networkLinkOptions.region.lod.minlodpixels = networkLinkOptions.region.lod.minlodpixels || -1;
           networkLinkOptions.region.lod.maxlodpixels = networkLinkOptions.region.lod.maxlodpixels || -1;
-          gChild.children.forEach(function (lodEle) {
+          gChild.children.forEach(function(lodEle) {
             networkLinkOptions.region.lod[lodEle.tagName] = parseInt(lodEle.value);
           });
           break;
@@ -975,6 +958,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
     return callback.call(self);
   }
 
+
   if (networkLinkOptions.link.href.indexOf('://') === -1 && networkLinkOptions.link.href.substr(0, 1) !== '/') {
     var a = document.createElement('a');
     a.href = self.kmlUrl;
@@ -985,7 +969,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
   var networkOverlay = new BaseClass();
   networkOverlay.set('_loaded', false);
   networkOverlay.set('_visible', false);
-  networkOverlay.on('_visible_changed', function (oldValue, newValue) {
+  networkOverlay.on('_visible_changed', function(oldValue, newValue) {
     var overlay = networkOverlay.get('overlay');
     if (newValue === true) {
       if (overlay) {
@@ -995,7 +979,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
           url: networkLinkOptions.link.href,
           clickable: self.options.clickable,
           suppressInfoWindows: self.options.suppressInfoWindows
-        }, function (overlay) {
+        }, function(overlay) {
           networkOverlay.set('overlay', overlay);
         });
       }
@@ -1026,34 +1010,34 @@ KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
   // }, function(groundoverlay) {
 
   if (networkLinkOptions.region && networkLinkOptions.link.viewrefreshmode === 'onRegion') {
-    self.map.on(event.CAMERA_MOVE_END, function () {
+    self.map.on(event.CAMERA_MOVE_END, function() {
       var vRegion = self.map.getVisibleRegion();
       var nRegion = new VisibleRegion(networkLinkOptions.region.bounds.sw, networkLinkOptions.region.bounds.ne);
 
       if (vRegion.contains(networkLinkOptions.region.bounds.sw) ||
-        vRegion.contains(networkLinkOptions.region.bounds.se) ||
-        vRegion.contains(networkLinkOptions.region.bounds.nw) ||
-        vRegion.contains(networkLinkOptions.region.bounds.ne) ||
-        nRegion.contains(vRegion.farLeft) ||
-        nRegion.contains(vRegion.farRight) ||
-        nRegion.contains(vRegion.nearLeft) ||
-        nRegion.contains(vRegion.nearRight)) {
+          vRegion.contains(networkLinkOptions.region.bounds.se) ||
+          vRegion.contains(networkLinkOptions.region.bounds.nw) ||
+          vRegion.contains(networkLinkOptions.region.bounds.ne) ||
+          nRegion.contains(vRegion.farLeft) ||
+          nRegion.contains(vRegion.farRight) ||
+          nRegion.contains(vRegion.nearLeft) ||
+          nRegion.contains(vRegion.nearRight)) {
 
         (new BaseArrayClass([
           networkLinkOptions.region.bounds.sw,
           networkLinkOptions.region.bounds.ne
-        ]).mapAsync(function (latLng, next) {
+        ]).mapAsync(function(latLng, next) {
           self.map.fromLatLngToPoint(latLng, next);
-        }, function (points) {
+        }, function(points) {
           var width = Math.abs(points[0][0] - points[1][0]);
           var height = Math.abs(points[0][1] - points[1][1]);
 
           var maxCondition = (networkLinkOptions.region.lod.maxlodpixels === -1 ||
-            width <= networkLinkOptions.region.lod.maxlodpixels &&
-            height <= networkLinkOptions.region.lod.maxlodpixels);
+                              width <= networkLinkOptions.region.lod.maxlodpixels &&
+                              height <= networkLinkOptions.region.lod.maxlodpixels);
           var minCondition = (networkLinkOptions.region.lod.minlodpixels === -1 ||
-            width >= networkLinkOptions.region.lod.minlodpixels &&
-            height >= networkLinkOptions.region.lod.minlodpixels);
+                              width >= networkLinkOptions.region.lod.minlodpixels &&
+                              height >= networkLinkOptions.region.lod.minlodpixels);
 
           if (maxCondition && minCondition) {
             // groundoverlay.setVisible(true);
@@ -1081,7 +1065,7 @@ KmlLoader.prototype.parseNetworkLinkTag = function (params, callback) {
 
 };
 
-KmlLoader.prototype.parseLookAtTag = function (params, callback) {
+KmlLoader.prototype.parseLookAtTag = function(params, callback) {
   var self = this;
 
   if ('latitude' in params.child && 'longitude' in params.child) {
@@ -1099,6 +1083,7 @@ KmlLoader.prototype.parseLookAtTag = function (params, callback) {
 
   callback.call(self);
 };
+
 
 //-------------------------------
 // KML color (AABBGGRR) to RGBA
@@ -1132,13 +1117,13 @@ function kmlColorToRGBA(colorStr) {
 //   }
 //   var extendedData = marker.get('extendeddata');
 //
-//   return html.replace(/\$[{[](.+?)[}]]/gi, function (match, name) {
+//   return html.replace(/\$[{[](.+?)[}]]/gi, function(match, name) {
 //     var textProp = marker.get(name);
 //     var text = '';
 //     if (textProp) {
 //       text = textProp.value;
 //       if (extendedData) {
-//         text = text.replace(/\$[{[](.+?)[}]]/gi, function (match1, name1) {
+//         text = text.replace(/\$[{[](.+?)[}]]/gi, function(match1, name1) {
 //           var extProp = extendedData[name1.toLowerCase()];
 //           var extValue = '${' + name1 + '}';
 //           if (extProp) {
@@ -1151,5 +1136,6 @@ function kmlColorToRGBA(colorStr) {
 //     return text;
 //   });
 // }
+
 
 module.exports = KmlLoader;
