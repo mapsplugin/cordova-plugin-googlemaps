@@ -759,11 +759,15 @@ KmlLoader.prototype.parseGroundOverlayTag = function(params, callback) {
   var groundoveralyOptions = {
     url: null,
     bounds: [],
-    clickable: true
+    clickable: true,
+    visible: true
   };
 
   params.child.children.forEach(function(child) {
     switch (child.tagName) {
+      case"visibility":
+        groundoveralyOptions.visible=child.value!=0;
+        break;
       case "color":
         groundoveralyOptions.opacity = ((kmlColorToRGBA(child.value)).pop() / 256);
         break;
