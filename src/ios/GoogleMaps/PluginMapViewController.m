@@ -14,7 +14,7 @@
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});}",
-                        self.overlayId, self.overlayId, @"poi_click", placeID, name, location.latitude, location.longitude];
+                        self.overlayId, self.overlayId, @"poi_click", placeID, [name stringByReplacingOccurrencesOfString:@"'" withString:@"\\'"], location.latitude, location.longitude];
   [self execJS:jsString];
 }
 
