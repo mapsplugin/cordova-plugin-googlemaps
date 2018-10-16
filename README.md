@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.5)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.6)
 
 ![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)
 
