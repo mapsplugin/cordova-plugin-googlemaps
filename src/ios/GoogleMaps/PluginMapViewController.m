@@ -11,10 +11,13 @@
 @implementation PluginMapViewController
 
 - (void)mapView:(GMSMapView *)mapView didTapPOIWithPlaceID:(NSString *)placeID name:(NSString *)name location:(CLLocationCoordinate2D)location {
-
+  NSString* jsName = [name stringByReplacingOccurrencesOfString:@"'" withString:@"\\'"];
+  jsName = [jsName stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"];
+  jsName = [jsName stringByReplacingOccurrencesOfString:@"\r" withString:@"\\r"];
+  
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: ['%@', '%@', new plugin.google.maps.LatLng(%f,%f)]});}",
-                        self.overlayId, self.overlayId, @"poi_click", placeID, [name stringByReplacingOccurrencesOfString:@"'" withString:@"\\'"], location.latitude, location.longitude];
+                        self.overlayId, self.overlayId, @"poi_click", placeID, jsName, location.latitude, location.longitude];
   [self execJS:jsString];
 }
 
