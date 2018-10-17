@@ -2,24 +2,20 @@ sudo: false
 
 env:
   global:
-  - NODE_VERSION="9.11.2"
+  - NODE_VERSION="6.0.0"
   - ANDROID_API="27"
   - ANDROID_BUILD_TOOLS="27.0.3"
 
 notifications:
   email: false
 
-branches:
-  only:
-  - master
-
 matrix:
   include:
   - os: linux
-    env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="browser"
+    env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="browser"
     language: node_js
     node_js: '${NODE_VERSION}'
-  - env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="android-7.0"
+  - env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="android-7.0"
     os: linux
     node_js: '${NODE_VERSION}'
     language: android
