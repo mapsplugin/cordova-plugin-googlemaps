@@ -54,7 +54,7 @@ before_script:
   - npm i > /dev/null
   - popd
   - cordova --version
-  - if [[ "$PLATFORM" =~ android ]]; then
+  - if [[ "$CORDOVA_PLATFORM" =~ android ]]; then
       echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API} > /dev/null;
       echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API} > /dev/null;
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a > /dev/null;
@@ -66,6 +66,6 @@ before_script:
 
 script:
   - npm test
-  - if [[ "$PLATFORM" =~ android ]]; then
+  - if [[ "$CORDOVA_PLATFORM" =~ android ]]; then
       cordova-paramedic --platform android --plugin . --justbuild;
     fi
