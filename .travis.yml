@@ -1,0 +1,64 @@
+sudo: false
+
+env:
+  global:
+  - NODE_VERSION="9.11.2"
+  - ANDROID_API="27"
+  - ANDROID_BUILD_TOOLS="27.0.3"
+
+notifications:
+  email: false
+
+branches:
+  only:
+  - master
+
+matrix:
+  include:
+  - os: linux
+    env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="browser"
+    language: node_js
+    node_js: '${NODE_VERSION}'
+  - env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="android-7.0"
+    os: linux
+    node_js: '${NODE_VERSION}'
+    language: android
+    jdk: oraclejdk8
+    android:
+      components:
+        - tools
+        - android-$EMULATOR_API
+        - platform-tools
+        - tools
+        # The BuildTools version used by your project
+        - build-tools-${ANDROID_BUILD_TOOLS}
+        # The SDK version used to compile your project
+        - android-${ANDROID_API}
+        # Additional components
+        - extra-android-m2repository
+        - extra-google-m2repository
+        - sys-img-armeabi-v7a-android-${ANDROID_API}
+      licenses:
+        - ".+"
+
+install:
+  #- rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
+  #  && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
+  #  install ${NODE_VERSION} > /dev/null
+  - nvm install ${NODE_VERSION}
+  - nvm use ${NODE_VERSION}
+  - node --version
+  - npm install -g cordova@${CORDOVA_VERSION} > /dev/null
+  - cordova --version
+  - npm install
+
+before_script:
+  - git clone https://github.com/apache/cordova-paramedic
+  - pushd cordova-paramedic
+  - npm i > /dev/null
+  - popd
+  - cordova --version
+
+script:
+  - npm test
+  - /bin/bash tests/travis.sh
