@@ -206,12 +206,8 @@ Map.prototype.getMap = function(meta, div, options) {
       while (div.parentNode) {
         div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
-        // prevent multiple readding the class
-        if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-          div.classList.add('_gmaps_cdv_');
-        } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-          div.className = div.className + ' _gmaps_cdv_';
-        }
+        // Add _gmaps_cdv_ class
+        common.attachTransparentClass(div);
 
         div = div.parentNode;
       }
@@ -817,12 +813,8 @@ Map.prototype.setDiv = function(div) {
     while (div.parentNode) {
       div.style.backgroundColor = 'rgba(0,0,0,0)';
 
-      // prevent multiple readding the class
-      if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
-        div.classList.add('_gmaps_cdv_');
-      } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-        div.className = div.className + ' _gmaps_cdv_';
-      }
+      // Add _gmaps_cdv_ class
+      common.attachTransparentClass(div);
 
       div = div.parentNode;
     }

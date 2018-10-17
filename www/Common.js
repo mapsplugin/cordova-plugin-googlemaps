@@ -1,3 +1,4 @@
+
 var BaseArrayClass = require('./BaseArrayClass');
 var utils = require('cordova/utils');
 
@@ -721,6 +722,47 @@ function createEvent(eventName, properties) {
   return evt;
 }
 
+function attachTransparentClass(div) {
+
+  if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
+    div.classList.add('_gmaps_cdv_');
+  } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
+    div.className = div.className + ' _gmaps_cdv_';
+  }
+
+  if (div.shadowRoot) {
+    var styleAttr = div.getAttribute('style') || '';
+    if (styleAttr && styleAttr.indexOf('--ion-background-color') === -1) {
+      styleAttr = styleAttr + ' --ion-background-color: transparent;';
+    }
+    div.setAttribute('style', styleAttr);
+  }
+}
+// function dettachTransparentClass(root) {
+//
+//   if (div.classList && div.classList.contains('_gmaps_cdv_')) {
+//     div.classList.remove('_gmaps_cdv_');
+//   } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
+//     div.className = div.className.replace('_gmaps_cdv_', '');
+//   }
+//
+//   var visibilityCSS = getStyle(node, 'visibility');
+//   if (getStyle(div, 'background-color') === 'transparent !important') {
+//     div.style.backgroundColor = undefined;
+//   }
+//   if (getStyle(div, 'background') === 'transparent !important') {
+//     div.style.backgroundColor = undefined;
+//   }
+//   if (getStyle(div, 'background-image') === 'transparent !important') {
+//     div.style.backgroundImage = undefined;
+//   }
+//   if (div.shadowRoot) {
+//     var hiddenChildren = div.querySelectorAll('*');
+//     hiddenChildren = Array.prototype.splice(hiddenChildren, 0);
+//     hiddenChildren.forEach(dettachTransparentClass);
+//   }
+// }
+
 module.exports = {
   _clearInternalCache: _clearInternalCache,
   _removeCacheById: _removeCacheById,
@@ -742,7 +784,9 @@ module.exports = {
   nextTick: nextTick,
   getPluginDomId: getPluginDomId,
   hashCode: hashCode,
-  createEvent: createEvent
+  createEvent: createEvent,
+  //dettachTransparentClass: dettachTransparentClass,
+  attachTransparentClass: attachTransparentClass
 };
 
 if (cordova && cordova.platformId === 'browser') {
