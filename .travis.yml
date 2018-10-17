@@ -15,7 +15,7 @@ matrix:
     env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="browser"
     language: node_js
     node_js: '${NODE_VERSION}'
-  - env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="android-7.0"
+  - env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="android"
     os: linux
     node_js: '${NODE_VERSION}'
     language: android
