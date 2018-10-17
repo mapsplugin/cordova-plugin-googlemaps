@@ -54,4 +54,4 @@ script:
   - echo "Travis branch is $TRAVIS_BRANCH"
   # test demo flavour
   # for me espresso test failed on `onView` check
-  - cordova-paramedic --platform android --plugin . --justbuild
+  - cordova-paramedic --platform android --plugin . --variable API_KEY_FOR_ANDROID="test"
