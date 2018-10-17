@@ -54,17 +54,18 @@ before_script:
   - npm i > /dev/null
   - popd
   - cordova --version
-
-script:
-  - npm test
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
+  - if [[ "$PLATFORM" =~ android ]]; then
       echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API} > /dev/null;
       echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API} > /dev/null;
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a > /dev/null;
       emulator -avd test -no-skin -no-window;
-      android-wait-for-emulator;
+      android-wait-for-emulator ;
       adb shell input keyevent 82;
       adb wait-for-device get-serialno;
+    fi
+
+script:
+  - npm test
+  - if [[ "$PLATFORM" =~ android ]]; then
       cordova-paramedic --platform android --plugin . --justbuild;
-  fi
+    fi
