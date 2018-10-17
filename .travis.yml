@@ -57,8 +57,6 @@ before_script:
 
 script:
   - npm test
-  #- /bin/bash tests/travis.sh
-
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo "y" | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
       echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API} > /dev/null;
