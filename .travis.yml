@@ -2,20 +2,24 @@ sudo: false
 
 env:
   global:
-  - NODE_VERSION="6.0.0"
-  - ANDROID_API="27"
-  - ANDROID_BUILD_TOOLS="27.0.3"
+  - NODE_VERSION="9.11.2"
+  - ANDROID_API=27
+  - ANDROID_BUILD_TOOLS=27.0.3
 
 notifications:
   email: false
 
+branches:
+  only:
+  - master
+
 matrix:
   include:
   - os: linux
-    env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="browser"
+    env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="browser"
     language: node_js
     node_js: '${NODE_VERSION}'
-  - env: CORDOVA_VERSION="8.1.2" CORDOVA_PLATFORM="android"
+  - env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="android-7.0"
     os: linux
     node_js: '${NODE_VERSION}'
     language: android
@@ -38,14 +42,15 @@ matrix:
         - ".+"
 
 install:
-  #- rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
-  #  && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-  #  install ${NODE_VERSION} > /dev/null
-  - nvm install ${NODE_VERSION}
-  - nvm use ${NODE_VERSION}
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
+    && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
+    install ${NODE_VERSION} > /dev/null
   - node --version
   - npm install -g cordova@${CORDOVA_VERSION} > /dev/null
   - cordova --version
+  - if [[ "$PLATFORM" =~ android ]]; then
+      yes | sdkmanager "platforms;android-${ANDROID_API}"; > /dev/null;
+    fi
   - npm install
 
 before_script:
@@ -54,7 +59,7 @@ before_script:
   - npm i > /dev/null
   - popd
   - cordova --version
-  - if [[ "$CORDOVA_PLATFORM" =~ android ]]; then
+  - if [[ "$PLATFORM" =~ android ]]; then
       echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API} > /dev/null;
       echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API} > /dev/null;
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a > /dev/null;
@@ -66,6 +71,9 @@ before_script:
 
 script:
   - npm test
-  - if [[ "$CORDOVA_PLATFORM" =~ android ]]; then
+  - if [[ "$PLATFORM" =~ android ]]; then
       cordova-paramedic --platform android --plugin . --justbuild;
+    fi
+  - if [[ "$PLATFORM" =~ linux ]]; then
+      cordova-paramedic --platform browser --plugin . --justbuild;
     fi
