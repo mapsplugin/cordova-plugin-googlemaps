@@ -51,7 +51,4 @@ before_script:
   - npm install -g cordova cordova-paramedic
 
 script:
-  - echo "Travis branch is $TRAVIS_BRANCH"
-  # test demo flavour
-  # for me espresso test failed on `onView` check
-  - cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test'
+  - cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --justBuild

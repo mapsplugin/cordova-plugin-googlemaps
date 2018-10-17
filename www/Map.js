@@ -256,8 +256,12 @@ Map.prototype.setOptions = function(options) {
     }
     this.set('myLocation', myLocation);
     this.set('myLocationButton', myLocationButton);
-    options.controls.myLocation = myLocation;
-    options.controls.myLocationButton = myLocationButton;
+    if (myLocation === true || myLocation === false) {
+      options.controls.myLocation = myLocation;
+    }
+    if (myLocationButton === true || myLocationButton === false) {
+      options.controls.myLocationButton = myLocationButton;
+    }
   }
   if (options.camera) {
     if (options.camera.latLng) {
