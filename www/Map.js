@@ -253,18 +253,12 @@ Map.prototype.setOptions = function(options) {
   options = options || {};
 
   if (options.controls) {
-    var myLocation = this.get("myLocation");
-    if ("myLocation" in options.controls) {
-      myLocation = options.controls.myLocation === true;
+    if (options.controls.myLocation) {
+      this.set('myLocation', options.controls.myLocation);
     }
-    var myLocationButton = this.get("myLocationButton");
-    if ("myLocationButton" in options.controls) {
-      myLocationButton = options.controls.myLocationButton === true;
+    if (options.controls.myLocationButton) {
+      this.set('myLocationButton', options.controls.myLocationButton);
     }
-    this.set("myLocation", myLocation);
-    this.set("myLocationButton", myLocationButton);
-    options.controls.myLocation = myLocation;
-    options.controls.myLocationButton = myLocationButton;
   }
   if (options.camera) {
     if (options.camera.latLng) {
