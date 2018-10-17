@@ -27,9 +27,7 @@ matrix:
     android:
       components:
         - tools
-        - android-$EMULATOR_API
         - platform-tools
-        - tools
         # The BuildTools version used by your project
         - build-tools-${ANDROID_BUILD_TOOLS}
         # The SDK version used to compile your project
@@ -49,8 +47,8 @@ install:
   - npm install -g cordova@${CORDOVA_VERSION} > /dev/null
   - cordova --version
   - if [[ "$PLATFORM" =~ android ]]; then
-      touch $HOME/.android/avd > /dev/null 2>&1;
-      yes | sdkmanager "platforms;android-${ANDROID_API}"; > /dev/null;
+      touch $HOME/.android/avd > /dev/null ;
+      yes | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
     fi
   - npm install
 
