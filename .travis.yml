@@ -21,8 +21,8 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-    # Android build cache (see http://tools.android.com/tech-docs/build-cache)
-    - $HOME/.android/build-cache
+    # Android directory
+    - $HOME/.android
 
     # NVM
     - $HOME/.nvm
@@ -41,12 +41,12 @@ install:
   - exist=$(which node); if [[ -z "${exist}" ]]; then
       rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
       && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-      install ${NODE_VERSION} > /dev/null;
+      install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && nvm use default > /dev/null;
     fi
   - version=$(node --version); if [[ '${version}' != "v{NODE_VERSION}" ]]; then
       rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
       && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-      install ${NODE_VERSION} > /dev/null;
+      install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && nvm use default > /dev/null;
     fi
   - node --version
   - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova; fi
@@ -60,20 +60,20 @@ install:
       mkdir -p ${HOME}/.android/avd/ > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools';
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools';
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API} > /dev/null;
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
+      yes | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API};
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository';
     fi
   - npm i
 
