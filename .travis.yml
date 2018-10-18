@@ -52,15 +52,16 @@ before_script:
   - npm install -g cordova@8.1.0  cordova-paramedic@latest > /dev/null
   - cordova --version
   - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
-    yes | sdkmanager "platforms;android-${ANDROID_API}";
-    echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API;
-    echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
-    echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a;
-    emulator -avd test -no-window ;
-    android-wait-for-emulator;
-    adb shell input keyevent 82 ;
-    adb wait-for-device get-serialno ;
-  fi
+      yes | sdkmanager "platforms;android-${ANDROID_API}";
+      echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API;
+      echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
+      echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a;
+      emulator -avd test -no-window;
+      android-wait-for-emulator;
+      adb shell input keyevent 82;
+      adb wait-for-device get-serialno;
+    fi
+
 
 script:
-  - cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test' --justBuild
+  - cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test' 
