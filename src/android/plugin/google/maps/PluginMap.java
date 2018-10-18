@@ -1804,7 +1804,23 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
    */
   public void setMyLocationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
+    final JSONObject params = args.getJSONObject(0);
+    Boolean isMyLocationEnabled = false;
+    if (params.has("myLocation")) {
+      //Log.d(TAG, "--->myLocation = " + params.getBoolean("myLocation"));
+      isMyLocationEnabled = params.getBoolean("myLocation");
+    }
+
+    Boolean isMyLocationButtonEnabled = false;
+    if (params.has("myLocationButton")) {
+      //Log.d(TAG, "--->myLocationButton = " + params.getBoolean("myLocationButton"));
+      isMyLocationButtonEnabled = params.getBoolean("myLocationButton");
+    }
     // Request geolocation permission.
+    if (!isMyLocationButtonEnabled && !isMyLocationEnabled) {
+      callbackContext.success();
+      return;
+    }
 
     boolean locationPermission = PermissionChecker.checkSelfPermission(cordova.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PermissionChecker.PERMISSION_GRANTED;
     //Log.d(TAG, "---> setMyLocationEnabled, hasPermission =  " + locationPermission);
@@ -1832,7 +1848,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
 
     }
-    final JSONObject params = args.getJSONObject(0);
 
     this.activity.runOnUiThread(new Runnable() {
       @SuppressLint("MissingPermission")
