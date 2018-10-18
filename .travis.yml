@@ -60,20 +60,22 @@ install:
       mkdir -p ${HOME}/.android/avd/ > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools';
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools';
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools';
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools';
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}";
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API};
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}";
+      echo "y" | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository';
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}";
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository';
     fi
   - npm i
 
