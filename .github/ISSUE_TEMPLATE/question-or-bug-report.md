@@ -4,6 +4,10 @@ about: Create a report to help us improve
 
 ---
 
+<!--
+
+*********************************************************************
+
 **public support**
 
 If you have a question about this plugin, please ask here.
@@ -19,7 +23,9 @@ If you don't want to discover anything including code, screen captures or screen
 please [create an private issue ticket](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/.github/ISSUE_TEMPLATE/private-support.md).
 I provide a private space for chatting.
 
-------------------------
+*********************************************************************
+
+--->
 
 **I'm submitting a ...**  (check one with "x")
 - [ ] question
