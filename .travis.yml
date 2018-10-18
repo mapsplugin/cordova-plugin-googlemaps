@@ -24,6 +24,9 @@ cache:
     # Android build cache (see http://tools.android.com/tech-docs/build-cache)
     - $HOME/.android/build-cache
 
+    # NVM
+    - $HOME/.nvm
+
 matrix:
   include:
   - os: linux
@@ -35,9 +38,15 @@ matrix:
     jdk: oraclejdk8
 
 install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
-    && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-    install ${NODE_VERSION} > /dev/null
+  - if [[ `node --version` =~ "v{NODE_VERSION}" ]]; then
+      rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
+      && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
+      install ${NODE_VERSION} > /dev/null;
+    fi
+  - node --version
+  - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova fi
+  - cordova --version
+  - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then npm -g install cordova-paramedic fi
   - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
       if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi;
       unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
@@ -50,10 +59,7 @@ install:
 
 # Emulator Management: Create, Start and Wait https://docs.travis-ci.com/user/languages/android#How-to-Create-and-Start-an-Emulator
 before_script:
-  - node --version
-  - npm install -g cordova@8.1.0  cordova-paramedic@latest > /dev/null
-  - cordova --version
-  - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       yes | sdkmanager "platforms;android-${ANDROID_API}";
       echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API;
       echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
@@ -66,9 +72,9 @@ before_script:
 
 
 script:
-  - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
-      cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test';
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
+      cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
     fi
-  - if [[ "${CORDOVA_PLATFORM}" =~ browser ]]; then
-      cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test' --just-build;
+  - if [[ "${CORDOVA_PLATFORM}" == "browser" ]]; then
+      cordova-paramedic  --cleanUpAfterRun --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test' --just-build;
     fi
