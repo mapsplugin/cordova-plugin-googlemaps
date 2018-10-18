@@ -48,6 +48,8 @@ matrix:
             npm -g install cordova-paramedic > /dev/null;
           fi
         - npm i > /dev/null
+      script:
+        - npm run test
 
     - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
       os: linux
@@ -74,12 +76,15 @@ matrix:
         - if [[ ! -e "${HOME}/.android/avd" ]]; then
             mkdir -p ${HOME}/.android/avd/ > /dev/null;
           fi
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
+        - export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
+        - export PATH="${PATH}:${ANDROID_HOME}/tools"
+        - export PATH="${PATH}:${ANDROID_HOME}/tools/bin"
+        - echo "y" | sdkmanager 'tools' > /dev/null
+        - echo "y" | sdkmanager 'platform-tools' > /dev/null
+        - echo "y" | sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
         - echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API}
         - echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API}
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
+        - echo "y" | sdkmanager 'extras;google;m2repository' > /dev/null
         - npm i > /dev/null
         - android list targets;
         - echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a
@@ -87,15 +92,12 @@ matrix:
         - android-wait-for-emulator
         - adb shell input keyevent 82
         - adb wait-for-device get-serialno
-
+      script:
+        - npm run test
+        - cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test'
 
 before_script:
   # Make sure CouchDB is up
   - while [ $? -ne 0 ]; do
       sleep 1 && curl -v http://localhost:5984;
     done
-  - npm run test
-
-
-script:
-  - cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test'
