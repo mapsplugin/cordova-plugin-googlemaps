@@ -1,4 +1,5 @@
 sudo: required
+language: node_js
 
 env:
   global:
@@ -32,90 +33,69 @@ cache:
 
 matrix:
   include:
-  - os: linux
-    env: CORDOVA_PLATFORM="browser"
-    language: node_js
-  - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
-    os: linux
-    language: android
-    jdk: oraclejdk8
+    - os: linux
+      env: CORDOVA_PLATFORM="browser"
 
-install:
-  - exist=$(which nvm); if [[ -z "${exist}" ]]; then
-      rm -rf ~/.nvm > /dev/null;
-      git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null;
-      (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags` > /dev/null);
-      source ~/.nvm/nvm.sh && nvm > /dev/null;
-    fi
-  - exist=$(nvm list | grep ${NODE_VERSION}); if [[ -z "${exist}" ]]; then
-      nvm install ${NODE_VERSION} > /dev/null;
-      nvm alias default ${NODE_VERSION} > /dev/null;
-      nvm use default > /dev/null;
-    fi
-  - exist=$(nvm list | grep 'v0.10.48'); if [[ ! -z "${exist}" ]]; then
-      nvm uninstall v0.10.48 > /dev/null;
-    fi
-  - node --version
-  - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova > /dev/null; fi
-  - cordova --version
-  - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then npm -g install cordova-paramedic > /dev/null;  fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip; fi;
-      unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
-    fi
-  - if [[ ! -e "${HOME}/.android/repositories.cfg" ]]; then
-      touch ${HOME}/.android/repositories.cfg > /dev/null;
-    fi
-  - if [[ ! -e "${HOME}/.android/avd" ]]; then
-      mkdir -p ${HOME}/.android/avd/ > /dev/null;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API};
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
-    fi
-  - npm i > /dev/null
+      install:
+        - nvm install ${NODE_VERSION}
+        - nvm use ${NODE_VERSION}
+        - node --version
+        - exist=$(which cordova); if [[ -z "${exist}" ]]; then
+            npm -g install cordova > /dev/null;
+          fi
+        - cordova --version
+        - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
+            npm -g install cordova-paramedic > /dev/null;
+          fi
+        - npm i > /dev/null
+
+    - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
+      os: linux
+      jdk: oraclejdk8
+
+      install:
+        - nvm install ${NODE_VERSION}
+        - nvm use ${NODE_VERSION}
+        - node --version
+        - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then
+            curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip;
+            fi
+        - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
+        - exist=$(which cordova); if [[ -z "${exist}" ]]; then
+            npm -g install cordova > /dev/null;
+          fi
+        - cordova --version
+        - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
+            npm -g install cordova-paramedic > /dev/null;
+          fi
+        - if [[ ! -e "${HOME}/.android/repositories.cfg" ]]; then
+            touch ${HOME}/.android/repositories.cfg > /dev/null;
+          fi
+        - if [[ ! -e "${HOME}/.android/avd" ]]; then
+            mkdir -p ${HOME}/.android/avd/ > /dev/null;
+          fi
+        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null
+        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null
+        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
+        - echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API}
+        - echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API}
+        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
+        - npm i > /dev/null
+        - android list targets;
+        - echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a
+        - emulator -avd test -no-window &
+        - android-wait-for-emulator
+        - adb shell input keyevent 82
+        - adb wait-for-device get-serialno
+
 
 before_script:
-  - curl -X PUT 127.0.0.1:5984
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      android list targets;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      emulator -avd test -no-window &
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      android-wait-for-emulator;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      adb shell input keyevent 82;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      adb wait-for-device get-serialno;
-    fi
+  # Make sure CouchDB is up
+  - while [ $? -ne 0 ]; do
+      sleep 1 && curl -v http://localhost:5984;
+    done
+  - npm run test
 
 
 script:
-  - npm run test
-  - if [[ "${CORDOVA_PLATFORM}" == "browser" ]]; then
-      cordova-paramedic  --cleanUpAfterRun --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test';
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
-    fi
+  - cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test'
