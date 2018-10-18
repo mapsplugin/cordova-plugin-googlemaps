@@ -6,6 +6,9 @@ env:
     - ANDROID_BUILD_TOOLS=28.0.3
     - NODE_VERSION=7.0.0
 
+services:
+  - couchdb
+
 before_cache:
   # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -87,6 +90,7 @@ install:
   - npm i > /dev/null
 
 before_script:
+  - curl -X PUT localhost:5984/myapp_test
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android list targets;
     fi
@@ -109,6 +113,9 @@ before_script:
 
 script:
   - npm run test
+  - if [[ "${CORDOVA_PLATFORM}" == "browser" ]]; then
+      cordova-paramedic  --cleanUpAfterRun --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test';
+    fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
     fi
