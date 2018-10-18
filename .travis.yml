@@ -38,23 +38,27 @@ matrix:
     jdk: oraclejdk8
 
 install:
-  - exist=$(which node); if [[ -z "${exist}" ]]; then
-      rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
-      && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-      install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && nvm use default > /dev/null;
+  - exist=$(which nvm); if [[ -z "${exist}" ]]; then
+      rm -rf ~/.nvm > /dev/null;
+      git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null;
+      (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags` > /dev/null);
+      source ~/.nvm/nvm.sh && nvm > /dev/null;
     fi
-  - version=$(node --version); if [[ "${version}" != "v{NODE_VERSION}" ]]; then
-      rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
-      && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-      install ${NODE_VERSION} && nvm alias default ${NODE_VERSION} && nvm use default > /dev/null;
+  - exist=$(nvm list | grep ${NODE_VERSION}); if [[ -z "${exist}" ]]; then
+      nvm install ${NODE_VERSION} > /dev/null;
+      nvm alias default ${NODE_VERSION} > /dev/null;
+      nvm use default > /dev/null;
+    fi
+  - exist=$(nvm list | grep 'v0.10.48'); if [[ ! -z "${exist}" ]]; then
+      nvm uninstall v0.10.48 > /dev/null;
     fi
   - node --version
   - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova > /dev/null; fi
   - cordova --version
   - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then npm -g install cordova-paramedic > /dev/null;  fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip > /dev/null; fi;
-      unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME} > /dev/null;
+      if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip; fi;
+      unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
     fi
   - if [[ ! -e "${HOME}/.android/avd" ]]; then
       mkdir -p ${HOME}/.android/avd/ > /dev/null;
