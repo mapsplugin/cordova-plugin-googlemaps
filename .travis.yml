@@ -4,6 +4,7 @@ env:
   global:
     - ANDROID_API=27
     - BUILD_TOOLS="27.0.3"
+    - NODE_VERSION="7.0.0"
 
 before_cache:
   # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
@@ -28,14 +29,15 @@ matrix:
   - os: linux
     env: CORDOVA_PLATFORM="browser"
     language: node_js
-    node_js: '7.4.0'
   - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
     os: linux
-    node_js: '7.4.0'
     language: android
     jdk: oraclejdk8
 
 install:
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
+    && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
+    install ${NODE_VERSION} > /dev/null
   - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
       if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi;
       unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
@@ -64,4 +66,9 @@ before_script:
 
 
 script:
-  - cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test' 
+  - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
+      cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test';
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" =~ browser ]]; then
+      cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test' --just-build;
+    fi
