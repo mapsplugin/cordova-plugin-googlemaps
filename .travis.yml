@@ -29,7 +29,7 @@ matrix:
     env: CORDOVA_PLATFORM="browser"
     language: node_js
     node_js: '7.4.0'
-  - env: CORDOVA_PLATFORM="android@7.0" ANDROID_HOME=${HOME}/android-sdk
+  - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
     os: linux
     node_js: '7.4.0'
     language: android
@@ -37,9 +37,7 @@ matrix:
 
 install:
   - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
-      if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then
-        curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ;
-      fi
+      if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi;
       unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
@@ -65,4 +63,4 @@ before_script:
   fi
 
 script:
-  - cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --justBuild
+  - cordova-paramedic  --cleanUpAfterRun --platform ${CORDOVA_PLATFORM} --plugin '. --variable API_KEY_FOR_ANDROID=test' --justBuild
