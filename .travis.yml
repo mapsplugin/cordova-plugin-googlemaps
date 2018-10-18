@@ -1,5 +1,4 @@
 sudo: required
-language: node_js
 
 env:
   global:
@@ -34,6 +33,7 @@ cache:
 matrix:
   include:
     - os: linux
+      language: node_js
       env: CORDOVA_PLATFORM="browser"
 
       install:
@@ -54,9 +54,20 @@ matrix:
     - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
       os: linux
       jdk: oraclejdk8
+      language: android
 
       install:
-        - nvm install ${NODE_VERSION}
+        - exist=$(which nvm); if [[ -z "${exist}" ]]; then
+            rm -rf ~/.nvm > /dev/null;
+            git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null;
+            (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags` > /dev/null);
+            source ~/.nvm/nvm.sh && nvm > /dev/null;
+          fi
+        - exist=$(nvm list | grep ${NODE_VERSION}); if [[ -z "${exist}" ]]; then
+            nvm install ${NODE_VERSION} > /dev/null;
+            nvm alias default ${NODE_VERSION} > /dev/null;
+            nvm use default > /dev/null;
+          fi
         - nvm use ${NODE_VERSION}
         - node --version
         - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then
@@ -76,9 +87,6 @@ matrix:
         - if [[ ! -e "${HOME}/.android/avd" ]]; then
             mkdir -p ${HOME}/.android/avd/ > /dev/null;
           fi
-        - export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
-        - export PATH="${PATH}:${ANDROID_HOME}/tools"
-        - export PATH="${PATH}:${ANDROID_HOME}/tools/bin"
         - echo "y" | sdkmanager 'tools' > /dev/null
         - echo "y" | sdkmanager 'platform-tools' > /dev/null
         - echo "y" | sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
