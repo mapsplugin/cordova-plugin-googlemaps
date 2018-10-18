@@ -3,6 +3,7 @@ sudo: required
 env:
   global:
     - ANDROID_API=27
+    - EMULATOR_API_VERSION=24
     - BUILD_TOOLS="27.0.3"
     - NODE_VERSION="7.0.0"
 
@@ -66,9 +67,10 @@ install:
 # Emulator Management: Create, Start and Wait https://docs.travis-ci.com/user/languages/android#How-to-Create-and-Start-an-Emulator
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | sdkmanager "platforms;android-${ANDROID_API}";
-      echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API;
-      echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
+      yes | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
+      echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API > /dev/null;
+      android -list-avds;
+      echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${EMULATOR_API_VERSION};
       echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a;
       emulator -avd test -no-window;
       android-wait-for-emulator;

@@ -293,7 +293,7 @@ MarkerCluster.prototype.remove = function (callback) {
             marker.trigger(event.INFO_CLOSE);
             marker.hideInfoWindow();
           }
-          deleteClusters.push(markerOpts.id);
+          deleteClusters.push(marker.id);
         });
       }
       if (!noClusterMode) {
@@ -355,7 +355,7 @@ Object.defineProperty(MarkerCluster.prototype, '_removeMarkerById', {
     var resolution, geocellKey, cluster;
     for (var i = 0; i < resolutionList.length; i++) {
       resolution = parseInt(resolutionList[i], 10);
-      geocellKey = markerOpts._cluster.geocell.substr(0, resolution + 1);
+      geocellKey = marker._cluster.geocell.substr(0, resolution + 1);
       if (geocellKey in self._clusters[resolution]) {
         cluster = self._clusters[resolution][geocellKey];
         if (cluster) {
@@ -421,23 +421,30 @@ Object.defineProperty(MarkerCluster.prototype, '_triggerRedraw', {
     if (self._isRemoved || self._stopRequest || self.taskQueue.length > 1) {
       return;
     }
-    (new Promise(function(resolve) {
-      if (self.debug) {
-        self._clusterBounds.forEach(function (polyline, cb) {
-          polyline.remove();
-          cb();
-        }, resolve);
-      } else {
-        resolve();
-      }
-    }))
-    .then(function() {
+    if (self.debug) {
+      self._clusterBounds.forEach(function(polyline, cb) {
+        polyline.remove();
+        cb();
+      }, function() {
+        self._clusterBounds.empty();
+        var taskParams = self.taskQueue.pop();
+        self.taskQueue.length = 0;
+        var visibleRegion = self.map.getVisibleRegion();
+        self._redraw.call(self, {
+          visibleRegion: visibleRegion,
+          force: taskParams.force
+        });
+      });
+    } else {
+      var taskParams = self.taskQueue.pop();
+      self.taskQueue.length = 0;
+
       var visibleRegion = self.map.getVisibleRegion();
       self._redraw.call(self, {
         visibleRegion: visibleRegion,
         force: taskParams.force
       });
-    });
+    }
   },
   writable: false
 });
@@ -559,24 +566,24 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           var marker = self._markerMap[markerId];
           if (self._isRemoved ||
             self._stopRequest ||
-            markerOpts.get('_cluster').isRemoved ||
-            markerOpts.get('_cluster').isAdded) {
+            marker.get('_cluster').isRemoved ||
+            marker.get('_cluster').isAdded) {
             return;
           }
 
-          var geocell = markerOpts.get('_cluster').geocell.substr(0, cellLen);
+          var geocell = marker.get('_cluster').geocell.substr(0, cellLen);
           if (ignoreGeocells.indexOf(geocell) > -1) {
             return;
           }
 
           if (allowGeocells.indexOf(geocell) > -1) {
-            targetMarkers.push(markerOpts);
+            targetMarkers.push(marker);
             return;
           }
 
           if (expandedRegion.contains(marker.get('position'))) {
             allowGeocells.push(geocell);
-            targetMarkers.push(markerOpts);
+            targetMarkers.push(marker);
           } else {
             ignoreGeocells.push(geocell);
           }
@@ -614,13 +621,13 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           }
 
           if (allowGeocells.indexOf(geocell) > -1) {
-            targetMarkers.push(markerOpts);
+            targetMarkers.push(marker);
             return;
           }
 
-          if (expandedRegion.contains(markerOpts.position)) {
+          if (expandedRegion.contains(marker.get('position'))) {
             allowGeocells.push(geocell);
-            targetMarkers.push(markerOpts);
+            targetMarkers.push(marker);
           } else {
             ignoreGeocells.push(geocell);
           }
@@ -752,7 +759,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
               if (self.debug) {
                 console.log('---> (js:614)delete:' + marker.id);
               }
-              if (markerOpts.__pgmId === activeMarkerId) {
+              if (marker.id === activeMarkerId) {
                 marker.trigger(event.INFO_CLOSE);
                 marker.hideInfoWindow();
               }
@@ -788,7 +795,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
         }
 
         if (allowGeocells.indexOf(geocell) > -1) {
-          targetMarkers.push(markerOpts);
+          targetMarkers.push(marker);
           return;
         }
 
@@ -867,7 +874,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           }
           var geocell = marker.get('_cluster').geocell.substr(0, resolution + 1);
           prepareClusters[geocell] = prepareClusters[geocell] || [];
-          prepareClusters[geocell].push(markerOpts);
+          prepareClusters[geocell].push(marker);
 
           if (marker && marker.id === activeMarkerId) {
             marker.trigger(event.INFO_CLOSE);
@@ -1093,7 +1100,7 @@ MarkerCluster.prototype.getClusterIcon = function (cluster) {
 };
 
 MarkerCluster.prototype._createMarker = function (markerOpts) {
-  var markerId = markerOpts.__pgmId;
+  var markerId = markerOpts.id;
   var self = this;
   var marker = new Marker(self.getMap(), markerOpts, exec, {
     className: 'MarkerCluster',
