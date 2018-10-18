@@ -43,7 +43,7 @@ install:
       && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
       install ${NODE_VERSION} > /dev/null;
     fi
-  - if [[ `node --version` != "v{NODE_VERSION}" ]]; then
+  - version=$(node --version); if [[ '${version}' != "v{NODE_VERSION}" ]]; then
       rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
       && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
       install ${NODE_VERSION} > /dev/null;
@@ -61,6 +61,7 @@ install:
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platforms;android-${ANDROID_API}' > /dev/null;
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
     fi
+  - npm i
 
 # Emulator Management: Create, Start and Wait https://docs.travis-ci.com/user/languages/android#How-to-Create-and-Start-an-Emulator
 before_script:
