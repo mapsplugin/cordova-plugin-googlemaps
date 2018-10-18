@@ -14,6 +14,21 @@ before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
+#cache:
+#  directories:
+#    # Android SDK
+#    - $HOME/android-sdk-dl
+#    - $HOME/android-sdk
+#
+#    # Gradle dependencies
+#    - $HOME/.gradle/caches/
+#    - $HOME/.gradle/wrapper/
+#
+#    # Android directory
+#    - $HOME/.android
+#
+#    # NVM
+#    - $HOME/.nvm
 
 matrix:
   include:
@@ -55,9 +70,12 @@ matrix:
           fi
         - nvm use ${NODE_VERSION}
         - node --version
+        - if test ! -e $HOME/android-sdk-dl/ ; then
+            mkdir -p $HOME/android-sdk-dl/;
+          fi
         - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then
             curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip;
-            fi
+          fi
         - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
         - exist=$(which cordova); if [[ -z "${exist}" ]]; then
             npm -g install cordova > /dev/null;
