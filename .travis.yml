@@ -85,7 +85,7 @@ before_script:
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      emulator -avd test -no-window & ;
+      emulator -avd test -no-window &
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android-wait-for-emulator;
