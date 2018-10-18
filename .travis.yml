@@ -60,6 +60,9 @@ install:
       if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip; fi;
       unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
     fi
+  - if [[ ! -e "${HOME}/.android/repositories.cfg" ]]; then
+      touch ${HOME}/.android/repositories.cfg > /dev/null;
+    fi
   - if [[ ! -e "${HOME}/.android/avd" ]]; then
       mkdir -p ${HOME}/.android/avd/ > /dev/null;
     fi
@@ -79,9 +82,12 @@ install:
       echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
+      echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API} > /dev/null;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
     fi
-  - npm i
+  - npm i > /dev/null
 
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
