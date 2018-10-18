@@ -88,7 +88,7 @@ install:
 
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      android list avd;
+      android list targets;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
