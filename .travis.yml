@@ -14,21 +14,6 @@ before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-cache:
-  directories:
-    # Android SDK
-    - $HOME/android-sdk-dl
-    - $HOME/android-sdk
-
-    # Gradle dependencies
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-
-    # Android directory
-    - $HOME/.android
-
-    # NVM
-    - $HOME/.nvm
 
 matrix:
   include:
