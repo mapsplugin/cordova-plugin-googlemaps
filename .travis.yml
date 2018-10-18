@@ -53,13 +53,26 @@ install:
   - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova; fi
   - cordova --version
   - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then npm -g install cordova-paramedic; fi
-  - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi;
       unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
+    fi
+  - if [[ ! -e "${HOME}/.android/avd" ]]; then
+      mkdir -p ${HOME}/.android/avd/ > /dev/null;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
-      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'build-tools;${BUILD_TOOLS}' > /dev/null;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
+      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'build-tools-${BUILD_TOOLS}' > /dev/null;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platforms;android-${ANDROID_API}' > /dev/null;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
     fi
   - npm i
