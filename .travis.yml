@@ -69,7 +69,7 @@ before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       yes | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
       echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API > /dev/null;
-      android -list-avds;
+      android list avd;
       echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${EMULATOR_API_VERSION};
       echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a;
       emulator -avd test -no-window;
