@@ -1,5 +1,6 @@
 
 
+
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -1436,12 +1437,11 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
       var markerId = markerOptions.id || 'marker_' + idx;
       //markerId = result.id + '-' + markerId;
-      markerOptions.__pgmId = markerId;
+      markerOptions.id = markerId;
       markerOptions._cluster = {
         isRemoved: false,
         isAdded: false,
-        geocell: geocell,
-        _marker: null
+        geocell: geocell
       };
       /*
             var marker = new Marker(self, markerId, markerOptions, 'MarkerCluster', exec);
@@ -1452,7 +1452,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
               return result.id + '-' + markerId;
             };
       */
-      markerMap[markerId] = markerOptions;
+      markerMap[markerId] = markerCluster._createMarker(markerOptions);
 
       //self.MARKERS[marker.getId()] = marker;
       //self.OVERLAYS[marker.getId()] = marker;
@@ -1553,7 +1553,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
       marker.trigger(eventName, position, marker);
     } else {
       // cluster marker
-      var cluster = markerCluster.getClusterByClusterId(clusterId);
+      var cluster = markerCluster._getClusterByClusterId(clusterId);
       if (cluster) {
         markerCluster.trigger(eventName, cluster);
       } else {
