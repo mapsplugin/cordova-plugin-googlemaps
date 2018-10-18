@@ -3,7 +3,7 @@ sudo: required
 env:
   global:
     - ANDROID_API=27
-    - ANDROID_BUILD_TOOLS=27.0.3
+    - ANDROID_BUILD_TOOLS=28.0.3
     - NODE_VERSION=7.0.0
 
 before_cache:
@@ -66,11 +66,11 @@ install:
       yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'build-tools;${ANDROID_BUILD_TOOLS}' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       yes | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API} > /dev/null;
-      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platforms;android-${ANDROID_API}' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
@@ -80,7 +80,6 @@ install:
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android list avd;
-      yes | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
       emulator -avd test -no-window &;
       android-wait-for-emulator;
