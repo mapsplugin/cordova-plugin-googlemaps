@@ -90,7 +90,7 @@ install:
   - npm i > /dev/null
 
 before_script:
-  - curl -X PUT localhost:5984/myapp_test
+  - curl -X PUT 127.0.0.1:5984
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android list targets;
     fi
