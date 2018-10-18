@@ -79,10 +79,10 @@ install:
       echo "y" | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}";
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API} > /dev/null;
+      echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;

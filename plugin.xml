@@ -121,7 +121,7 @@
   <issue>https://github.com/mapsplugin/cordova-plugin-googlemaps/issues</issue>
   <author>Masashi Katsumata, Hirbod</author>
 
-  <license>Apache 2.0</license>
+  <license>Apache-2.0</license>
 
   <keywords>google,maps,geo</keywords>
 

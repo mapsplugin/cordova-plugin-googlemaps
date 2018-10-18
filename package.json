@@ -47,7 +47,7 @@
     "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src"
   },
   "author": "Masashi Katsumata, Hirbod Mirjavadi",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mapsplugin/cordova-plugin-googlemaps/issues"
   },
