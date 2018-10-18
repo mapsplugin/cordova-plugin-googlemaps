@@ -72,6 +72,7 @@ before_script:
 
 
 script:
+  - npm run test
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
     fi
