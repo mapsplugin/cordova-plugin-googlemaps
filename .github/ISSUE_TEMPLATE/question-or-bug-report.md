@@ -20,11 +20,9 @@ However screen captures or screen records are posted in public issue thread.
 # private support
 #--------------------
 Even if you don't want to discover anything including screen captures or screen records,
-please ask me to private support.
-I ask you to donate $100 USD to the maps plugin project,
-then I make a private space, then support it.
+please [ask me to private support](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/.github/ISSUE_TEMPLATE/private-support.md).
 
---->
+
 
 **I'm submitting a ...**  (check one with "x")
 - [ ] question
