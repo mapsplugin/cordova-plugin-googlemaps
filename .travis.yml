@@ -1,7 +1,4 @@
-language: android
 sudo: required
-
-jdk: openjdk8
 
 env:
   global:
@@ -9,46 +6,68 @@ env:
     - EMULATOR_API=24
     - ANDROID_BUILD_TOOLS=27.0.3
 
-android:
-  components:
-    - tools
-    - android-$EMULATOR_API
-    - platform-tools
-    - tools
-    # The BuildTools version used by your project
-    - build-tools-$ANDROID_BUILD_TOOLS
-    # The SDK version used to compile your project
-    - android-$ANDROID_API
-    # Additional components
-    - extra-android-m2repository
-    - extra-google-m2repository
-    - sys-img-armeabi-v7a-android-$EMULATOR_API
-  licenses:
-    - ".+"
+before_cache:
+  # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-before_install:
-  - yes | sdkmanager "platforms;android-${ANDROID_API}"
+cache:
+  directories:
+    # Android SDK
+    - $HOME/android-sdk-dl
+    - $HOME/android-sdk
+
+    # Gradle dependencies
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+    # Android build cache (see http://tools.android.com/tech-docs/build-cache)
+    - $HOME/.android/build-cache
+
+matrix:
+  include:
+  - os: linux
+    env: CORDOVA_PLATFORM="browser"
+    language: node_js
+    node_js: '7.4.0'
+  - env: CORDOVA_PLATFORM="android@7.0" ANDROID_HOME=${HOME}/android-sdk
+    os: linux
+    node_js: '7.4.0'
+    language: android
+    jdk: oraclejdk8
+
+install:
+  - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
+    # Download and unzip the Android SDK tools (if not already there thanks to the cache mechanism)
+    # Latest version available here: https://developer.android.com/studio/#command-tools
+    if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then
+      curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ;
+    fi;
+    unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d ${ANDROID_HOME};
+
+    # Install or update Android SDK components (will not do anything if already up to date thanks to the cache mechanism)
+    echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
+    echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
+    echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'build-tools;27.0.3' > /dev/null;
+    echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platforms;android-27' > /dev/null;
+    echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
+  fi
 
 # Emulator Management: Create, Start and Wait https://docs.travis-ci.com/user/languages/android#How-to-Create-and-Start-an-Emulator
 before_script:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
-    && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
-    install 9.11.2 > /dev/null
   - node --version
-  - npm install -g cordova@8.1.0 > /dev/null
-  - git clone https://github.com/apache/cordova-paramedic
-  - pushd cordova-paramedic
-  - npm i > /dev/null
-  - popd
+  - npm install -g cordova@8.1.0  cordova-paramedic@latest > /dev/null
   - cordova --version
-  - echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API
-  - echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-$EMULATOR_API
-  - echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
-  - adb wait-for-device get-serialno
-  - npm install -g cordova cordova-paramedic
+  - if [[ "${CORDOVA_PLATFORM}" =~ android ]]; then
+    yes | sdkmanager "platforms;android-${ANDROID_API}";
+    echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API;
+    echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
+    echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a;
+    emulator -avd test -no-window ;
+    android-wait-for-emulator;
+    adb shell input keyevent 82 ;
+    adb wait-for-device get-serialno ;
+  fi
 
 script:
   - cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --justBuild
