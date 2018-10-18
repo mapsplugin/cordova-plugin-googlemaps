@@ -87,16 +87,16 @@ matrix:
         - if [[ ! -e "${HOME}/.android/avd" ]]; then
             mkdir -p ${HOME}/.android/avd/ > /dev/null;
           fi
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
-        - echo "y" | ${ANDROID_HOME}/tools/android update sdk -a --no-ui --filter android-${ANDROID_API}
-        - echo "y" | ${ANDROID_HOME}/tools/android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API}
-        - echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
+        - echo "y" | ${HOME}/android-sdk/tools/bin/sdkmanager 'tools' > /dev/null
+        - echo "y" | ${HOME}/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
+        - echo "y" | ${HOME}/android-sdk/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null
+        - echo "y" | ${HOME}/android-sdk/tools/android update sdk -a --no-ui --filter android-${ANDROID_API}
+        - echo "y" | ${HOME}/android-sdk/tools/android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API}
+        - echo "y" | ${HOME}/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
         - npm i > /dev/null
-        - {ANDROID_HOME}/tools/android list targets;
-        - echo no | {ANDROID_HOME}/tools/android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a
-        - ${ANDROID_HOME}/tools/emulator -avd test -no-window &
+        - ${HOME}/android-sdk/tools/android list targets;
+        - echo no | ${HOME}/android-sdk/tools/android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a
+        - ${HOME}/android-sdk/tools/emulator -avd test -no-window &
         - android-wait-for-emulator
         - adb shell input keyevent 82
         - adb wait-for-device get-serialno
