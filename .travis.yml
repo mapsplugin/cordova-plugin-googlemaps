@@ -79,9 +79,6 @@ install:
       echo "y" | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
@@ -94,7 +91,7 @@ before_script:
       android list avd;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a;
+      echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       emulator -avd test -no-window &
