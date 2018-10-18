@@ -10,7 +10,6 @@
 #import "IPluginProtocol.h"
 #import "PluginUtil.h"
 #import "UIImageCache.h"
-#import "NSData+Base64.h"
 
 @interface PluginMarker : CDVPlugin<IPluginProtocol>
 

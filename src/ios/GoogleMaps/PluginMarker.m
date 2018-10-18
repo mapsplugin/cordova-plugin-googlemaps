@@ -970,8 +970,8 @@
       [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
 
     NSArray *tmp = [iconPath componentsSeparatedByString:@","];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[tmp objectAtIndex:1] options:0];
 
-    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
     image = [[UIImage alloc] initWithData:decodedData];
     if (width && height) {
       image = [image resize:width height:height];

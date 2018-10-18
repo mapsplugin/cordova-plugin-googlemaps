@@ -755,7 +755,7 @@
 
     isTextMode = false;
     NSArray *tmp = [title componentsSeparatedByString:@","];
-    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[tmp objectAtIndex:1] options:0];
     base64Image = [[UIImage alloc] initWithData:decodedData];
     rectSize = CGSizeMake(base64Image.size.width + leftImg.size.width, base64Image.size.height + leftImg.size.height / 2);
 

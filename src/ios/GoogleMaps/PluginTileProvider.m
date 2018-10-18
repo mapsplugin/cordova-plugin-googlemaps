@@ -122,8 +122,8 @@ NSDictionary *debugAttributes;
       [urlStr rangeOfString:@";base64,"].location != NSNotFound) {
 
     NSArray *tmp = [urlStr componentsSeparatedByString:@","];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[tmp objectAtIndex:1] options:0];
 
-    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
     UIImage *image = [[UIImage alloc] initWithData:decodedData];
     if (image.size.width != self.tileSize || image.size.height != self.tileSize) {
       image = [image resize:self.tileSize height:self.tileSize];
