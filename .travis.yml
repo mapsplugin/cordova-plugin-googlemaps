@@ -75,6 +75,3 @@ script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
     fi
-  - if [[ "${CORDOVA_PLATFORM}" == "browser" ]]; then
-      cordova-paramedic  --cleanUpAfterRun --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test' --just-build;
-    fi
