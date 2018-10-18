@@ -38,7 +38,12 @@ matrix:
     jdk: oraclejdk8
 
 install:
-  - if [[ `node --version` == "v{NODE_VERSION}" ]]; then
+  - exist=$(which node); if [[ -z "${exist}" ]]; then
+      rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
+      && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
+      install ${NODE_VERSION} > /dev/null;
+    fi
+  - if [[ `node --version` != "v{NODE_VERSION}" ]]; then
       rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
       && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
       install ${NODE_VERSION} > /dev/null;
