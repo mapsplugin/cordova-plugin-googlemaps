@@ -80,10 +80,20 @@ install:
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android list avd;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
-      emulator -avd test -no-window &;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
+      emulator -avd test -no-window & ;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android-wait-for-emulator;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       adb shell input keyevent 82;
+    fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       adb wait-for-device get-serialno;
     fi
 
