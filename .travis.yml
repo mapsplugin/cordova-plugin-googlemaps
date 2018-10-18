@@ -2,7 +2,7 @@ sudo: required
 
 env:
   global:
-    - ANDROID_API=27
+    - ANDROID_API=24
     - ANDROID_BUILD_TOOLS=28.0.3
     - NODE_VERSION=7.0.0
 
