@@ -3,9 +3,8 @@ sudo: required
 env:
   global:
     - ANDROID_API=27
-    - EMULATOR_API_VERSION=24
-    - BUILD_TOOLS="27.0.3"
-    - NODE_VERSION="7.0.0"
+    - ANDROID_BUILD_TOOLS=27.0.3
+    - NODE_VERSION=7.0.0
 
 before_cache:
   # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
@@ -61,31 +60,29 @@ install:
       mkdir -p ${HOME}/.android/avd/ > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'build-tools-${BUILD_TOOLS}' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'build-tools;${ANDROID_BUILD_TOOLS}' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'platforms;android-${ANDROID_API}' > /dev/null;
+      yes | android update sdk -a --no-ui --filter  sys-img-armeabi-v7a-android-${ANDROID_API},sys-img-x86_64-android-${ANDROID_API} > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'platforms;android-${ANDROID_API}' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo y | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
+      yes | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
     fi
   - npm i
 
-# Emulator Management: Create, Start and Wait https://docs.travis-ci.com/user/languages/android#How-to-Create-and-Start-an-Emulator
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      yes | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
-      echo "y" | android update sdk -a --no-ui --filter android-$EMULATOR_API > /dev/null;
       android list avd;
-      echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${EMULATOR_API_VERSION};
-      echo no | android create avd --force -n test -t android-$EMULATOR_API --abi armeabi-v7a;
-      emulator -avd test -no-window;
+      yes | sdkmanager "platforms;android-${ANDROID_API}" > /dev/null;
+      echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
+      emulator -avd test -no-window &;
       android-wait-for-emulator;
       adb shell input keyevent 82;
       adb wait-for-device get-serialno;
