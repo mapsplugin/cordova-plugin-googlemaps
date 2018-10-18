@@ -221,8 +221,11 @@
     - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
     - Fix: (Android) Can not load icon image file for Marker after external link opened.
     - Fix: (Browser) `MapOptions.styles` does not work.
+    - Fix: (Android) `map.setOptions()` asks location permission always even options do no include `myLocation` and/or `myLocationButton` options.
     - Update: (Android) Set `transparent` backgroundColor at `onResume()` because some other plugins change background color.
     - Update: (Android/iOS) Improve accuracy of touch detection on geodesic polyline.
+    - Update: (iOS) Remove "NSData+Base64" library. No longer necessary.
+    - Update: (js) ionic 4 hides Google Maps view.
 
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
