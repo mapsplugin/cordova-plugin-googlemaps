@@ -58,7 +58,8 @@ install:
   - node --version
   - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova > /dev/null; fi
   - cordova --version
-  - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then 
+  - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
+      git clone https://github.com/apache/cordova-paramedic;
       pushd cordova-paramedic;
       npm i > /dev/null;
       popd;
