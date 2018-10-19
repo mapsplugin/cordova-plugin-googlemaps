@@ -88,7 +88,7 @@ install:
       echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install "platforms;android-${ANDROID_API}";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install "system-images;android-${ANDROID_API};google_apis;armeabi-v7a"
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install "system-images;android-${ANDROID_API};google_apis;x86_64"
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install 'extras;google;m2repository' > /dev/null;
@@ -100,7 +100,7 @@ before_script:
       avdmanager list;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      avdmanager create avd --force --name test --abi armeabi-v7a --package "system-images;android-${ANDROID_API};google_apis;armeabi-v7a" --device "Nexus 6P";
+      avdmanager create avd --force --name test --abi x86_64 --package "system-images;android-${ANDROID_API};google_apis;x86_64" --device "Nexus 6P";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       emulator -avd test -no-window &
