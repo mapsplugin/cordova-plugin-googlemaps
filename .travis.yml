@@ -37,7 +37,7 @@ matrix:
     env: CORDOVA_PLATFORM="browser"
     language: node_js
   - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
-    os: linux
+    os: osx
     language: android
     jdk: oraclejdk8
 
