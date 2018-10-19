@@ -5,7 +5,7 @@ services:
 
 env:
   global:
-    - ANDROID_API=24
+    - ANDROID_API=26
     - ANDROID_BUILD_TOOLS=28.0.3
     - NODE_VERSION=7.0.0
 
@@ -125,5 +125,5 @@ script:
       done
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android@7.0.0 --plugin '. --variable API_KEY_FOR_ANDROID=test';
+      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android@7.0.0 --plugin ". --variable API_KEY_FOR_ANDROID=test --gradleArg=-PcdvCompileSdkVersion=${ANDROID_API}";
     fi
