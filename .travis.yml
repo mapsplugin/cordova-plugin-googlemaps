@@ -6,7 +6,7 @@ services:
 env:
   global:
     - ANDROID_API=24
-    - ANDROID_BUILD_TOOLS=28.0.3
+    - ANDROID_BUILD_TOOLS=25.2.3
     - NODE_VERSION=7.0.0
 
 before_cache:
