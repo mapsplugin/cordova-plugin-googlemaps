@@ -69,13 +69,13 @@ function pluginInit() {
   //
   var envTestDiv = '<div id="envTest" style="margin-top:-99px;margin-top:env(safe-area-inset-top);position:absolute;z-index:-1;"></div>';
 
-  document.body.insertAdjacentHTML('afterbegin', envTestDiv);
+  document.head.insertAdjacentHTML('afterbegin', envTestDiv);
 
   var testElement = document.getElementById('envTest');
   var computedStyles = window.getComputedStyle(testElement);
   var testResult = computedStyles.getPropertyValue('margin-top');
 
-  document.body.removeChild(testElement);
+  document.head.removeChild(testElement);
 
   // if browser supports env(), returns a pixel value as string, even if 0px
   if (testResult != '-99px') {
