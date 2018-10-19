@@ -93,6 +93,9 @@ install:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install 'extras;google;m2repository' > /dev/null;
     fi
+  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install 'emulator' > /dev/null;
+    fi
   - npm i > /dev/null
 
 before_script:
