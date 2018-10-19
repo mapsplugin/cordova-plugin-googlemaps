@@ -38,10 +38,11 @@ matrix:
     language: node_js
   - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
     os: osx
-    language: android
-    jdk: oraclejdk8
 
 install:
+  - brew tap caskroom/versions
+  - brew cask install java8
+  - if test ! -e  ~/.android/repositories.cfg; then touch  ~/.android/repositories.cfg; fi
   - exist=$(which nvm); if [[ -z "${exist}" ]]; then
       rm -rf ~/.nvm > /dev/null;
       git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null;
