@@ -5,8 +5,7 @@ services:
 
 env:
   global:
-    - ANDROID_API=25
-    - EMULATOR_API=25
+    - ANDROID_API=24
     - ANDROID_BUILD_TOOLS=28.0.3
     - NODE_VERSION=7.0.0
 
@@ -37,12 +36,11 @@ matrix:
     env: CORDOVA_PLATFORM="browser"
     language: node_js
   - env: CORDOVA_PLATFORM="android" ANDROID_HOME=${HOME}/android-sdk
-    os: osx
+    os: linux
+    language: android
+    jdk: oraclejdk8
 
 install:
-  - brew tap caskroom/versions
-  - brew cask install java8
-  - if test ! -e  ~/.android/repositories.cfg; then touch  ~/.android/repositories.cfg; fi
   - exist=$(which nvm); if [[ -z "${exist}" ]]; then
       rm -rf ~/.nvm > /dev/null;
       git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null;
@@ -77,37 +75,34 @@ install:
       mkdir -p ${HOME}/.android/avd/ > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install  'tools' > /dev/null;
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'tools' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install 'platform-tools' > /dev/null;
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'platform-tools' > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null;
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" > /dev/null;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install "platforms;android-${ANDROID_API}";
+      echo "y" | android update sdk -a --no-ui --filter android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install "system-images;android-${ANDROID_API};google_apis;x86_64";
+      echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-${ANDROID_API};
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install 'extras;google;m2repository' > /dev/null;
-    fi
-  - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager --install 'emulator' > /dev/null;
+      echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null;
     fi
   - npm i > /dev/null
 
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      ${ANDROID_HOME}/tools/bin/avdmanager list;
+      android list targets;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      ${ANDROID_HOME}/tools/bin/avdmanager create avd --force --name test --abi x86_64 --package "system-images;android-${ANDROID_API};google_apis;x86_64" --device "Nexus 6P";
+      echo no | android create avd --force -n test -t android-${ANDROID_API} --abi armeabi-v7a;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      ${ANDROID_HOME}/emulator/emulator @test  &
+      emulator -avd test -no-window &
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android-wait-for-emulator;
@@ -130,5 +125,5 @@ script:
       done
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
+      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android@7.0.0 --plugin '. --variable API_KEY_FOR_ANDROID=test';
     fi
