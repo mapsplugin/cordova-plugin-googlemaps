@@ -97,13 +97,13 @@ install:
 
 before_script:
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      avdmanager list;
+      ${ANDROID_HOME}/tools/bin/avdmanager list;
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      avdmanager create avd --force --name test --abi x86_64 --package "system-images;android-${ANDROID_API};google_apis;x86_64" --device "Nexus 6P";
+      ${ANDROID_HOME}/tools/bin/avdmanager create avd --force --name test --abi x86_64 --package "system-images;android-${ANDROID_API};google_apis;x86_64" --device "Nexus 6P";
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      emulator -avd test -no-window &
+      ${ANDROID_HOME}/emulator/emulator @test  &
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
       android-wait-for-emulator;
