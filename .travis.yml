@@ -125,5 +125,5 @@ script:
       done
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android@7.0.0 --plugin ". --variable API_KEY_FOR_ANDROID=test --gradleArg=-PcdvCompileSdkVersion=${ANDROID_API}";
+      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android@6.4.0 --plugin ". --variable API_KEY_FOR_ANDROID=test --variable PLAY_SERVICES_VERSION=15.0.1 --variable ANDROID_SUPPORT_V4_VERSION=27.+";
     fi
