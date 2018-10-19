@@ -59,8 +59,8 @@ install:
   - exist=$(which cordova); if [[ -z "${exist}" ]]; then npm -g install cordova > /dev/null; fi
   - cordova --version
   - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
-      git clone https://github.com/apache/cordova-paramedic;
-      pushd cordova-paramedic;
+      git clone https://github.com/apache/cordova-paramedic /tmp/paramedic;
+      pushd /tmp/paramedic;
       npm i > /dev/null;
       popd;
     fi
@@ -125,5 +125,5 @@ script:
       done
     fi
   - if [[ "${CORDOVA_PLATFORM}" == "android" ]]; then
-      cordova-paramedic  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
+      node /tmp/paramedic/main.js  --cleanUpAfterRun --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test';
     fi
