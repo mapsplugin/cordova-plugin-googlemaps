@@ -43,6 +43,10 @@ matrix:
       - cocoapods
     node_js: '${NODE_VERSION}'
     osx_image: xcode9.4
+    before_script:
+    - exist=$(which ios-deploy); if [[ -z "${exist}" ]]; then
+        npm -g install ios-deploy > /dev/null;
+      fi
 
   - env: CORDOVA_PLATFORM="android"
     os: linux
@@ -83,10 +87,12 @@ install:
       npm -g install cordova@${CORDOVA_VERSION} > /dev/null;
     fi
   - cordova --version
+  - exist=$(which eslint); if [[ -z "${exist}" ]]; then
+      npm -g install eslint > /dev/null;
+    fi
   - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
       npm -g install https://github.com/apache/cordova-paramedic;
     fi
-  - npm install
 
 script:
   - npm test
