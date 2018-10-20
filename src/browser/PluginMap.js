@@ -121,7 +121,6 @@ function PluginMap(mapId, options) {
         }
       }
     }
-    console.log(mapInitOptions);
 
     var map = new google.maps.Map(container, mapInitOptions);
     map.mapTypes = mapTypeReg;
