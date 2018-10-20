@@ -61,10 +61,6 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
     value: markerClusterOptions.boundsDraw === true,
     writable: false
   });
-  Object.defineProperty(self, 'cameraPadding', {
-    value: 'cameraPadding' in markerClusterOptions ? markerClusterOptions.cameraPadding : 20,
-    writable: false
-  });
 
   if (self.boundsDraw) {
     self.map.addPolygon({
@@ -215,10 +211,12 @@ MarkerCluster.prototype.onClusterClicked = function (cluster) {
     ]);
     polygon.setVisible(true);
   }
+  var zoomLevel = computeZoom(cluster.getBounds(), self.map.getDiv());
+  zoomLevel += zoomLevel === self.map.get('camera_zoom') ? 1 : 0;
   self.map.animateCamera({
-    target: cluster.getBounds(),
-    duration: 500,
-    padding: self.cameraPadding
+    target: cluster.getBounds().getCenter(),
+    zoom: zoomLevel,
+    duration: 500
   }, function () {
     if (self.boundsDraw) {
       setTimeout(function () {
@@ -1148,5 +1146,36 @@ MarkerCluster.prototype.getClusterByGeocellAndResolution = function (geocell, re
   }
   return cluster;
 };
+
+/*
+ * http://jsfiddle.net/john_s/BHHs8/6/
+ */
+function latRad(lat) {
+  var sin = Math.sin(lat * Math.PI / 180);
+  var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+  return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+}
+
+function zoom(mapPx, worldPx, fraction) {
+  return Math.log(mapPx / worldPx / fraction) / Math.LN2;
+}
+
+function computeZoom(bounds, mapDim) {
+  var tileSize = cordova.platformId === 'browser' ? 256 : 512;
+  var ZOOM_MAX = 21;
+
+  var ne = bounds.northeast;
+  var sw = bounds.southwest;
+
+  var latFraction = (latRad(ne.lat) - latRad(sw.lat)) / Math.PI;
+
+  var lngDiff = ne.lng - sw.lng;
+  var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+
+  var latZoom = zoom(mapDim.offsetHeight, tileSize, latFraction);
+  var lngZoom = zoom(mapDim.offsetWidth, tileSize, lngFraction);
+
+  return Math.min(latZoom, lngZoom, ZOOM_MAX);
+}
 
 module.exports = MarkerCluster;
