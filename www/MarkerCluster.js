@@ -562,7 +562,6 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
     //console.log('---->548');
     var activeMarker = self.map.get('active_marker');
     var activeMarkerId = activeMarker ? activeMarker.getId() : null;
-    console.log(`activeMarkerId = ${activeMarkerId}`);
     if (prevResolution === self.OUT_OF_RESOLUTION) {
       if (resolution === self.OUT_OF_RESOLUTION) {
         //--------------------------------------
