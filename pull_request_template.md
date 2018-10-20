@@ -6,4 +6,4 @@ When you create a pull request, please make it to **multiple_maps** branch inste
 
 Because **the multiple_maps branch is edge version**.
 
-Thank you for your help.
+Thank you for your understanding.

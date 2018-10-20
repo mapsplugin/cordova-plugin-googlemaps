@@ -68,7 +68,7 @@ function pluginInit() {
   //
   // Detect support for CSS env() variable
   //
-  var envTestDiv = '<div id="envTest" style="margin-top:-99px;margin-top:env(safe-area-inset-top);position:absolute;z-index:-1;"></div>';
+  var envTestDiv = '<div id="envTest" style="margin-top:-99px;margin-top:constant(safe-area-inset-top);margin-top:env(safe-area-inset-top);position:absolute;z-index:-1;"></div>';
 
   document.body.insertAdjacentHTML('afterbegin', envTestDiv);
 

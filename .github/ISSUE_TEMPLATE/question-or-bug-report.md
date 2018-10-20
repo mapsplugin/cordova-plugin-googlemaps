@@ -5,25 +5,25 @@ about: Create a report to help us improve
 ---
 
 <!--
-Thank you for supporting the plugin activity ($5 usd).
-https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
 
-#--------------------
-# public support
-#--------------------
-Since this plugin project is open source, I give you free public support.
-I almost all cases ask you to share your project files on Github or other git repository services.
-I don't matter if it is public or private repo.
-However screen captures or screen records are posted in public issue thread.
-(Code are not discovered as much as possible)
+*********************************************************************
 
-#--------------------
-# private support
-#--------------------
-Even if you don't want to discover anything including screen captures or screen records,
-please ask me to private support.
-I ask you to donate $100 USD to the maps plugin project,
-then I make a private space, then support it.
+**public support**
+
+If you have a question about this plugin, please ask here.
+However this is not a good place for Q&A, please ask only things related with this plugin (such as how to use).
+
+If you want to report your problem, please share your project files on Github in advance.
+Without your project files, I can only guess your issue (except your issue is really easy case).
+Sharing your project files in advance is the fastest way to resolve your issue.
+
+**private support**
+
+If you don't want to discover anything including code, screen captures or screen records,
+please [create an private issue ticket](https://github.com/mapsplugin/cordova-plugin-googlemaps/blob/master/.github/ISSUE_TEMPLATE/private-support.md).
+I provide a private space for chatting.
+
+*********************************************************************
 
 --->
 
@@ -76,3 +76,8 @@ Screen captures, and/or native logs(such as Logcat, xcode logs) are appreciate.
 Giving much information, you are waiting time is less.
 Thank you for your cooperation.
 ```
+
+**Support this plugin activity**
+
+I appreicate if you give me a beer :beer: from [here](
+https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SQPLZJ672HJ9N&lc=US&item_name=Cordova%2dGoogleMaps%2dPlugin&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
