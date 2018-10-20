@@ -20,7 +20,7 @@ var Cluster = function(id, geocell) {
     value: 'Cluster',
     writable: false
   });
-  Object.defineProperty(self, '_markerOptsArray', {
+  Object.defineProperty(self, '_markerArray', {
     value: [],
     writable: false
   });
@@ -65,18 +65,18 @@ Cluster.prototype.getCenter = function() {
 };
 
 Cluster.prototype.getMarkers = function() {
-  return this._markerOptsArray;
+  return this._markerArray;
 };
 
 Cluster.prototype.addMarkers = function(markerRefs) {
   var self = this;
-  var bounds = this.get('bounds') || new LatLngBounds(markerRefs[0].position, markerRefs[0].position);
+  var bounds = this.get('bounds') || new LatLngBounds(markerRefs[0].get('position'), markerRefs[0].get('position'));
 
-  markerRefs.forEach(function(markerOpts) {
-    if (self._markerOptsArray.indexOf(markerOpts) === -1) {
-      markerOpts._cluster.isAdded = true;
-      self._markerOptsArray.push(markerOpts);
-      bounds.extend(markerOpts.position);
+  markerRefs.forEach(function(marker) {
+    if (self._markerArray.indexOf(marker) === -1) {
+      marker.get('_cluster').isAdded = true;
+      self._markerArray.push(marker);
+      bounds.extend(marker.get('position'));
     }
   });
 
@@ -91,22 +91,22 @@ Cluster.prototype.setMode = function(mode) {
 Cluster.prototype.getMode = function() {
   return this.get('mode');
 };
-Cluster.prototype.removeMarker = function(markerOpts) {
+Cluster.prototype.removeMarker = function(marker) {
 
-  var idx = this._markerOptsArray.indexOf(markerOpts);
+  var idx = this._markerArray.indexOf(marker);
   if (idx !== -1) {
-    this._markerOptsArray.splice(idx, 1);
+    this._markerArray.splice(idx, 1);
   }
 };
 
 Cluster.prototype.remove = function() {
   this.set('isRemoved', true);
-  this._markerOptsArray.forEach(function(markerOpts) {
-    markerOpts._cluster.isAdded = false;
+  this._markerArray.forEach(function(marker) {
+    marker.get('_cluster').isAdded = false;
   });
 };
 Cluster.prototype.getItemLength = function() {
-  return this._markerOptsArray.length;
+  return this._markerArray.length;
 };
 
 module.exports = Cluster;

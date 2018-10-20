@@ -1430,38 +1430,21 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
   self.exec.call(self, function(result) {
 
-    var markerMap = {};
     result.geocellList.forEach(function(geocell, idx) {
       var markerOptions = markerClusterOptions.markers[idx];
       markerOptions = common.markerOptionsFilter(markerOptions);
 
-      var markerId = markerOptions.id || 'marker_' + idx;
-      //markerId = result.id + '-' + markerId;
-      markerOptions.id = markerId;
       markerOptions._cluster = {
         isRemoved: false,
         isAdded: false,
         geocell: geocell
       };
-      /*
-            var marker = new Marker(self, markerId, markerOptions, 'MarkerCluster', exec);
-            marker.set('isAdded', false, true);
-            marker.set('geocell', geocell, true);
-            marker.set('position', markerOptions.position, true);
-            marker.getId = function() {
-              return result.id + '-' + markerId;
-            };
-      */
-      markerMap[markerId] = markerCluster._createMarker(markerOptions);
+      markerCluster.addMarker(markerOptions);
 
       //self.MARKERS[marker.getId()] = marker;
       //self.OVERLAYS[marker.getId()] = marker;
     });
 
-    Object.defineProperty(markerCluster, '_markerMap', {
-      value: markerMap,
-      writable: false
-    });
 
     markerCluster.one('remove', function() {
       delete self.OVERLAYS[result.id];
@@ -1483,7 +1466,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     markerCluster._privateInitialize();
     delete markerCluster._privateInitialize;
 
-    markerCluster.redraw.call(markerCluster, {
+    markerCluster._triggerRedraw.call(markerCluster, {
       force: true
     });
 
@@ -1539,7 +1522,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
   if (markerCluster) {
     if (/^marker_/i.test(clusterId)) {
       // regular marker
-      var marker = markerCluster._getMarkerById(clusterId);
+      var marker = markerCluster.getMarkerById(clusterId);
       if (eventName === event.MARKER_CLICK) {
         markerCluster.trigger(eventName, position, marker);
       } else {

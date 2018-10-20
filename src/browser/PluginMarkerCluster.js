@@ -99,9 +99,9 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
         function _subdiv_char(posX, posY) {
           return GEOCELL_ALPHABET.charAt(
             (posY & 2) << 2 |
-            (posX & 2) << 1 |
-            (posY & 1) << 1 |
-            (posX & 1) << 0);
+           (posX & 2) << 1 |
+           (posY & 1) << 1 |
+           (posX & 1) << 0);
         }
 
 
@@ -159,7 +159,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
     //---------------------------
     params.new_or_update.forEach(function(clusterData) {
       var positionJSON = clusterData.position,
-        markerId = clusterData.__pgmId,
+        markerId = clusterData.id,
         clusterId_markerId = clusterId + '-' + markerId;
 
       // Save the marker properties
@@ -527,7 +527,7 @@ function ClusterIconClass(options) {
     var iconUrl = icon.url;
     if (typeof icon === 'object') {
       if (typeof icon.size === 'object' &&
-          icon.size.width && icon.size.height) {
+         icon.size.width && icon.size.height) {
         icon.anchor = new google.maps.Point(icon.size.width / 2, icon.size.height / 2);
         iconMarker.setIcon(icon);
         return;
@@ -594,7 +594,7 @@ ClusterIconClass.prototype.draw = function() {
     var iconUrl = icon.url;
     if (typeof icon === 'object') {
       if (typeof icon.size === 'object' &&
-          icon.size.width && icon.size.height) {
+         icon.size.width && icon.size.height) {
         return resolve(icon.size);
       }
     }

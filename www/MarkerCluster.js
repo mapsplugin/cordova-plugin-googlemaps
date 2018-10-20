@@ -17,22 +17,28 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
   exec = _exec;
   Overlay.call(this, map, markerClusterOptions, 'MarkerCluster', _exec);
 
-  var idxCount = markerClusterOptions.idxCount;
-
   var self = this;
   Object.defineProperty(self, 'maxZoomLevel', {
     value: markerClusterOptions.maxZoomLevel,
     writable: false
   });
+  Object.defineProperty(self, '_markerMap', {
+    enumerable: false,
+    value: {},
+    writable: false
+  });
   Object.defineProperty(self, '_clusterBounds', {
+    enumerable: false,
     value: new BaseArrayClass(),
     writable: false
   });
   Object.defineProperty(self, '_geocellBounds', {
+    enumerable: false,
     value: {},
     writable: false
   });
   Object.defineProperty(self, '_clusters', {
+    enumerable: false,
     value: {},
     writable: false
   });
@@ -41,10 +47,12 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
     writable: false
   });
   Object.defineProperty(self, 'MAX_RESOLUTION', {
+    enumerable: false,
     value: 11,
     writable: false
   });
   Object.defineProperty(self, 'OUT_OF_RESOLUTION', {
+    enumerable: false,
     value: 999,
     writable: false
   });
@@ -120,43 +128,40 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
   });
 
   self.addMarker = function (markerOptions, skipRedraw) {
-    idxCount++;
 
     markerOptions = common.markerOptionsFilter(markerOptions);
     var geocell = geomodel.getGeocell(markerOptions.position.lat, markerOptions.position.lng, self.MAX_RESOLUTION + 1);
 
-    var markerId = (markerOptions.id || 'marker_' + idxCount);
-    markerOptions.id = markerId;
     markerOptions._cluster = {
       isRemoved: false,
       isAdded: false,
       geocell: geocell
     };
 
-    //var marker = new Marker(self, markerId, markerOptions, 'markercluster');
-    //marker._cluster.isAdded = false;
-    //marker.set('geocell', geocell, true);
-    //marker.set('position', markerOptions.position, true);
-    self._markerMap[markerId] = self._createMarker(markerOptions);
+    var marker = self._createMarker(markerOptions);
+    self._markerMap[marker.id] = marker;
     if (skipRedraw || !self._isReady) {
-      return;
+      return marker;
     }
     self._triggerRedraw({
       force: true
     });
+    return marker;
   };
   self.addMarkers = function (markers) {
+    var results = [];
     if (utils.isArray(markers) || Array.isArray(markers)) {
       for (var i = 0; i < markers.length; i++) {
-        self.addMarker(markers[i], true);
+        results.push(self.addMarker(markers[i], true));
       }
       if (!self._isReady) {
-        return;
+        return results;
       }
       self._triggerRedraw({
         force: true
       });
     }
+    return results;
   };
 
   map.on(event.CAMERA_MOVE_END, self._onCameraMoved.bind(self));
@@ -230,7 +235,7 @@ Object.defineProperty(MarkerCluster.prototype, '_onCameraMoved', {
       return null;
     }
 
-    self.redraw({
+    self._triggerRedraw({
       force: false
     });
 
@@ -355,7 +360,7 @@ Object.defineProperty(MarkerCluster.prototype, '_removeMarkerById', {
     var resolution, geocellKey, cluster;
     for (var i = 0; i < resolutionList.length; i++) {
       resolution = parseInt(resolutionList[i], 10);
-      geocellKey = marker._cluster.geocell.substr(0, resolution + 1);
+      geocellKey = marker.get('_cluster').geocell.substr(0, resolution + 1);
       if (geocellKey in self._clusters[resolution]) {
         cluster = self._clusters[resolution][geocellKey];
         if (cluster) {
@@ -656,7 +661,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           if (cluster.getMode() === cluster.NO_CLUSTER_MODE) {
             cluster.getMarkers().forEach(function (marker) {
               deleteClusters[marker.id] = 1;
-              self._markerMap[marker.id]._cluster.isAdded = false;
+              marker.get('_cluster').isAdded = false;
               if (self.debug) {
                 console.log('---> (js:534)delete:' + marker.id);
               }
@@ -940,7 +945,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
             clusterOpts = {
               'count': cluster.getItemLength(),
               'position': cluster.getBounds().getCenter(),
-              '__pgmId': cluster.getId()
+              'id': cluster.getId()
             };
 
           if (self.debug) {
@@ -959,7 +964,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
               });
             }
             if (self.debug) {
-              console.log('---> (js:805)add:' + clusterOpts.__pgmId, icon);
+              console.log('---> (js:805)add:' + clusterOpts.id, icon);
               var geocell = clusterOpts.geocell.substr(0, cellLen);
               var bounds = self._geocellBounds[geocell] || geomodel.computeBox(geocell);
               self._geocellBounds[geocell] = bounds;
@@ -1049,7 +1054,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           }, true);
         } else {
           self._markerMap[markerId].set('icon', marker.get('icon') || {}, true);
-          self._markerMap[markerId].set('icon.size', marker.get('icon').icon.size || size, true);
+          self._markerMap[markerId].set('icon.size', marker.get('icon').size || size, true);
           self._markerMap[markerId].set('icon.anchor', marker.get('icon').anchor || [size.width / 2, size.height], true);
         }
         self._markerMap[markerId].set('infoWindowAnchor', marker.get('infoWindowAnchor') || [marker.get('icon').size.width / 2, 0], true);
@@ -1100,11 +1105,11 @@ MarkerCluster.prototype.getClusterIcon = function (cluster) {
 };
 
 MarkerCluster.prototype._createMarker = function (markerOpts) {
-  var markerId = markerOpts.id;
   var self = this;
+  var markerId = 'marker_' + Math.floor(Date.now() * Math.random());
   var marker = new Marker(self.getMap(), markerOpts, exec, {
     className: 'MarkerCluster',
-    id: self.id + '-' + markerId
+    id: markerId
   });
   marker._privateInitialize(markerOpts);
   delete marker._privateInitialize;

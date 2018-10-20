@@ -1,3 +1,4 @@
+
 var BaseClass = require('./BaseClass'),
   utils = require('cordova/utils'),
   BaseArrayClass = require('./BaseArrayClass');
