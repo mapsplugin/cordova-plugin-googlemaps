@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils'),
   common = require('./Common'),
   event = require('./event'),
@@ -561,6 +562,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
     //console.log('---->548');
     var activeMarker = self.map.get('active_marker');
     var activeMarkerId = activeMarker ? activeMarker.getId() : null;
+    console.log(`activeMarkerId = ${activeMarkerId}`);
     if (prevResolution === self.OUT_OF_RESOLUTION) {
       if (resolution === self.OUT_OF_RESOLUTION) {
         //--------------------------------------
@@ -602,6 +604,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           marker = self._clusters[self.OUT_OF_RESOLUTION].shift();
           marker.get('_cluster').isAdded = false;
           deleteClusters[marker.id] = 1;
+          console.log(`marker.id = ${marker.id}`);
 
           if (marker.id === activeMarkerId) {
             marker.trigger(event.INFO_CLOSE);
@@ -1046,18 +1049,19 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
         }
         var marker = self._markerMap[markerId];
         var size = allResults[markerId];
-        if (typeof self._markerMap[markerId].get('icon') === 'string') {
-          self._markerMap[markerId].set('icon', {
-            'url': self._markerMap[markerId].icon,
+        if (typeof marker.get('icon') === 'string') {
+          marker.set('icon', {
+            'url': marker.get('icon'),
             'size': size,
             'anchor': [size.width / 2, size.height]
           }, true);
         } else {
-          self._markerMap[markerId].set('icon', marker.get('icon') || {}, true);
-          self._markerMap[markerId].set('icon.size', marker.get('icon').size || size, true);
-          self._markerMap[markerId].set('icon.anchor', marker.get('icon').anchor || [size.width / 2, size.height], true);
+          var icon = marker.get('icon') || {};
+          icon.size = icon.size || size;
+          icon.anchor = icon.anchor || [size.width / 2, size.height];
+          self._markerMap[markerId].set('icon', icon, true);
         }
-        self._markerMap[markerId].set('infoWindowAnchor', marker.get('infoWindowAnchor') || [marker.get('icon').size.width / 2, 0], true);
+        marker.set('infoWindowAnchor', marker.get('infoWindowAnchor') || [marker.get('icon').size.width / 2, 0], true);
       });
       self.trigger('nextTask');
     }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
