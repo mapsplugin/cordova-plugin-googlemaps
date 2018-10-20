@@ -1117,21 +1117,10 @@ MarkerCluster.prototype._createMarker = function (markerOpts) {
   marker._privateInitialize(markerOpts);
   delete marker._privateInitialize;
 
-  function updateProperty(prevValue, newValue, key) {
-    self._markerMap[markerId][key] = newValue;
-  }
-  marker.on('title_changed', updateProperty);
-  marker.on('snippet_changed', updateProperty);
-  marker.on('animation_changed', updateProperty);
-  marker.on('infoWindowAnchor_changed', updateProperty);
-  marker.on('opacity_changed', updateProperty);
-  marker.on('zIndex_changed', updateProperty);
-  marker.on('visible_changed', updateProperty);
-  marker.on('draggable_changed', updateProperty);
-  marker.on('position_changed', updateProperty);
-  marker.on('rotation_changed', updateProperty);
-  marker.on('flat_changed', updateProperty);
-  marker.on('icon_changed', updateProperty);
+  // Recalulate geocell if marker position is changed.
+  marker.onThrottled('position_changed', function(ignore, newPosition) {
+    marker.get('_cluster').geocell = geomodel.getGeocell(newPosition.lat, newPosition.lng, self.MAX_RESOLUTION + 1);
+  }, 500);
   marker.one(marker.getId() + '_remove', function () {
     self._removeMarkerById(markerId);
   });
