@@ -60,7 +60,7 @@ PluginGroundOverlay.prototype._create = function(onSuccess, onError, args) {
 
 
   onSuccess({
-    'id': groundoverlayId
+    '__pgmId': groundoverlayId
   });
 };
 PluginGroundOverlay.prototype.setImage = function(onSuccess, onError, args) {

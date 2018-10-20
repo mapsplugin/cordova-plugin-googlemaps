@@ -114,7 +114,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
         JSONObject resultJSON = new JSONObject();
         try {
           resultJSON.put("hashCode", idBase);
-          resultJSON.put("id", "groundoverlay_" + idBase);
+          resultJSON.put("__pgmId", "groundoverlay_" + idBase);
         } catch (Exception e) {
           e.printStackTrace();
         }

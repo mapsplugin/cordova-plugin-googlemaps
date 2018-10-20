@@ -219,7 +219,7 @@ function postPanoramaInit(panorama, div, options) {
   }
   var args = Array.prototype.slice.call(arguments, 0);
   args.unshift({
-    id: mapId
+    __pgmId: mapId
   });
 
   // If the mapDiv is specified,
@@ -253,7 +253,7 @@ function postMapInit(map, div, options) {
     div.setAttribute('__pluginMapId', mapId);
 
     args.push({
-      id: mapId,
+      __pgmId: mapId,
       depth: 0
     });
     args.push(div);
@@ -263,7 +263,7 @@ function postMapInit(map, div, options) {
     map.getMap.apply(map, args);
   } else {
     args.push({
-      id: mapId,
+      __pgmId: mapId,
       depth: 0
     });
     args.push(null);

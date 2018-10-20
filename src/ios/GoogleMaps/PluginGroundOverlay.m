@@ -163,7 +163,7 @@
                   // Result for JS
                   //---------------------------
                   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-                  [result setObject:groundOverlayId forKey:@"id"];
+                  [result setObject:groundOverlayId forKey:@"__pgmId"];
 
                   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
                   [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

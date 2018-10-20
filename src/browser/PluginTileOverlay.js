@@ -168,7 +168,7 @@ PluginTileOverlay.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[tileoverlayId] = tileoverlay;
 
   onSuccess({
-    'id': tileoverlayId
+    '__pgmId': tileoverlayId
   });
 };
 

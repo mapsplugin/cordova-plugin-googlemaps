@@ -75,7 +75,7 @@ PluginPolygon.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[polygonId] = polygon;
 
   onSuccess({
-    'id': polygonId
+    '__pgmId': polygonId
   });
 };
 

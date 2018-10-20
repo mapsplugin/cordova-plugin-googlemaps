@@ -45,7 +45,7 @@ TileOverlay.prototype.getMap = function () {
   return this.map;
 };
 TileOverlay.prototype.getId = function () {
-  return this.id;
+  return this.__pgmId;
 };
 TileOverlay.prototype.getTileSize = function () {
   return this.get('tileSize');
@@ -94,7 +94,7 @@ TileOverlay.prototype.remove = function (callback) {
     value: true,
     writable: false
   });
-  self.trigger(self.id + '_remove');
+  self.trigger(self.__pgmId + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,

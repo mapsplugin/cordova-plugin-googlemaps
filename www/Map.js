@@ -26,11 +26,11 @@ var utils = require('cordova/utils'),
  * Google Maps model.
  */
 var exec;
-var Map = function(id, _exec) {
+var Map = function(__pgmId, _exec) {
   var self = this;
   exec = _exec;
   Overlay.call(self, self, {}, 'Map', _exec, {
-    id: id
+    __pgmId: __pgmId
   });
   delete self.map;
 
@@ -67,7 +67,7 @@ var Map = function(id, _exec) {
     if (prevMarker) {
       prevMarker.hideInfoWindow.call(prevMarker);
     }
-    self.exec.call(self, null, null, self.id, 'setActiveMarkerId', [newMarkerId]);
+    self.exec.call(self, null, null, self.__pgmId, 'setActiveMarkerId', [newMarkerId]);
   });
 };
 
@@ -77,7 +77,7 @@ utils.extend(Map, Overlay);
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function() {
-  this.exec.call(this, null, null, this.id, 'resizeMap', []);
+  this.exec.call(this, null, null, this.__pgmId, 'resizeMap', []);
 };
 
 Map.prototype.getMap = function(meta, div, options) {
@@ -294,7 +294,7 @@ Map.prototype.setOptions = function(options) {
   if (utils.isArray(options.styles)) {
     options.styles = JSON.stringify(options.styles);
   }
-  this.exec.call(this, null, this.errorHandler, this.id, 'setOptions', [options]);
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setOptions', [options]);
   return this;
 };
 
@@ -304,13 +304,13 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
 
 Map.prototype.setCameraTarget = function(latLng) {
   this.set('camera_target', latLng);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraTarget', [latLng.lat, latLng.lng]);
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraTarget', [latLng.lat, latLng.lng]);
   return this;
 };
 
 Map.prototype.setCameraZoom = function(zoom) {
   this.set('camera_zoom', zoom);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraZoom', [zoom], {
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraZoom', [zoom], {
     sync: true
   });
   return this;
@@ -318,7 +318,7 @@ Map.prototype.setCameraZoom = function(zoom) {
 Map.prototype.panBy = function(x, y) {
   x = parseInt(x, 10);
   y = parseInt(y, 10);
-  this.exec.call(this, null, this.errorHandler, this.id, 'panBy', [x, y], {
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'panBy', [x, y], {
     sync: true
   });
   return this;
@@ -366,7 +366,7 @@ Map.prototype.clear = function(callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.id, 'clear', [], {
+      self.__pgmId, 'clear', [], {
         sync: true
       });
   };
@@ -393,7 +393,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
     return this.errorHandler('Invalid MapTypeId was specified.');
   }
   this.set('mapTypeId', mapTypeId);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setMapTypeId', [mapTypeId]);
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setMapTypeId', [mapTypeId]);
   return this;
 };
 
@@ -403,7 +403,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setCameraTilt = function(tilt) {
   this.set('camera_tilt', tilt);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraTilt', [tilt], {
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraTilt', [tilt], {
     sync: true
   });
   return this;
@@ -415,7 +415,7 @@ Map.prototype.setCameraTilt = function(tilt) {
  */
 Map.prototype.setCameraBearing = function(bearing) {
   this.set('camera_bearing', bearing);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setCameraBearing', [bearing], {
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraBearing', [bearing], {
     sync: true
   });
   return this;
@@ -492,7 +492,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.id, 'animateCamera', [cameraPosition], {
+      self.__pgmId, 'animateCamera', [cameraPosition], {
         sync: true
       });
   };
@@ -540,7 +540,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.id, 'moveCamera', [cameraPosition], {
+      self.__pgmId, 'moveCamera', [cameraPosition], {
         sync: true
       });
   };
@@ -556,7 +556,7 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set('myLocationButton', enabled);
-  self.exec.call(self, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+  self.exec.call(self, null, this.errorHandler, this.__pgmId, 'setMyLocationEnabled', [{
     myLocationButton: enabled,
     myLocation: self.get('myLocation') === true
   }], {
@@ -569,7 +569,7 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set('myLocation', enabled);
-  self.exec.call(self, null, this.errorHandler, this.id, 'setMyLocationEnabled', [{
+  self.exec.call(self, null, this.errorHandler, this.__pgmId, 'setMyLocationEnabled', [{
     myLocationButton: self.get('myLocationButton') === true,
     myLocation: enabled
   }], {
@@ -580,18 +580,18 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
 
 Map.prototype.setIndoorEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setIndoorEnabled', [enabled]);
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setIndoorEnabled', [enabled]);
   return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  this.exec.call(this, null, this.errorHandler, this.id, 'setTrafficEnabled', [enabled]);
+  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setTrafficEnabled', [enabled]);
   return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  self.exec.call(self, null, self.errorHandler, this.id, 'setCompassEnabled', [enabled]);
+  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setCompassEnabled', [enabled]);
   return this;
 };
 Map.prototype.getFocusedBuilding = function(callback) {
@@ -600,7 +600,7 @@ Map.prototype.getFocusedBuilding = function(callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.id, 'getFocusedBuilding', []);
+      self.__pgmId, 'getFocusedBuilding', []);
   };
 
   if (typeof callback === 'function') {
@@ -617,7 +617,7 @@ Map.prototype.setVisible = function(isVisible) {
   var self = this;
   isVisible = common.parseBoolean(isVisible);
   self.set('visible', isVisible);
-  self.exec.call(self, null, self.errorHandler, this.id, 'setVisible', [isVisible]);
+  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setVisible', [isVisible]);
   return this;
 };
 
@@ -626,7 +626,7 @@ Map.prototype.setClickable = function(isClickable) {
   var self = this;
   isClickable = common.parseBoolean(isClickable);
   self.set('clickable', isClickable);
-  self.exec.call(self, null, self.errorHandler, this.id, 'setClickable', [isClickable]);
+  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setClickable', [isClickable]);
   return this;
 };
 Map.prototype.getClickable = function() {
@@ -640,7 +640,7 @@ Map.prototype.getClickable = function() {
 Map.prototype.setAllGesturesEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  self.exec.call(self, null, self.errorHandler, this.id, 'setAllGesturesEnabled', [enabled]);
+  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setAllGesturesEnabled', [enabled]);
   return this;
 };
 
@@ -715,7 +715,7 @@ Map.prototype.remove = function(callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      'CordovaGoogleMaps', 'removeMap', [self.id],
+      'CordovaGoogleMaps', 'removeMap', [self.__pgmId],
       {
         sync: true,
         remove: true
@@ -746,7 +746,7 @@ Map.prototype.toDataURL = function(params, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.id, 'toDataURL', [params]);
+      self.__pgmId, 'toDataURL', [params]);
   };
 
   if (typeof callback === 'function') {
@@ -777,7 +777,7 @@ Map.prototype.setDiv = function(div) {
     }
     self.set('div', null);
   } else {
-    div.setAttribute('__pluginMapId', self.id);
+    div.setAttribute('__pluginMapId', self.__pgmId);
 
     // Insert the infoWindow layer
     if (self._layers.info.parentNode) {
@@ -830,7 +830,7 @@ Map.prototype.setDiv = function(div) {
       action: 'setDiv'
     });
     self.refreshLayout();
-  }, self.errorHandler, self.id, 'setDiv', args, {
+  }, self.errorHandler, self.__pgmId, 'setDiv', args, {
     sync: true
   });
   return self;
@@ -874,7 +874,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
       self.exec.call(self,
         resolve.bind(self),
         reject.bind(self),
-        self.id, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
+        self.__pgmId, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
     };
 
     if (typeof callback === 'function') {
@@ -912,7 +912,7 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
           resolve.call(self, latLng);
         },
         reject.bind(self),
-        self.id, 'fromPointToLatLng', [pixel[0], pixel[1]]);
+        self.__pgmId, 'fromPointToLatLng', [pixel[0], pixel[1]]);
     };
 
     if (typeof callback === 'function') {
@@ -969,7 +969,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
     padding.left = padding.top;
     break;
   }
-  this.exec.call(this, null, self.errorHandler, this.id, 'setPadding', [padding]);
+  this.exec.call(this, null, self.errorHandler, this.__pgmId, 'setPadding', [padding]);
   return this;
 };
 
@@ -1062,7 +1062,7 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
       if (typeof callback === 'function') {
         callback.call(self, fusionTableOverlay);
       }
-    }, self.errorHandler, self.id, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
+    }, self.errorHandler, self.__pgmId, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
 
     if (typeof callback === 'function') {
       callback(fusionTableOverlay);
@@ -1135,7 +1135,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, groundOverlay);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['GroundOverlay', groundOverlayOptions, groundOverlay.hashCode]);
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['GroundOverlay', groundOverlayOptions, groundOverlay.hashCode]);
 
   return groundOverlay;
 };
@@ -1195,16 +1195,16 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (url instanceof Promise) {
       common.promiseTimeout(5000, url)
         .then(function(finalUrl) {
-          cordova_exec(null, self.errorHandler, self.id + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
+          cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
         })
         .catch(function() {
-          cordova_exec(null, self.errorHandler, self.id + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, '(null)']);
+          cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, '(null)']);
         });
     } else {
-      cordova_exec(null, self.errorHandler, self.id + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, url]);
+      cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, url]);
     }
   };
-  document.addEventListener(self.id + '-' + hashCode + '-tileoverlay', onNativeCallback);
+  document.addEventListener(self.__pgmId + '-' + hashCode + '-tileoverlay', onNativeCallback);
 
   self.exec.call(self, function() {
     tileOverlay._privateInitialize();
@@ -1213,7 +1213,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, tileOverlay);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['TileOverlay', options, hashCode]);
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['TileOverlay', options, hashCode]);
 
   return tileOverlay;
 };
@@ -1271,7 +1271,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, polygon);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Polygon', opts, polygon.hashCode]);
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Polygon', opts, polygon.hashCode]);
 
   return polygon;
 };
@@ -1310,7 +1310,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, polyline);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Polyline', opts, polyline.hashCode]);
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Polyline', opts, polyline.hashCode]);
 
   return polyline;
 };
@@ -1346,7 +1346,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, circle);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
 
   return circle;
 };
@@ -1397,7 +1397,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, marker);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['Marker', markerOptions, marker.hashCode]);
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Marker', markerOptions, marker.hashCode]);
 
   return marker;
 };
@@ -1447,11 +1447,11 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
 
 
     markerCluster.one('remove', function() {
-      delete self.OVERLAYS[result.id];
+      delete self.OVERLAYS[result.__pgmId];
       /*
             result.geocellList.forEach(function(geocell, idx) {
               var markerOptions = markerClusterOptions.markers[idx];
-              var markerId = result.id + '-' + (markerOptions.id || 'marker_' + idx);
+              var markerId = result.__pgmId + '-' + (markerOptions.__pgmId || 'marker_' + idx);
               var marker = self.MARKERS[markerId];
               if (marker) {
                 marker.off();
@@ -1473,7 +1473,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     if (typeof callback === 'function') {
       callback.call(self, markerCluster);
     }
-  }, self.errorHandler, self.id, 'loadPlugin', ['MarkerCluster', {
+  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['MarkerCluster', {
     'positionList': positionList,
     'debug': markerClusterOptions.debug === true
   }, markerCluster.hashCode]);

@@ -3,12 +3,12 @@ var LatLngBounds = require('./LatLngBounds');
 /*****************************************************************************
  * Cluster Class
  *****************************************************************************/
-var Cluster = function(id, geocell) {
+var Cluster = function(__pgmId, geocell) {
   var obj = {};
 
   var self = this;
-  Object.defineProperty(self, 'id', {
-    value: id,
+  Object.defineProperty(self, '__pgmId', {
+    value: __pgmId,
     writable: false
   });
   Object.defineProperty(self, 'geocell', {
@@ -83,7 +83,7 @@ Cluster.prototype.addMarkers = function(markerRefs) {
   this.set('bounds', bounds);
 };
 Cluster.prototype.getId = function() {
-  return this.id;
+  return this.__pgmId;
 };
 Cluster.prototype.setMode = function(mode) {
   this.set('mode', mode);

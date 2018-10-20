@@ -15,7 +15,7 @@ var Overlay = function (map, options, className, _exec, extras) {
   //-----------------------------------------------
   // Sets the initialize option to each property
   //-----------------------------------------------
-  var ignores = ['map', 'id', 'hashCode', 'type'];
+  var ignores = ['map', '__pgmId', 'hashCode', 'type'];
   if (extras.ignores) {
     ignores = ignores.concat(extras.ignores);
   }
@@ -58,8 +58,8 @@ var Overlay = function (map, options, className, _exec, extras) {
     value: map,
     writable: false
   });
-  Object.defineProperty(self, 'id', {
-    value: extras.id || (className.toLowerCase()) + '_' + this.hashCode,
+  Object.defineProperty(self, '__pgmId', {
+    value: extras.__pgmId || (className.toLowerCase()) + '_' + this.hashCode,
     writable: false
   });
   Object.defineProperty(self, 'type', {
@@ -108,7 +108,7 @@ Overlay.prototype.exec = function () {
   });
 };
 Overlay.prototype.getId = function () {
-  return this.id;
+  return this.__pgmId;
 };
 Overlay.prototype.getMap = function () {
   return this.map;

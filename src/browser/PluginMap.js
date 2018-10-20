@@ -61,7 +61,7 @@ function PluginMap(mapId, options) {
   self.set('container', container);
   self.PLUGINS = {};
 
-  Object.defineProperty(self, 'id', {
+  Object.defineProperty(self, '__pgmId', {
     value: mapId,
     writable: false
   });

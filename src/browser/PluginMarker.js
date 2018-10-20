@@ -123,7 +123,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess, o
 
   if (iconSize) {
     onSuccess(marker, {
-      'id': markerId,
+      '__pgmId': markerId,
       'width': iconSize.width,
       'height': iconSize.height
     });
@@ -131,7 +131,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess, o
     var markerIcon = marker.getIcon();
     if (markerIcon && markerIcon.size) {
       onSuccess({
-        'id': markerId,
+        '__pgmId': markerId,
         'width': markerIcon.size.width,
         'height': markerIcon.size.height
       });
@@ -139,7 +139,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess, o
       var img = new Image();
       img.onload = function() {
         onSuccess(marker, {
-          'id': markerId,
+          '__pgmId': markerId,
           'width': img.width,
           'height': img.height
         });
@@ -147,7 +147,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess, o
       img.onerror = function(error) {
         console.warn(error.getMessage());
         onSuccess(marker, {
-          'id': markerId,
+          '__pgmId': markerId,
           'width': 20,
           'height': 42
         });

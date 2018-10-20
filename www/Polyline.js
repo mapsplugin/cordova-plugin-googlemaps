@@ -36,7 +36,7 @@ var Polyline = function (map, polylineOptions, _exec) {
   //-----------------------------------------------
   // Sets the initialize option to each property
   //-----------------------------------------------
-  // var ignores = ['map', 'id', 'hashCode', 'type', 'points'];
+  // var ignores = ['map', '__pgmId', 'hashCode', 'type', 'points'];
   // for (var key in polylineOptions) {
   //   if (ignores.indexOf(key) === -1) {
   //     self.set(key, polylineOptions[key]);
@@ -94,7 +94,7 @@ Polyline.prototype.setPoints = function (points) {
       'lng': points[i].lng
     }, true);
   }
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.__pgmId, mvcArray.getArray()]);
   return self;
 };
 Polyline.prototype.getPoints = function () {
@@ -182,7 +182,7 @@ Polyline.prototype.remove = function (callback) {
   if (self.points) {
     self.points.empty();
   }
-  self.trigger(self.id + '_remove');
+  self.trigger(self.__pgmId + '_remove');
 
   return result;
 };

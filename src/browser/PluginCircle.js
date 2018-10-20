@@ -59,7 +59,7 @@ PluginCircle.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[circleId] = circle;
 
   onSuccess({
-    'id': circleId
+    '__pgmId': circleId
   });
 };
 

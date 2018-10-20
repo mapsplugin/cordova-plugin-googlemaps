@@ -132,7 +132,7 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
       var result = {
         'geocellList': Array.prototype.concat.apply([], results),
         'hashCode': hashCode,
-        'id': id
+        '__pgmId': id
       };
 
       onSuccess(result);
@@ -173,7 +173,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
       var properties = {
         'lat': positionJSON.lat,
         'lng': positionJSON.lng,
-        'id': clusterId_markerId
+        '__pgmId': clusterId_markerId
       };
       if ('title' in clusterData) {
         properties.title = clusterData.title;

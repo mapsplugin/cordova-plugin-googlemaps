@@ -123,7 +123,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
                 JSONObject result = new JSONObject();
                 try {
                     result.put("hashCode", hashCode);
-                    result.put("id", "polygon_"+ id);
+                    result.put("__pgmId", "polygon_"+ id);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

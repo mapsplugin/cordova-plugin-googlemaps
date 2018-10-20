@@ -702,9 +702,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   map.on('__isAttached_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, map.id, 'attachToWebView', []);
+      cordova_exec(null, null, map.__pgmId, 'attachToWebView', []);
     } else {
-      cordova_exec(null, null, map.id, 'detachFromWebView', []);
+      cordova_exec(null, null, map.__pgmId, 'detachFromWebView', []);
     }
   });
 
@@ -931,7 +931,7 @@ function postPanoramaInit(panorama, div, options) {
 
   var args = Array.prototype.slice.call(arguments, 0);
   args.unshift({
-    id: mapId,
+    __pgmId: mapId,
     depth: depth
   });
 
@@ -1000,7 +1000,7 @@ function postMapInit(map, div, options) {
     });
     depth = Math.floor(depth * 10000);
     args.push({
-      id: mapId,
+      __pgmId: mapId,
       depth: depth
     });
     args.push(div);
@@ -1016,7 +1016,7 @@ function postMapInit(map, div, options) {
     }, null, 'CordovaGoogleMaps', 'putHtmlElements', [self.domPositions]);
   } else {
     args.push({
-      id: mapId,
+      __pgmId: mapId,
       depth: 0
     });
     args.push(null);

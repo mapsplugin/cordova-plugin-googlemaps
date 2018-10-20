@@ -340,7 +340,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.startTimer();
       }
       callbackContext.success();
-      
+
       //On resume reapply background because it might have been changed by some other plugin
       webView.getView().setBackgroundColor(Color.TRANSPARENT);
     }
@@ -447,7 +447,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     // Create an instance of PluginMap class.
     //------------------------------------------
     JSONObject meta = args.getJSONObject(0);
-    String mapId = meta.getString("id");
+    String mapId = meta.getString("__pgmId");
     PluginMap pluginMap = new PluginMap();
     pluginMap.privateInitialize(mapId, cordova, webView, null);
     pluginMap.initialize(cordova, webView);
@@ -467,7 +467,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     // Create an instance of PluginStreetView class.
     //------------------------------------------
     JSONObject meta = args.getJSONObject(0);
-    String mapId = meta.getString("id");
+    String mapId = meta.getString("__pgmId");
     Log.d(TAG, "---> mapId = " + mapId);
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
     pluginStreetView.privateInitialize(mapId, cordova, webView, null);
