@@ -186,7 +186,7 @@ PluginCircle.prototype.remove = function(onSuccess, onError, args) {
 
 PluginCircle.prototype._onCircleEvent = function(circle, polyMouseEvt) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   if (mapId in plugin.google.maps) {
     plugin.google.maps[mapId]({
       'evtName': event.CIRCLE_CLICK,

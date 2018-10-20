@@ -132,7 +132,7 @@ QUEUE.on('next', function() {
 
     self._executing = false;
     cmd.onSuccess({
-      'idx': cmd.pluginRequest.idx,
+      'idx': cmd.pluginRequest.__pgmIdx,
       'results': pluginResults
     });
 

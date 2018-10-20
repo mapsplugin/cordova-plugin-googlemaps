@@ -82,7 +82,7 @@ var CordovaGoogleMaps = {
     });
 
     var meta = args[0],
-      mapId = meta.id;
+      mapId = meta.__pgmId;
     args[0] = mapId;
     args.unshift(this);
 
@@ -146,7 +146,7 @@ var CordovaGoogleMaps = {
     });
 
     var meta = args[0],
-      mapId = meta.id;
+      mapId = meta.__pgmId;
     args[0] = mapId;
     args.unshift(this);
 

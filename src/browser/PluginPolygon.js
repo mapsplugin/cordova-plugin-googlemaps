@@ -358,7 +358,7 @@ PluginPolygon.prototype.remove = function(onSuccess, onError, args) {
 
 PluginPolygon.prototype._onPolygonEvent = function(polygon, polyMouseEvt) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   if (mapId in plugin.google.maps) {
     plugin.google.maps[mapId]({
       'evtName': event.POLYGON_CLICK,

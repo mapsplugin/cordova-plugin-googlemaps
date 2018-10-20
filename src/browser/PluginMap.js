@@ -357,7 +357,7 @@ PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
     var mapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
     mapDiv.style.position = 'relative';
     mapDiv.insertBefore(container, mapDiv.firstElementChild);
-    mapDiv.setAttribute('__pluginMapId', self.id);
+    mapDiv.setAttribute('__pluginMapId', self.__pgmId);
   }
 
   google.maps.event.trigger(map, 'resize');
@@ -613,7 +613,7 @@ PluginMap.prototype._syncInfoWndPosition = function() {
   var latLng = self.activeMarker.getPosition();
   self.fromLatLngToPoint(function(point) {
 
-    plugin.google.maps[self.id]({
+    plugin.google.maps[self.__pgmId]({
       'evtName': 'syncPosition',
       'callback': '_onSyncInfoWndPosition',
       'args': [{'x': point[0], 'y': point[1]}]
@@ -631,12 +631,12 @@ PluginMap.prototype._onMapEvent = function(evtName, evt) {
     evt.stop();
     return;
   }
-  if (self.id in plugin.google.maps) {
+  if (self.__pgmId in plugin.google.maps) {
     if (evt) {
       if (evtName === event.MAP_CLICK) {
         if (evt.placeId) {
           evt.stop();
-          plugin.google.maps[self.id]({
+          plugin.google.maps[self.__pgmId]({
             'evtName': event.POI_CLICK,
             'callback': '_onMapEvent',
             'args': [evt.placeId, undefined, new LatLng(evt.latLng.lat(), evt.latLng.lng())]
@@ -644,13 +644,13 @@ PluginMap.prototype._onMapEvent = function(evtName, evt) {
           return;
         }
       }
-      plugin.google.maps[self.id]({
+      plugin.google.maps[self.__pgmId]({
         'evtName': evtName,
         'callback': '_onMapEvent',
         'args': [new LatLng(evt.latLng.lat(), evt.latLng.lng())]
       });
     } else {
-      plugin.google.maps[self.id]({
+      plugin.google.maps[self.__pgmId]({
         'evtName': evtName,
         'callback': '_onMapEvent',
         'args': []
@@ -682,8 +682,8 @@ PluginMap.prototype._onCameraEvent = function(evtName) {
     'nearLeft': {'lat': sw.lat(), 'lng': sw.lng()}, // = southWest
     'nearRight': {'lat': sw.lat(), 'lng': ne.lng()}
   };
-  if (self.id in plugin.google.maps) {
-    plugin.google.maps[self.id]({
+  if (self.__pgmId in plugin.google.maps) {
+    plugin.google.maps[self.__pgmId]({
       'evtName': evtName,
       'callback': '_onCameraEvent',
       'args': [cameraInfo]
@@ -715,7 +715,7 @@ PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
         dummyObj[key] = plugin[key];
       }
     }
-    require('cordova/exec/proxy').add(self.id + '-' + className.toLowerCase(), dummyObj);
+    require('cordova/exec/proxy').add(self.__pgmId + '-' + className.toLowerCase(), dummyObj);
   }
 
   plugin._create.call(plugin, onSuccess, onError, args);

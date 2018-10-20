@@ -159,7 +159,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
     //---------------------------
     params.new_or_update.forEach(function(clusterData) {
       var positionJSON = clusterData.position,
-        markerId = clusterData.id,
+        markerId = clusterData.__pgmId,
         clusterId_markerId = clusterId + '-' + markerId;
 
       // Save the marker properties
@@ -432,7 +432,7 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
 
 PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   var overlayId = marker.get('overlayId');
   var tmp = overlayId.split('-');
   var clusterId = tmp[0];

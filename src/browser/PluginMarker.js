@@ -402,7 +402,7 @@ PluginMarker.prototype.remove = function(onSuccess, onError, args) {
 
 PluginMarker.prototype.onMarkerEvent = function(evtName, marker) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
 
   if (mapId in plugin.google.maps) {
     var latLng = marker.getPosition();

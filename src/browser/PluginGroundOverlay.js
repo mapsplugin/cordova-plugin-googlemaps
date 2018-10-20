@@ -160,7 +160,7 @@ PluginGroundOverlay.prototype.remove = function(onSuccess, onError, args) {
 
 PluginGroundOverlay.prototype._onGroundOverlayEvent = function(groundoverlay, mouseEvt) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   if (mapId in plugin.google.maps) {
     plugin.google.maps[mapId]({
       'evtName': event.GROUND_OVERLAY_CLICK,
