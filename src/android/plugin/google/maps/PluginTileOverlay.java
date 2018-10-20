@@ -109,7 +109,7 @@ public class PluginTileOverlay extends MyPlugin implements MyPluginInterface {
         try {
           JSONObject result = new JSONObject();
           result.put("hashCode", id);
-          result.put("id", "tileoverlay_" + id);
+          result.put("__pgmId", "tileoverlay_" + id);
           callbackContext.success(result);
         } catch (JSONException e) {
           e.printStackTrace();

@@ -30,7 +30,7 @@ var KmlOverlay = function (map, kmlId, camera, kmlData, kmlOverlayOptions) {
     value: 'KmlOverlay',
     writable: false
   });
-  Object.defineProperty(self, 'id', {
+  Object.defineProperty(self, '__pgmId', {
     value: kmlId,
     writable: false
   });
@@ -247,7 +247,7 @@ var KmlOverlay = function (map, kmlId, camera, kmlData, kmlOverlayOptions) {
   kmlData.forEach(seekOverlays);
 
   /*
-      var ignores = ['map', 'id', 'hashCode', 'type'];
+      var ignores = ['map', '__pgmId', 'hashCode', 'type'];
       for (var key in kmlOverlayOptions) {
           if (ignores.indexOf(key) === -1) {
               self.set(key, kmlOverlayOptions[key]);
@@ -276,7 +276,7 @@ KmlOverlay.prototype.getMap = function () {
   return this.map;
 };
 KmlOverlay.prototype.getId = function () {
-  return this.id;
+  return this.__pgmId;
 };
 
 KmlOverlay.prototype.setClickable = function (clickable) {

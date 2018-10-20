@@ -46,7 +46,7 @@ PluginFusionTableOverlay.prototype._create = function(onSuccess, onError, args) 
   self.pluginMap.objects[fusionTableOverlayId] = fusionTableOverlay;
 
   onSuccess({
-    'id': fusionTableOverlayId
+    '__pgmId': fusionTableOverlayId
   });
 };
 

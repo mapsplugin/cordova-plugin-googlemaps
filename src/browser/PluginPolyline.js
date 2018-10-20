@@ -60,7 +60,7 @@ PluginPolyline.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[polylineId] = polyline;
 
   onSuccess({
-    'id': polylineId
+    '__pgmId': polylineId
   });
 };
 PluginPolyline.prototype.remove = function(onSuccess, onError, args) {
@@ -203,7 +203,7 @@ PluginPolyline.prototype.removePointAt = function(onSuccess, onError, args) {
 
 PluginPolyline.prototype._onPolylineEvent = function(polyline, polyMouseEvt) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   if (mapId in plugin.google.maps) {
     plugin.google.maps[mapId]({
       'evtName': event.POLYLINE_CLICK,

@@ -99,9 +99,9 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
         function _subdiv_char(posX, posY) {
           return GEOCELL_ALPHABET.charAt(
             (posY & 2) << 2 |
-            (posX & 2) << 1 |
-            (posY & 1) << 1 |
-            (posX & 1) << 0);
+           (posX & 2) << 1 |
+           (posY & 1) << 1 |
+           (posX & 1) << 0);
         }
 
 
@@ -132,7 +132,7 @@ PluginMarkerCluster.prototype._create = function(onSuccess, onError, args) {
       var result = {
         'geocellList': Array.prototype.concat.apply([], results),
         'hashCode': hashCode,
-        'id': id
+        '__pgmId': id
       };
 
       onSuccess(result);
@@ -173,7 +173,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
       var properties = {
         'lat': positionJSON.lat,
         'lng': positionJSON.lng,
-        'id': clusterId_markerId
+        '__pgmId': clusterId_markerId
       };
       if ('title' in clusterData) {
         properties.title = clusterData.title;
@@ -432,7 +432,7 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
 
 PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   var overlayId = marker.get('overlayId');
   var tmp = overlayId.split('-');
   var clusterId = tmp[0];
@@ -527,7 +527,7 @@ function ClusterIconClass(options) {
     var iconUrl = icon.url;
     if (typeof icon === 'object') {
       if (typeof icon.size === 'object' &&
-          icon.size.width && icon.size.height) {
+         icon.size.width && icon.size.height) {
         icon.anchor = new google.maps.Point(icon.size.width / 2, icon.size.height / 2);
         iconMarker.setIcon(icon);
         return;
@@ -594,7 +594,7 @@ ClusterIconClass.prototype.draw = function() {
     var iconUrl = icon.url;
     if (typeof icon === 'object') {
       if (typeof icon.size === 'object' &&
-          icon.size.width && icon.size.height) {
+         icon.size.width && icon.size.height) {
         return resolve(icon.size);
       }
     }

@@ -10,7 +10,7 @@ var exec;
 var StreetViewPanorama = function(streetViewId, _exec) {
   exec = _exec;
   Overlay.call(this, this, {}, 'StreetViewPanorama', _exec, {
-    id: streetViewId
+    __pgmId: streetViewId
   });
 
   var self = this;
@@ -28,23 +28,23 @@ var StreetViewPanorama = function(streetViewId, _exec) {
   //-----------------------------------------------
   self.on('gesture_panning_changed', function() {
     var booleanValue = self.get('gesture_panning');
-    self.exec.call(self, null, self.errorHandler, self.id, 'setPanningGesturesEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setPanningGesturesEnabled', [booleanValue]);
   });
   self.on('gesture_zoom_changed', function() {
     var booleanValue = self.get('gesture_zoom');
-    self.exec.call(self, null, self.errorHandler, self.id, 'setZoomGesturesEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setZoomGesturesEnabled', [booleanValue]);
   });
   self.on('control_navigation_changed', function() {
     var booleanValue = self.get('control_navigation');
-    self.exec.call(self, null, self.errorHandler, self.id, 'setNavigationEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setNavigationEnabled', [booleanValue]);
   });
   self.on('control_streetNames_changed', function() {
     var booleanValue = self.get('control_streetNames');
-    self.exec.call(self, null, self.errorHandler, self.id, 'setStreetNamesEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setStreetNamesEnabled', [booleanValue]);
   });
   self.on('visible_changed', function() {
     var booleanValue = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.id, 'setVisible', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setVisible', [booleanValue]);
   });
 };
 
@@ -60,7 +60,7 @@ StreetViewPanorama.prototype.getHashCode = function() {
 };
 
 StreetViewPanorama.prototype.getId = function() {
-  return this.id;
+  return this.__pgmId;
 };
 StreetViewPanorama.prototype.getPanorama = function(meta, panorama, div, options) {
   var self = this,
@@ -226,7 +226,7 @@ StreetViewPanorama.prototype.setPosition = function(cameraPosition, callback) {
     if (typeof callback === 'function') {
       callback.call(self);
     }
-  }, self.errorHandler, self.id, 'setPosition', [cameraPosition], {
+  }, self.errorHandler, self.__pgmId, 'setPosition', [cameraPosition], {
     sync: true
   });
   return this;
@@ -248,7 +248,7 @@ StreetViewPanorama.prototype.setPov = function(pov, callback) {
     if (typeof callback === 'function') {
       callback.call(self);
     }
-  }, self.errorHandler, self.id, 'setPov', [pov], {
+  }, self.errorHandler, self.__pgmId, 'setPov', [pov], {
     sync: true
   });
   return this;
@@ -265,7 +265,7 @@ StreetViewPanorama.prototype.remove = function(callback) {
         resolve.call(self);
       },
       reject.bind(self),
-      'CordovaGoogleMaps', 'removeMap', [self.id], {
+      'CordovaGoogleMaps', 'removeMap', [self.__pgmId], {
         sync: true,
         remove: true
       });

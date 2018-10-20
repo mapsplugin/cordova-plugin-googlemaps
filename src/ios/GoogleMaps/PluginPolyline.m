@@ -115,7 +115,7 @@
           // Result for JS
           //---------------------------
           NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-          [result setObject:id forKey:@"id"];
+          [result setObject:id forKey:@"__pgmId"];
 
           //---------------------------
           // Keep the properties

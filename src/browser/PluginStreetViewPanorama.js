@@ -42,7 +42,7 @@ function PluginStreetViewPanorama(panoramaId, options) {
   self.set('container', container);
   self.PLUGINS = {};
 
-  Object.defineProperty(self, 'id', {
+  Object.defineProperty(self, '__pgmId', {
     value: panoramaId,
     writable: false
   });
@@ -120,8 +120,8 @@ function PluginStreetViewPanorama(panoramaId, options) {
             },
             'point': [evt.clientX, evt.clientY]
           };
-          if (self.id in plugin.google.maps) {
-            plugin.google.maps[self.id]({
+          if (self.__pgmId in plugin.google.maps) {
+            plugin.google.maps[self.__pgmId]({
               'evtName': event.PANORAMA_CLICK,
               'callback': '_onPanoramaEvent',
               'args': [clickInfo]
@@ -296,8 +296,8 @@ PluginStreetViewPanorama.prototype._onCameraEvent = function(panorama) {
     'tilt': pov.pitch,
     'zoom': panorama.getZoom()
   };
-  if (self.id in plugin.google.maps) {
-    plugin.google.maps[self.id]({
+  if (self.__pgmId in plugin.google.maps) {
+    plugin.google.maps[self.__pgmId]({
       'evtName': event.PANORAMA_CAMERA_CHANGE,
       'callback': '_onPanoramaCameraChange',
       'args': [camera]
@@ -325,8 +325,8 @@ PluginStreetViewPanorama.prototype._onPanoChangedEvent = function(panorama) {
       };
     });
   }
-  if (self.id in plugin.google.maps) {
-    plugin.google.maps[self.id]({
+  if (self.__pgmId in plugin.google.maps) {
+    plugin.google.maps[self.__pgmId]({
       'evtName': event.PANORAMA_LOCATION_CHANGE,
       'callback': '_onPanoramaLocationChange',
       'args': [locationInfo]

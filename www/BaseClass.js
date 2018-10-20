@@ -177,14 +177,14 @@ BaseClass.prototype = {
   errorHandler: function (error) {
     if (error) {
       if (typeof console.error === 'function') {
-        if (this.id) {
-          console.error(this.id, error);
+        if (this.__pgmId) {
+          console.error(this.__pgmId, error);
         } else {
           console.error(error);
         }
       } else {
-        if (this.id) {
-          console.log(this.id, error);
+        if (this.__pgmId) {
+          console.log(this.__pgmId, error);
         } else {
           console.log(error);
         }

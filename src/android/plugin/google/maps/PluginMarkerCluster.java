@@ -229,7 +229,7 @@ public class PluginMarkerCluster extends PluginMarker {
     try {
       result.put("geocellList", geocellList);
       result.put("hashCode", hashCode);
-      result.put("id", id);
+      result.put("__pgmId", id);
     } catch (JSONException e) {
       e.printStackTrace();
     }
@@ -285,7 +285,7 @@ public class PluginMarkerCluster extends PluginMarker {
       if (clusterData.has("title")) {
         properties.putString("title", clusterData.getString("title"));
       }
-      properties.putString("id", clusterId_markerId);
+      properties.putString("__pgmId", clusterId_markerId);
 
       if (clusterData.has("icon")) {
         Object iconObj = clusterData.get("icon");

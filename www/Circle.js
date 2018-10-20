@@ -124,7 +124,7 @@ Circle.prototype.remove = function (callback) {
     value: true,
     writable: false
   });
-  self.trigger(self.id + '_remove');
+  self.trigger(self.__pgmId + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,

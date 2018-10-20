@@ -69,7 +69,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   }
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject meta = args.getJSONObject(0);
-    panoramaId = meta.getString("id");
+    panoramaId = meta.getString("__pgmId");
     viewDepth = meta.getInt("depth");
 
     JSONObject jsOptions = args.getJSONObject(1);

@@ -33,7 +33,7 @@ FusionTableOverlay.prototype.getMap = function () {
   return this.map;
 };
 FusionTableOverlay.prototype.getId = function () {
-  return this.id;
+  return this.__pgmId;
 };
 FusionTableOverlay.prototype.setVisible = function (visible) {
   visible = common.parseBoolean(visible);
@@ -56,7 +56,7 @@ FusionTableOverlay.prototype.remove = function (callback) {
     value: true,
     writable: false
   });
-  self.trigger(self.id + '_remove');
+  self.trigger(self.__pgmId + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,

@@ -72,7 +72,7 @@ var Polygon = function (map, polygonOptions, _exec) {
   //--------------------------
   // other properties
   //--------------------------.
-  // var ignores = ['map', 'id', 'hashCode', 'type', 'points', 'holes'];
+  // var ignores = ['map', '__pgmId', 'hashCode', 'type', 'points', 'holes'];
   // for (var key in polygonOptions) {
   //   if (ignores.indexOf(key) === -1) {
   //     self.set(key, polygonOptions[key]);
@@ -127,7 +127,7 @@ Polygon.prototype.remove = function (callback) {
     value: true,
     writable: false
   });
-  self.trigger(this.id + '_remove');
+  self.trigger(this.__pgmId + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -159,7 +159,7 @@ Polygon.prototype.setPoints = function (points) {
   for (i = 0; i < points.length; i++) {
     mvcArray.push(common.getLatLng(points[i]), true);
   }
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.id, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.__pgmId, mvcArray.getArray()]);
   return self;
 };
 Polygon.prototype.getPoints = function () {
@@ -186,7 +186,7 @@ Polygon.prototype.setHoles = function (holes) {
       mvcArray.push(newHole, true);
     }
   });
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setHoles', [self.id, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setHoles', [self.__pgmId, mvcArray.getArray()]);
   return this;
 };
 Polygon.prototype.getHoles = function () {

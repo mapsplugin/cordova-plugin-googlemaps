@@ -44,10 +44,12 @@
   ],
   "scripts": {
     "test": "npm run eslint",
-    "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src"
+    "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src",
+    "test:android": "cordova-paramedic --cleanUpAfterRun --verbose --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel",
+    "test:browser": "cordova-paramedic --cleanUpAfterRun --verbose --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel"
   },
   "author": "Masashi Katsumata, Hirbod Mirjavadi",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mapsplugin/cordova-plugin-googlemaps/issues"
   },

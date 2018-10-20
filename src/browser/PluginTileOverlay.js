@@ -115,7 +115,7 @@ PluginTileOverlay.prototype._create = function(onSuccess, onError, args) {
     hashCode = args[2],
     tileoverlayId = 'tileoverlay_' + hashCode,
     pluginOptions = args[1],
-    mapId = self.pluginMap.id,
+    mapId = self.pluginMap.__pgmId,
     getTileEventName = mapId + '-' + hashCode + '-tileoverlay';
 
   pluginOptions.getTile = function(x, y, zoom, urlCallbackId) {
@@ -127,7 +127,7 @@ PluginTileOverlay.prototype._create = function(onSuccess, onError, args) {
     });
   };
 
-  var tileoverlay = new TileOverlay(self.pluginMap.id, hashCode, pluginOptions);
+  var tileoverlay = new TileOverlay(self.pluginMap.__pgmId, hashCode, pluginOptions);
 
   var layers = map.overlayMapTypes.getArray();
   layers = layers.filter(function(layer) {
@@ -168,7 +168,7 @@ PluginTileOverlay.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[tileoverlayId] = tileoverlay;
 
   onSuccess({
-    'id': tileoverlayId
+    '__pgmId': tileoverlayId
   });
 };
 

@@ -150,7 +150,7 @@ const int GEOCELL_GRID_SIZE = 4;
   NSString *clusterId = [NSString stringWithFormat:@"markercluster_%lu%d", command.hash, arc4random() % 100000];
   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
   [result setObject:geocellList forKey:@"geocellList"];
-  [result setObject:clusterId forKey:@"id"];
+  [result setObject:clusterId forKey:@"__pgmId"];
   [result setObject:[NSNumber numberWithFloat:[[UIScreen mainScreen] scale]] forKey:@"scale"];
 
   [self.debugFlags setObject:[NSNumber numberWithBool:[[params objectForKey:@"debug"] boolValue]] forKey:clusterId];
@@ -212,7 +212,7 @@ const int GEOCELL_GRID_SIZE = 4;
       } else {
         [properties setObject:[NSNumber numberWithBool:true] forKey:@"visible"];
       }
-      [properties setObject:clusterId_markerId forKey:@"id"];
+      [properties setObject:clusterId_markerId forKey:@"__pgmId"];
 
       if ([clusterData objectForKey:@"icon"]) {
         id iconObj = [clusterData objectForKey:@"icon"];

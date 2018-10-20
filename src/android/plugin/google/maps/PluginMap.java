@@ -166,7 +166,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
     GoogleMapOptions options = new GoogleMapOptions();
     JSONObject meta = args.getJSONObject(0);
-    mapId = meta.getString("id");
+    mapId = meta.getString("__pgmId");
     viewDepth = meta.getInt("depth");
     final JSONObject params = args.getJSONObject(1);
 

@@ -38,7 +38,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     JSONObject opts = args.getJSONObject(1);
     final String hashCode = args.getString(2);
     polylineHashCode = hashCode;
-    
+
     if (opts.has("points")) {
       JSONArray points = opts.getJSONArray("points");
       List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
@@ -93,7 +93,7 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
         try {
           JSONObject result = new JSONObject();
           result.put("hashCode", hashCode);
-          result.put("id", id);
+          result.put("__pgmId", id);
           callbackContext.success(result);
         } catch (JSONException e) {
           e.printStackTrace();

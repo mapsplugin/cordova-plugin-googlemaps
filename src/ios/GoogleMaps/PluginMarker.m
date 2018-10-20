@@ -70,7 +70,7 @@
 
     __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
     NSString *markerId = [NSString stringWithFormat:@"marker_%@", hashCode];
-    [createResult setObject:markerId forKey:@"id"];
+    [createResult setObject:markerId forKey:@"__pgmId"];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;

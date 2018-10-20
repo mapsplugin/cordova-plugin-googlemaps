@@ -1,14 +1,9 @@
 exports.defineAutoTests = function () {
 
-  describe('install check', function () {
+  describe('FirebaseCore (plugin.firebase.app)', function () {
 
-    it('plugin.google.maps should exist', function () {
-        expect(plugin.google.maps).toBeDefined();
-    });
-
-    // temporally fail test
-    it('fail.google.maps should exist', function () {
-        expect(fail.google.maps).toBeDefined();
+    it('plugin.firebase.app should exist', function () {
+        expect(plugin.firebase.app).toBeDefined();
     });
 
   });

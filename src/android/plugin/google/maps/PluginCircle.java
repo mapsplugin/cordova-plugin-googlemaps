@@ -28,7 +28,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     JSONObject opts = args.getJSONObject(1);
     final String hashCode = args.getString(2);
     circleHashCode = hashCode;
-    
+
     if (opts.has("center")) {
       JSONObject center = opts.getJSONObject("center");
       circleOptions.center(new LatLng(center.getDouble("lat"), center.getDouble("lng")));
@@ -80,7 +80,7 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
         JSONObject result = new JSONObject();
         try {
           result.put("hashCode", hashCode);
-          result.put("id", "circle_" + hashCode);
+          result.put("__pgmId", "circle_" + hashCode);
           callbackContext.success(result);
         } catch (JSONException e) {
           e.printStackTrace();

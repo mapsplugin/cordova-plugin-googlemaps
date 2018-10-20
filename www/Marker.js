@@ -1,3 +1,5 @@
+
+
 var utils = require('cordova/utils'),
   common = require('./Common'),
   LatLng = require('./LatLng'),
@@ -110,7 +112,7 @@ Marker.prototype.remove = function(callback) {
     writable: false
   });
   self.trigger(event.INFO_CLOSE); // close open infowindow, otherwise it will stay
-  self.trigger(self.id + '_remove');
+  self.trigger(self.__pgmId + '_remove');
 
   var resolver = function(resolve, reject) {
     self.exec.call(self,
@@ -136,7 +138,7 @@ Marker.prototype.remove = function(callback) {
 Marker.prototype.getOptions = function() {
   var self = this;
   return {
-    'id': self.getId(),
+    '__pgmId': self.getId(),
     'position': self.getPosition(),
     'disableAutoPan': self.get('disableAutoPan'),
     'opacity': self.get('opacity'),
@@ -252,7 +254,7 @@ Marker.prototype.setTitle = function(title) {
 Marker.prototype.setVisible = function(visible) {
   visible = common.parseBoolean(visible);
   this.set('visible', visible);
-  if (!visible && this.map.get('active_marker_id') === this.id) {
+  if (!visible && this.map.get('active_marker_id') === this.__pgmId) {
     this.map.set('active_marker_id', undefined);
   }
   return this;
@@ -286,7 +288,7 @@ Marker.prototype.showInfoWindow = function() {
     return;
   }
   self.set('isInfoWindowVisible', true);
-  self.map.set('active_marker_id', self.id);
+  self.map.set('active_marker_id', self.__pgmId);
   self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'showInfoWindow', [self.getId()], {
     sync: true
   });
@@ -294,7 +296,7 @@ Marker.prototype.showInfoWindow = function() {
 };
 Marker.prototype.hideInfoWindow = function() {
   var self = this;
-  if (self.map.get('active_marker_id') === self.id) {
+  if (self.map.get('active_marker_id') === self.__pgmId) {
     self.map.set('active_marker_id', null);
   }
   if (self.get('isInfoWindowVisible')) {
