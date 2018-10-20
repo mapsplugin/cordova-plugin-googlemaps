@@ -68,7 +68,7 @@ install:
     fi
   - nvm use ${NODE_VERSION} > /dev/null;
   - node --version
-  - exist=$(which cordova); if [[ -z "${exist}" ]]; then;
+  - exist=$(which cordova); if [[ -z "${exist}" ]]; then
       npm -g cordova@${CORDOVA_VERSION} > /dev/null;
     fi
   - cordova --version
