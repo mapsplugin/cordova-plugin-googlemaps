@@ -83,7 +83,7 @@ Overlay.prototype._privateInitialize = function (options) {
   // Sets the initialize option to each property
   //-----------------------------------------------
   if (options) {
-    var ignores = ['map', 'id', 'hashCode', 'type'];
+    var ignores = ['map', '__pgmId', 'hashCode', 'type'];
     for (var key in options) {
       if (ignores.indexOf(key) === -1) {
         self.set(key, options[key], true);
