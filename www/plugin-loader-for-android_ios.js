@@ -6,8 +6,6 @@ if (!cordova) {
   });
 } else {
   var common = require('./Common');
-  // The pluginInit.js must execute before loading HTML is completed.
-  require('./pluginInit')();
 
   cordova.addConstructor(function () {
     if (!window.Cordova) {
@@ -56,6 +54,9 @@ if (!cordova) {
     wait();
 
   })).then(function () {
+    // The pluginInit.js must execute before loading HTML is completed.
+    require('./pluginInit')();
+    
     common.nextTick(function () {
       // If the developer needs to recalculate the DOM tree graph,
       // use `cordova.fireDocumentEvent('plugin_touch')`

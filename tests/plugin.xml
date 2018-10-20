@@ -3,9 +3,10 @@
     xmlns:rim="http://www.blackberry.com/ns/widgets"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-googlemaps-tests"
-    version="2.5.0-beta-20181016-1830-dev">
+    version="4.0.2-dev">
     <name>Cordova Geolocation Plugin Tests</name>
     <license>Apache 2.0</license>
+
 
     <js-module src="tests.js" name="tests">
     </js-module>
