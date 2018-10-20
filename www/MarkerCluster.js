@@ -570,6 +570,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
           var marker = self._markerMap[markerId];
           if (self._isRemoved ||
             self._stopRequest ||
+            !marker.isVisible() ||
             marker.get('_cluster').isRemoved ||
             marker.get('_cluster').isAdded) {
             return;
@@ -614,6 +615,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
         keys.forEach(function (markerId) {
           var marker = self._markerMap[markerId];
           if (self._isRemoved ||
+            !marker.isVisible() ||
             self._stopRequest ||
             marker.get('_cluster').isRemoved) {
             return;
@@ -686,6 +688,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
         if (self._isRemoved ||
           self._stopRequest ||
           marker.get('_cluster').isRemoved ||
+          !marker.isVisible() ||
           ignoreGeocells.indexOf(geocell) > -1 ||
           marker.get('_cluster').isAdded) {
           return;
