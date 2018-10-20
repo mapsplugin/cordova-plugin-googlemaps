@@ -1,3 +1,4 @@
+
 var utils = require('cordova/utils'),
   common = require('./Common'),
   BaseClass = require('./BaseClass'),
@@ -47,16 +48,17 @@ var KmlOverlay = function (map, kmlId, camera, kmlData, kmlOverlayOptions) {
     writable: false
   });
 
+
   function templateRenderer(html, marker) {
     var extendedData = marker.get('extendeddata');
 
-    return html.replace(/\$[{[].+?[}]]/gi, function (match, name) {
+    return html.replace(/\$[{\\[](.+?)[}\]]/gi, function(match, name) {
       var text = '';
       if (marker.get(name)) {
-        text = marker.get(name).value;
+        text = marker.get(name).value || '';
       }
       if (extendedData && text) {
-        text = text.replace(/\$[{[].+?[}]]/gi, function (match1, name1) {
+        text = text.replace(/\$[{\\[](.+?)[}\]]/gi, function(match1, name1) {
           return extendedData[name1.toLowerCase()] || '';
         });
       }
@@ -188,11 +190,11 @@ var KmlOverlay = function (map, kmlId, camera, kmlData, kmlOverlayOptions) {
       }
       var prevMatchedCnt = 0;
       result = html.join('');
-      var matches = result.match(/\$[{[].+?[}]]/gi);
-      while (matches && matches.length !== prevMatchedCnt) {
+      var matches = result.match(/\$[{\\[].+?[}\]]/gi);
+      while(matches && matches.length !== prevMatchedCnt) {
         prevMatchedCnt = matches.length;
         result = templateRenderer(result, overlay);
-        matches = result.match(/\$[{[].+?[}]]/gi);
+        matches = result.match(/\$[{\\[].+?[}\]]/gi);
       }
     }
     var styles = null;
