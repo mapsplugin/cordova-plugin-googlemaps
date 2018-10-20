@@ -87,12 +87,10 @@ install:
       npm -g install cordova@${CORDOVA_VERSION} > /dev/null;
     fi
   - cordova --version
-  - exist=$(which eslint); if [[ -z "${exist}" ]]; then
-      npm -g install eslint > /dev/null;
-    fi
   - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
       npm -g install https://github.com/apache/cordova-paramedic;
     fi
+  - npm i > /dev/null
 
 script:
   - npm test
