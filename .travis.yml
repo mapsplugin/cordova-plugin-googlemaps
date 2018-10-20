@@ -53,7 +53,8 @@ matrix:
         - extra-google-m2repository
         - sys-img-armeabi-v7a-android-${ANDROID_API}
       licenses:
-        - ".+"
+        - 'android-sdk-license-.+'
+        - '.+'
 
 install:
 
