@@ -3,8 +3,9 @@ sudo: false
 env:
   global:
   - NODE_VERSION="9.11.2"
-  - ANDROID_API="28"
+  - ANDROID_API="24"
   - ANDROID_BUILD_TOOLS="28.0.3"
+  - CORDOVA_VERSION="8.1.2"
 
 notifications:
   email: false
@@ -30,11 +31,20 @@ cache:
 matrix:
   include:
   - os: linux
-    env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="browser"
+    env:  CORDOVA_PLATFORM="browser"
     language: node_js
     node_js: '${NODE_VERSION}'
 
-  - env: CORDOVA_VERSION="8.0.0" CORDOVA_PLATFORM="android"
+  - os: osx
+    env: CORDOVA_PLATFORM="ios"
+    language: objective-c
+    cache:
+      - bundler
+      - cocoapods
+    node_js: '${NODE_VERSION}'
+    osx_image: xcode9.4
+
+  - env: CORDOVA_PLATFORM="android"
     os: linux
     node_js: '${NODE_VERSION}'
     language: android
