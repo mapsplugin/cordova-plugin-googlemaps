@@ -1,4 +1,5 @@
-var cordova_exec = require('cordova/exec');
+var cordova_exec = require('cordova/exec'),
+  common = require('cordova-plugin-googlemaps.Common');
 
 function pluginInit() {
   //-------------------------------------------------------------
@@ -69,13 +70,11 @@ function pluginInit() {
   //
   var envTestDiv = '<div id="envTest" style="margin-top:-99px;margin-top:env(safe-area-inset-top);position:absolute;z-index:-1;"></div>';
 
-  document.head.insertAdjacentHTML('afterbegin', envTestDiv);
+  document.body.insertAdjacentHTML('afterbegin', envTestDiv);
 
   var testElement = document.getElementById('envTest');
-  var computedStyles = window.getComputedStyle(testElement);
-  var testResult = computedStyles.getPropertyValue('margin-top');
-
-  document.head.removeChild(testElement);
+  var testResult = common.getStyle(testElement, 'margin-top');
+  document.body.removeChild(testElement);
 
   // if browser supports env(), returns a pixel value as string, even if 0px
   if (testResult != '-99px') {
