@@ -69,7 +69,7 @@ install:
   - nvm use ${NODE_VERSION} > /dev/null;
   - node --version
   - exist=$(which cordova); if [[ -z "${exist}" ]]; then
-      npm -g cordova@${CORDOVA_VERSION} > /dev/null;
+      npm -g install cordova@${CORDOVA_VERSION} > /dev/null;
     fi
   - cordova --version
   - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
