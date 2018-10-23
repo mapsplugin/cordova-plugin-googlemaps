@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -1050,6 +1049,8 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
 
 
   var fusionTableOverlay = new FusionTableOverlay(self, fusionTableOptions, exec);
+  var fusionTableOverlayId = fusionTableOverlay.getId();
+  self.OVERLAYS[fusionTableOverlayId] = fusionTableOverlay;
   if (cordova.platformId === 'browser') {
     //----------------------------------
     // Browser: use FusionTable layer
@@ -1062,7 +1063,7 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
       if (typeof callback === 'function') {
         callback.call(self, fusionTableOverlay);
       }
-    }, self.errorHandler, self.__pgmId, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlay.hashCode]);
+    }, self.errorHandler, self.__pgmId, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlayId]);
 
     if (typeof callback === 'function') {
       callback(fusionTableOverlay);

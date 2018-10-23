@@ -1,4 +1,5 @@
 
+
 if (!window.Promise) {
   window.Promise = require('cordova-plugin-googlemaps.Promise');
 }
@@ -11,6 +12,7 @@ var common = require('cordova-plugin-googlemaps.Common'),
 function nativeCallback(params) {
   var args = params.args || [];
   args.unshift(params.evtName);
+
   this[params.callback].apply(this, args);
 }
 

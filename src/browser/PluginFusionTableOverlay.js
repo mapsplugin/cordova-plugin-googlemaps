@@ -1,6 +1,8 @@
 
 var utils = require('cordova/utils'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
+  event = require('cordova-plugin-googlemaps.event'),
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
+  LatLng = require('cordova-plugin-googlemaps.LatLng');
 
 function PluginFusionTableOverlay(pluginMap) {
   var self = this;
@@ -18,9 +20,9 @@ utils.extend(PluginFusionTableOverlay, BaseClass);
 PluginFusionTableOverlay.prototype._create = function(onSuccess, onError, args) {
   var self = this,
     map = self.pluginMap.get('map'),
-    hashCode = args[2],
-    fusionTableOverlayId = 'FusionTableOverlay_' + hashCode,
-    pluginOptions = args[1];
+    fusionTableOverlayId = args[2],
+    pluginOptions = args[1],
+    mapId = self.pluginMap.__pgmId;
 
   var fusionTableOpts = {
     'map': map,
@@ -42,6 +44,24 @@ PluginFusionTableOverlay.prototype._create = function(onSuccess, onError, args) 
   }
 
   var fusionTableOverlay = new google.maps.FusionTablesLayer(fusionTableOpts);
+
+  fusionTableOverlay.addListener('click', function(mouseEvent) {
+
+    if (mapId in plugin.google.maps) {
+      plugin.google.maps[mapId]({
+        'evtName': event.FUSION_TABLE_CLICK,
+        'callback': '_onOverlayEvent',
+        'args': [fusionTableOverlayId, {
+          'infoWindowHtml': mouseEvent.infoWindowHtml,
+          'latLng': new LatLng(mouseEvent.latLng.lat(), mouseEvent.latLng.lng()),
+          'row': {
+            'columnName': mouseEvent.row.columnName,
+            'value': mouseEvent.row.value
+          }
+        }]
+      });
+    }
+  });
 
   self.pluginMap.objects[fusionTableOverlayId] = fusionTableOverlay;
 
