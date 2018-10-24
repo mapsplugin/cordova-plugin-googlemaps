@@ -18,7 +18,7 @@ var LocationService = function(exec) {
         function(hasPermission) {
           resolve.call(self, hasPermission === 1);
         },
-        reject.bind(self), 'LocationService', 'hasPermission', [], {sync: true});
+        reject.bind(self), 'PluginLocationService', 'hasPermission', [], {sync: true});
       };
 
       var errorHandler = function(result) {
