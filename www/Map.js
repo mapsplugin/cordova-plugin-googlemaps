@@ -1040,12 +1040,27 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
   if (!fusionTableOptions) {
     throw new Error('Please specify fusionTableOptions');
   }
-  if (!fusionTableOptions.select) {
-    throw new Error('Please specify fusionTableOptions.select');
+  if (!fusionTableOptions.query) {
+    throw new Error('Please specify fusionTableOptions.query');
   }
-  if (!fusionTableOptions.from) {
-    throw new Error('Please specify fusionTableOptions.from');
+  if (!fusionTableOptions.query.select) {
+    throw new Error('Please specify fusionTableOptions.query.select');
   }
+  if (!fusionTableOptions.query.from) {
+    throw new Error('Please specify fusionTableOptions.query.from');
+  }
+  var limitedOptions = {
+    clickable: common.defaultTrueOption(fusionTableOptions.clickable),
+    suppressInfoWindows: fusionTableOptions.suppressInfoWindows === true,
+    query: {
+      from: fusionTableOptions.query.from,
+      limit: fusionTableOptions.query.limit,
+      offset: fusionTableOptions.query.offset,
+      orderBy: fusionTableOptions.query.orderBy,
+      select: fusionTableOptions.query.select,
+      where: fusionTableOptions.query.where
+    }
+  };
 
 
   var fusionTableOverlay = new FusionTableOverlay(self, fusionTableOptions, exec);
@@ -1055,54 +1070,94 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
     //----------------------------------
     // Browser: use FusionTable layer
     //----------------------------------
+    return (new Promise(function(resolve, reject) {
 
-    self.exec.call(self, function() {
-      fusionTableOverlay._privateInitialize();
-      delete fusionTableOverlay._privateInitialize;
+      self.exec.call(self, function() {
+        fusionTableOverlay._privateInitialize();
+        resolve(fusionTableOverlay);
+      }, reject,
+      self.__pgmId,
+      'loadPlugin', ['FusionTableOverlay', limitedOptions, fusionTableOverlayId]);
 
+    }))
+    .then(function(overlay) {
       if (typeof callback === 'function') {
-        callback.call(self, fusionTableOverlay);
+        callback.call(self, overlay);
+      } else {
+        return Promise.resolve(overlay);
       }
-    }, self.errorHandler, self.__pgmId, 'loadPlugin', ['FusionTableOverlay', fusionTableOptions, fusionTableOverlayId]);
+    });
 
-    if (typeof callback === 'function') {
-      callback(fusionTableOverlay);
-      return;
-    } else {
-      return Promise.resolve(fusionTableOverlay);
-    }
   }
 
 
   var query = ['select+',
-    fusionTableOptions.select,
+    limitedOptions.query.select,
     '+from+',
-    fusionTableOptions.from];
-  if (fusionTableOptions.where) {
-    query.push('+where+' + fusionTableOptions.where);
+    limitedOptions.query.from];
+  if (limitedOptions.query.where) {
+    query.push('+where+' + limitedOptions.query.where);
   }
-  if (fusionTableOptions.orderBy) {
-    query.push('+orderBy+' + fusionTableOptions.orderBy);
+  if (limitedOptions.query.orderBy) {
+    query.push('+orderBy+' + limitedOptions.query.orderBy);
   }
-  if (fusionTableOptions.offset) {
-    query.push('+offset+' + fusionTableOptions.offset);
+  if (limitedOptions.query.offset) {
+    query.push('+offset+' + limitedOptions.query.offset);
   }
-  if (fusionTableOptions.limit) {
-    query.push('+limit+' + fusionTableOptions.limit);
+  if (limitedOptions.query.limit) {
+    query.push('+limit+' + limitedOptions.query.limit);
   } else {
     query.push('+limit+1000');
   }
 
-  fusionTableOptions.url =
+  var kmlOptions = {
+    clickable: limitedOptions.clickable,
+    suppressInfoWindows: limitedOptions.suppressInfoWindows
+  };
+  kmlOptions.url =
     'https://fusiontables.google.com/exporttable?query=' +
     query.join('') +
-    '&o=kml&g=' + fusionTableOptions.select +
+    '&o=kml&g=' + limitedOptions.query.select +
     '&styleId=2&templateId=2'; // including '&styleId=2&templateId=2', FusionTable exports the latest KML file
 
-  fusionTableOptions.clickable = common.defaultTrueOption(fusionTableOptions.clickable);
-  fusionTableOptions.suppressInfoWindows = fusionTableOptions.suppressInfoWindows === true;
 
-  return self.addKmlOverlay(fusionTableOptions, callback);
+  var link = document.createElement('a');
+  link.href = kmlOptions.url;
+  kmlOptions.url = link.protocol+'//'+link.host+link.pathname + link.search;
+
+  var invisible_dot = self.get('invisible_dot');
+  if (!invisible_dot || invisible_dot._isRemoved) {
+    // Create an invisible marker for kmlOverlay
+    self.set('invisible_dot', self.addMarker({
+      position: {
+        lat: 0,
+        lng: 0
+      },
+      icon: 'skyblue',
+      visible: false
+    }));
+  }
+
+  return (new Promise(function(resolve, reject) {
+
+    var loader = new KmlLoader(self, self.exec, kmlOptions);
+    loader.parseKmlFile(function(camera, kmlData) {
+      if (kmlData instanceof BaseClass) {
+        kmlData = new BaseArrayClass([kmlData]);
+      }
+      fusionTableOverlay._privateInitialize(kmlData);
+
+      resolve.call(self, fusionTableOverlay);
+    }, reject);
+
+  }))
+  .then(function(overlay) {
+    if (typeof callback === 'function') {
+      callback.call(self, overlay);
+    } else {
+      return Promise.resolve(overlay);
+    }
+  });
 };
 
 
@@ -1550,6 +1605,7 @@ Map.prototype._onClusterEvent = function(eventName, markerClusterId, clusterId, 
 Map.prototype._onOverlayEvent = function(eventName, overlayId) {
   var self = this;
   var overlay = self.OVERLAYS[overlayId] || null;
+
   if (overlay) {
     var args = [eventName];
     for (var i = 2; i < arguments.length; i++) {

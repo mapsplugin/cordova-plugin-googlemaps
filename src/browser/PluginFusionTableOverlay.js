@@ -27,20 +27,20 @@ PluginFusionTableOverlay.prototype._create = function(onSuccess, onError, args) 
   var fusionTableOpts = {
     'map': map,
     'query': {
-      'select': pluginOptions.select,
-      'from': pluginOptions.from
+      'select': pluginOptions.query.select,
+      'from': pluginOptions.query.from
     }
   };
   if (pluginOptions.where) {
-    fusionTableOpts.query.where = pluginOptions.where;
+    fusionTableOpts.query.where = pluginOptions.query.where;
   }
   if (pluginOptions.orderBy) {
-    fusionTableOpts.query.orderBy = pluginOptions.orderBy;
+    fusionTableOpts.query.orderBy = pluginOptions.query.orderBy;
   } else if (pluginOptions.offset) {
-    fusionTableOpts.query.offset = pluginOptions.offset;
+    fusionTableOpts.query.offset = pluginOptions.query.offset;
   }
   if (pluginOptions.limit) {
-    fusionTableOpts.query.limit = pluginOptions.limit;
+    fusionTableOpts.query.limit = pluginOptions.query.limit;
   }
 
   var fusionTableOverlay = new google.maps.FusionTablesLayer(fusionTableOpts);
