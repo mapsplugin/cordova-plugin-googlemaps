@@ -21,9 +21,9 @@ We don't discover your code or your application screen captures into public spac
 You can choose one of following options:
 
 - only one time, ask only one issue.
-  Please donate $10 USD.
+  Please donate $15 USD.
   
-- 3 months private support, up to 20 issues.
+- 1 month private support, up to 10 issues.
   Please donate $100 USD.
   
 - one year private support, no cap.
