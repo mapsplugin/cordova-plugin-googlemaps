@@ -1080,13 +1080,13 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
       'loadPlugin', ['FusionTableOverlay', limitedOptions, fusionTableOverlayId]);
 
     }))
-    .then(function(overlay) {
-      if (typeof callback === 'function') {
-        callback.call(self, overlay);
-      } else {
-        return Promise.resolve(overlay);
-      }
-    });
+      .then(function(overlay) {
+        if (typeof callback === 'function') {
+          callback.call(self, overlay);
+        } else {
+          return Promise.resolve(overlay);
+        }
+      });
 
   }
 
@@ -1151,13 +1151,13 @@ Map.prototype.addFusionTableOverlay = function(fusionTableOptions, callback) {
     }, reject);
 
   }))
-  .then(function(overlay) {
-    if (typeof callback === 'function') {
-      callback.call(self, overlay);
-    } else {
-      return Promise.resolve(overlay);
-    }
-  });
+    .then(function(overlay) {
+      if (typeof callback === 'function') {
+        callback.call(self, overlay);
+      } else {
+        return Promise.resolve(overlay);
+      }
+    });
 };
 
 

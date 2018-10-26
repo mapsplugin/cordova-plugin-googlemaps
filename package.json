@@ -43,7 +43,8 @@
     }
   ],
   "scripts": {
-    "test": "npm run eslint",
+    "test": "jest && npm run eslint",
+    "test:watch": "jest --watch",
     "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src",
     "test:android": "cordova-paramedic --cleanUpAfterRun --verbose --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel",
     "test:browser": "cordova-paramedic --cleanUpAfterRun --verbose --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel"
@@ -55,6 +56,8 @@
   },
   "homepage": "https://github.com/mapsplugin/cordova-plugin-googlemaps",
   "devDependencies": {
-    "eslint": "^5.7.0"
+    "cordova-js": "^4.2.4",
+    "eslint": "^5.7.0",
+    "jest": "^23.6.0"
   }
 }
