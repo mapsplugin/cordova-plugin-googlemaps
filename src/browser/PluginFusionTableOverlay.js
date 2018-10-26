@@ -54,10 +54,7 @@ PluginFusionTableOverlay.prototype._create = function(onSuccess, onError, args) 
         'args': [fusionTableOverlayId, {
           'infoWindowHtml': mouseEvent.infoWindowHtml,
           'latLng': new LatLng(mouseEvent.latLng.lat(), mouseEvent.latLng.lng()),
-          'row': {
-            'columnName': mouseEvent.row.columnName,
-            'value': mouseEvent.row.value
-          }
+          'row': mouseEvent.row
         }]
       });
     }
