@@ -104,16 +104,20 @@ describe('[BaseClass]', () => {
     });
   });
 
-  it('"instanceA.onThrottled()" should receive only the last event.', (done) => {
+  it('"instanceA.onThrottled()" should receive event only 3 times.', (done) => {
     (new Promise((resolve) => {
 
       let eventCount = 0;
 
       // eventListener should be involved 3 times.
+      //   first time: at 50ms
+      //   second time: at 100ms
+      //   third time: at 150ms
       instanceA.onThrottled('myEvent', (receivedData) => {
         eventCount++;
       }, 50);
 
+      // Trigger event 13 times (takes 130ms)
       let sendCount = 0;
       const triggerTimer = setInterval(() => {
         sendCount++;
@@ -123,9 +127,10 @@ describe('[BaseClass]', () => {
         }
       }, 10);
 
+      // When 300ms, test should be complited.
       setTimeout(() => {
         resolve(eventCount);
-      }, 200);
+      }, 300);
 
     }))
     .then((answer) => {
