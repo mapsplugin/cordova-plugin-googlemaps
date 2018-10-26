@@ -141,6 +141,7 @@ BaseClass.prototype = {
 
     if (eventName && !listener) {
       this[SUBSCRIPTIONS_FIELD][eventName] = null;
+      delete this[SUBSCRIPTIONS_FIELD][eventName];
     } else if (this[SUBSCRIPTIONS_FIELD][eventName] && listener._hashCode) {
       delete this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode];
     }
@@ -166,7 +167,7 @@ BaseClass.prototype = {
   },
 
   hasEventListener: function (eventName) {
-    return eventName in this[SUBSCRIPTIONS_FIELD];
+    return (eventName in this[SUBSCRIPTIONS_FIELD] && Object.keys(this[SUBSCRIPTIONS_FIELD][eventName]).length > 0);
   },
 
   destroy: function () {
