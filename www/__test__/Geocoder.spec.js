@@ -1,4 +1,5 @@
-const Geocoder = require('./Geocoder');
+// jshint esversion: 6
+const Geocoder = require('../Geocoder');
 
 describe('Geocode', () => {
   // Initialize them here so that vscode typing
