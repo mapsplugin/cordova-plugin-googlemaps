@@ -35,7 +35,8 @@ matrix:
     language: node_js
     node_js: '${NODE_VERSION}'
 
-  - os: osx
+  - if: branch = master
+    os: osx
     env: CORDOVA_PLATFORM="ios"
     language: objective-c
     cache:
@@ -48,7 +49,8 @@ matrix:
         npm -g install ios-deploy > /dev/null;
       fi
 
-  - env: CORDOVA_PLATFORM="android"
+  - if: branch = master
+    env: CORDOVA_PLATFORM="android"
     os: linux
     node_js: '${NODE_VERSION}'
     language: android
