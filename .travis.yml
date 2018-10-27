@@ -2,7 +2,7 @@ sudo: false
 
 env:
   global:
-  - NODE_VERSION="9.11.2"
+  - NODE_VERSION="10.12.0"
   - ANDROID_API="27"
   - ANDROID_BUILD_TOOLS="28.0.3"
   - CORDOVA_VERSION="8.1.2"
@@ -94,4 +94,4 @@ install:
 
 script:
   - npm test
-  - cordova-paramedic --cleanUpAfterRun --verbose --platform  ${CORDOVA_PLATFORM} --justBuild --plugin '. --variable API_KEY_FOR_ANDROID=test --variable API_KEY_FOR_IOS=test'
+  - /bin/bash build_test.sh
