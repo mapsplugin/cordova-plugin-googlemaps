@@ -44,6 +44,7 @@
   ],
   "scripts": {
     "test": "jest && npm run eslint",
+    "jest": "jest",
     "test:watch": "jest --watch",
     "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src",
     "test:android": "cordova-paramedic --cleanUpAfterRun --verbose --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel",

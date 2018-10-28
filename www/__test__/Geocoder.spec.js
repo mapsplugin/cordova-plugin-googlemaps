@@ -21,7 +21,7 @@ describe('Geocode', () => {
       expect(geocoder.geocode).toBeDefined();
     });
 
-    fit('should return a promise if a callback is not passed', async () => {
+    it('should return a promise if a callback is not passed', async () => {
       const request = {
         address: '',
       };
@@ -82,8 +82,39 @@ describe('Geocode', () => {
       });
     });
 
-    xdescribe('multiple requests', () => {
-      // todo
+
+
+    describe('multiple request', () => {
+      describe('position', () => {
+        it('should call the native plugin with the correct parameters', () => {
+          geocoder.geocode({
+            position: [
+            {
+              lat: 0,
+              lng: 0,
+            },
+            {
+              lat: 1,
+              lng: 1,
+            },
+            ]
+          });
+          expect(execSpy.mock.calls).toMatchSnapshot();
+        });
+      });
+
+      describe('address1', () => {
+        it('should call the native plugin with the correct parameters', () => {
+          geocoder.geocode({
+            address: [
+              'Tokyo, Japan',
+              'Kyoto, Japan',
+            ]
+          });
+          expect(execSpy.mock.calls).toMatchSnapshot();
+        });
+      });
     });
+
   });
 });
