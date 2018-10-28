@@ -57,40 +57,36 @@ function CordovaGoogleMaps(execCmd) {
   //------------------------------------------------------------------------------
   var observer = new MutationObserver(function(mutations) {
     common.nextTick(function() {
-      // Since Android 4.4 passes mutations as 'Object', not 'Array',
-      // use 'for' statement instead of 'forEach' method.
 
       var i, mutation, node, j, doTraceTree = true;
-      for (j = 0; j < mutations.length; j++) {
-        mutation = mutations[j];
+      Array.prototype.slice.call(mutations, 0).forEach(function(mutation) {
+
         if (mutation.type === 'childList') {
           // If some elements are added, check them.
           if (mutation.addedNodes) {
-            for (i = 0; i < mutation.addedNodes.length; i++) {
-              node = mutation.addedNodes[i];
+            Array.prototype.slice.call(mutation.addedNodes, 0).forEach(function(node) {
               if (node.nodeType !== Node.ELEMENT_NODE) {
-                continue;
+                return;
               }
               self.setDomId.call(self, node);
-            }
+            });
           }
 
           // If some elements are removed from the DOM tree, remove their information.
           if (mutation.removedNodes) {
-            for (i = 0; i < mutation.removedNodes.length; i++) {
-              node = mutation.removedNodes[i];
+            Array.prototype.slice.call(mutation.removedNodes, 0).forEach(function(node) {
               if (node.nodeType !== Node.ELEMENT_NODE || !node.hasAttribute('__pluginDomId')) {
-                continue;
+                return;
               }
               node._isRemoved = true;
               self.removeDomTree.call(self, node);
-            }
+            });
           }
         } else {
           // Some attributes are changed.
           // If the element has __pluginDomId, check it.
           if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
-            continue;
+            return;
           }
           if (mutation.target.hasAttribute('__pluginDomId')) {
             // elemId = mutation.target.getAttribute('__pluginDomId');
@@ -107,8 +103,8 @@ function CordovaGoogleMaps(execCmd) {
             }
           }
         }
+      });
 
-      }
       if (doTraceTree) {
         self.isThereAnyChange = true;
         common.nextTick(self.putHtmlElements.bind(self));
@@ -197,19 +193,17 @@ CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild)
   var containMapCnt = (Object.keys(self.domPositions[elemId].containMapIDs)).length;
   isMapChild = isMapChild || self.domPositions[elemId].isMap;
   if ((containMapCnt > 0 || isMapChild || self.domPositions[elemId].pointerEvents === 'none' || zIndexProp.isInherit) && element.children.length > 0) {
-    var child;
-    for (var i = 0; i < element.children.length; i++) {
-      child = element.children[i];
+    Array.prototype.slice.call(element.children, 0).forEach(function functionName(child) {
       if (self.doNotTraceTags.indexOf(child.tagName.toLowerCase()) > -1 ||
         !common.shouldWatchByNative(child)) {
         self.removeDomTree.call(self, child);
-        continue;
+        return;
       }
 
       var childId = common.getPluginDomId(child);
       self.domPositions[elemId].children.push(childId);
       self.traceDomTree.call(self, child, childId, isMapChild);
-    }
+    });
   }
 };
 
@@ -220,9 +214,7 @@ CordovaGoogleMaps.prototype.setDomId = function(element) {
   //----------------------------------------------------------------------
   common.getPluginDomId(element);
   if (element.children) {
-    for (var i = 0; i < element.children.length; i++) {
-      common.getPluginDomId(element.children[i]);
-    }
+    Array.prototype.slice.call(element.children, 0).forEach(common.getPluginDomId.bind(self));
   }
 };
 
