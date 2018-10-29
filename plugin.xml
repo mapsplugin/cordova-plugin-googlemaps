@@ -126,8 +126,7 @@
   <keywords>google,maps,geo</keywords>
 
   <engines>
-    <engine name="cordova-android" version=">=5.1.0" />
-    <engine name="cordova-ios" version=">=4.0.0" />
+    <engine name="cordova" version=">=7.0.0" />
     <engine name="apple-xcode" version=">=9.0.0" />
     <engine name="apple-ios" version=">=10.0.0" />
   </engines>
@@ -241,6 +240,8 @@
       <meta-data android:name="com.google.android.geo.API_KEY" android:value="$API_KEY_FOR_ANDROID"/>
       <!-- Google Play Services SDK -->
       <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
+      <!-- for Android 9 or above -->
+      <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest">
