@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[BaseArrayClass] mapSeries() should error if no callback is given 1`] = `[TypeError: Promise.resolve.then is not a function]`;

@@ -3,8 +3,7 @@ var utils = require('cordova/utils'),
 
 var ARRAY_FIELD = typeof Symbol === 'undefined' ? '__array' + Date.now() : Symbol('array');
 
-var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
-var nextTick = resolvedPromise ? function(fn) { resolvedPromise.then(fn); } : function(fn) { setTimeout(fn); };
+var nextTick = function(fn) { Promise.resolve.then(fn); };
 
 function BaseArrayClass(array) {
   BaseClass.apply(this);
@@ -20,38 +19,84 @@ function BaseArrayClass(array) {
 
 utils.extend(BaseArrayClass, BaseClass);
 
-BaseArrayClass.prototype.mapSeries = function(fn, callback) {
-  if (typeof fn !== 'function' || typeof callback !== 'function') {
-    return;
+/**
+ * The same as `Array.map` but runs a single async operation at a time.
+ *
+ * @name mapSeries
+ * @param {Function} iteratee - An async function to apply to each item in array.
+ * @param {Function} [callback] - A callback which is called when all `iteratee` functions
+ * have finished. Results is an array of the transformed items from holding array.
+ * Invoked with (results);
+ * @return {Promise} a promise, if no calback if passed.
+ */
+BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
+  if (typeof iteratee !== 'function') {
+    var error = new Error('iteratee must be a function');
+    if (typeof callback === "function") {
+      throw error;
+    } else {
+      return Promise.then(error);
+    }
   }
+
   var self = this;
 
   var results = [];
   var _arrayLength = self[ARRAY_FIELD].length;
   if (_arrayLength === 0) {
-    callback.call(self, []);
-    return;
+    if (typeof callback === "function") {
+      callback.call(self, []);
+      return;
+    } else {
+      return Promise.then([]);
+    }
   }
-  var _looper = function(currentIdx) {
-    fn.call(self, self[ARRAY_FIELD][currentIdx], function(value) {
+  var _looper = function(currentIdx, resolve) {
+
+    iteratee.call(self, self[ARRAY_FIELD][currentIdx], function(value) {
       results[currentIdx] = value;
       if (_arrayLength === results.length) {
-        callback.call(self, results);
+        resolve(results);
       } else {
         nextTick(function() {
-          _looper(currentIdx + 1);
+          _looper(currentIdx + 1, resolve);
         });
       }
     });
   };
-  nextTick(function() {
-    _looper(0);
-  });
+
+  return new Promise(function(resolve, reject) {
+      nextTick(function() {
+        _looper(0, resolve);
+      });
+    }).then(function(results) {
+      if (typeof callback === "function") {
+        return callback.call(self, results);
+      } else {
+        return Promise.then(results);
+      }
+    });
 };
 
-BaseArrayClass.prototype.mapAsync = function(fn, callback) {
-  if (typeof fn !== 'function' || typeof callback !== 'function') {
-    return;
+
+/**
+ * The same as `Array.map` but runs async all `iteratee` function at the same time.
+ *
+ * @name mapAsync
+ * @param {Function} iteratee - An async function to apply to each item in array.
+ * @param {Function} [callback] - A callback which is called when all `iteratee` functions
+ * have finished. Results is an array of the transformed items from holding array.
+ * Invoked with (results);
+ * @return {Promise} a promise, if no calback if passed.
+ */
+BaseArrayClass.prototype.mapAsync = function(iteratee, callback) {
+  if (typeof iteratee !== 'function') {
+    var error = new Error('iteratee must be a function');
+    if (typeof callback === "function") {
+      throw error;
+    } else {
+      return Promise.then(error);
+    }
   }
   var self = this;
   //------------------------
@@ -70,22 +115,36 @@ BaseArrayClass.prototype.mapAsync = function(fn, callback) {
   var _arrayLength = self[ARRAY_FIELD].length;
   var finishCnt = 0;
   if (_arrayLength === 0) {
-    callback.call(self, []);
-    return;
+    if (typeof callback === "function") {
+      callback.call(self, []);
+      return;
+    } else {
+      return Promise.then([]);
+    }
   }
-  for (i = 0; i < self[ARRAY_FIELD].length; i++) {
-    (function(item, idx) {
-      nextTick(function() {
-        fn.call(self, item, function(value) {
-          results[idx] = value;
-          finishCnt++;
-          if (finishCnt === _arrayLength) {
-            callback.call(self, results);
-          }
+
+  return new Promise(function(resolve) {
+    for (i = 0; i < self[ARRAY_FIELD].length; i++) {
+      (function(item, idx) {
+        nextTick(function() {
+          iteratee.call(self, item, function(value) {
+            results[idx] = value;
+            finishCnt++;
+            if (finishCnt === _arrayLength) {
+              resolve(results);
+            }
+          });
         });
-      });
-    })(self[ARRAY_FIELD][i], i);
-  }
+      })(self[ARRAY_FIELD][i], i);
+    }
+  }).then(function(results) {
+    if (typeof callback === "function") {
+      return callback.call(self, results);
+    } else {
+      return Promise.then(results);
+    }
+  });
+
 };
 
 BaseArrayClass.prototype.map = function(fn, callback) {
