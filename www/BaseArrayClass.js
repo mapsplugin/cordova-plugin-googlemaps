@@ -324,7 +324,7 @@ BaseArrayClass.prototype.filterAsync = function(iteratee, callback) {
       return Promise.resolve([]);
     }
   }
-  (new Promise(function(resolve) {
+  return (new Promise(function(resolve) {
     var results = [];
     self[ARRAY_FIELD].forEach(function(item) {
       iteratee.call(self, item, function(isOk) {
@@ -458,12 +458,7 @@ BaseArrayClass.prototype.insertAt = function(index, value, noNotify) {
   if (index < 0) {
     throw new Error('index must be over number than 0');
   }
-  if (index > self[ARRAY_FIELD].length) {
-    for (var i = self[ARRAY_FIELD].length; i <= index; i++) {
-      self[ARRAY_FIELD][i] = undefined;
-    }
-  }
-  self[ARRAY_FIELD][index] = value;
+  self[ARRAY_FIELD].splice(index, 0, value);
   if (noNotify !== true) {
     self.trigger('insert_at', index);
   }
@@ -605,15 +600,11 @@ BaseArrayClass.prototype.reverse = function() {
  *  according to the string conversion of each element.
  */
 BaseArrayClass.prototype.sort = function(compareFunction) {
-  if (typeof compareFunction !== 'function' && typeof compareFunction !== 'function') {
-    var error = new Error('iteratee must be a function');
-    if (typeof callback === 'function') {
-      throw error;
-    } else {
-      return Promise.reject(error);
-    }
+  if (typeof compareFunction === 'function') {
+    this[ARRAY_FIELD].sort(compareFunction);
+  } else {
+    this[ARRAY_FIELD].sort();
   }
-  this[ARRAY_FIELD] = this.sort(compareFunction);
 };
 
 
