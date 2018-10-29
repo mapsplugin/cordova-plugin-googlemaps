@@ -56,7 +56,7 @@ if (!cordova) {
   })).then(function () {
     // The pluginInit.js must execute before loading HTML is completed.
     require('./pluginInit')();
-    
+
     common.nextTick(function () {
       // If the developer needs to recalculate the DOM tree graph,
       // use `cordova.fireDocumentEvent('plugin_touch')`
@@ -100,6 +100,7 @@ if (!cordova) {
   /*****************************************************************************
    * Name space
    *****************************************************************************/
+  /** @namespace plugin.google.maps */
 
   module.exports = {
     event: require('./event'),
@@ -110,13 +111,39 @@ if (!cordova) {
 
     BaseClass: require('./BaseClass'),
     BaseArrayClass: require('./BaseArrayClass'),
+
+    /** @namespace plugin.google.maps.Map */
     Map: {
+      /**
+       * @function getMap
+       * @memberof plugin.google.maps.Map
+       * @static
+       */
       getMap: cordovaGoogleMaps.getMap.bind(cordovaGoogleMaps)
     },
+    /** @namespace plugin.google.maps.StreetView */
     StreetView: {
+      /**
+       * @function getPanorama
+       * @memberof plugin.google.maps.StreetView
+       * @static
+       */
       getPanorama: cordovaGoogleMaps.getPanorama.bind(cordovaGoogleMaps),
+      /**
+       * @readonly
+       * @enum {string}
+       * @memberof plugin.google.maps.StreetView
+       * @static
+       */
       Source: {
+        /**
+         * Search panorama inside and outdoor
+         */
         DEFAULT: 'DEFAULT',
+
+        /**
+         * Search panorama inside and outdoor
+         */
         OUTDOOR: 'OUTDOOR'
       }
     },

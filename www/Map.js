@@ -454,19 +454,27 @@ Map.prototype.animateCameraZoomOut = function(callback) {
   return self.animateCamera(cameraPosition, callback);
 };
 /**
- * @desc   Move the map camera with animation
- * @params {CameraPosition} cameraPosition New camera position
- * @params {Function} [callback] This callback is involved when the animation is completed.
+ * Move the map camera with animation
+ * @name animateCamera
+ * @param {CameraPosition} cameraPosition - New camera position
+ * @param {Function} [callback] - This callback is involved when the animation is completed.
+ * @return {Promise} if you omit `callback`.
  */
 Map.prototype.animateCamera = function(cameraPosition, callback) {
-  var self = this;
+  var self = this,
+    error;
 
   var target = cameraPosition.target;
   if (!target && 'position' in cameraPosition) {
     target = cameraPosition.position;
   }
   if (!target) {
-    return Promise.reject('No target field is specified.');
+    error = new Error('No target field is specified.');
+    if (typeof callback === 'function') {
+      throw error;
+    } else {
+      return Promise.reject(error);
+    }
   }
   // if (!('padding' in cameraPosition)) {
   //   cameraPosition.padding = 10;
@@ -476,11 +484,11 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
     target = common.convertToPositionArray(target);
     if (target.length === 0) {
       // skip if no point is specified
+      error = new Error('No point is specified.');
       if (typeof callback === 'function') {
-        callback.call(self);
-        return;
+        throw error;
       } else {
-        return Promise.reject('No point is specified.');
+        return Promise.reject(error);
       }
     }
   }
@@ -503,9 +511,12 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
   }
 };
 /**
- * @desc   Move the map camera without animation
- * @params {CameraPosition} cameraPosition New camera position
- * @params {Function} [callback] This callback is involved when the animation is completed.
+ * Move the map camera without animation
+ *
+ * @name moveCamera
+ * @param {CameraPosition} - cameraPosition New camera position
+ * @param {Function} [callback] - This callback is involved when the animation is completed.
+ * @return {Promise} if you omit `callback`.
  */
 Map.prototype.moveCamera = function(cameraPosition, callback) {
   var self = this;
