@@ -46,9 +46,7 @@
     "test": "jest && npm run eslint",
     "jest": "jest",
     "test:watch": "jest --watch",
-    "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src",
-    "test:android": "cordova-paramedic --cleanUpAfterRun --verbose --platform android --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel",
-    "test:browser": "cordova-paramedic --cleanUpAfterRun --verbose --platform browser --plugin '. --variable API_KEY_FOR_ANDROID=test' --useTunnel"
+    "eslint": "node node_modules/eslint/bin/eslint www src"
   },
   "author": "Masashi Katsumata, Hirbod Mirjavadi",
   "license": "Apache-2.0",

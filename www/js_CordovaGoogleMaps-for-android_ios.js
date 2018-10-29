@@ -58,7 +58,7 @@ function CordovaGoogleMaps(execCmd) {
   var observer = new MutationObserver(function(mutations) {
     common.nextTick(function() {
 
-      var i, mutation, node, j, doTraceTree = true;
+      var doTraceTree = true;
       Array.prototype.slice.call(mutations, 0).forEach(function(mutation) {
 
         if (mutation.type === 'childList') {

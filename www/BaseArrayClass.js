@@ -32,7 +32,7 @@ utils.extend(BaseArrayClass, BaseClass);
 BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
   if (typeof iteratee !== 'function') {
     var error = new Error('iteratee must be a function');
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       throw error;
     } else {
       return Promise.then(error);
@@ -44,7 +44,7 @@ BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
   var results = [];
   var _arrayLength = self[ARRAY_FIELD].length;
   if (_arrayLength === 0) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       callback.call(self, []);
       return;
     } else {
@@ -65,17 +65,17 @@ BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
     });
   };
 
-  return new Promise(function(resolve, reject) {
-      nextTick(function() {
-        _looper(0, resolve);
-      });
-    }).then(function(results) {
-      if (typeof callback === "function") {
-        return callback.call(self, results);
-      } else {
-        return Promise.then(results);
-      }
+  return new Promise(function(resolve) {
+    nextTick(function() {
+      _looper(0, resolve);
     });
+  }).then(function(results) {
+    if (typeof callback === 'function') {
+      return callback.call(self, results);
+    } else {
+      return Promise.then(results);
+    }
+  });
 };
 
 
@@ -92,7 +92,7 @@ BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
 BaseArrayClass.prototype.mapAsync = function(iteratee, callback) {
   if (typeof iteratee !== 'function') {
     var error = new Error('iteratee must be a function');
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       throw error;
     } else {
       return Promise.then(error);
@@ -115,7 +115,7 @@ BaseArrayClass.prototype.mapAsync = function(iteratee, callback) {
   var _arrayLength = self[ARRAY_FIELD].length;
   var finishCnt = 0;
   if (_arrayLength === 0) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       callback.call(self, []);
       return;
     } else {
@@ -138,7 +138,7 @@ BaseArrayClass.prototype.mapAsync = function(iteratee, callback) {
       })(self[ARRAY_FIELD][i], i);
     }
   }).then(function(results) {
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       return callback.call(self, results);
     } else {
       return Promise.then(results);
