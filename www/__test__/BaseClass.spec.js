@@ -2,53 +2,65 @@
 const BaseClass = require('../BaseClass');
 
 describe('[BaseClass]', () => {
-  const instanceA = new BaseClass();
-  const instanceB = new BaseClass();
 
-  it('"instanceA.hello" should be "world"', () => {
-    instanceA.set('hello', 'world');
-    expect(instanceA.get('hello')).toEqual('world');
+  it('"instanceB.hello" should be "world"', () => {
+    const instance = new BaseClass();
+    instance.set('hello', 'world');
+    expect(instance.get('hello')).toEqual('world');
   });
 
   it('"instanceB.anotherHello" should be the same as "instanceA.hello"', () => {
+    const instanceA = new BaseClass();
+    const instanceB = new BaseClass();
     instanceA.bindTo('hello', instanceB, 'anotherHello');
+    instanceA.set('hello', 'world');
+    expect(instanceA.get('hello')).toEqual('world');
     expect(instanceB.get('anotherHello')).toEqual('world');
   });
 
 
-  it('"instanceA.one()" should receive "hello_changed" event.', (done) => {
-    instanceA.one('hello_changed', (prevValue, newValue) => {
+  it('"instance.one()" should receive "hello_changed" event.', (done) => {
+    const instance = new BaseClass();
+    instance.set('hello', 'world');
+
+    instance.one('hello_changed', (prevValue, newValue) => {
       expect(prevValue).toEqual('world');
       expect(newValue).toEqual('Aloha');
       done();
     });
-    instanceA.set('hello', 'Aloha');
+    instance.set('hello', 'Aloha');
   });
 
-  it('"instanceA.hasEventListener(\'hello_changed\')"', () => {
-    instanceA.on('hello_changed', () => { });
-    expect(instanceA.hasEventListener('hello_changed')).toEqual(true);
-    instanceA.off('hello_changed');
-    expect(instanceA.hasEventListener('hello_changed')).toEqual(false);
+  it('"instance.hasEventListener(\'hello_changed\')"', () => {
+    const instance = new BaseClass();
+
+    instance.on('hello_changed', () => { });
+    expect(instance.hasEventListener('hello_changed')).toEqual(true);
+
+    instance.off('hello_changed');
+    expect(instance.hasEventListener('hello_changed')).toEqual(false);
   });
 
-  it('"instanceA.on()" should receive "hello_changed" event twice.', (done) => {
+  it('"instance.on()" should receive "hello_changed" event twice.', (done) => {
     (new Promise((resolve, reject) => {
-      const timer = setTimeout(reject, 100); // just in case
+      const instance = new BaseClass();
+
+      const timer = setTimeout(reject, 50); // just in case
 
       let count = 0;
       const listener = (prevValue, newValue) => {
         count++;
         if (count === 2) {
-          instanceA.off('hello_changed', listener);
+          instance.off('hello_changed', listener);
           clearTimeout(timer);
           resolve(newValue);
         }
       };
-      instanceA.on('hello_changed', listener);
+      instance.on('hello_changed', listener);
 
-      instanceA.set('hello', '你好');
-      instanceA.set('hello', 'こんにちは');
+      instance.set('hello', '你好');      // should receive
+      instance.set('hello', 'こんにちは'); // should receive
+      instance.set('hello', '안녕하세요');  // should not receive
     }))
     .then((answer) => {
       expect(answer).toBe('こんにちは');
@@ -56,21 +68,22 @@ describe('[BaseClass]', () => {
     });
   });
 
-  it('"instanceA.on() then .off()" should receive only one time "hello_changed" event.', (done) => {
+  it('"instance.on() then .off()" should receive only one time "hello_changed" event.', (done) => {
     (new Promise((resolve, reject) => {
+      const instance = new BaseClass();
       let count = 0;
       const listener = () => {
         count++;
-        instanceA.off('hello_changed', listener);
+        instance.off('hello_changed', listener);
       };
-      instanceA.on('hello_changed', listener);
+      instance.on('hello_changed', listener);
 
       setTimeout(() => {
         resolve(count);
-      }, 100);
+      }, 10);
 
-      for (let i = 0; i < 100; i++) {
-        instanceA.set('hello', i);
+      for (let i = 0; i < 10; i++) {
+        instance.set('hello', i);
       }
     }))
     .then((answer) => {
@@ -79,23 +92,24 @@ describe('[BaseClass]', () => {
     });
   });
 
-  it('"instanceA.off()" should remove all event listeners.', (done) => {
+  it('"instance.off()" should remove all event listeners.', (done) => {
     (new Promise((resolve, reject) => {
+      const instance = new BaseClass();
       let called = false;
       const dummyListener = () => {
         called = true;
       };
 
-      instanceA.on('myEvent', dummyListener);
-      instanceA.on('myEvent', dummyListener);
-      instanceA.on('myEvent', dummyListener);
-      instanceA.on('myEvent', dummyListener);
-      instanceA.off('myEvent');
-      instanceA.trigger('myEvent');
+      instance.on('myEvent', dummyListener);
+      instance.on('myEvent', dummyListener);
+      instance.on('myEvent', dummyListener);
+      instance.on('myEvent', dummyListener);
+      instance.off('myEvent');
+      instance.trigger('myEvent');
 
       setTimeout(() => {
         resolve(called);
-      }, 100);
+      }, 10);
 
     }))
     .then((answer) => {
@@ -104,16 +118,17 @@ describe('[BaseClass]', () => {
     });
   });
 
-  it('"instanceA.onThrottled()" should receive event only 3 times.', (done) => {
+  it('"instance.onThrottled()" should receive event only 3 times.', (done) => {
     (new Promise((resolve) => {
 
       let eventCount = 0;
+      const instance = new BaseClass();
 
       // eventListener should be involved 3 times.
       //   first time: at 50ms
       //   second time: at 100ms
       //   third time: at 150ms
-      instanceA.onThrottled('myEvent', (receivedData) => {
+      instance.onThrottled('myEvent', (receivedData) => {
         eventCount++;
       }, 50);
 
@@ -121,7 +136,7 @@ describe('[BaseClass]', () => {
       let sendCount = 0;
       const triggerTimer = setInterval(() => {
         sendCount++;
-        instanceA.trigger('myEvent', sendCount);
+        instance.trigger('myEvent', sendCount);
         if (sendCount === 13) {
           clearInterval(triggerTimer);
         }
@@ -139,17 +154,18 @@ describe('[BaseClass]', () => {
     });
   });
 
-  it('"instanceA.trigger()" should fire a "myEvent" event.', (done) => {
+  it('"instance.trigger()" should fire a "myEvent" event.', (done) => {
     (new Promise((resolve, reject) => {
 
-      const timer = setTimeout(reject, 100); // just in case
+      const timer = setTimeout(reject, 10); // just in case
+      const instance = new BaseClass();
 
-      instanceA.on('myEvent', (...parameters) => {
+      instance.on('myEvent', (...parameters) => {
         clearTimeout(timer);
         resolve(parameters);
       });
 
-      instanceA.trigger('myEvent', 'data', 1);
+      instance.trigger('myEvent', 'data', 1);
     }))
     .then((receivedData) => {
       expect(receivedData[0]).toBe('data');
@@ -158,12 +174,13 @@ describe('[BaseClass]', () => {
     });
   });
 
-  it('"instanceA.empty()" should delete all holded variables.', () => {
-    instanceA.set('hello1', 'world');
-    instanceA.set('hello2', 'test');
-    instanceA.empty();
-    expect(instanceA.get('hello1')).toBe(undefined);
-    expect(instanceA.get('hello2')).toBe(undefined);
+  it('"instance.empty()" should delete all holded variables.', () => {
+    const instance = new BaseClass();
+    instance.set('hello1', 'world');
+    instance.set('hello2', 'test');
+    instance.empty();
+    expect(instance.get('hello1')).toBe(undefined);
+    expect(instance.get('hello2')).toBe(undefined);
   });
 
 });
