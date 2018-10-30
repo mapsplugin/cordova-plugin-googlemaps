@@ -4,7 +4,7 @@ const BaseArrayClass = require('../BaseArrayClass');
 describe('[BaseArrayClass]', () => {
 
   describe('getLength()', () => {
-    it('() should return the same size with initial array', () => {
+    it('should return the same size with initial array', () => {
       const initArray = [0, 1, 2];
       const _ = new BaseArrayClass(initArray);
       expect(_.getLength()).toBe(initArray.length);
@@ -19,7 +19,7 @@ describe('[BaseArrayClass]', () => {
       expect(_.mapSeries((item, next) => {
         setTimeout(() => {
           next(item);
-        }, Math.random(3));
+        }, 3 * Math.random());
       })).resolves.toEqual(initArray);
     });
   });
@@ -31,7 +31,7 @@ describe('[BaseArrayClass]', () => {
       expect(_.mapAsync((item, next) => {
         setTimeout(() => {
           next(item);
-        }, Math.random(3));
+        }, 3 * Math.random());
       })).resolves.toEqual(initArray);
     });
   });
@@ -43,7 +43,7 @@ describe('[BaseArrayClass]', () => {
       _.map((item, next) => {
         setTimeout(() => {
           next(item);
-        }, Math.random(3));
+        }, 3 * Math.random());
       }, (results) => {
         expect(results).toEqual(initArray);
         done();
@@ -78,14 +78,14 @@ describe('[BaseArrayClass]', () => {
 
   describe('forEach()', () => {
     it('should work as `forEach()` if callback is given', (done) => {
-    let i = 0;
+      let i = 0;
       const initArray = ['A', 'B', 'C'];
       const _ = new BaseArrayClass(initArray);
       _.forEach((item, next) => {
         setTimeout(() => {
           i++;
           next();
-        }, Math.random(3));
+        }, 3 * Math.random());
       }, () => {
         expect(i).toBe(3);
         done();
@@ -97,8 +97,8 @@ describe('[BaseArrayClass]', () => {
       const initArray = ['A', 'B', 'C'];
       const _ = new BaseArrayClass(initArray);
       _.forEach((item) => {
-        i++
-      })
+        i++;
+      });
       expect(i).toBe(3);
     });
   });
@@ -110,7 +110,7 @@ describe('[BaseArrayClass]', () => {
       _.filterAsync((item, next) => {
         setTimeout(() => {
           next(item % 2 === 0);
-        }, Math.random(5));
+        }, 5 * Math.random());
       }).then((results) => {
         expect(results).toEqual([0, 2, 4]);
         done();
@@ -120,13 +120,13 @@ describe('[BaseArrayClass]', () => {
 
   describe('filter()', () => {
     it('should work as `filter()` if callback is given', (done) => {
-    let i = 0;
+      let i = 0;
       const initArray = [0, 1, 2, 3, 4, 5];
       const _ = new BaseArrayClass(initArray);
       _.filter((item, next) => {
         setTimeout(() => {
           next(item % 2 !== 0);
-        }, Math.random(3));
+        }, 3 * Math.random());
       }, (results) => {
         expect(results).toEqual([1, 3, 5]);
         done();
@@ -134,7 +134,6 @@ describe('[BaseArrayClass]', () => {
     });
 
     it('should work as `Array.filter()` if callback is omitted', () => {
-      let i = 0;
       const initArray = [
         {condition: true},
         {condition: false},
@@ -142,7 +141,7 @@ describe('[BaseArrayClass]', () => {
       ];
       const _ = new BaseArrayClass(initArray);
       expect(_.filter((item) => {
-        return item.condition === true
+        return item.condition === true;
       })).toHaveLength(2);
     });
   });
@@ -256,11 +255,11 @@ describe('[BaseArrayClass]', () => {
       const initArray = ['c', 'C', 'A', 'B', 'b', 'a'];
       const _ = new BaseArrayClass(initArray);
       _.sort((a, b) => {
-        let charCodeA = a.charCodeAt(0);
-        let charCodeB = b.charCodeAt(0);
-        let lowerA = charCodeA > 96 ? charCodeA - 32 : charCodeA;
-        let lowerB = charCodeB > 96 ? charCodeB - 32 : charCodeB;
-        return lowerA === lowerB ? charCodeB - charCodeA: lowerA - lowerB;
+        const charCodeA = a.charCodeAt(0);
+        const charCodeB = b.charCodeAt(0);
+        const lowerA = charCodeA > 96 ? charCodeA - 32 : charCodeA;
+        const lowerB = charCodeB > 96 ? charCodeB - 32 : charCodeB;
+        return lowerA === lowerB ? charCodeB - charCodeA : lowerA - lowerB;
       });
       expect(_.getArray()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
     });

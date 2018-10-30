@@ -46,6 +46,7 @@ BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
 
   var results = [];
   var _arrayLength = self[ARRAY_FIELD].length;
+  var currentCnt = 0;
   if (_arrayLength === 0) {
     if (typeof callback === 'function') {
       callback.call(self, []);
@@ -58,7 +59,8 @@ BaseArrayClass.prototype.mapSeries = function(iteratee, callback) {
 
     iteratee.call(self, self[ARRAY_FIELD][currentIdx], function(value) {
       results[currentIdx] = value;
-      if (_arrayLength === results.length) {
+      currentCnt++;
+      if (_arrayLength === currentCnt) {
         resolve(results);
       } else {
         nextTick(function() {
@@ -326,14 +328,14 @@ BaseArrayClass.prototype.filterAsync = function(iteratee, callback) {
   }
   return (new Promise(function(resolve) {
     var results = [];
-    self[ARRAY_FIELD].forEach(function(item) {
+    self[ARRAY_FIELD].forEach(function(item, idx) {
       iteratee.call(self, item, function(isOk) {
-        if (isOk) {
-          results.push(item);
-        }
+        results[idx] = isOk;
         finishCnt++;
         if (finishCnt === _arrayLength) {
-          resolve(results);
+          resolve(self[ARRAY_FIELD].filter(function(item, j) {
+            return results[j];
+          }));
         }
       });
     });
@@ -587,7 +589,7 @@ BaseArrayClass.prototype.getLength = function() {
  * @name reverse
  */
 BaseArrayClass.prototype.reverse = function() {
-  this[ARRAY_FIELD] = this[ARRAY_FIELD].reverse();
+  this[ARRAY_FIELD].reverse();
 };
 
 /**
