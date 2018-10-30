@@ -260,10 +260,7 @@ describe('[BaseArrayClass]', () => {
         let charCodeB = b.charCodeAt(0);
         let lowerA = charCodeA > 96 ? charCodeA - 32 : charCodeA;
         let lowerB = charCodeB > 96 ? charCodeB - 32 : charCodeB;
-        return lowerA === lowerB ?
-          charCodeB - charCodeA:
-          lowerA > 64 && lowerB > 64 ? lowerA - lowerB:
-          lowerA > 64 && lowerB < 65 ? -1 : 1;
+        return lowerA === lowerB ? charCodeB - charCodeA: lowerA - lowerB;
       });
       expect(_.getArray()).toEqual(['a', 'A', 'b', 'B', 'c', 'C']);
     });
