@@ -1,5 +1,6 @@
 
 
+// @ts-ignore
 var BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass');
 
 var geocoder = null;
@@ -146,6 +147,12 @@ QUEUE.on('next', function() {
 });
 
 module.exports = {
+  /**
+   *
+   * @param {(result: GeocoderResult[]) => void} onSuccess
+   * @param {(err: string) => void} onError
+   * @param {[GeocoderRequest]} args
+   */
   'geocode': function(onSuccess, onError, args) {
     var request = args[0];
     var geocoderRequest = {};
@@ -176,4 +183,5 @@ module.exports = {
 };
 
 
+// @ts-ignore
 require('cordova/exec/proxy').add('PluginGeocoder', module.exports);
