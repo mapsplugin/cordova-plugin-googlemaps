@@ -722,7 +722,10 @@
  * (memo) http://stackoverflow.com/questions/12164049/animationdidstop-for-group-animation
  */
 -(void)setDropAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
-  int duration = 1;
+  /**
+   * Marker drop animation
+   */
+  int duration = 0.1f;
 
   CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
   CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
@@ -736,18 +739,15 @@
   CLLocationCoordinate2D startLatLng;
 
   point.y = 0;
-  for (double i = 0.75f; i > 0; i-= 0.25f) {
-    startLatLng = [projection coordinateForPoint:point];
-    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+  startLatLng = [projection coordinateForPoint:point];
+  [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+  [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-    point.y = distance;
-    startLatLng = [projection coordinateForPoint:point];
-    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+  point.y = distance;
+  startLatLng = [projection coordinateForPoint:point];
+  [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+  [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-    point.y = distance - distance * (i - 0.25f);
-  }
   longitudeAnim.values = longitudeath;
   latitudeAnim.values = latitudePath;
 
@@ -761,7 +761,7 @@
 }
 -(void)setBounceAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
   /**
-   * Marker drop animation
+   * Marker bounce animation
    */
   int duration = 1;
 
