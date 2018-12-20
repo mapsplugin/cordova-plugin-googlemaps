@@ -301,12 +301,13 @@ StreetViewPanorama.prototype._onPanoramaCameraChange = function(eventName, camer
 StreetViewPanorama.prototype._onPanoramaLocationChange = function(eventName, panoramaLocation) {
   var self = this;
   self.set('location', panoramaLocation);
-  self.set('pano', panoramaLocation.panoId);
-  self.set('position', panoramaLocation.latLng);
+  self.set('pano', panoramaLocation ? panoramaLocation.panoId : null);
+  self.set('position', panoramaLocation ? panoramaLocation.latLng : null);
   if (self._isReady) {
     self._onPanoramaEvent(eventName, panoramaLocation);
   }
 };
+
 StreetViewPanorama.prototype._onPanoramaEvent = function() {
   var self = this;
   if (self._isReady) {

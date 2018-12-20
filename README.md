@@ -228,6 +228,7 @@
     - Update: (iOS) Remove "NSData+Base64" library. No longer necessary.
     - Update: (js) ionic 4 hides Google Maps view.
     - Fix: (Browser) `MarkerCluster.remove()` does not work on browser platform.
+    - Fix: (Android/iOS/Browser) App crashes (or error) if no panorama available.
 
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
