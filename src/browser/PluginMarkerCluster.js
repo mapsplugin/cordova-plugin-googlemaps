@@ -422,6 +422,9 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
 
   keys.forEach(function(key) {
     if (key.indexOf(clusterId) === 0) {
+      if (self.pluginMap.objects[key]) {
+        self.pluginMap.objects[key].setMap(null);
+      }
       self.pluginMarkers[key] = STATUS.DELETED;
       delete self.pluginMap.objects[key];
       delete self.pluginMap.objects['marker_property_' + key];
@@ -429,6 +432,7 @@ PluginMarkerCluster.prototype.remove = function(onSuccess, onError, args) {
   });
   onSuccess();
 };
+
 
 PluginMarkerCluster.prototype.onClusterEvent = function(evtName, marker) {
   var self = this,
