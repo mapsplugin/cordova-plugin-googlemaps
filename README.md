@@ -198,7 +198,6 @@
 
 ## Release Notes
   - **v2.5.0**
-    - Add: (Android/iOS/Browser) `map.addFusionTableOverlay()`
     - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
       ```js
       var tileOverlay = map.addTileOverlay({
@@ -228,6 +227,7 @@
     - Update: (Android/iOS) Improve accuracy of touch detection on geodesic polyline.
     - Update: (iOS) Remove "NSData+Base64" library. No longer necessary.
     - Update: (js) ionic 4 hides Google Maps view.
+    - Fix: (Browser) `MarkerCluster.remove()` does not work on browser platform.
 
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
@@ -534,7 +534,6 @@ You can write your code `similar to` the Google Maps JavaScript API v3.
 | google.maps.Data                  | (not available)                       |
 | google.maps.DirectionsService     | (not available)                       |
 | google.maps.DistanceMatrixService | (not available)                       |
-| google.maps.FusionTablesLayer     | (not available)                       |
 | google.maps.TransitLayer          | (not available)                       |
 | google.maps.places.*              | (not available)                       |
 | google.maps.visualization.*       | (not available)                       |
