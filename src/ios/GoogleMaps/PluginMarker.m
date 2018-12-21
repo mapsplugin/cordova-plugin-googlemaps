@@ -1050,6 +1050,8 @@
 
           //url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
           currentURL = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
+          currentURL = [currentURL regReplace:@"\\/.\\/" replaceTxt:@"/" options:0];
+          currentURL = [currentURL regReplace:@"\\/+" replaceTxt:@"/" options:0];
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
           //NSLog(@"currentURL = %@", currentURL);
@@ -1309,6 +1311,9 @@
   // Load the icon from over the internet
   //
 
+  iconPath = [iconPath regReplace:@"\\/.\\/" replaceTxt:@"/" options:0];
+  iconPath = [iconPath regReplace:@"\\/+" replaceTxt:@"/" options:0];
+  iconPath = [iconPath stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
   NSURL *url = [NSURL URLWithString:iconPath];
 
   [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
