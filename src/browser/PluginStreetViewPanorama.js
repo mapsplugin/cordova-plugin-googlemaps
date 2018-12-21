@@ -81,64 +81,64 @@ function PluginStreetViewPanorama(panoramaId, options) {
         resolve(null);
       }
     })
-    .then(function(panoId) {
+      .then(function(panoId) {
 
-      var stOptions = {
-        'addressControl': options.controls.streetNames,
-        'showRoadLabels': options.controls.streetNames,
-        'linksControl': options.controls.navigation,
-        'panControl': options.gestures.panning,
-        'zoomControl': options.gestures.zoom,
-        'scrollwheel': options.gestures.zoom,
-        'pano': panoId
-      };
-      if (options.camera) {
-        if ('zoom' in options.camera) {
-          stOptions.zoom = options.camera.zoom;
-        }
-        var pov;
-        if ('tilt' in options.camera) {
-          pov = {};
-          pov.pitch = options.camera.tilt;
-        }
-        if ('bearing' in options.camera) {
-          pov = pov || {};
-          pov.heading = options.camera.bearing;
-        }
-        if (pov) {
-          stOptions.pov = pov;
-        }
-      }
-
-      google.maps.event.addDomListener(container, 'click', function(evt) {
-        var pov = panorama.getPov();
-        var clickInfo = {
-          'orientation': {
-            'bearing': pov.heading,
-            'tilt': pov.pitch
-          },
-          'point': [evt.clientX, evt.clientY]
+        var stOptions = {
+          'addressControl': options.controls.streetNames,
+          'showRoadLabels': options.controls.streetNames,
+          'linksControl': options.controls.navigation,
+          'panControl': options.gestures.panning,
+          'zoomControl': options.gestures.zoom,
+          'scrollwheel': options.gestures.zoom,
+          'pano': panoId
         };
-        if (self.__pgmId in plugin.google.maps) {
-          plugin.google.maps[self.__pgmId]({
-            'evtName': event.PANORAMA_CLICK,
-            'callback': '_onPanoramaEvent',
-            'args': [clickInfo]
-          });
+        if (options.camera) {
+          if ('zoom' in options.camera) {
+            stOptions.zoom = options.camera.zoom;
+          }
+          var pov;
+          if ('tilt' in options.camera) {
+            pov = {};
+            pov.pitch = options.camera.tilt;
+          }
+          if ('bearing' in options.camera) {
+            pov = pov || {};
+            pov.heading = options.camera.bearing;
+          }
+          if (pov) {
+            stOptions.pov = pov;
+          }
+        }
+
+        google.maps.event.addDomListener(container, 'click', function(evt) {
+          var pov = panorama.getPov();
+          var clickInfo = {
+            'orientation': {
+              'bearing': pov.heading,
+              'tilt': pov.pitch
+            },
+            'point': [evt.clientX, evt.clientY]
+          };
+          if (self.__pgmId in plugin.google.maps) {
+            plugin.google.maps[self.__pgmId]({
+              'evtName': event.PANORAMA_CLICK,
+              'callback': '_onPanoramaEvent',
+              'args': [clickInfo]
+            });
+          }
+        });
+        var panorama = new google.maps.StreetViewPanorama(container, stOptions);
+        self.set('panorama', panorama);
+
+        self.trigger(event.PANORAMA_READY);
+        panorama.addListener('position_changed', self._onPanoChangedEvent.bind(self, panorama));
+        panorama.addListener('pov_changed', self._onCameraEvent.bind(self, panorama));
+        panorama.addListener('zoom_changed', self._onCameraEvent.bind(self, panorama));
+
+        if (!panoId) {
+          self._onPanoChangedEvent(null);
         }
       });
-      var panorama = new google.maps.StreetViewPanorama(container, stOptions);
-      self.set('panorama', panorama);
-
-      self.trigger(event.PANORAMA_READY);
-      panorama.addListener('position_changed', self._onPanoChangedEvent.bind(self, panorama));
-      panorama.addListener('pov_changed', self._onCameraEvent.bind(self, panorama));
-      panorama.addListener('zoom_changed', self._onCameraEvent.bind(self, panorama));
-
-      if (!panoId) {
-        self._onPanoChangedEvent(null);
-      }
-    });
 
 
   });
@@ -249,14 +249,14 @@ PluginStreetViewPanorama.prototype.setPosition = function(onSuccess, onError, ar
         }
       });
     })
-    .then(function(panoId) {
-      panorama.setPano(panoId);
-      if (!panoId) {
-        self._onPanoChangedEvent(null);
-      }
-      onSuccess();
-    })
-    .catch(onError);
+      .then(function(panoId) {
+        panorama.setPano(panoId);
+        if (!panoId) {
+          self._onPanoChangedEvent(null);
+        }
+        onSuccess();
+      })
+      .catch(onError);
   } else {
     onError('panorama has been already removed.');
   }
