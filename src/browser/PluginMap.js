@@ -1,5 +1,6 @@
 
 
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -432,10 +433,29 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
     });
     map.fitBounds(bounds, padding);
   } else {
-    if (typeof options.zoom === 'number') {
+    var zoomFlag = typeof options.zoom === 'number';
+    var targetFlag = !!options.target;
+
+    if (zoomFlag && targetFlag) {
+      var projection = map.getProjection();
+      var centerLatLng = new google.maps.LatLng(options.target.lat, options.target.lng, true);
+      var centerPoint = projection.fromLatLngToPoint(centerLatLng);
+
+      var scale = Math.pow(2, options.zoom);
+
+      var div = map.getDiv();
+      var harfWidth = div.offsetWidth / 2;
+      var harfHeight = div.offsetHeight / 2;
+      var swPoint = new google.maps.Point((centerPoint.x * scale - harfWidth) / scale, (centerPoint.y * scale + harfHeight) / scale );
+      var nePoint = new google.maps.Point((centerPoint.x * scale + harfWidth) / scale, (centerPoint.y * scale - harfHeight)  / scale);
+      var sw = projection.fromPointToLatLng(swPoint);
+      var ne = projection.fromPointToLatLng(nePoint);
+      var bounds = new google.maps.LatLngBounds(sw, ne);
+      map.fitBounds(bounds, padding);
+
+    } else if (zoomFlag) {
       map.setZoom(options.zoom);
-    }
-    if (options.target) {
+    } else if (targetFlag) {
       map.panTo(options.target);
     }
   }
@@ -450,32 +470,9 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
 };
 
 PluginMap.prototype.moveCamera = function(onSuccess, onError, args) {
-  var self = this;
-  var map = self.get('map');
-
-  var options = args[0];
-  var padding = 'padding' in options ? options.padding : 5;
-  if (Array.isArray(options.target)) {
-    var bounds = new google.maps.LatLngBounds();
-    options.target.forEach(function(pos) {
-      bounds.extend(pos);
-    });
-    map.fitBounds(bounds, padding);
-  } else {
-    if (typeof options.zoom === 'number') {
-      map.setZoom(options.zoom);
-    }
-    map.setCenter(options.target);
-  }
-  if (typeof options.tilt === 'number') {
-    map.setTilt(options.tilt);
-  }
-  if (typeof options.bearing === 'number') {
-    map.setHeading(options.bearing);
-  }
-  onSuccess();
-
+  this.animateCamera.call(this, onSuccess, onError, args);
 };
+
 PluginMap.prototype.setMapTypeId = function(onSuccess, onError, args) {
   var self = this;
   var map = self.get('map');
