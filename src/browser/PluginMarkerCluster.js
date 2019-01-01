@@ -1,3 +1,4 @@
+
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   PluginMarker = require('cordova-plugin-googlemaps.PluginMarker'),
