@@ -822,23 +822,24 @@ CordovaGoogleMaps.prototype._remove = function(mapId) {
   var self = this;
   delete window.plugin.google.maps[mapId];
   var map = self.MAPS[mapId];
-
-  var div = map.getDiv();
-  if (!div) {
-    div = document.querySelector('[__pluginMapId="' + mapId + '"]');
-  }
-  if (div) {
-    div.removeAttribute('__pluginMapId');
-  }
-
-  var keys = Object.keys(self.domPositions);
-  keys.forEach(function(elemId) {
-    self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
-    delete self.domPositions[elemId].containMapIDs[mapId];
-    if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
-      delete self.domPositions[elemId];
+  if (map) {
+    var div = map.getDiv();
+    if (!div) {
+      div = document.querySelector('[__pluginMapId="' + mapId + '"]');
     }
-  });
+    if (div) {
+      div.removeAttribute('__pluginMapId');
+    }
+
+    var keys = Object.keys(self.domPositions);
+    keys.forEach(function(elemId) {
+      self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
+      delete self.domPositions[elemId].containMapIDs[mapId];
+      if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
+        delete self.domPositions[elemId];
+      }
+    });
+  }
 
   self.MAPS[mapId].destroy();
   delete self.MAPS[mapId];

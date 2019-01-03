@@ -175,16 +175,18 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
 CordovaGoogleMaps.prototype._remove = function(mapId) {
   var self = this;
   var map = self.MAPS[mapId];
+  if (map) {
 
-  var div = map.getDiv();
-  if (!div) {
-    div = document.querySelector('[__pluginMapId="' + mapId + '"]');
-  }
-  if (div) {
-    div.removeAttribute('__pluginMapId');
-  }
+    var div = map.getDiv();
+    if (!div) {
+      div = document.querySelector('[__pluginMapId="' + mapId + '"]');
+    }
+    if (div) {
+      div.removeAttribute('__pluginMapId');
+    }
 
-  self.MAPS[mapId].destroy();
+    self.MAPS[mapId].destroy();
+  }
   delete self.MAPS[mapId];
   map = undefined;
 };
