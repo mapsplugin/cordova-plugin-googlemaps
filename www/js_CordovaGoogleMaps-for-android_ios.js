@@ -839,9 +839,9 @@ CordovaGoogleMaps.prototype._remove = function(mapId) {
         delete self.domPositions[elemId];
       }
     });
+    self.MAPS[mapId].destroy();
   }
 
-  self.MAPS[mapId].destroy();
   delete self.MAPS[mapId];
   map = undefined;
 
