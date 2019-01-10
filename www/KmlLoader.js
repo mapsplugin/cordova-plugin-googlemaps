@@ -611,7 +611,14 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
     //
     //   image.src = markerOptions.icon.url;
     // } else {
-    self.map.addMarker(markerOptions).then(resolve).catch(reject);
+    try {      
+      self.map.addMarker(markerOptions, function(_marker){
+        resolve(_marker);
+      })
+    }
+    catch (error) {
+      reject(error);
+    }
     //    }
   })).then(callback);
 
