@@ -614,7 +614,7 @@ KmlLoader.prototype.parsePointTag = function(params, callback) {
     try {      
       self.map.addMarker(markerOptions, function(_marker){
         resolve(_marker);
-      })
+      });
     }
     catch (error) {
       reject(error);
