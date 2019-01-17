@@ -1,4 +1,5 @@
 
+/* eslint no-useless-escape: off */
 
 var utils = require('cordova/utils'),
   common = require('./Common'),

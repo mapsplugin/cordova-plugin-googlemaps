@@ -426,8 +426,9 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
 
   var options = args[0];
   var padding = 'padding' in options ? options.padding : 5;
+  var bounds;
   if (Array.isArray(options.target)) {
-    var bounds = new google.maps.LatLngBounds();
+    bounds = new google.maps.LatLngBounds();
     options.target.forEach(function(pos) {
       bounds.extend(pos);
     });
@@ -450,7 +451,7 @@ PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
       var nePoint = new google.maps.Point((centerPoint.x * scale + harfWidth) / scale, (centerPoint.y * scale - harfHeight)  / scale);
       var sw = projection.fromPointToLatLng(swPoint);
       var ne = projection.fromPointToLatLng(nePoint);
-      var bounds = new google.maps.LatLngBounds(sw, ne);
+      bounds = new google.maps.LatLngBounds(sw, ne);
       map.fitBounds(bounds, padding);
 
     } else if (zoomFlag) {
