@@ -1,4 +1,7 @@
 
+
+/* eslint no-useless-escape: off */
+
 var InlineWorker = require('cordova-plugin-googlemaps.InlineWorker');
 
 function PluginKmlOverlay() {
@@ -105,7 +108,7 @@ function loadKml(self) {
     var CHILD_NODE_KEY = '#';
 
     function parseXML(text) {
-      var list = String.prototype.split.call(text, /<([^!<>?](?:'[\S\s]*?'|"[\S\s]*?"|[^'"<>])*|!(?:--[\S\s]*?--|\[[^[]'"<>]+\[[\S\s]*?]]|DOCTYPE[^[<>]*?\[[\S\s]*?]|(?:ENTITY[^"<>]*?"[\S\s]*?")?[\S\s]*?)|\?[\S\s]*?\?)>/);
+      var list = String.prototype.split.call(text, /<([^!<>?](?:'[\S\s]*?'|"[\S\s]*?"|[^'"<>])*|!(?:--[\S\s]*?--|\[[^\[\]'"<>]+\[[\S\s]*?]]|DOCTYPE[^\[<>]*?\[[\S\s]*?]|(?:ENTITY[^"<>]*?"[\S\s]*?")?[\S\s]*?)|\?[\S\s]*?\?)>/);
       var length = list.length;
 
       // root element
@@ -132,7 +135,7 @@ function loadKml(self) {
         var firstChar = tag[0];
         if (firstChar === '/') {
           // close tag
-          var closed = tag.replace(/^\/|[\s/].*$/g, '').toLowerCase();
+          var closed = tag.replace(/^\/|[\s\/].*$/g, '').toLowerCase();
           while (stack.length) {
             var tagName = elem.n && elem.n.toLowerCase();
             elem = stack.pop();
@@ -174,7 +177,7 @@ function loadKml(self) {
     function openTag(tag) {
       var elem = {f: []};
       tag = tag.replace(/\s*\/?$/, '');
-      var pos = tag.search(/[\s='"/]/);
+      var pos = tag.search(/[\s='"\/]/);
       if (pos < 0) {
         elem.n = tag;
       } else {
@@ -243,7 +246,7 @@ function loadKml(self) {
       var attributes = parseAttribute(elem, reviver);
       var object;
       var childList = elem.f;
-      var childLength = childList.length;
+      var childLength = childList && childList.length || 0;
 
       if (attributes || childLength > 1) {
         // merge attributes and child nodes
@@ -480,7 +483,7 @@ function loadKml(self) {
       var value = rootElement.value;
       if (/^-?[0-9]+$/.test(value)) {
         result.value = parseInt(value, 10);
-      } else if (/^-?[0-9.]+$/.test(value)) {
+      } else if (/^-?[0-9\.]+$/.test(value)) {
         result.value = parseFloat(value, 10);
       } else {
         result.value = value;
