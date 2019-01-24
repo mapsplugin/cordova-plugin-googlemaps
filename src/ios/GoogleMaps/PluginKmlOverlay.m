@@ -141,6 +141,15 @@
   urlStr = [urlStr stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
   NSError *error;
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
+  
+  // Since ionic local server declines HTTP access for some reason,
+  // replace URL with file path
+  NSBundle *mainBundle = [NSBundle mainBundle];
+  NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+  wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+  
+  
   if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
       NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
       bool valid = [NSURLConnection canHandleRequest:req];
