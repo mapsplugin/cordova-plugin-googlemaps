@@ -1,8 +1,8 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.5.0-beta)
+# Cordova GoogleMaps plugin for Android, iOS and Browser
 
 | Download | Build test (master branch)|
 |----------|---------------------------|
-| ![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg) |[![](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps.svg?branch=master)](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps/branches) |
+| [![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)](https://npm-stat.com/charts.html?package=cordova-plugin-googlemaps) |[![](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps.svg?branch=master)](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps/branches) |
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
