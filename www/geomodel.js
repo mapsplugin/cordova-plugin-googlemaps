@@ -13,18 +13,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
- */
+*/
 
-var LatLng = require('./LatLng');
-var LatLngBounds = require('./LatLngBounds');
-var common = require('./Common');
-
-var GEOCELL_GRID_SIZE = 4;
-var GEOCELL_ALPHABET = "0123456789abcdef";
+var LatLng = require('./LatLng'),
+  LatLngBounds = require('./LatLngBounds'),
+  GEOCELL_GRID_SIZE = 4,
+  GEOCELL_ALPHABET = '0123456789abcdef';
 
 function computeBox(geocell) {
   var subcell_lng_span, subcell_lat_span;
-  var xy, x, y, i;
+  var xy, x, y;
   var bbox = _createBoundingBox(90.0, 180.0, -90.0, -180.0);
   while(geocell.length > 0) {
     //geoChar = geocell.charAt(i);
@@ -38,9 +36,9 @@ function computeBox(geocell) {
     y = xy[1];
 
     bbox = _createBoundingBox(bbox.getSouth() + subcell_lat_span * (y + 1),
-              bbox.getWest()  + subcell_lng_span * (x + 1),
-              bbox.getSouth() + subcell_lat_span * y,
-              bbox.getWest()  + subcell_lng_span * x);
+      bbox.getWest()  + subcell_lng_span * (x + 1),
+      bbox.getSouth() + subcell_lat_span * y,
+      bbox.getWest()  + subcell_lng_span * x);
 
     geocell = geocell.substring(1);
   }
@@ -86,7 +84,7 @@ function _createBoundingBox(north, east, south, west) {
  * @return
  */
 function getGeocell(lat, lng, resolution) {
-  var cell = "";
+  var cell = '';
   var north = 90.0;
   var south = -90.0;
   var east = 180.0;
@@ -101,7 +99,6 @@ function getGeocell(lat, lng, resolution) {
     x = Math.min(Math.floor(GEOCELL_GRID_SIZE * (lng - west) / (east - west)), GEOCELL_GRID_SIZE - 1);
     y = Math.min(Math.floor(GEOCELL_GRID_SIZE * (lat - south) / (north - south)),GEOCELL_GRID_SIZE - 1);
     cell += _subdiv_char(x, y);
-
 
     south += subcell_lat_span * y;
     north = south + subcell_lat_span;
@@ -120,7 +117,7 @@ function _subdiv_xy(char) {
   // NOTE: This only works for grid size 4.
   var charI = GEOCELL_ALPHABET.indexOf(char);
   return [(charI & 4) >> 1 | (charI & 1) >> 0,
-            (charI & 8) >> 2 | (charI & 2) >> 1];
+    (charI & 8) >> 2 | (charI & 2) >> 1];
 }
 
 /**
@@ -130,13 +127,13 @@ function _subdiv_xy(char) {
 function _subdiv_char(posX, posY) {
   // NOTE: This only works for grid size 4.
   return GEOCELL_ALPHABET.charAt(
-      (posY & 2) << 2 |
-      (posX & 2) << 1 |
-      (posY & 1) << 1 |
-      (posX & 1) << 0);
+    (posY & 2) << 2 |
+    (posX & 2) << 1 |
+    (posY & 1) << 1 |
+    (posX & 1) << 0);
 }
 
 module.exports = {
-    computeBox: computeBox,
-    getGeocell: getGeocell
+  computeBox: computeBox,
+  getGeocell: getGeocell
 };

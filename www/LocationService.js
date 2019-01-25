@@ -1,4 +1,4 @@
- /*****************************************************************************
+/*****************************************************************************
  * LocationService class
  *****************************************************************************/
 var LatLng = require('./LatLng');
@@ -8,7 +8,7 @@ var LocationService = function(exec) {
     console.error(err);
   }
   return {
-    hasPermission: function(callback) {
+    hasPermission: function(callback, errorCallback) {
       var self = this;
 
       var resolver = function(resolve, reject) {
@@ -18,32 +18,32 @@ var LocationService = function(exec) {
         function(hasPermission) {
           resolve.call(self, hasPermission === 1);
         },
-        reject.bind(self), 'LocationService', 'hasPermission', [], {sync: true});
+        reject.bind(self), 'PluginLocationService', 'hasPermission', [], {sync: true});
       };
 
       var errorHandler = function(result) {
-        if (typeof error_callback === "function") {
-          error_callback.call(self, result);
+        if (typeof errorCallback === 'function') {
+          errorCallback.call(self, result);
         } else {
           (self.errorHandler || _errorHandler).call(self, result);
         }
       };
-      if (typeof callback === "function") {
+      if (typeof callback === 'function') {
         resolver(callback, errorHandler);
         return self;
       } else {
         return new Promise(resolver);
       }
     },
-    getMyLocation: function(params, success_callback, error_callback) {
+    getMyLocation: function(params, success_callback, errorCallback) {
       var self = this;
-      var args = [params || {}, success_callback || null, error_callback];
-      if (typeof args[0] === "function") {
-          args.unshift({});
+      var args = [params || {}, success_callback || null, errorCallback];
+      if (typeof args[0] === 'function') {
+        args.unshift({});
       }
       params = args[0];
       success_callback = args[1];
-      error_callback = args[2];
+      errorCallback = args[2];
 
 
       var resolver = function(resolve, reject) {
@@ -59,14 +59,14 @@ var LocationService = function(exec) {
 
       params.enableHighAccuracy = params.enableHighAccuracy === true;
       var errorHandler = function(result) {
-        if (typeof error_callback === "function") {
-          error_callback.call(self, result);
+        if (typeof errorCallback === 'function') {
+          errorCallback.call(self, result);
         } else {
           (self.errorHandler || _errorHandler).call(self, result);
         }
       };
 
-      if (typeof success_callback === "function") {
+      if (typeof success_callback === 'function') {
         resolver(success_callback, errorHandler);
         return self;
       } else {
@@ -78,23 +78,23 @@ var LocationService = function(exec) {
 
 /**
  // TODO:
-LocationService.prototype.followMyPosition = function(params, success_callback, error_callback) {
+LocationService.prototype.followMyPosition = function(params, success_callback, errorCallback) {
   var self = this;
-  var args = [params || {}, success_callback || null, error_callback];
-  if (typeof args[0] === "function") {
+  var args = [params || {}, success_callback || null, errorCallback];
+  if (typeof args[0] === 'function') {
       args.unshift({});
   }
   self.on('currentPosition_changed', success_callback);
   var successHandler = function(location) {
       location.latLng = new LatLng(location.latLng.lat, location.latLng.lng);
-      if (typeof success_callback === "function") {
+      if (typeof success_callback === 'function') {
           success_callback.call(self, location);
       }
       self.set('currentPosition', location);
   };
   var errorHandler = function(result) {
-      if (typeof error_callback === "function") {
-          error_callback.call(self, result);
+      if (typeof errorCallback === 'function') {
+          errorCallback.call(self, result);
       }
   };
   exec.call({

@@ -147,7 +147,7 @@ public class PluginTileProvider implements TileProvider  {
         }
       });
       try {
-        semaphore.wait(1000); // Maximum wait 1sec
+        semaphore.wait(10000); // Maximum wait 10sec
       } catch (InterruptedException e) {
         e.printStackTrace();
         return null;
@@ -172,6 +172,15 @@ public class PluginTileProvider implements TileProvider  {
       } else {
         return null;
       }
+    }
+
+    if (urlStr.indexOf("data:image/") == 0 && urlStr.contains(";base64,")) {
+      String[] tmp = urlStr.split(",");
+      Bitmap image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
+      tile = new Tile(tileSize, tileSize, bitmapToByteArray(image));
+      image.recycle();
+      image = null;
+      return tile;
     }
 
     if (urlStr.startsWith("http://localhost") ||

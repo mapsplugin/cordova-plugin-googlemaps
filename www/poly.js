@@ -2,8 +2,8 @@ var LatLngBounds = require('./LatLngBounds'),
   BaseArrayClass = require('./BaseArrayClass');
 
 function containsLocation(latLng, path) {
-  if ("lat" in latLng === false ||
-    "lng" in latLng === false) {
+  if ('lat' in latLng === false ||
+    'lng' in latLng === false) {
     return false;
   }
   if (path instanceof BaseArrayClass) {
@@ -61,14 +61,14 @@ function containsLocation(latLng, path) {
 }
 
 function isLocationOnEdge(latLng, path) {
-  if ("lat" in latLng === false ||
-    "lng" in latLng === false) {
+  if ('lat' in latLng === false ||
+    'lng' in latLng === false) {
     return false;
   }
 
   var Sx, Sy;
   var p0, p1;
-  var point = {"lat": latLng.lat, "lng": latLng.lng};
+  var point = {'lat': latLng.lat, 'lng': latLng.lng};
 
   if (path instanceof BaseArrayClass) {
     path = path.getArray();

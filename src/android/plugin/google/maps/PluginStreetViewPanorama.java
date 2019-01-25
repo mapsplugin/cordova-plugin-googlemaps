@@ -69,7 +69,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   }
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     JSONObject meta = args.getJSONObject(0);
-    panoramaId = meta.getString("id");
+    panoramaId = meta.getString("__pgmId");
     viewDepth = meta.getInt("depth");
 
     JSONObject jsOptions = args.getJSONObject(1);
@@ -393,26 +393,28 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 
   @Override
   public void onStreetViewPanoramaChange(StreetViewPanoramaLocation streetViewPanoramaLocation) {
-
     try {
-      JSONObject location = new JSONObject();
-      location.put("panoId", streetViewPanoramaLocation.panoId);
+      String jsonStr = "null";
+      if (streetViewPanoramaLocation != null) {
+        JSONObject location = new JSONObject();
+        location.put("panoId", streetViewPanoramaLocation.panoId);
 
-      JSONObject position = new JSONObject();
-      position.put("lat", streetViewPanoramaLocation.position.latitude);
-      position.put("lng", streetViewPanoramaLocation.position.longitude);
-      location.put("latLng", position);
+        JSONObject position = new JSONObject();
+        position.put("lat", streetViewPanoramaLocation.position.latitude);
+        position.put("lng", streetViewPanoramaLocation.position.longitude);
+        location.put("latLng", position);
 
-      JSONArray links = new JSONArray();
-      for (StreetViewPanoramaLink stLink : streetViewPanoramaLocation.links) {
-        JSONObject link = new JSONObject();
-        link.put("panoId", stLink.panoId);
-        link.put("bearing", stLink.bearing);
-        links.put(link);
+        JSONArray links = new JSONArray();
+        for (StreetViewPanoramaLink stLink : streetViewPanoramaLocation.links) {
+          JSONObject link = new JSONObject();
+          link.put("panoId", stLink.panoId);
+          link.put("bearing", stLink.bearing);
+          links.put(link);
+        }
+        location.put("links", links);
+
+        jsonStr = location.toString(0);
       }
-      location.put("links", links);
-
-      String jsonStr = location.toString(0);
       jsCallback(
           String.format(
               Locale.ENGLISH,

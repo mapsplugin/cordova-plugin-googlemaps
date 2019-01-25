@@ -1,0 +1,99 @@
+sudo: false
+
+env:
+  global:
+  - NODE_VERSION="10.12.0"
+  - ANDROID_API="27"
+  - ANDROID_BUILD_TOOLS="28.0.3"
+  - CORDOVA_VERSION="8.1.2"
+
+notifications:
+  email: false
+
+before_cache:
+  # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+
+    # Gradle dependencies
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+    # Android directory
+    - $HOME/.android
+
+    # NVM
+    - $HOME/.nvm
+
+matrix:
+  include:
+  - os: linux
+    env:  CORDOVA_PLATFORM="browser"
+    language: node_js
+    node_js: '${NODE_VERSION}'
+
+  - if: branch = master
+    os: osx
+    env: CORDOVA_PLATFORM="ios"
+    language: objective-c
+    cache:
+      - bundler
+      - cocoapods
+    node_js: '${NODE_VERSION}'
+    osx_image: xcode9.4
+    before_script:
+    - exist=$(which ios-deploy); if [[ -z "${exist}" ]]; then
+        npm -g install ios-deploy > /dev/null;
+      fi
+
+  - if: branch = master
+    env: CORDOVA_PLATFORM="android"
+    os: linux
+    node_js: '${NODE_VERSION}'
+    language: android
+    jdk: oraclejdk8
+    android:
+      components:
+        - tools
+        - android-${ANDROID_API}
+        - platform-tools
+        # The BuildTools version used by your project
+        - build-tools-${ANDROID_BUILD_TOOLS}
+        # The SDK version used to compile your project
+        - android-${ANDROID_API}
+        # Additional components
+        - extra-android-m2repository
+        - extra-google-m2repository
+        - sys-img-x86-android-${ANDROID_API}
+      licenses:
+        - 'android-sdk-license-.+'
+        - '.+'
+
+install:
+
+  - exist=$(which nvm); if [[ -z "${exist}" ]]; then
+      rm -rf ~/.nvm > /dev/null;
+      git clone https://github.com/creationix/nvm.git ~/.nvm > /dev/null;
+      (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags` > /dev/null);
+      source ~/.nvm/nvm.sh && nvm > /dev/null;
+    fi
+  - exist=$(nvm list | grep ${NODE_VERSION}); if [[ -z "${exist}" ]]; then
+      nvm install ${NODE_VERSION} > /dev/null;
+    fi
+  - nvm use ${NODE_VERSION} > /dev/null;
+  - node --version
+  - exist=$(which cordova); if [[ -z "${exist}" ]]; then
+      npm -g install cordova@${CORDOVA_VERSION} > /dev/null;
+    fi
+  - cordova --version
+  - exist=$(which cordova-paramedic); if [[ -z "${exist}" ]]; then
+      npm -g install https://github.com/apache/cordova-paramedic;
+    fi
+  - npm i > /dev/null
+
+script:
+  - npm test
+  - /bin/bash build_test.sh

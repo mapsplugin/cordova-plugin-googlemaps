@@ -2,16 +2,16 @@
 var envOptions = {};
 
 module.exports = {
-  'isAvailable': function(onSuccess, onError, args) {
+  'isAvailable': function(onSuccess) {
     onSuccess();
   },
-  'setBackGroundColor': function(onSuccess, onError, args) {
+  'setBackGroundColor': function(onSuccess) {
     // stub
     onSuccess();
   },
-  'getLicenseInfo': function(onSuccess, onError, args) {
+  'getLicenseInfo': function(onSuccess) {
     // stub
-    onSuccess("cordova-plugin-googlemaps for browser does not need to display any open source lincenses. But for iOS, you still need to display the lincense.");
+    onSuccess('cordova-plugin-googlemaps for browser does not need to display any open source lincenses. But for iOS, you still need to display the lincense.');
   },
   'setEnv': function(onSuccess, onError, args) {
     var options = args[0];

@@ -3,13 +3,12 @@
 
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  LatLng = require('cordova-plugin-googlemaps.LatLng');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
 
 function PluginCircle(pluginMap) {
   var self = this;
   BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
+  Object.defineProperty(self, 'pluginMap', {
     value: pluginMap,
     writable: false
   });
@@ -60,7 +59,7 @@ PluginCircle.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[circleId] = circle;
 
   onSuccess({
-    'id': circleId
+    '__pgmId': circleId
   });
 };
 
@@ -187,7 +186,7 @@ PluginCircle.prototype.remove = function(onSuccess, onError, args) {
 
 PluginCircle.prototype._onCircleEvent = function(circle, polyMouseEvt) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   if (mapId in plugin.google.maps) {
     plugin.google.maps[mapId]({
       'evtName': event.CIRCLE_CLICK,

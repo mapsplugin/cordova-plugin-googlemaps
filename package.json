@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-googlemaps",
-  "version": "2.4.6",
+  "version": "2.5.0",
   "description": "Google Maps native SDK for Android and iOS, and Google Maps JavaScript API v3 for browser.",
   "cordova": {
     "id": "cordova-plugin-googlemaps",
@@ -21,7 +21,8 @@
     "google maps",
     "ecosystem:cordova",
     "cordova-android",
-    "cordova-ios"
+    "cordova-ios",
+    "cordova-browser"
   ],
   "engines": [
     {
@@ -41,10 +42,21 @@
       "version": ">=10.0.0"
     }
   ],
+  "scripts": {
+    "test": "jest && npm run eslint",
+    "jest": "jest",
+    "test:watch": "jest --watch",
+    "eslint": "node node_modules/eslint/bin/eslint www src"
+  },
   "author": "Masashi Katsumata, Hirbod Mirjavadi",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mapsplugin/cordova-plugin-googlemaps/issues"
   },
-  "homepage": "https://github.com/mapsplugin/cordova-plugin-googlemaps"
+  "homepage": "https://github.com/mapsplugin/cordova-plugin-googlemaps",
+  "devDependencies": {
+    "cordova-js": "^4.2.4",
+    "eslint": "^5.7.0",
+    "jest": "^23.6.0"
+  }
 }

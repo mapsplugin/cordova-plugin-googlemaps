@@ -1,13 +1,15 @@
 
+
+/* eslint no-useless-escape: off */
+
 var InlineWorker = require('cordova-plugin-googlemaps.InlineWorker');
 
-function PluginKmlOverlay(pluginMap) {
+function PluginKmlOverlay() {
   // stub
 }
 
 PluginKmlOverlay.prototype._create = function(onSuccess, onError, args) {
-  var self = this,
-    pluginOptions = args[1];
+  var pluginOptions = args[1];
 
   if (!/^https?:/.test(location.protocol)) {
     return onError('KmlOverlay is only available on http: or https: protocols.');
@@ -23,9 +25,9 @@ PluginKmlOverlay.prototype._create = function(onSuccess, onError, args) {
     onSuccess(evt.data);
   };
   worker.onerror = onError;
-  var link = document.createElement("a");
+  var link = document.createElement('a');
   link.href = pluginOptions.url;
-  var url = link.protocol+"//"+link.host+link.pathname+link.search;
+  var url = link.protocol+'//'+link.host+link.pathname+link.search;
   worker.postMessage({
     'url': url
   });
@@ -38,14 +40,14 @@ function loadKml(self) {
   // code: https://stackoverflow.com/q/32912732/697856
   var createCORSRequest = function(method, url, asynch) {
     var xhr = new XMLHttpRequest();
-    if ("withCredentials" in xhr) {
+    if ('withCredentials' in xhr) {
       // XHR for Chrome/Firefox/Opera/Safari.
       xhr.open(method, url, asynch);
       // xhr.setRequestHeader('MEDIBOX', 'login');
       xhr.setRequestHeader('Content-Type', 'application/xml; charset=UTF-8');
-    } else if (typeof XDomainRequest != "undefined") {
+    } else if (typeof window.XDomainRequest != 'undefined') {
       // XDomainRequest for IE.
-      xhr = new XDomainRequest();
+      xhr = new window.XDomainRequest();
       xhr.open(method, url, asynch);
     } else {
       // CORS not supported.
@@ -96,14 +98,14 @@ function loadKml(self) {
      */
 
     var UNESCAPE = {
-      "&amp;": "&",
-      "&lt;": "<",
-      "&gt;": ">",
-      "&apos;": "'",
-      "&quot;": '"'
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      '&apos;': '\'',
+      '&quot;': '"'
     };
 
-    var CHILD_NODE_KEY = "#";
+    var CHILD_NODE_KEY = '#';
 
     function parseXML(text) {
       var list = String.prototype.split.call(text, /<([^!<>?](?:'[\S\s]*?'|"[\S\s]*?"|[^'"<>])*|!(?:--[\S\s]*?--|\[[^\[\]'"<>]+\[[\S\s]*?]]|DOCTYPE[^\[<>]*?\[[\S\s]*?]|(?:ENTITY[^"<>]*?"[\S\s]*?")?[\S\s]*?)|\?[\S\s]*?\?)>/);
@@ -131,9 +133,9 @@ function loadKml(self) {
       function parseNode(tag) {
         var tagLength = tag.length;
         var firstChar = tag[0];
-        if (firstChar === "/") {
+        if (firstChar === '/') {
           // close tag
-          var closed = tag.replace(/^\/|[\s\/].*$/g, "").toLowerCase();
+          var closed = tag.replace(/^\/|[\s\/].*$/g, '').toLowerCase();
           while (stack.length) {
             var tagName = elem.n && elem.n.toLowerCase();
             elem = stack.pop();
@@ -142,18 +144,18 @@ function loadKml(self) {
         // } else if (firstChar === "?") {
         //   // XML declaration
         //   appendChild({n: "?", r: tag.substr(1, tagLength - 2)});
-        } else if (firstChar === "!") {
-          if (tag.substr(1, 7) === "[CDATA[" && tag.substr(-2) === "]]") {
+        } else if (firstChar === '!') {
+          if (tag.substr(1, 7) === '[CDATA[' && tag.substr(-2) === ']]') {
             // CDATA section
             appendText(tag.substr(8, tagLength - 10));
           } else {
             // comment
-            appendChild({n: "!", r: tag.substr(1)});
+            appendChild({n: '!', r: tag.substr(1)});
           }
         } else {
           var child = openTag(tag);
           appendChild(child);
-          if (tag[tagLength - 1] === "/") {
+          if (tag[tagLength - 1] === '/') {
             child.c = 1; // emptyTag
           } else {
             stack.push(elem); // openTag
@@ -174,7 +176,7 @@ function loadKml(self) {
 
     function openTag(tag) {
       var elem = {f: []};
-      tag = tag.replace(/\s*\/?$/, "");
+      tag = tag.replace(/\s*\/?$/, '');
       var pos = tag.search(/[\s='"\/]/);
       if (pos < 0) {
         elem.n = tag;
@@ -195,20 +197,19 @@ function loadKml(self) {
         str = removeSpaces(str);
         if (!str) return;
 
-        var pos = str.indexOf("=");
+        var pos = str.indexOf('=');
         if (pos < 0) {
           // bare attribute
-          str = str;
           val = null;
         } else {
           // attribute key/value pair
-          val = str.substr(pos + 1).replace(/^\s+/, "");
-          str = str.substr(0, pos).replace(/\s+$/, "");
+          val = str.substr(pos + 1).replace(/^\s+/, '');
+          str = str.substr(0, pos).replace(/\s+$/, '');
 
           // quote: foo="FOO" bar='BAR'
           var firstChar = val[0];
           var lastChar = val[val.length - 1];
-          if (firstChar === lastChar && (firstChar === "'" || firstChar === '"')) {
+          if (firstChar === lastChar && (firstChar === '\'' || firstChar === '"')) {
             val = val.substr(1, val.length - 2);
           }
 
@@ -224,13 +225,13 @@ function loadKml(self) {
     }
 
     function removeSpaces(str) {
-      return str && str.replace(/^\s+|\s+$/g, "");
+      return str && str.replace(/^\s+|\s+$/g, '');
     }
 
     function unescapeXML(str) {
       return str.replace(/(&(?:lt|gt|amp|apos|quot|#(?:\d{1,6}|x[0-9a-fA-F]{1,5}));)/g, function(str) {
-        if (str[1] === "#") {
-          var code = (str[2] === "x") ? parseInt(str.substr(3), 16) : parseInt(str.substr(2), 10);
+        if (str[1] === '#') {
+          var code = (str[2] === 'x') ? parseInt(str.substr(3), 16) : parseInt(str.substr(2), 10);
           if (code > -1) return String.fromCharCode(code);
         }
         return UNESCAPE[str] || str;
@@ -245,7 +246,7 @@ function loadKml(self) {
       var attributes = parseAttribute(elem, reviver);
       var object;
       var childList = elem.f;
-      var childLength = childList.length;
+      var childLength = childList && childList.length || 0;
 
       if (attributes || childLength > 1) {
         // merge attributes and child nodes
@@ -257,7 +258,7 @@ function loadKml(self) {
         }
         object.tagName = elem.n;
         childList.forEach(function(child) {
-          if ("string" === typeof child) {
+          if ('string' === typeof child) {
             addObject(object, CHILD_NODE_KEY, child);
           } else {
             addObject(object, child.n, toObject(child, reviver));
@@ -266,7 +267,7 @@ function loadKml(self) {
       } else if (childLength) {
         // the node has single child node but no attribute
         var child = childList[0];
-        if ("string" === typeof child) {
+        if ('string' === typeof child) {
           object = {
             'tagName': elem.n,
             'value': child,
@@ -294,19 +295,19 @@ function loadKml(self) {
       }
 
       if (reviver) {
-        object = reviver(elem.n || "", object);
+        object = reviver(elem.n || '', object);
       }
 
       return object;
     }
 
     function addAttribute(object, key, val) {
-      if ("undefined" === typeof val) return;
+      if ('undefined' === typeof val) return;
       object.attributes = object.attributes || {};
       object.attributes[key] = val;
     }
     function addObject(object, key, val) {
-      if ("undefined" === typeof val) return;
+      if ('undefined' === typeof val) return;
       object.value = object.value || {};
       object.value.children = object.value.children || [];
       if (typeof val === 'object' && val.tagName) {
@@ -321,10 +322,10 @@ function loadKml(self) {
     }
 
     return function(text, reviver) {
-      text = text.replace(/<\?xml[^>]+>/i, "");
+      text = text.replace(/<\?xml[^>]+>/i, '');
       var xmlTree = parseXML(text);
       var result = toObject(xmlTree, reviver);
-      result.tagName = "document";
+      result.tagName = 'document';
       return result;
     };
   })();
@@ -378,7 +379,7 @@ function loadKml(self) {
     // Generate a style id for the tag
     var styleId = rootElement.attributes ? rootElement.attributes.id : null;
     if (!styleId) {
-      styleId = "__" + Math.floor(Date.now() * Math.random()) + "__";
+      styleId = '__' + Math.floor(Date.now() * Math.random()) + '__';
     }
     var result = {
       'styleId': styleId
@@ -411,12 +412,12 @@ function loadKml(self) {
     // Generate a schema id for the tag
     var schemaId = rootElement.attributes ? rootElement.attributes.id : null;
     if (!schemaId) {
-      schemaId = "__" + Math.floor(Date.now() * Math.random()) + "__";
+      schemaId = '__' + Math.floor(Date.now() * Math.random()) + '__';
     }
 
     // Store schema information into the schemaHolder.
     var schema = {};
-    schema.name = rootElement.attributes ? rootElement.attributes.id : "__" + Math.floor(Date.now() * Math.random()) + "__";
+    schema.name = rootElement.attributes ? rootElement.attributes.id : '__' + Math.floor(Date.now() * Math.random()) + '__';
     if (rootElement.value.children) {
       var children = [];
       rootElement.value.children.forEach(function(childNode) {
@@ -435,19 +436,18 @@ function loadKml(self) {
   };
 
   KmlParserClass.prototype._coordinates = function(rootElement) {
-    var _parser = this;
     var result = {};
     var latLngList = [];
 
     var txt = rootElement.value;
-    txt = txt.replace(/\s+/g, "\n");
-    txt = txt.replace(/\n+/g, "\n");
+    txt = txt.replace(/\s+/g, '\n');
+    txt = txt.replace(/\n+/g, '\n');
     var lines = txt.split(/\n/);
 
     lines.forEach(function(line) {
-      line = line.replace(/[^0-9,.\\-]/g, "");
-      if (line !== "") {
-        var tmpArry = line.split(",");
+      line = line.replace(/[^0-9,.\\-]/g, '');
+      if (line !== '') {
+        var tmpArry = line.split(',');
         latLngList.push({
           'lat': parseFloat(tmpArry[1]),
           'lng': parseFloat(tmpArry[0])
@@ -520,21 +520,21 @@ function loadKml(self) {
         xhr.send();
       }
     }))
-    .then(function(xmlTxt) {
+      .then(function(xmlTxt) {
       //-----------------
       // Parse it
       //-----------------
-      var doc = fromXML(xmlTxt);
-      var parser = new KmlParserClass();
-      var root = parser.parseXml(doc);
+        var doc = fromXML(xmlTxt);
+        var parser = new KmlParserClass();
+        var root = parser.parseXml(doc);
 
-      var result = {
-        'schemas': parser.schemaHolder,
-        'styles': parser.styleHolder,
-        'root': root
-      };
-      postMessage(result);
-    });
+        var result = {
+          'schemas': parser.schemaHolder,
+          'styles': parser.styleHolder,
+          'root': root
+        };
+        postMessage(result);
+      });
 
   };
 }

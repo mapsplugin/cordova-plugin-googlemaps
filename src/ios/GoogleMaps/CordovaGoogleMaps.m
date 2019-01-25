@@ -214,7 +214,7 @@
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     NSDictionary *meta = [command.arguments objectAtIndex:0];
-    NSString *mapId = [meta objectForKey:@"id"];
+    NSString *mapId = [meta objectForKey:@"__pgmId"];
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
     // Wrapper view
@@ -385,7 +385,7 @@
 
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     NSDictionary *meta = [command.arguments objectAtIndex:0];
-    NSString *panoramaId = [meta objectForKey:@"id"];
+    NSString *panoramaId = [meta objectForKey:@"__pgmId"];
     NSString *divId = [command.arguments objectAtIndex:2];
 
     // Wrapper view

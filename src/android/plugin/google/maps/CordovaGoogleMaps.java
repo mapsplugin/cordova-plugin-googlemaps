@@ -52,7 +52,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public MyPluginLayout mPluginLayout = null;
   public boolean initialized = false;
   public PluginManager pluginManager;
-  public static String CURRENT_URL;
   private static final Object timerLock = new Object();
 
   @SuppressLint("NewApi") @Override
@@ -73,7 +72,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-        CURRENT_URL = webView.getUrl();
 
         // Enable this, webView makes draw cache on the Android action bar issue.
         //View view = webView.getView();
@@ -198,8 +196,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
           alertDialog.show();
         }
 
-        CURRENT_URL = webView.getUrl();
-
 
         //------------------------------
         // Initialize Google Maps SDK
@@ -230,7 +226,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       }
     });
     */
-    CURRENT_URL = url;
     return false;
   }
 
@@ -345,6 +340,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         mPluginLayout.startTimer();
       }
       callbackContext.success();
+
+      //On resume reapply background because it might have been changed by some other plugin
+      webView.getView().setBackgroundColor(Color.TRANSPARENT);
     }
   }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -383,7 +381,6 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        CURRENT_URL = webView.getUrl();
 
         mPluginLayout.setBackgroundColor(Color.WHITE);
 
@@ -450,13 +447,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     // Create an instance of PluginMap class.
     //------------------------------------------
     JSONObject meta = args.getJSONObject(0);
-    String mapId = meta.getString("id");
+    String mapId = meta.getString("__pgmId");
     PluginMap pluginMap = new PluginMap();
     pluginMap.privateInitialize(mapId, cordova, webView, null);
     pluginMap.initialize(cordova, webView);
     pluginMap.mapCtrl = CordovaGoogleMaps.this;
     pluginMap.self = pluginMap;
-    pluginMap.CURRENT_PAGE_URL = CURRENT_URL;
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
     pluginManager.addService(pluginEntry);
@@ -471,14 +467,13 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     // Create an instance of PluginStreetView class.
     //------------------------------------------
     JSONObject meta = args.getJSONObject(0);
-    String mapId = meta.getString("id");
+    String mapId = meta.getString("__pgmId");
     Log.d(TAG, "---> mapId = " + mapId);
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
     pluginStreetView.privateInitialize(mapId, cordova, webView, null);
     pluginStreetView.initialize(cordova, webView);
     pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
     pluginStreetView.self = pluginStreetView;
-    pluginStreetView.CURRENT_PAGE_URL = CURRENT_URL;
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
     pluginManager.addService(pluginEntry);

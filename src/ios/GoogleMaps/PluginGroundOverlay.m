@@ -163,7 +163,7 @@
                   // Result for JS
                   //---------------------------
                   NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
-                  [result setObject:groundOverlayId forKey:@"id"];
+                  [result setObject:groundOverlayId forKey:@"__pgmId"];
 
                   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:result];
                   [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -180,6 +180,7 @@
 
 - (void)_setImage:(GMSGroundOverlay *)groundOverlay urlStr:(NSString *)urlStr completionHandler:(void (^)(BOOL succeeded))completionHandler {
 
+  
     NSRange range = [urlStr rangeOfString:@"http"];
 
     if (range.location != 0) {
@@ -195,8 +196,8 @@
              * Base64 icon
              */
             NSArray *tmp = [urlStr componentsSeparatedByString:@","];
+            NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[tmp objectAtIndex:1] options:0];
 
-            NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
             image = [[UIImage alloc] initWithData:decodedData];
 
         } else {
@@ -537,7 +538,14 @@
 
     NSString *iconPath = url.absoluteString;
 
-    if ([iconPath hasPrefix:@"file://"]) {
+    // Since ionic local server declines HTTP access for some reason,
+    // replace URL with file path
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    
+    if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
       iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
       if (![iconPath hasPrefix:@"/"]) {
         iconPath = [NSString stringWithFormat:@"/%@", iconPath];

@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Geocode geocode() multiple request address1 should call the native plugin with the correct parameters 1`] = `
+Array [
+  Array [
+    [Function],
+    [Function],
+    "PluginGeocoder",
+    "geocode",
+    Array [
+      Object {
+        "address": "Tokyo, Japan",
+        "idx": 0,
+      },
+    ],
+  ],
+  Array [
+    [Function],
+    [Function],
+    "PluginGeocoder",
+    "geocode",
+    Array [
+      Object {
+        "address": "Kyoto, Japan",
+        "idx": 1,
+      },
+    ],
+  ],
+]
+`;
+
+exports[`Geocode geocode() multiple request position should call the native plugin with the correct parameters 1`] = `
+Array [
+  Array [
+    [Function],
+    [Function],
+    "PluginGeocoder",
+    "geocode",
+    Array [
+      Object {
+        "idx": 0,
+        "position": Object {
+          "lat": 0,
+          "lng": 0,
+        },
+      },
+    ],
+  ],
+  Array [
+    [Function],
+    [Function],
+    "PluginGeocoder",
+    "geocode",
+    Array [
+      Object {
+        "idx": 1,
+        "position": Object {
+          "lat": 1,
+          "lng": 1,
+        },
+      },
+    ],
+  ],
+]
+`;
+
+exports[`Geocode geocode() should call the if both position and address options are provided 1`] = `[Error: Invalid request]`;
+
+exports[`Geocode geocode() should error if both position and address options are provided 1`] = `[Error: Invalid request]`;
+
+exports[`Geocode geocode() should return a promise if a callback is not passed 1`] = `Promise {}`;
+
+exports[`Geocode geocode() should return a promise if a callback is not passed 2`] = `
+Array [
+  Object {
+    "foo": "bar",
+  },
+]
+`;
+
+exports[`Geocode geocode() single request address should call the native plugin with the correct parameters 1`] = `
+Array [
+  Array [
+    [Function],
+    [Function],
+    "PluginGeocoder",
+    "geocode",
+    Array [
+      Object {
+        "address": "Tokyo, Japan",
+        "idx": -1,
+      },
+    ],
+  ],
+]
+`;
+
+exports[`Geocode geocode() single request position should call the native plugin with the correct parameters 1`] = `
+Array [
+  Array [
+    [Function],
+    [Function],
+    "PluginGeocoder",
+    "geocode",
+    Array [
+      Object {
+        "idx": -1,
+        "position": Object {
+          "lat": 0,
+          "lng": 0,
+        },
+      },
+    ],
+  ],
+]
+`;

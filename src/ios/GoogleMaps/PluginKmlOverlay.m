@@ -141,6 +141,15 @@
   urlStr = [urlStr stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
   NSError *error;
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
+  
+  // Since ionic local server declines HTTP access for some reason,
+  // replace URL with file path
+  NSBundle *mainBundle = [NSBundle mainBundle];
+  NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+  wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+  
+  
   if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
       NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
       bool valid = [NSURLConnection canHandleRequest:req];
@@ -307,7 +316,7 @@
     NSString *tmp;
     for (int i = 0; i < lines.count; i++) {
       tmp = [lines objectAtIndex:i];
-      tmp = [tmp regReplace:@"[^0-9,.\\-]" replaceTxt:@"" options:0];
+      tmp = [tmp regReplace:@"[^0-9,.eE\\-]" replaceTxt:@"" options:0];
       if ([tmp isEqualToString:@""] == NO) {
         tmpArry = [tmp componentsSeparatedByString:@","];
         latLng = [NSMutableDictionary dictionary];

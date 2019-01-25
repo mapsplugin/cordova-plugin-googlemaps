@@ -1,4 +1,5 @@
 
+
 if (!window.Promise) {
   window.Promise = require('cordova-plugin-googlemaps.Promise');
 }
@@ -11,6 +12,7 @@ var common = require('cordova-plugin-googlemaps.Common'),
 function nativeCallback(params) {
   var args = params.args || [];
   args.unshift(params.evtName);
+
   this[params.callback].apply(this, args);
 }
 
@@ -69,8 +71,6 @@ function CordovaGoogleMaps(execCmd) {
 }
 
 CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
-  var self = this;
-  var args = Array.prototype.slice.call(arguments, 0);
 
   //----------------------------------------------------------------------------
   // This procedure return a map instance.
@@ -85,10 +85,11 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   //       In order to keep the backward compatibility for v1,
   //       if the mapDiv has already a map, returns the map instance for the map div.
   //----------------------------------------------------------------------------
-  var mapId, elem, elemId;
+  var self = this,
+    mapId;
 
   if (common.isDom(div)) {
-    mapId = div.getAttribute("__pluginMapId");
+    mapId = div.getAttribute('__pluginMapId');
 
     // Wow, the app specifies the map div that has already another map,
     // but the app try to create new map.
@@ -113,11 +114,11 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   }
   if (!mapId) {
-    mapId = "map_" + self.MAP_CNT + "_" + self.saltHash;
+    mapId = 'map_' + self.MAP_CNT + '_' + self.saltHash;
   }
   // Create a map instance.
   var map = new Map(mapId, self.execCmd);
-  plugin.google.maps[mapId] = nativeCallback.bind(map);
+  window.plugin.google.maps[mapId] = nativeCallback.bind(map);
 
   // If the map is removed, clean up the information.
   map.one('remove', self._remove.bind(self, mapId));
@@ -143,14 +144,14 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
 CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
   var self = this;
-  var mapId = "streetview_" + self.MAP_CNT + "_" + self.saltHash;
+  var mapId = 'streetview_' + self.MAP_CNT + '_' + self.saltHash;
 
   // Create a panorama instance.
   var panorama = new StreetViewPanorama(mapId, self.execCmd);
 
   // Catch all events for this map instance, then pass to the instance.
   // (Don't execute this native callback from your code)
-  plugin.google.maps[mapId] = nativeCallback.bind(panorama);
+  window.plugin.google.maps[mapId] = nativeCallback.bind(panorama);
 
   self.MAP_CNT++;
   panorama.one('remove', self._remove.bind(self, mapId));
@@ -174,16 +175,18 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
 CordovaGoogleMaps.prototype._remove = function(mapId) {
   var self = this;
   var map = self.MAPS[mapId];
+  if (map) {
 
-  var div = map.getDiv();
-  if (!div) {
-    div = document.querySelector("[__pluginMapId='" + mapId + "']");
-  }
-  if (div) {
-    div.removeAttribute('__pluginMapId');
-  }
+    var div = map.getDiv();
+    if (!div) {
+      div = document.querySelector('[__pluginMapId="' + mapId + '"]');
+    }
+    if (div) {
+      div.removeAttribute('__pluginMapId');
+    }
 
-  self.MAPS[mapId].destroy();
+    self.MAPS[mapId].destroy();
+  }
   delete self.MAPS[mapId];
   map = undefined;
 };
@@ -200,7 +203,7 @@ function postPanoramaInit(panorama, div, options) {
   // If the given div is not fully ready, wait a little
   if (!common.shouldWatchByNative(div)) {
     setTimeout(function() {
-      common.nextTick(postPanoramaInit.bind(self, map, div, options));
+      common.nextTick(postPanoramaInit.bind(self, panorama, div, options));
     }, 50);
     return;
   }
@@ -212,7 +215,7 @@ function postPanoramaInit(panorama, div, options) {
   // If the mapDiv is specified,
   // the native side needs to know the map div position
   // before creating the map view.
-  div.setAttribute("__pluginMapId", mapId);
+  div.setAttribute('__pluginMapId', mapId);
 
   if (div.offsetWidth < 100 || div.offsetHeight < 100) {
     console.error('[GoogleMaps] Minimum container dimention is 100x100 in pixels.', div);
@@ -220,13 +223,13 @@ function postPanoramaInit(panorama, div, options) {
   }
   var args = Array.prototype.slice.call(arguments, 0);
   args.unshift({
-    id: mapId
+    __pgmId: mapId
   });
 
   // If the mapDiv is specified,
   // the native side needs to know the map div position
   // before creating the map view.
-  div.setAttribute("__pluginMapId", mapId);
+  div.setAttribute('__pluginMapId', mapId);
 
   panorama.getPanorama.apply(panorama, args);
 }
@@ -251,10 +254,10 @@ function postMapInit(map, div, options) {
     // If the mapDiv is specified,
     // the native side needs to know the map div position
     // before creating the map view.
-    div.setAttribute("__pluginMapId", mapId);
+    div.setAttribute('__pluginMapId', mapId);
 
     args.push({
-      id: mapId,
+      __pgmId: mapId,
       depth: 0
     });
     args.push(div);
@@ -264,7 +267,7 @@ function postMapInit(map, div, options) {
     map.getMap.apply(map, args);
   } else {
     args.push({
-      id: mapId,
+      __pgmId: mapId,
       depth: 0
     });
     args.push(null);

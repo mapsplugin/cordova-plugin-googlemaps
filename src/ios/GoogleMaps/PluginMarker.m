@@ -70,7 +70,7 @@
 
     __block NSMutableDictionary *createResult = [[NSMutableDictionary alloc] init];
     NSString *markerId = [NSString stringWithFormat:@"marker_%@", hashCode];
-    [createResult setObject:markerId forKey:@"id"];
+    [createResult setObject:markerId forKey:@"__pgmId"];
 
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
       CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
@@ -722,7 +722,10 @@
  * (memo) http://stackoverflow.com/questions/12164049/animationdidstop-for-group-animation
  */
 -(void)setDropAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
-  int duration = 1;
+  /**
+   * Marker drop animation
+   */
+  int duration = 0.1f;
 
   CAKeyframeAnimation *longitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"longitude"];
   CAKeyframeAnimation *latitudeAnim = [CAKeyframeAnimation animationWithKeyPath:@"latitude"];
@@ -736,18 +739,15 @@
   CLLocationCoordinate2D startLatLng;
 
   point.y = 0;
-  for (double i = 0.75f; i > 0; i-= 0.25f) {
-    startLatLng = [projection coordinateForPoint:point];
-    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+  startLatLng = [projection coordinateForPoint:point];
+  [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+  [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-    point.y = distance;
-    startLatLng = [projection coordinateForPoint:point];
-    [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
-    [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
+  point.y = distance;
+  startLatLng = [projection coordinateForPoint:point];
+  [latitudePath addObject:[NSNumber numberWithDouble:startLatLng.latitude]];
+  [longitudeath addObject:[NSNumber numberWithDouble:startLatLng.longitude]];
 
-    point.y = distance - distance * (i - 0.25f);
-  }
   longitudeAnim.values = longitudeath;
   latitudeAnim.values = latitudePath;
 
@@ -761,7 +761,7 @@
 }
 -(void)setBounceAnimation_:(GMSMarker *)marker callbackBlock:(void (^)()) callbackBlock {
   /**
-   * Marker drop animation
+   * Marker bounce animation
    */
   int duration = 1;
 
@@ -970,8 +970,8 @@
       [iconPath rangeOfString:@";base64,"].location != NSNotFound) {
 
     NSArray *tmp = [iconPath componentsSeparatedByString:@","];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[tmp objectAtIndex:1] options:0];
 
-    NSData *decodedData = [NSData dataFromBase64String:tmp[1]];
     image = [[UIImage alloc] initWithData:decodedData];
     if (width && height) {
       image = [image resize:width height:height];
@@ -1050,6 +1050,8 @@
 
           //url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
           currentURL = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
+          currentURL = [currentURL regReplace:@"\\/.\\/" replaceTxt:@"/" options:0];
+          currentURL = [currentURL regReplace:@"\\/+" replaceTxt:@"/" options:0];
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
           //NSLog(@"currentURL = %@", currentURL);
@@ -1309,6 +1311,9 @@
   // Load the icon from over the internet
   //
 
+  iconPath = [iconPath regReplace:@"\\/.\\/" replaceTxt:@"/" options:0];
+  iconPath = [iconPath regReplace:@"\\/+" replaceTxt:@"/" options:0];
+  iconPath = [iconPath stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
   NSURL *url = [NSURL URLWithString:iconPath];
 
   [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
@@ -1477,8 +1482,16 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-    if ([url.absoluteString hasPrefix:@"file:"]) {
-      NSString *iconPath = [url.absoluteString stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+    NSString *urlStr = url.absoluteString;
+    // Since ionic local server declines HTTP access for some reason,
+    // replace URL with file path
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    
+    if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
+      NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
       NSFileManager *fileManager = [NSFileManager defaultManager];
       if (![fileManager fileExistsAtPath:iconPath]) {
         NSLog(@"(error)There is no file at '%@'.", iconPath);

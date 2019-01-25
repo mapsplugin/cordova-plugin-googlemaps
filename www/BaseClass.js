@@ -43,7 +43,7 @@ BaseClass.prototype = {
     // If `noNotify` is true, prevent `(targetKey)_changed` event occurrs,
     // when bind the value for the first time only.
     // (Same behaviour as Google Maps JavaScript v3)
-    target.set(targetKey, target.get(targetKey), noNotify);
+    target.set(targetKey, this[VARS_FIELD][key], noNotify);
 
     this.on(key + '_changed', function (oldValue, value) {
       target.set(targetKey, value);
@@ -59,28 +59,77 @@ BaseClass.prototype = {
       return this;
     }
 
-    var listeners = this[SUBSCRIPTIONS_FIELD][eventName];
-    var i = listeners.length;
+    var listenerHashMap = this[SUBSCRIPTIONS_FIELD][eventName];
+    var keys = Object.keys(listenerHashMap);
     var args = Array.prototype.slice.call(arguments, 1);
-    listeners = listeners.filter(function(listener) {
-      return !!listener;
-    });
+    var self = this;
 
-    while (i--) {
-      listeners[i].apply(this, args);
-    }
+    keys.forEach(function (_hashCode) {
+      if (self[SUBSCRIPTIONS_FIELD] &&
+        self[SUBSCRIPTIONS_FIELD][eventName] &&
+        _hashCode in self[SUBSCRIPTIONS_FIELD][eventName]) {
+        var info = self[SUBSCRIPTIONS_FIELD][eventName][_hashCode];
+
+        switch (info.kind) {
+        case 'on':
+          info.listener.apply(self, args);
+          break;
+        case 'onThrottled':
+          info.args = args;
+          if (!info.timer) {
+            info.timer = setTimeout(function () {
+              info.listener.apply(this, info.args);
+              info.timer = null;
+            }.bind(self), info.interval);
+          }
+          break;
+        }
+      }
+    });
 
     return this;
   },
 
   on: function (eventName, listener) {
-    if (!listener || typeof listener !== "function") {
+    if (!listener || typeof listener !== 'function') {
       throw Error('Listener for on()/addEventListener() method is not a function');
     }
-    var topic;
-    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || [];
-    topic = this[SUBSCRIPTIONS_FIELD][eventName];
-    topic.push(listener);
+    if (!listener._hashCode) {
+      Object.defineProperty(listener, '_hashCode', {
+        value: Math.floor(Date.now() * Math.random()),
+        writable: false,
+        enumerable: false
+      });
+    }
+    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || {};
+    this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode] = {
+      'kind': 'on',
+      'listener': listener
+    };
+    return this;
+  },
+
+  onThrottled: function (eventName, listener, interval) {
+    if (!listener || typeof listener !== 'function') {
+      throw Error('Listener for on()/addEventListener() method is not a function');
+    }
+    if (typeof interval !== 'number' || interval < 1) {
+      throw Error('interval argument must be bigger number than 0');
+    }
+    if (!listener._hashCode) {
+      Object.defineProperty(listener, '_hashCode', {
+        value: Math.floor(Date.now() * Math.random()),
+        writable: false,
+        enumerable: false
+      });
+    }
+    this[SUBSCRIPTIONS_FIELD][eventName] = this[SUBSCRIPTIONS_FIELD][eventName] || {};
+    this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode] = {
+      'kind': 'onThrottled',
+      'interval': interval,
+      'timer': null,
+      'listener': listener
+    };
     return this;
   },
 
@@ -92,19 +141,16 @@ BaseClass.prototype = {
 
     if (eventName && !listener) {
       this[SUBSCRIPTIONS_FIELD][eventName] = null;
-    } else if (this[SUBSCRIPTIONS_FIELD][eventName]) {
-      var index = this[SUBSCRIPTIONS_FIELD][eventName].indexOf(listener);
-
-      if (index !== -1) {
-        this[SUBSCRIPTIONS_FIELD][eventName].splice(index, 1);
-      }
+      delete this[SUBSCRIPTIONS_FIELD][eventName];
+    } else if (this[SUBSCRIPTIONS_FIELD][eventName] && listener._hashCode) {
+      delete this[SUBSCRIPTIONS_FIELD][eventName][listener._hashCode];
     }
 
     return this;
   },
 
   one: function (eventName, listener) {
-    if (!listener || typeof listener !== "function") {
+    if (!listener || typeof listener !== 'function') {
       throw Error('Listener for one()/addEventListenerOnce() method is not a function');
     }
 
@@ -120,6 +166,10 @@ BaseClass.prototype = {
     return this;
   },
 
+  hasEventListener: function (eventName) {
+    return (eventName in this[SUBSCRIPTIONS_FIELD] && Object.keys(this[SUBSCRIPTIONS_FIELD][eventName]).length > 0);
+  },
+
   destroy: function () {
     this.off();
     this.empty();
@@ -127,15 +177,15 @@ BaseClass.prototype = {
 
   errorHandler: function (error) {
     if (error) {
-      if (typeof console.error === "function") {
-        if (this.id) {
-          console.error(this.id, error);
+      if (typeof console.error === 'function') {
+        if (this.__pgmId) {
+          console.error(this.__pgmId, error);
         } else {
           console.error(error);
         }
       } else {
-        if (this.id) {
-          console.log(this.id, error);
+        if (this.__pgmId) {
+          console.log(this.__pgmId, error);
         } else {
           console.log(error);
         }
@@ -148,6 +198,7 @@ BaseClass.prototype = {
 };
 
 BaseClass.prototype.addEventListener = BaseClass.prototype.on;
+BaseClass.prototype.addThrottledEventListener = BaseClass.prototype.onThrottled;
 BaseClass.prototype.addEventListenerOnce = BaseClass.prototype.one;
 BaseClass.prototype.removeEventListener = BaseClass.prototype.off;
 

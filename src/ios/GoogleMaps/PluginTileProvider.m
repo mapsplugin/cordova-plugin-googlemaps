@@ -91,7 +91,7 @@ NSDictionary *debugAttributes;
 
 
       }];
-      dispatch_semaphore_wait(self.semaphore, dispatch_time(DISPATCH_TIME_NOW, 10 * 1000 * 1000 * 1000)); // Maximum wait 10sec
+      dispatch_semaphore_wait(self.semaphore, dispatch_time(DISPATCH_TIME_NOW, (uint64_t)(10 * NSEC_PER_SEC))); // Maximum wait 10sec
 
   }
   NSString *urlStr = nil;
@@ -118,6 +118,20 @@ NSDictionary *debugAttributes;
     return;
   }
 
+  if ([urlStr rangeOfString:@"data:image/"].location != NSNotFound &&
+      [urlStr rangeOfString:@";base64,"].location != NSNotFound) {
+
+    NSArray *tmp = [urlStr componentsSeparatedByString:@","];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:[tmp objectAtIndex:1] options:0];
+
+    UIImage *image = [[UIImage alloc] initWithData:decodedData];
+    if (image.size.width != self.tileSize || image.size.height != self.tileSize) {
+      image = [image resize:self.tileSize height:self.tileSize];
+    }
+    [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+    return;
+  }
+  
   NSRange range = [urlStr rangeOfString:@"http"];
   if (range.location == 0) {
       //-------------------------
@@ -207,6 +221,7 @@ NSDictionary *debugAttributes;
       return;
 
   }
+
 
 }
 

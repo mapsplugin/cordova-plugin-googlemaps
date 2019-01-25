@@ -199,7 +199,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
     JSONObject opts = args.getJSONObject(1);
     final String markerId = "marker_" + args.getString(2);
     final JSONObject result = new JSONObject();
-    result.put("id", markerId);
+    result.put("__pgmId", markerId);
 
     _create(markerId, opts, new ICreateMarkerCallback() {
       @Override
@@ -311,7 +311,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
               // Prepare the result
               final JSONObject result = new JSONObject();
-              result.put("id", markerId);
+              result.put("__pgmId", markerId);
 
               // Load icon
               if (opts.has("icon")) {

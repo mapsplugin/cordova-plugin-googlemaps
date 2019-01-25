@@ -2,13 +2,12 @@
 
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
-  BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
-  LatLng = require('cordova-plugin-googlemaps.LatLng');
+  BaseClass = require('cordova-plugin-googlemaps.BaseClass');
 
 function PluginPolyline(pluginMap) {
   var self = this;
   BaseClass.apply(self);
-  Object.defineProperty(self, "pluginMap", {
+  Object.defineProperty(self, 'pluginMap', {
     value: pluginMap,
     writable: false
   });
@@ -61,7 +60,7 @@ PluginPolyline.prototype._create = function(onSuccess, onError, args) {
   self.pluginMap.objects[polylineId] = polyline;
 
   onSuccess({
-    'id': polylineId
+    '__pgmId': polylineId
   });
 };
 PluginPolyline.prototype.remove = function(onSuccess, onError, args) {
@@ -197,14 +196,14 @@ PluginPolyline.prototype.removePointAt = function(onSuccess, onError, args) {
   var polyline = self.pluginMap.objects[overlayId];
   if (polyline) {
     var index = args[1];
-    polyline.getPath().removeAt(index, latLng);
+    polyline.getPath().removeAt(index);
   }
   onSuccess();
 };
 
 PluginPolyline.prototype._onPolylineEvent = function(polyline, polyMouseEvt) {
   var self = this,
-    mapId = self.pluginMap.id;
+    mapId = self.pluginMap.__pgmId;
   if (mapId in plugin.google.maps) {
     plugin.google.maps[mapId]({
       'evtName': event.POLYLINE_CLICK,

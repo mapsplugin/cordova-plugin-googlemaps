@@ -1,6 +1,8 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.4.6)
+# Cordova GoogleMaps plugin for Android, iOS and Browser (version 2.5.0-beta)
 
-![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)
+| Download | Build test (master branch)|
+|----------|---------------------------|
+| ![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg) |[![](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps.svg?branch=master)](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps/branches) |
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -195,6 +197,41 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.5.0**
+    - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
+      ```js
+      var tileOverlay = map.addTileOverlay({
+        getTile: function(x, y, zoom) {
+          return new Promise(function(resolve, reject) {
+            somethingAsync(function(url) {
+              resolve(url);
+            });
+          });
+        }
+      });
+      ```
+
+    - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()/hasEventListener()` are added.
+      ```js
+      var marker = map.addMarker({ ... });
+      marker.onThrottled('position_changed', function(latLng) {
+        console.log(latLng);
+      }, 1000);
+      ```
+
+    - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
+    - Fix: (Android) Can not load icon image file for Marker after external link opened.
+    - Fix: (Browser) `MapOptions.styles` does not work.
+    - Fix: (Android) `map.setOptions()` asks location permission always even options do no include `myLocation` and/or `myLocationButton` options.
+    - Update: (Android) Set `transparent` backgroundColor at `onResume()` because some other plugins change background color.
+    - Update: (Android/iOS) Improve accuracy of touch detection on geodesic polyline.
+    - Update: (iOS) Remove "NSData+Base64" library. No longer necessary.
+    - Update: (js) ionic 4 hides Google Maps view.
+    - Fix: (Browser) `MarkerCluster.remove()` does not work on browser platform.
+    - Fix: (Android/iOS/Browser) App crashes (or error) if no panorama available.
+    - Fix: (Android/iOS/Browser) `INFO_CLICK` does not work on marker cluster.
+    - Fix: (iOS) Can not click on HtmlInfoWindow.
+
   - **v2.4.6**
     - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
 
@@ -500,7 +537,6 @@ You can write your code `similar to` the Google Maps JavaScript API v3.
 | google.maps.Data                  | (not available)                       |
 | google.maps.DirectionsService     | (not available)                       |
 | google.maps.DistanceMatrixService | (not available)                       |
-| google.maps.FusionTablesLayer     | (not available)                       |
 | google.maps.TransitLayer          | (not available)                       |
 | google.maps.places.*              | (not available)                       |
 | google.maps.visualization.*       | (not available)                       |
