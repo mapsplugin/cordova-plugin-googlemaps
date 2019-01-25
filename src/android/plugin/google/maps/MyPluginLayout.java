@@ -525,8 +525,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 zIndexValue = HTMLNodes.get(grandChildId).getBundle("zIndex").getInt("z");
               }
               rect = HTMLNodeRectFs.get(grandChildId);
-              rect2 = new RectF(rect);
+              //rect2 = new RectF(rect);
               //Log.d(TAG, "---findClickedDom("+ childId + ") -> " + grandChildId + ",rect = " + rect2.toShortString());
+              /*
               if (overflow1 != null && !"root".equals(domId) ) {
                 overflow1.rect = new RectF(HTMLNodeRectFs.get(domId));
                 if (overflow1.cropX) {
@@ -542,7 +543,8 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
                 //        "   overflowX = " + overflowX + ", overflowY = " + overflowY +
                 //        "   cropX = " + overflow1.cropX + ", cropY = " + overflow1.cropY);
               }
-              if (!rect2.contains(clickPoint.x, clickPoint.y)) {
+              */
+              if (!rect.contains(clickPoint.x, clickPoint.y)) {
                 //Log.e(TAG, "----the click point is not in this element(" +grandChildId + "), rect = " + rect2.toShortString() + ", click = " + clickPoint.x + "," + clickPoint.y );
                 continue;
               }
@@ -570,17 +572,17 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
         }
         rect = HTMLNodeRectFs.get(domId);
         rect2 = new RectF(rect.left, rect.top, rect.right, rect.bottom);
-        if (overflow1 != null ) {
-          overflow1.rect = new RectF(HTMLNodeRectFs.get(domId));
-          if (overflow1.cropX) {
-            rect2.left = Math.max(rect2.left, overflow1.rect.left);
-            rect2.right = Math.min(rect2.right, overflow1.rect.right);
-          }
-          if (overflow1.cropY) {
-            rect2.top = Math.max(rect2.top, overflow1.rect.top);
-            rect2.bottom = Math.min(rect2.bottom, overflow1.rect.bottom);
-          }
-        }
+//        if (overflow1 != null ) {
+//          overflow1.rect = new RectF(HTMLNodeRectFs.get(domId));
+//          if (overflow1.cropX) {
+//            rect2.left = Math.max(rect2.left, overflow1.rect.left);
+//            rect2.right = Math.min(rect2.right, overflow1.rect.right);
+//          }
+//          if (overflow1.cropY) {
+//            rect2.top = Math.max(rect2.top, overflow1.rect.top);
+//            rect2.bottom = Math.min(rect2.bottom, overflow1.rect.bottom);
+//          }
+//        }
         if (!rect2.contains(clickPoint.x, clickPoint.y)) {
           //Log.e(TAG, "--the click point is not in this element(" +domId + "), rect = " + rect2.toShortString() + ", click = " + clickPoint.x + "," + clickPoint.y );
           CACHE_FIND_DOM.put(domId, "(null)");
