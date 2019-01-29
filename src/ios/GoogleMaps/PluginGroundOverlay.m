@@ -180,6 +180,7 @@
 
 - (void)_setImage:(GMSGroundOverlay *)groundOverlay urlStr:(NSString *)urlStr completionHandler:(void (^)(BOOL succeeded))completionHandler {
 
+  
     NSRange range = [urlStr rangeOfString:@"http"];
 
     if (range.location != 0) {
@@ -537,7 +538,14 @@
 
     NSString *iconPath = url.absoluteString;
 
-    if ([iconPath hasPrefix:@"file://"]) {
+    // Since ionic local server declines HTTP access for some reason,
+    // replace URL with file path
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    
+    if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
       iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
       if (![iconPath hasPrefix:@"/"]) {
         iconPath = [NSString stringWithFormat:@"/%@", iconPath];

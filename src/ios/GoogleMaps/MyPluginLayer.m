@@ -452,7 +452,7 @@
     if ([@"(null)" isEqualToString:cacheResult]) {
       cacheResult = nil;
     }
-    return nil;
+    return cacheResult;
   }
   
   OverflowCSS *overflow1 = nil;
@@ -489,7 +489,7 @@
     overflow1.cropY = [@"hidden" isEqualToString:overflowY] || [@"scroll" isEqualToString:overflowY];
     overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
   } else if ([@"visible" isEqualToString:overflowX] || [@"visible" isEqualToString:overflowX]) {
-    if (overflow != nil) {
+    if (overflow1 != nil) {
       overflow1.cropX = ![@"visible" isEqualToString:overflowX];
       overflow1.cropY = ![@"visible" isEqualToString:overflowY];
     }
@@ -497,10 +497,10 @@
 
   zIndexProp = [domInfo objectForKey:@"zIndex"];
   NSArray *children = [domInfo objectForKey:@"children"];
+  int maxZIndex = -1215752192;  //  -1 * pow(2, 32) + 1;
   if ((containMapCnt > 0 || isMapChild || [@"none" isEqualToString:pointerEvents] ||
        [[zIndexProp objectForKey:@"isInherit"] boolValue]) && children != nil && children.count > 0) {
 
-    int maxZIndex = -1215752192;
     int zIndexValue;
     NSString *childId, *grandChildId;
     NSArray *grandChildren;
@@ -527,12 +527,12 @@
           
           if (overflow1 && ![@"root" isEqualToString:domId]) {
             
-            tmpRect = CGRectFromString([domInfo objectForKey:@"size"]);
+            overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
             rect3 = [[CGDOMRect alloc] init];
-            rect3.left = tmpRect.origin.x;
-            rect3.top = tmpRect.origin.y;
-            rect3.right = rect3.left + tmpRect.size.width;
-            rect3.bottom = rect3.top + tmpRect.size.height;
+            rect3.left = overflow1.rect.origin.x;
+            rect3.top = overflow1.rect.origin.y;
+            rect3.right = rect3.left + overflow1.rect.size.width;
+            rect3.bottom = rect3.top + overflow1.rect.size.height;
             
             
             if (overflow1.cropX) {
@@ -562,14 +562,12 @@
             maxDomId = childId;
           }
           
-          overflow1.rect = CGRectMake(rect2.left, rect2.top, rect2.right - rect2.left, rect2.bottom - rect2.top);
-          
         } else {
           if (zIndexValue < maxZIndex) {
-            // NSLog(@"-----skip because %d is %d < %d ", childId, zIndexValue, maxZindex);
             continue;
           }
           grandChildId = [self findClickedDom:childId withPoint:clickPoint isMapChild: isMapChild overflow:overflow1];
+          //NSLog(@"-----[570] childId = %@ grandChildId = %@", childId, grandChildId);
           if (grandChildId == nil) {
             grandChildId = childId;
           } else {
@@ -577,7 +575,9 @@
             zIndexProp = [domInfoChild objectForKey:@"zIndex"];
             zIndexValue = [[zIndexProp objectForKey:@"z"] intValue];
           }
+          domInfoChild = [self.pluginScrollView.HTMLNodes objectForKey:grandChildId];
           rect = CGRectFromString([domInfoChild objectForKey:@"size"]);
+          
           
           rect2 = [[CGDOMRect alloc] init];
           rect2.left = rect.origin.x;
@@ -585,14 +585,16 @@
           rect2.right = rect2.left + rect.size.width;
           rect2.bottom = rect2.top + rect.size.height;
           
+          /*
           if (overflow1 && ![@"root" isEqualToString:domId]) {
             
-            tmpRect = CGRectFromString([domInfo objectForKey:@"size"]);
+            NSLog(@"-----[519] grandChildId = %@, size = %@", grandChildId, [domInfo objectForKey:@"size"]);
+            overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
             rect3 = [[CGDOMRect alloc] init];
-            rect3.left = tmpRect.origin.x;
-            rect3.top = tmpRect.origin.y;
-            rect3.right = rect3.left + tmpRect.size.width;
-            rect3.bottom = rect3.top + tmpRect.size.height;
+            rect3.left = overflow1.rect.origin.x;
+            rect3.top = overflow1.rect.origin.y;
+            rect3.right = rect3.left + overflow1.rect.size.width;
+            rect3.bottom = rect3.top + overflow1.rect.size.height;
             
             
             if (overflow1.cropX) {
@@ -605,7 +607,7 @@
             }
             
           }
-          
+          */
           if (clickPoint.x < rect2.left ||
               clickPoint.y < rect2.top ||
               clickPoint.x > rect2.right ||
@@ -614,7 +616,6 @@
           }
           
           
-          domInfo = [self.pluginScrollView.HTMLNodes objectForKey:grandChildId];
           if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
             continue;
           }
@@ -644,26 +645,26 @@
     rect2.bottom = rect2.top + rect.size.height;
     
     
-    if (overflow1) {
-      
-      tmpRect = CGRectFromString([domInfo objectForKey:@"size"]);
-      rect3 = [[CGDOMRect alloc] init];
-      rect3.left = tmpRect.origin.x;
-      rect3.top = tmpRect.origin.y;
-      rect3.right = rect3.left + tmpRect.size.width;
-      rect3.bottom = rect3.top + tmpRect.size.height;
-      
-      
-      if (overflow1.cropX) {
-        rect2.left = MAX(rect2.left, rect3.left);
-        rect2.right = MIN(rect2.right, rect3.right);
-      }
-      if (overflow1.cropY) {
-        rect2.top = MAX(rect2.top, rect3.top);
-        rect2.bottom = MIN(rect2.bottom, rect3.bottom);
-      }
-      
-    }
+//    if (overflow1) {
+//
+//      overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
+//      rect3 = [[CGDOMRect alloc] init];
+//      rect3.left = overflow1.rect.origin.x;
+//      rect3.top = overflow1.rect.origin.y;
+//      rect3.right = rect3.left + overflow1.rect.size.width;
+//      rect3.bottom = rect3.top + overflow1.rect.size.height;
+//
+//
+//      if (overflow1.cropX) {
+//        rect2.left = MAX(rect2.left, rect3.left);
+//        rect2.right = MIN(rect2.right, rect3.right);
+//      }
+//      if (overflow1.cropY) {
+//        rect2.top = MAX(rect2.top, rect3.top);
+//        rect2.bottom = MIN(rect2.bottom, rect3.bottom);
+//      }
+//
+//    }
     
     if (clickPoint.x < rect2.left ||
         clickPoint.y < rect2.top ||

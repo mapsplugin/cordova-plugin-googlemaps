@@ -1482,8 +1482,16 @@
 {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
-    if ([url.absoluteString hasPrefix:@"file:"]) {
-      NSString *iconPath = [url.absoluteString stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+    NSString *urlStr = url.absoluteString;
+    // Since ionic local server declines HTTP access for some reason,
+    // replace URL with file path
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    
+    if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
+      NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
       NSFileManager *fileManager = [NSFileManager defaultManager];
       if (![fileManager fileExistsAtPath:iconPath]) {
         NSLog(@"(error)There is no file at '%@'.", iconPath);
