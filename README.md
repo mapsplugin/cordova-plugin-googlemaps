@@ -1,8 +1,8 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.5.1-beta
 
 | Download | Build test (master branch)|
 |----------|---------------------------|
-| [![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)](https://npm-stat.com/charts.html?package=cordova-plugin-googlemaps) |[![](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps.svg?branch=master)](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps/branches) |
+| [![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)](https://npm-stat.com/charts.html?package=cordova-plugin-googlemaps) |[![](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps.svg?branch=multiple_maps)](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps/branches) |
 
   This plugin displays Google Maps in your application.
   This plugin uses these libraries for each platforms:
@@ -197,6 +197,9 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.5.1**
+    - Fix: (Android/iOS/Browser) Marker cluster does not work when you zoom in.
+
   - **v2.5.0**
     - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
       ```js
@@ -231,55 +234,6 @@
     - Fix: (Android/iOS/Browser) App crashes (or error) if no panorama available.
     - Fix: (Android/iOS/Browser) `INFO_CLICK` does not work on marker cluster.
     - Fix: (iOS) Can not click on HtmlInfoWindow.
-
-  - **v2.4.6**
-    - Fix: (iOS) Only `src/ios/check_sdk_version.js` error.
-
-  - **v2.4.5**
-    - Fix: (Browser) `GeocoderResult.extra.lines` field is incorrect position.
-    - Fix: (Android/iOS/Browser) `promise-7.0.4.min.js.map` file is missing.
-    - Update: (Android/iOS/Browser) Detecting way of `viewport-fit=cover`.
-    - Update: (iOS) No longer use `com.googlemaps.ios`. Use `CocoaPod` installation instead.
-
-  - **v2.4.4**
-    - Fix: (Browser) All methods were tested, and fixed lots of bugs.
-    - Fix: (Android/iOS) Executes `map.animateCamera()` while map has been detached automatically causes dead lock.
-    - Update: (iOS) Fixed issue where plugin could appear behind other plugins
-    - Update: (Android) `getMyLocation()` does not return if application has been launched when location is disabled, then enable the location after soon.
-
-  - **v2.4.3**
-    - Fix: (Browser) HTMLInfoWindow displays unnecessary scroll bars.
-    - Fix: (Android) Can not load KML file from http://localhost on ionic 3.
-    - Fix: (iOS) Can not click bottom 20px.
-    - Fix: (Browser) map.setCameraTarget() implementation is wrong.
-    - Fix: (iOS) GroundOverlayOptions.anchor property is missing.
-    - Add: (Android/iOS/Browser) `GoogleMapOptions.preferences.gestureBounds` property. You can set limit bounds of panning.
-      ```js
-      var map = plugin.google.maps.Map.getMap(mapDiv, {
-        'preferences': {
-          'gestureBounds': [
-            {lat: ..., lng: ...},
-            ... ,
-            {lat: ..., lng: ...}
-          ]
-        }
-      });
-      ```
-
-  - **v2.4.2**
-    - Fix: If application uses ionic v1, it can't interactive with map view on only iPhone5 because of resetCSS
-    - Fix: `Cannot set property 'isMap' of undefined` error
-    - Update: (Browser) Can not load Google Maps JavaScript API v3 with `libraries=places`
-
-  - **v2.4.1**
-    - Fix: `map.getMap()` does not work when page changing on ionic v4.
-    - Fix: `LocationService.hasPermission()` is not implement for browser platform.
-
-  - **v2.4.0**
-    - Add: `Browser` platform!
-    - Add: `plugin.google.maps.environment.setEnv()` method.
-    - Add: `icon` property for KmlOverlayOptions
-    - Fix: map.addKmlOverlay() does not work if page url contains '#hash'
 
 ---------------------------------------------------------------------------------------------------------
 
