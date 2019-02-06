@@ -41,7 +41,7 @@ dispatch_queue_t queue;
          *
          * <?xml version='1.0' encoding='utf-8'?>
          * <widget id="(package name)" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-         *   <name short="(non-english app name)">(english app name)</name>
+         *   <name short="(non-english app name)">(english project name)</name>
          *---------------------------------------------------------------------------------------*/
 
         NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
