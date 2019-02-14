@@ -210,7 +210,7 @@
       iconProperty = [NSMutableDictionary dictionary];
     }
     [iconProperty setObject:animation forKey:@"animation"];
-    NSLog(@"--->animation = %@", animation);
+    //NSLog(@"--->animation = %@", animation);
   }
 
   if ([json valueForKey:@"infoWindowAnchor"]) {
@@ -1488,8 +1488,11 @@
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
     wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    if ([urlStr containsString:@"assets/"]) {
+      urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+    }
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
-    
+
     if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
       NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
       NSFileManager *fileManager = [NSFileManager defaultManager];
