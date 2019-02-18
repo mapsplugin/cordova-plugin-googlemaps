@@ -1090,11 +1090,11 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
     }], {
       sync: true
     });
-    console.log({
-                    'resolution': resolution,
-                    'new_or_update': new_or_update_clusters,
-                    'delete': delete_clusters
-                  });
+    // console.log({
+    //                 'resolution': resolution,
+    //                 'new_or_update': new_or_update_clusters,
+    //                 'delete': delete_clusters
+    //               });
   }
 });
 
