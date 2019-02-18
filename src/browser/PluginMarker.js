@@ -48,6 +48,11 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess, o
   if (pluginOptions.icon) {
     var icon = pluginOptions.icon;
     markerOpts.icon = {};
+    if (Array.isArray(pluginOptions.icon) && pluginOptions.icon.length === 4) {
+      pluginOptions.icon = {
+        'url': pluginOptions.icon
+      };
+    }
     if (typeof pluginOptions.icon === 'string') {
       // Specifies path or url to icon image
       markerOpts.icon.url = pluginOptions.icon;
