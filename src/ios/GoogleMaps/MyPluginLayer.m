@@ -395,7 +395,7 @@
   @synchronized(self.pluginScrollView.HTMLNodes) {
     //NSLog(@"--->browserClickPoint = %f, %f", browserClickPoint.x, browserClickPoint.y);
     clickedDomId = [self findClickedDom:@"root" withPoint:browserClickPoint isMapChild:NO overflow:nil];
-    NSLog(@"--->clickedDomId = %@", clickedDomId);
+    //NSLog(@"--->clickedDomId = %@", clickedDomId);
 
     while(mapId = [mapIDs nextObject]) {
       mapCtrl = [self.pluginScrollView.mapCtrls objectForKey:mapId];
