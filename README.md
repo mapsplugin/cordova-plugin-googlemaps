@@ -199,6 +199,7 @@
 ## Release Notes
   - **v2.5.1**
     - Fix: (Android/iOS/Browser) Marker cluster does not work when you zoom in.
+    - Fix: (iOS) HTML click detection is incorrect.
 
   - **v2.5.0**
     - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.

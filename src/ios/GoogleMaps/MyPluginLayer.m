@@ -177,7 +177,7 @@
       [self.pluginScrollView.mapCtrls setObject:pluginViewCtrl forKey:pluginViewCtrl.overlayId];
 
       //When showing this plugin multiple times, a UIView from other plugin might be overlayed on
-      //top of this plugin so we must switch the view with the view that is right before the webview 
+      //top of this plugin so we must switch the view with the view that is right before the webview
       //and update the background color for the webview to prevent issues with non transparent webview
       [self exchangeSubviewAtIndex:[self.subviews indexOfObject:self.webView]-1 withSubviewAtIndex:[self.subviews indexOfObject:self.pluginScrollView]];
       self.webView.backgroundColor = [UIColor clearColor];
@@ -454,7 +454,7 @@
     }
     return cacheResult;
   }
-  
+
   OverflowCSS *overflow1 = nil;
   if (overflow) {
     overflow1 = [[OverflowCSS alloc] init];
@@ -462,7 +462,7 @@
     overflow1.cropY = overflow.cropY;
     overflow1.rect = CGRectMake(overflow.rect.origin.x, overflow.rect.origin.y, overflow.rect.size.width, overflow.rect.size.height);
   }
-  
+
   NSDictionary *domInfo = [self.pluginScrollView.HTMLNodes objectForKey:domId];
   NSDictionary *domInfoChild;
   NSString *maxDomId = nil;
@@ -470,7 +470,7 @@
   CGDOMRect *rect2, *rect3;
   NSDictionary *zIndexProp;
   unsigned long containMapCnt = 0;
-  
+
   domInfo = [self.pluginScrollView.HTMLNodes objectForKey:domId];
   if ([domInfo objectForKey:@"containMapIDs"]) {
     NSDictionary *containMapIDs = [domInfo objectForKey:@"containMapIDs"];
@@ -511,7 +511,7 @@
       if (!domInfo) {
         continue;
       }
-      
+
       zIndexProp = [domInfo objectForKey:@"zIndex"];
       zIndexValue = [[zIndexProp objectForKey:@"z"] intValue];
       if (maxZIndex < zIndexValue || [[zIndexProp objectForKey:@"isInherit"] boolValue]) {
@@ -524,17 +524,17 @@
           rect2.top = tmpRect.origin.y;
           rect2.right = rect2.left + tmpRect.size.width;
           rect2.bottom = rect2.top + tmpRect.size.height;
-          
+
           if (overflow1 && ![@"root" isEqualToString:domId]) {
-            
+
             overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
             rect3 = [[CGDOMRect alloc] init];
             rect3.left = overflow1.rect.origin.x;
             rect3.top = overflow1.rect.origin.y;
             rect3.right = rect3.left + overflow1.rect.size.width;
             rect3.bottom = rect3.top + overflow1.rect.size.height;
-            
-            
+
+
             if (overflow1.cropX) {
               rect2.left = MAX(rect2.left, rect3.left);
               rect2.right = MIN(rect2.right, rect3.right);
@@ -543,7 +543,7 @@
               rect2.top = MAX(rect2.top, rect3.top);
               rect2.bottom = MIN(rect2.bottom, rect3.bottom);
             }
-            
+
           }
 
           if (clickPoint.x < rect2.left ||
@@ -552,16 +552,16 @@
               clickPoint.y > rect2.bottom) {
             continue;
           }
-          
+
           if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
             continue;
           }
-          
+
           if (maxZIndex < zIndexValue) {
             maxZIndex = zIndexValue;
             maxDomId = childId;
           }
-          
+
         } else {
           if (zIndexValue < maxZIndex) {
             continue;
@@ -577,17 +577,17 @@
           }
           domInfoChild = [self.pluginScrollView.HTMLNodes objectForKey:grandChildId];
           rect = CGRectFromString([domInfoChild objectForKey:@"size"]);
-          
-          
+
+
           rect2 = [[CGDOMRect alloc] init];
           rect2.left = rect.origin.x;
           rect2.top = rect.origin.y;
           rect2.right = rect2.left + rect.size.width;
           rect2.bottom = rect2.top + rect.size.height;
-          
+
           /*
           if (overflow1 && ![@"root" isEqualToString:domId]) {
-            
+
             NSLog(@"-----[519] grandChildId = %@, size = %@", grandChildId, [domInfo objectForKey:@"size"]);
             overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
             rect3 = [[CGDOMRect alloc] init];
@@ -595,8 +595,8 @@
             rect3.top = overflow1.rect.origin.y;
             rect3.right = rect3.left + overflow1.rect.size.width;
             rect3.bottom = rect3.top + overflow1.rect.size.height;
-            
-            
+
+
             if (overflow1.cropX) {
               rect2.left = MAX(rect2.left, rect3.left);
               rect2.right = MIN(rect2.right, rect3.right);
@@ -605,7 +605,7 @@
               rect2.top = MAX(rect2.top, rect3.top);
               rect2.bottom = MIN(rect2.bottom, rect3.bottom);
             }
-            
+
           }
           */
           if (clickPoint.x < rect2.left ||
@@ -614,9 +614,9 @@
               clickPoint.y > rect2.bottom) {
             continue;
           }
-          
-          
-          if ([@"none" isEqualToString:[domInfo objectForKey:@"pointerEvents"]]) {
+
+
+          if ([@"none" isEqualToString:[domInfoChild objectForKey:@"pointerEvents"]]) {
             continue;
           }
           if (maxZIndex < zIndexValue) {
@@ -634,7 +634,7 @@
       [self.CACHE_FIND_DOM setValue:@"(null)" forKey:domId];
       return nil;
     }
-    
+
     domInfo = [self.pluginScrollView.HTMLNodes objectForKey:domId];
     rect = CGRectFromString([domInfo objectForKey:@"size"]);
 
@@ -643,8 +643,8 @@
     rect2.top = rect.origin.y;
     rect2.right = rect2.left + rect.size.width;
     rect2.bottom = rect2.top + rect.size.height;
-    
-    
+
+
 //    if (overflow1) {
 //
 //      overflow1.rect = CGRectFromString([domInfo objectForKey:@"size"]);
@@ -665,7 +665,7 @@
 //      }
 //
 //    }
-    
+
     if (clickPoint.x < rect2.left ||
         clickPoint.y < rect2.top ||
         clickPoint.x > rect2.right ||
@@ -673,16 +673,16 @@
       [self.CACHE_FIND_DOM setValue:@"(null)" forKey:domId];
       return nil;
     }
-    
+
     maxDomId = domId;
   }
-  
+
   if (!maxDomId) {
     [self.CACHE_FIND_DOM setValue:@"(null)" forKey:domId];
   } else {
     [self.CACHE_FIND_DOM setValue:maxDomId forKey:domId];
   }
-  
+
   return maxDomId;
 }
 
