@@ -1,6 +1,6 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser v2.5.1-beta
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.5.2-beta
 
-| Download | Build test (master branch)|
+| Download | Build test (multiple_maps branch)|
 |----------|---------------------------|
 | [![](https://img.shields.io/npm/dm/cordova-plugin-googlemaps.svg)](https://npm-stat.com/charts.html?package=cordova-plugin-googlemaps) |[![](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps.svg?branch=multiple_maps)](https://travis-ci.org/mapsplugin/cordova-plugin-googlemaps/branches) |
 
@@ -197,6 +197,9 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.5.2**
+    - Fix: (Android/iOS/Browser) MarkerCluster.remove() causes null pointer error.
+
   - **v2.5.1**
     - Fix: (Android/iOS/Browser) Marker cluster does not work when you zoom in.
     - Fix: (iOS) HTML click detection is incorrect.
