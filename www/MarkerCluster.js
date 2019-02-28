@@ -281,7 +281,7 @@ MarkerCluster.prototype.remove = function (callback) {
   });
   self.trigger('remove');
 
-  var activeMarkerId = activeMarker ? activeMarker.getId() : null;
+  var activeMarkerId = activeMarker ? activeMarker.getId() : '';
   activeMarkerId = activeMarkerId.replace(/^.+\-/, '');
   var marker;
   if (resolution === self.OUT_OF_RESOLUTION) {
@@ -566,7 +566,8 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
 
     //console.log('---->548');
     var activeMarker = self.map.get('active_marker');
-    var activeMarkerId = activeMarker ? activeMarker.getId() : null;
+    var activeMarkerId = activeMarker ? activeMarker.getId() : '';
+    activeMarkerId = activeMarkerId.replace(/^.+\-/, '');
     if (prevResolution === self.OUT_OF_RESOLUTION) {
       if (resolution === self.OUT_OF_RESOLUTION) {
         //--------------------------------------
