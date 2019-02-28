@@ -199,6 +199,8 @@
 ## Release Notes
   - **v2.5.2**
     - Fix: (Android/iOS/Browser) MarkerCluster.remove() causes null pointer error.
+    - Fix: (iOS) touch problem
+    - Fix: (Android) setMyLocationEnabled(false) does not work
 
   - **v2.5.1**
     - Fix: (Android/iOS/Browser) Marker cluster does not work when you zoom in.
