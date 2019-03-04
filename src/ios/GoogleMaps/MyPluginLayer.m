@@ -345,6 +345,13 @@
   //CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
   //CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y - statusBarFrame.size.height);
   CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y );
+  if (@available(iOS 11.0, *)) {
+    UIEdgeInsets inset = [[UIApplication sharedApplication] delegate].window.safeAreaInsets;
+    if(inset.top > 20.0){  // Do we want this? Or should it be always added?
+      // Fix touch issue for iPhone X and above devices
+      subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y + inset.top);
+    }
+  }
   for (int i = ((int)[subviews count] - 1); i >= 0; i--) {
     subview = [subviews objectAtIndex: i];
     //NSLog(@"--->subview[%d] = %@", i, subview);
