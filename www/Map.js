@@ -75,6 +75,12 @@ utils.extend(Map, Overlay);
  * @desc Recalculate the position of HTML elements
  */
 Map.prototype.refreshLayout = function() {
+  // Webkit redraw mandatory
+  // http://stackoverflow.com/a/3485654/697856
+  document.body.style.display = 'none';
+  document.body.offsetHeight;
+  document.body.style.display = '';
+
   this.exec.call(this, null, null, this.__pgmId, 'resizeMap', []);
 };
 

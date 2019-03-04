@@ -180,7 +180,7 @@
 
 - (void)_setImage:(GMSGroundOverlay *)groundOverlay urlStr:(NSString *)urlStr completionHandler:(void (^)(BOOL succeeded))completionHandler {
 
-  
+
     NSRange range = [urlStr rangeOfString:@"http"];
 
     if (range.location != 0) {
@@ -543,8 +543,11 @@
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
     wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    if ([iconPath containsString:@"assets/"]) {
+      iconPath = [iconPath regReplace:@"^.*assets/" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+    }
     iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
-    
+
     if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
       iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
       if (![iconPath hasPrefix:@"/"]) {

@@ -16,5 +16,5 @@ if [[ ${TRAVIS_BRANCH} == "master" ]]; then
 fi
 
 if [ ${DO_BUILD} -eq 1 ]; then
-  cordova-paramedic --cleanUpAfterRun --verbose --platform  ${CORDOVA_PLATFORM} --justBuild --plugin '. --variable API_KEY_FOR_ANDROID=test --variable API_KEY_FOR_IOS=test';
+  cordova-paramedic  --verbose --platform  ${CORDOVA_PLATFORM} --justBuild --plugin '. --variable API_KEY_FOR_ANDROID=test --variable API_KEY_FOR_IOS=test';
 fi

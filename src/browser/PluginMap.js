@@ -115,7 +115,7 @@ function PluginMap(mapId, options) {
       }
       if (options.preferences) {
         if (options.preferences.zoom) {
-          mapInitOptions.minZoom = Math.max(options.preferences.zoom || 2, 2);
+          mapInitOptions.minZoom = options.preferences.zoom.minZoom;
           if (options.preferences.zoom.maxZoom) {
             mapInitOptions.maxZoom = options.preferences.zoom.maxZoom;
           }
