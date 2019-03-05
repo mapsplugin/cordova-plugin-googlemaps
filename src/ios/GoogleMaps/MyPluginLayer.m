@@ -344,13 +344,13 @@
   NSArray *subviews = [self.webView.superview subviews];
   //CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
   //CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y - statusBarFrame.size.height);
-  CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y );
+  CGPoint subviewPoint;
   if (@available(iOS 11.0, *)) {
     UIEdgeInsets inset = [[UIApplication sharedApplication] delegate].window.safeAreaInsets;
-    if(inset.top > 20.0){  // Do we want this? Or should it be always added?
-      // Fix touch issue for iPhone X and above devices
-      subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y + inset.top);
-    }
+    // Fix touch issue for iPhone X and above devices
+    subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y + inset.top);
+  } else {
+    subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y );
   }
   for (int i = ((int)[subviews count] - 1); i >= 0; i--) {
     subview = [subviews objectAtIndex: i];
