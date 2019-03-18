@@ -110,9 +110,6 @@ QUEUE.on('next', function() {
         if (!result.postalCode && addrComp.types.indexOf('postal_code') > -1) {
           result.postalCode = addrComp.long_name;
         }
-        if (!result.postalCode && addrComp.types.indexOf('postal_code') > -1) {
-          result.postalCode = addrComp.long_name;
-        }
         if (!result.thoroughfare && addrComp.types.indexOf('street_address') > -1) {
           result.thoroughfare = addrComp.long_name;
         }

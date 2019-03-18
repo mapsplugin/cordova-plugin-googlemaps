@@ -55,7 +55,10 @@
     [self.pluginScrollView setContentSize:self.webView.scrollView.frame.size ];
 
     [self addSubview:self.pluginScrollView];
+
     [self addSubview:self.webView];
+
+
 //    dispatch_queue_t q_background = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
 //
 //    dispatch_async(q_background, ^{
@@ -344,7 +347,7 @@
   NSArray *subviews = [self.webView.superview subviews];
   //CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
   //CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y - statusBarFrame.size.height);
-  CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y );
+  CGPoint subviewPoint = CGPointMake(browserClickPoint.x, browserClickPoint.y + self.webView.frame.origin.y);
   for (int i = ((int)[subviews count] - 1); i >= 0; i--) {
     subview = [subviews objectAtIndex: i];
     //NSLog(@"--->subview[%d] = %@", i, subview);
