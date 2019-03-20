@@ -17,6 +17,6 @@ module.exports = function(ctx) {
       .pipe(fs.createWriteStream(pluginXmlPath))
       .on('error', reject)
       .on('close', resolve);
-  });
+  }));
 
 };
