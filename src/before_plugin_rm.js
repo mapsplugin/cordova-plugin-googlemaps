@@ -7,9 +7,8 @@ module.exports = function(ctx) {
     return;
   }
 
-  var fs = ctx.requireCordovaModule('fs'),
-    path = ctx.requireCordovaModule('path'),
-    Q = ctx.requireCordovaModule('q');
+  var fs = require('fs'),
+    path = require('path');
   var projectRoot = ctx.opts.projectRoot,
     configXmlPath = path.join(projectRoot, 'config.xml');
 
@@ -43,7 +42,7 @@ module.exports = function(ctx) {
     }
   };
 
-  return Q.Promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     //---------------------------
     // Read the config.xml file
     //---------------------------
@@ -59,7 +58,7 @@ module.exports = function(ctx) {
     //---------------------------
     // Parse the xml data
     //---------------------------
-      return Q.Promise(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
         var xmlParser = new xml2js.Parser();
         xmlParser.parseString(data, function(error, data) {
           if (error) {
@@ -77,7 +76,7 @@ module.exports = function(ctx) {
     // If there is no definition of this plugin in the config.xml,
     // then insert some dummy data in order to prevent the API_KEY_FOR_ANDROID error.
     //------------------------------------------------------------------------------
-      return Q.Promise(function(resolve) {
+      return new Promise(function(resolve) {
         var hasPluginGoogleMaps = false;
         data.widget.plugin = data.widget.plugin || [];
         data.widget.plugin = data.widget.plugin.map(function(plugin) {
@@ -138,7 +137,7 @@ module.exports = function(ctx) {
     //---------------------------
     // Override the config.xml
     //---------------------------
-      return Q.Promise(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
         var builder = new xml2js.Builder();
         var xml = builder.buildObject(data);
         fs.writeFile(configXmlPath, xml, 'utf8', function(error) {

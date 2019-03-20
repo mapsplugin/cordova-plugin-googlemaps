@@ -1,8 +1,7 @@
 module.exports = function(ctx) {
 
-  var fs = ctx.requireCordovaModule('fs'),
-    path = ctx.requireCordovaModule('path'),
-    Q = ctx.requireCordovaModule('q');
+  var fs = require('fs'),
+    path = require('path');
   var projectRoot = ctx.opts.projectRoot,
     configXmlPath = path.join(projectRoot, 'config.xml'),
     pluginXmlPath = path.join(__dirname, '..', 'plugin.xml');
@@ -29,7 +28,7 @@ module.exports = function(ctx) {
   }
 
 
-  return Q.Promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     var exec = require('child_process').exec;
     exec('npm install xml2js@0.4.19 minimist@1.2.0 --save 2>&1', function(err, stdout) {
       if (err) {
@@ -41,7 +40,7 @@ module.exports = function(ctx) {
     });
   })
     .then(function() {
-      return Q.Promise(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
         if (fs.existsSync(pluginXmlPath + '.original')) {
         // Copy the original plugin.xml to the current plugin.xml
           return fs.createReadStream(pluginXmlPath + '.original')
@@ -58,7 +57,7 @@ module.exports = function(ctx) {
       });
     })
     .then(function() {
-      return Q.Promise(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
       //---------------------------
       // Read the config.xml file
       //---------------------------
@@ -89,7 +88,7 @@ module.exports = function(ctx) {
     // If there is no definition of this plugin in the config.xml,
     // then insert some dummy data in order to prevent the API_KEY_FOR_ANDROID error.
     //------------------------------------------------------------------------------
-      return Q.Promise(function(resolve) {
+      return new Promise(function(resolve) {
         var hasPluginGoogleMaps = false;
         configXmlData.widget.plugin = configXmlData.widget.plugin || [];
         configXmlData.widget.plugin = configXmlData.widget.plugin.map(function(plugin) {
@@ -147,7 +146,7 @@ module.exports = function(ctx) {
       });
     })
     .then(function(configXmlData) {
-      return Q.Promise(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
       //---------------------------
       // Read the plugin.xml file
       //---------------------------
@@ -176,7 +175,7 @@ module.exports = function(ctx) {
       });
     })
     .then(function(params) {
-      return Q.Promise(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
       //------------------------------
       // Read the install variables
       //------------------------------
