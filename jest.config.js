@@ -4,6 +4,6 @@ module.exports = {
   },
   resolver: './jest-cordova-resolver.js',
   globals: {
-    cordova: {},
+    cordova: {}
   },
 };
