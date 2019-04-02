@@ -8,11 +8,10 @@ module.exports = function(ctx) {
   }
 
   var fs = require('fs'),
-    path = require('path'),
-    Q = require('q');
+    path = require('path');
   var pluginXmlPath = path.join(__dirname, '..', 'plugin.xml');
 
-  return Q.Promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     // Copy the original plugin.xml to the current plugin.xml
     return fs.createReadStream(pluginXmlPath + '.original')
       .pipe(fs.createWriteStream(pluginXmlPath))

@@ -58,8 +58,5 @@
     "cordova-js": "^4.2.4",
     "eslint": "^5.7.0",
     "jest": "^23.6.0"
-  },
-  "dependencies": {
-    "q": "^1.5.1"
   }
 }
