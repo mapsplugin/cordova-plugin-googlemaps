@@ -7,9 +7,9 @@ module.exports = function(ctx) {
     return;
   }
 
-  var fs = ctx.requireCordovaModule('fs'),
-    path = ctx.requireCordovaModule('path'),
-    Q = ctx.requireCordovaModule('q');
+  var fs = require('fs'),
+    path = require('path'),
+    Q = require('q');
   var projectRoot = ctx.opts.projectRoot,
     configXmlPath = path.join(projectRoot, 'config.xml');
 
