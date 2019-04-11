@@ -713,11 +713,13 @@ function createEvent(eventName, properties) {
   } else {
     evt = document.createEvent('Event');
     evt.initEvent(eventName, true, false);
-    Object.keys(properties).forEach(function (key) {
-      if (!(key in properties)) {
-        evt[key] = properties[key];
-      }
-    });
+    if(properties){
+      Object.keys(properties).forEach(function (key) {
+        if (!(key in properties)) {
+          evt[key] = properties[key];
+        }
+      });
+    }
   }
   return evt;
 }
