@@ -201,6 +201,7 @@
     - Fix: Can not install to Cordova 9.0 project
     - Fix: (Android) `ConcurrentModificationException` error at `onStop`
     - Fix: (Android) Polygon becomes visible when you run `setPoints()` to invisible polygon
+    - Update: (iOS) Specify the Google Maps SDK version as `~> 3.0.2`
 
   - **v2.5.3**
     - Fix: (iOS) touch problem
