@@ -118,14 +118,16 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       // Recycle bitmaps as much as possible
       //--------------------------------------
       if (iconCacheKeys != null) {
-        String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
-        for (int i = 0; i < cacheKeys.length; i++) {
-          AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
-          iconCacheKeys.remove(cacheKeys[i]);
+        if (iconCacheKeys.size() > 0) {
+          String[] cacheKeys = iconCacheKeys.keySet().toArray(new String[iconCacheKeys.size()]);
+          for (int i = 0; i < cacheKeys.length; i++) {
+            AsyncLoadImage.removeBitmapFromMemCahce(cacheKeys[i]);
+            iconCacheKeys.remove(cacheKeys[i]);
+          }
+          cacheKeys = null;
         }
-        cacheKeys = null;
       }
-      if (icons != null) {
+      if (icons != null && icons.size() > 0) {
         String[] keys = icons.keySet().toArray(new String[icons.size()]);
         //Bitmap[] cachedBitmaps = icons.toArray(new Bitmap[icons.size()]);
         Bitmap image;
@@ -146,28 +148,30 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
         @Override
         public void run() {
           Set<String> keySet = pluginMap.objects.keys;
-          String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+          if (keySet.size() > 0) {
+            String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
-          for (String objectId : objectIdArray) {
-            if (pluginMap.objects.containsKey(objectId)) {
-              if (objectId.startsWith("marker_") &&
-                  !objectId.startsWith("marker_property_") &&
-                  !objectId.startsWith("marker_imageSize") &&
-                  !objectId.startsWith("marker_icon_")) {
-                Marker marker = (Marker) pluginMap.objects.remove(objectId);
-                marker.setTag(null);
-                marker.remove();
-                marker = null;
-              } else {
-                Object object = pluginMap.objects.remove(objectId);
-                object = null;
+            for (String objectId : objectIdArray) {
+              if (pluginMap.objects.containsKey(objectId)) {
+                if (objectId.startsWith("marker_") &&
+                    !objectId.startsWith("marker_property_") &&
+                    !objectId.startsWith("marker_imageSize") &&
+                    !objectId.startsWith("marker_icon_")) {
+                  Marker marker = (Marker) pluginMap.objects.remove(objectId);
+                  marker.setTag(null);
+                  marker.remove();
+                  marker = null;
+                } else {
+                  Object object = pluginMap.objects.remove(objectId);
+                  object = null;
+                }
               }
             }
-          }
 
-          synchronized (semaphoreAsync) {
-            _clearDone = true;
-            semaphoreAsync.notify();
+            synchronized (semaphoreAsync) {
+              _clearDone = true;
+              semaphoreAsync.notify();
+            }
           }
 
         }
