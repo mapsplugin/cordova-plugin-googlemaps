@@ -340,7 +340,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
                 // Update the polygon
                 polygon.setPoints(path);
                 if (path.size() > 0) {
-                    polygon.setVisible(true);
+                    polygon.setVisible(polygon.isVisible());
                 } else {
                     polygon.setVisible(false);
                 }
