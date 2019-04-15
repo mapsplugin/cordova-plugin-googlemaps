@@ -200,6 +200,7 @@
   - **v2.5.4**
     - Fix: Can not install to Cordova 9.0 project
     - Fix: (Android) `ConcurrentModificationException` error at `onStop`
+    - Fix: (Android) Polygon becomes visible when you run `setPoints()` to invisible polygon
 
   - **v2.5.3**
     - Fix: (iOS) touch problem
