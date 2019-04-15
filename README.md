@@ -197,6 +197,10 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.5.4**
+    - Fix: Can not install to Cordova 9.0 project
+    - Fix: (Android) `ConcurrentModificationException` error at `onStop`
+
   - **v2.5.3**
     - Fix: (iOS) touch problem
 
