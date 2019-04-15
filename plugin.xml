@@ -478,7 +478,7 @@
       </array>
     </config-file>
 
-    <framework src="GoogleMaps" type="podspec" spec="~> 2.7.0" />
+    <framework src="GoogleMaps" type="podspec" spec="~> 3.0.2" />
 
     <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
     <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>
