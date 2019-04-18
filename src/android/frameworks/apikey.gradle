@@ -1,7 +1,7 @@
 android {
-  def searchPath = '../../pgm.properties'
+  def searchPath = 'pgm.properties'
   def finalBuildPropertiesFile = null;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 8; i++) {
     println searchPath
     def buildPropertiesFile = file(searchPath)
     if(!buildPropertiesFile.canRead()) {
