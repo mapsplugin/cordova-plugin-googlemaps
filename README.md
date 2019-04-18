@@ -202,7 +202,7 @@
     - Fix: (Android) `ConcurrentModificationException` error at `onStop`
     - Fix: (Android) Polygon becomes visible when you run `setPoints()` to invisible polygon
     - Fix: (Android/iOS) TileOverlay does not work when your app runs on `file:` protocol with ionic.
-    - Update: (iOS) Specify the Google Maps SDK version as `~> 3.0.2`
+    - Update: (iOS) Specify the Google Maps SDK version as `=> 3.1.0`. You need to use `cordova-ios@5.0.0` or above.
 
   - **v2.5.3**
     - Fix: (iOS) touch problem
