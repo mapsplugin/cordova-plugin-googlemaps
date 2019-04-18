@@ -1,13 +1,24 @@
 android {
-  def buildPropertiesFile = file('../../../pgm.properties')
+  def searchPath = '../../pgm.properties'
+  def finalBuildPropertiesFile = null;
+  for (int i = 0; i < 4; i++) {
+    println searchPath
+    def buildPropertiesFile = file(searchPath)
+    if(!buildPropertiesFile.canRead()) {
+      searchPath = '../' + searchPath;
+    } else {
+      finalBuildPropertiesFile = buildPropertiesFile;
+      break;
+    }
+  }
 
 
-  if(!buildPropertiesFile.canRead()) {
+  if (finalBuildPropertiesFile == null) {
     throw new GradleException("Could not read pgm.properties file.")
   }
 
   def props = new Properties()
-  buildPropertiesFile.withInputStream { props.load(it) }
+  finalBuildPropertiesFile.withInputStream { props.load(it) }
 
 
   buildTypes {
