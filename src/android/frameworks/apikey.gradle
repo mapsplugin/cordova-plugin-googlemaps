@@ -1,0 +1,27 @@
+android {
+  def buildPropertiesFile = file('../../../pgm.properties')
+
+
+  if(!buildPropertiesFile.canRead()) {
+    throw new GradleException("Could not read pgm.properties file.")
+  }
+
+  def props = new Properties()
+  buildPropertiesFile.withInputStream { props.load(it) }
+
+
+  buildTypes {
+    debug {
+      resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", props.getProperty("API_KEY_FOR_ANDROID_DEBUG")
+    }
+    release {
+      resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", props.getProperty("API_KEY_FOR_ANDROID_RELEASE")
+    }
+  }
+
+  defaultConfig {
+    manifestPlaceholders = [
+      GOOGLE_MAPS_ANDROID_API_KEY: "@string/GOOGLE_MAPS_ANDROID_API_KEY"
+    ]
+  }
+}
