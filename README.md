@@ -56,7 +56,7 @@
       You need to specify cli-7.1.0 or greater version.
       https://build.phonegap.com/current-support
     -->
-    <preference name="phonegap-version" value="cli-8.0.0" />
+    <preference name="phonegap-version" value="cli-8.1.1" />
   </widget>
   ```
 
@@ -204,62 +204,13 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
-  - **v2.6.7**
+  - **v2.6.0**
     - Fix: Can not install to Cordova 9.0 project
     - Fix: (Android) `ConcurrentModificationException` error at `onStop`
     - Fix: (Android) Polygon becomes visible when you run `setPoints()` to invisible polygon
     - Fix: (Android/iOS) TileOverlay does not work when your app runs on `file:` protocol with ionic.
-    - Update: (iOS) Specify the Google Maps SDK version as `=> 3.1.0`. You need to use `cordova-ios@5.0.0` or above.
+    - Update: (iOS) Specify the Google Maps SDK version as `=> 3.1.0`. Please use `cordova-ios@5.0.0` or above, otherwise modify `platform/ios/Podfile`.
     - Add: (Android/iOS) API Key mechanism
-
-  - **v2.5.3**
-    - Fix: (iOS) touch problem
-
-  - **v2.5.2**
-    - Fix: (Android/iOS/Browser) MarkerCluster.remove() causes null pointer error.
-    - Fix: (iOS) touch problem
-    - Fix: (Android) setMyLocationEnabled(false) does not work
-
-  - **v2.5.1**
-    - Fix: (Android/iOS/Browser) Marker cluster does not work when you zoom in.
-    - Fix: (iOS) HTML click detection is incorrect.
-    - Fix: (Android/iOS) Clicking on POI with an apostrophe in its name causes a SyntaxError.
-    - Fix: (Browser) Can not set icon color for marker cluster icons.
-
-  - **v2.5.0**
-    - Add: (Android/iOS/Browser) Support `promise` for `TileOverlayOptions.getTile`. You must return new URL in 5 seconds.
-      ```js
-      var tileOverlay = map.addTileOverlay({
-        getTile: function(x, y, zoom) {
-          return new Promise(function(resolve, reject) {
-            somethingAsync(function(url) {
-              resolve(url);
-            });
-          });
-        }
-      });
-      ```
-
-    - Add: (Android/iOS/Browser) `BaseClass.onThrottled()/addThrottledEventListener()/hasEventListener()` are added.
-      ```js
-      var marker = map.addMarker({ ... });
-      marker.onThrottled('position_changed', function(latLng) {
-        console.log(latLng);
-      }, 1000);
-      ```
-
-    - Add: (Android/iOS/Browser) `TileOverlayOptions.getTile` can return **base64 encoded image(png,gif,jpeg)**.
-    - Fix: (Android) Can not load icon image file for Marker after external link opened.
-    - Fix: (Browser) `MapOptions.styles` does not work.
-    - Fix: (Android) `map.setOptions()` asks location permission always even options do no include `myLocation` and/or `myLocationButton` options.
-    - Update: (Android) Set `transparent` backgroundColor at `onResume()` because some other plugins change background color.
-    - Update: (Android/iOS) Improve accuracy of touch detection on geodesic polyline.
-    - Update: (iOS) Remove "NSData+Base64" library. No longer necessary.
-    - Update: (js) ionic 4 hides Google Maps view.
-    - Fix: (Browser) `MarkerCluster.remove()` does not work on browser platform.
-    - Fix: (Android/iOS/Browser) App crashes (or error) if no panorama available.
-    - Fix: (Android/iOS/Browser) `INFO_CLICK` does not work on marker cluster.
-    - Fix: (iOS) Can not click on HtmlInfoWindow.
 
 ---------------------------------------------------------------------------------------------------------
 
