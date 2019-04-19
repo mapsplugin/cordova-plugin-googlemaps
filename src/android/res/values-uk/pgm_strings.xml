@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Закрити</string>
-  <string name="pgm_api_key_error">Будь ласка, замініть \'GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG|RELEASE)\' в config.xml на Ваш API ключ!</string>
+  <string name="pgm_api_key_error">Будь ласка, замініть \'GOOGLE_MAPS_ANDROID_API_KEY\' в config.xml на Ваш API ключ!</string>
   <string name="pgm_google_play_error">По якісь причині Google Maps Android API v2 не доступний на цьому пристрої.</string>
   <string name="pgm_google_play_developer_error">Програма невірно налаштована. Виникла фатальна помилка. Розробник додатку повинен подивитись в логи, щоб виправити помилку.</string>
   <string name="pgm_google_play_internal_error">Відбулася внутрішня помилка Google Play Services. Будь ласка, спробуйте ще раз для вирішення проблеми.</string>

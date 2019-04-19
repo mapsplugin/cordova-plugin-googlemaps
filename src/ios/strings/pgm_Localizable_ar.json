@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "إغلاق",
   "APIKEY_IS_UNDEFINED_TITLE" : "خطأ في مفتاح الأ بي إي (API)",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "ليس هنالك أي قيمة للمتغير \"GOOGLE_MAPS_IOS_API_KEY_(DEBUG|RELEASE)\" ",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "ليس هنالك أي قيمة للمتغير \"GOOGLE_MAPS_IOS_API_KEY\" ",
   "APP_NAME_ERROR_TITLE" : "يجب عليك تغيير ملف config.xml",
   "APP_NAME_ERROR_MESSAGE" : "CordovaGoogleMaps.m لمزيد من المعلومات ، انظر التعليق في \n. عندما تكون الأحرف غير الإنجليزية قيد الاستخدام Google Maps SDK في CFBundleExecutable  في حالة تعطل",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "خدمة تحديد المواقع غير متوفرة",

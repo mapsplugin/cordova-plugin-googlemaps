@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Sluiten</string>
-  <string name="pgm_api_key_error">Vervang \"GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG|RELEASE)\" in config.xml met je API Key!</string>
+  <string name="pgm_api_key_error">Vervang \"GOOGLE_MAPS_ANDROID_API_KEY\" in config.xml met je API Key!</string>
   <string name="pgm_google_play_error">Google Maps Android API v2 is niet beschikbaar op dit apparaat.</string>
   <string name="pgm_google_play_developer_error">De applicatie is onjuist geconfigureerd. Deze foutmelding kan niet hesteld worden. De ontwikkelaar moet de logboek informatie bekijken om dit probleem op te lossen.</string>
   <string name="pgm_google_play_internal_error">Er heeft een interne fout van Google Play Services plaatsgevonden. Probeer het opnieuw.</string>
