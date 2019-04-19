@@ -43,7 +43,8 @@
     }
   ],
   "scripts": {
-    "test": "jest && npm run eslint",
+    "check-types": "tsc",
+    "test": "npm run check-types && npm run jest && npm run eslint",
     "jest": "jest",
     "test:watch": "jest --watch",
     "eslint": "node node_modules/eslint/bin/eslint www src"
@@ -55,8 +56,10 @@
   },
   "homepage": "https://github.com/mapsplugin/cordova-plugin-googlemaps",
   "devDependencies": {
+    "@types/googlemaps": "^3.30.16",
     "cordova-js": "^4.2.4",
     "eslint": "^5.7.0",
-    "jest": "^23.6.0"
+    "jest": "^23.6.0",
+    "typescript": "^3.1.6"
   }
 }
