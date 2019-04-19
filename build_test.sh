@@ -16,5 +16,5 @@ if [[ ${TRAVIS_BRANCH} == "master" ]]; then
 fi
 
 if [ ${DO_BUILD} -eq 1 ]; then
-  cordova-paramedic  --verbose --platform  ${CORDOVA_PLATFORM} --justBuild --plugin;
+  cordova-paramedic  --verbose --platform  ${CORDOVA_PLATFORM} --justBuild;
 fi
