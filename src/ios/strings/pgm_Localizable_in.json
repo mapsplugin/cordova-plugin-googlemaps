@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "TUTUP",
   "APIKEY_IS_UNDEFINED_TITLE" : "API key Anda Salah",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "variable \"API_KEY_FOR_IOS\" tidak terdaftar.",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "variable \"GOOGLE_MAPS_IOS_API_KEY_(DEBUG|RELEASE)\" tidak terdaftar.",
   "APP_NAME_ERROR_TITLE" : "anda perlu merubah file config.xml ",
   "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK untuk iOS cras jika CFBundleExecutable ber isi  karakter non English.\nLebih detail, silahkan lihat komentar dalam file CordovaGoogleMaps.m",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "tidak terdapat Service Lokasi",

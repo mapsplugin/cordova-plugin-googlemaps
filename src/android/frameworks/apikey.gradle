@@ -1,0 +1,58 @@
+android {
+  def searchPath = 'app/src/main/res/xml/config.xml'
+  def finalConfigXmlFile = null;
+  for (int i = 0; i < 8; i++) {
+    def configXmlFile = file(searchPath)
+    println(configXmlFile.absolutePath)
+    if(!configXmlFile.canRead()) {
+      searchPath = '../' + searchPath;
+    } else {
+      finalConfigXmlFile = configXmlFile;
+      break;
+    }
+  }
+
+
+  if (finalConfigXmlFile == null) {
+    throw new GradleException("Could not read config.xml file.")
+  }
+
+  // parse xml file
+  def widget = new XmlParser().parse(finalConfigXmlFile)
+  if (widget.preference == null) {
+    throw new GradleException("widget is null.")
+  }
+  Properties props = new Properties()
+  println(widget.preference[0].attributes().name);
+  def found = 0
+  widget.preference.each { pref ->
+    def name = pref.attributes().name
+    def value = pref.attributes().value
+    if (name == "GOOGLE_MAPS_ANDROID_API_KEY_DEBUG" ||
+        name == "GOOGLE_MAPS_ANDROID_API_KEY_RELEASE") {
+      //println("name = " + name + ", value = " + value);
+      props.setProperty(name, value);
+      found = 1
+    }
+  }
+
+  if (found == 0) {
+    throw new GradleException("You need to declare GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG/RELEASE) in config.xml.")
+  }
+
+
+  buildTypes {
+    debug {
+      resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY_DEBUG")
+    }
+    release {
+      resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY_RELEASE")
+    }
+  }
+
+  defaultConfig {
+    manifestPlaceholders = [
+            GOOGLE_MAPS_ANDROID_API_KEY: "@string/GOOGLE_MAPS_ANDROID_API_KEY"
+    ]
+  }
+}

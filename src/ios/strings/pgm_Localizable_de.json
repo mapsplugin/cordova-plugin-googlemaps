@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "SCHLIESSEN",
   "APIKEY_IS_UNDEFINED_TITLE" : "API Key Fehler",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "Die Variable \"API_KEY_FOR_IOS\" ist nicht definiert.",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Die Variable \"GOOGLE_MAPS_IOS_API_KEY_(DEBUG|RELEASE)\" ist nicht definiert.",
   "APP_NAME_ERROR_TITLE" : "Du musst die config.xml Datei ändern.",
   "APP_NAME_ERROR_MESSAGE" : "Die Google Maps SDK für iOS stürzt ab, wenn CFBundleExecutable non-Latin Zeichen enthält.\nFür weitere Informationen bitte die CordovaGoogleMaps.m Datei anschauen.",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Lokalisierung ist nicht verfügbar.",

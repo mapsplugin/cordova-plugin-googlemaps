@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "ZAMKNIJ",
   "APIKEY_IS_UNDEFINED_TITLE" : "Błąd klucza API",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "Zmienna \"API_KEY_FOR_IOS\" nie została zarejestrowana.",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Zmienna \"GOOGLE_MAPS_IOS_API_KEY_(DEBUG|RELEASE)\" nie została zarejestrowana.",
   "APP_NAME_ERROR_TITLE" : "Proszę zmienić plik config.xml",
   "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK dla iOS powoduje błędy, jeżeli CFBundleExecutable zawiera nie angielskie znaki.\nWięcej szczegółów dostępnych w komentarzu w pliku CordovaGoogleMaps.m.",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Usługi lokalizacji są niedostępne",
