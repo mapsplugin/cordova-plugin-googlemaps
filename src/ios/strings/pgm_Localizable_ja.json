@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "閉じる",
   "APIKEY_IS_UNDEFINED_TITLE" : "APIキー エラー",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "\"API_KEY_FOR_IOS\"変数が設定されていません",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "\"GOOGLE_MAPS_IOS_API_KEY_(DEBUG|RELEASE)\"変数が設定されていません",
   "APP_NAME_ERROR_TITLE" : "config.xmlの変更が必要です",
   "APP_NAME_ERROR_MESSAGE" : "CFBundleExecutableに英数字以外の文字が含まれていると\nGoogle Maps SDK for iOSがクラッシュします。\n詳しくはCordovaGoogleMaps.mファイルのコメントを\nお読みください。",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "位置情報が有効になっていません",

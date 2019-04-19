@@ -298,7 +298,6 @@
   <!-- ios -->
   <platform name="ios">
 
-    <preference name="API_KEY_FOR_IOS"/>
     <preference name="LOCATION_WHEN_IN_USE_DESCRIPTION" default="This app wants to get your location while this app runs only."/>
     <preference name="LOCATION_ALWAYS_USAGE_DESCRIPTION" default="This app wants to get your location always, even this app runs in background."/>
 
@@ -442,10 +441,6 @@
     <!-- localized messages for Vietnamese -->
     <resource-file src="src/ios/strings/pgm_Localizable_vi.json" target="pgm_Localizable_vi.json"/>
 
-    <config-file target="*-Info.plist" parent="Google Maps API Key">
-      <string>$API_KEY_FOR_IOS</string>
-    </config-file>
-
     <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
       <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
     </config-file>
@@ -476,7 +471,7 @@
       </array>
     </config-file>
 
-    <framework src="GoogleMaps" type="podspec" spec="=> 3.1.0" />
+    <framework src="GoogleMaps" type="podspec" spec="~> 3.1.0" />
 
     <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
     <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Đóng</string>
-  <string name="pgm_api_key_error">Vui lòng thay \'API_KEY_FOR_ANDROID\' trong platforms/android/app/src/AndroidManifest.xml với API Key của bạn!</string>
+  <string name="pgm_api_key_error">Vui lòng thay \'GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG|RELEASE)\' trong config.xml với API Key của bạn!</string>
   <string name="pgm_google_play_error">Google Maps Android API v2 vì một lý do nào đó không hoạt động trên thiết bị của bạn.</string>
   <string name="pgm_google_play_developer_error">Ứng dụng chưa được cấu hình. Lỗi này là nghiêm trọng và làm cho hệ thống ngừng hoạt động. Nhà phát triển cần kiểm tra hệ thống Logs để có hướng khắc phục cụ thể..</string>
   <string name="pgm_google_play_internal_error">Lỗi xảy ra với dịch vụ Google Play. Vui lòng khởi động lại để hệ thống hoạt động bình thường..</string>

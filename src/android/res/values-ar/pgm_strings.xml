@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">أغلق</string>
-  <string name="pgm_api_key_error">مع مفتاح API الخاص بك \"API_KEY_FOR_ANDROID\" يرجى استبدال platforms/android/app/src/AndroidManifest.xml في منصات </string>
+  <string name="pgm_api_key_error">مع مفتاح API الخاص بك \"GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG|RELEASE)\" يرجى استبدال config.xml في منصات </string>
   <string name="pgm_google_play_error">غير متوفر لسبب ما على هذا الجهاز Google Maps Android API v2 </string>
   <string name="pgm_google_play_developer_error">تم تكوين التطبيق بشكل خاطئ. هذا الخطأ غير قابل للاسترداد وسيتم التعامل معه على أنه مميت. يجب على مطور البرامج النظر في السجلات بعد ذلك لتحديد مزيد من المعلومات القابلة للتنفيذ</string>
   <string name="pgm_google_play_internal_error">يرجى إعادة المحاولة ، ويجب أن تحل المشكلة ، Google Play حدث خطأ داخلي في خدمات </string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Tutup</string>
-  <string name="pgm_api_key_error">Silahkan ganti \'API_KEY_FOR_ANDROID\' di platforms/android/app/src/AndroidManifest.xml dengan Key API anda!</string>
+  <string name="pgm_api_key_error">Silahkan ganti \'GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG|RELEASE)\' di config.xml dengan Key API anda!</string>
   <string name="pgm_google_play_error">Google Maps Android API v2 tidak dapat digunakan pada perangkat ini.</string>
   <string name="pgm_google_play_developer_error">Pengaturan applikasi ini salah. Kesalahan ini tidak dapat diperbaharui dan dianggap FATAL. Developer harus memeriksa informasi logs setelah ini untuk memastikan tidandakan.</string>
   <string name="pgm_google_play_internal_error">terdapat kesalahan pada Google Play Services. Silahkan Coba lagi, untuk memperbaiki masalah.</string>

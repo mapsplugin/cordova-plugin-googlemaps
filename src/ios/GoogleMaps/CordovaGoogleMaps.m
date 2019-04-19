@@ -13,11 +13,9 @@
 - (void)pluginInitialize
 {
 
-#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
-#endif
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     self.executeQueue =  [NSOperationQueue new];
     self.executeQueue.maxConcurrentOperationCount = 10;
@@ -27,7 +25,15 @@
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
-    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+    NSString *configKey;
+     #ifdef DEBUG
+      configKey = @"google_maps_ios_api_key_debug";
+     #else
+      configKey = @"google_maps_ios_api_key_release";
+     #endif
+
+    NSString *APIKey = [NSString stringWithFormat:@"%@", [((CDVViewController *)self.viewController).settings objectForKey:configKey]];
+/*
     if (APIKey == nil) {
       NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
       NSString *errorMsg = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_MESSAGE"];
@@ -51,7 +57,7 @@
                                       completion:nil];
       return;
     }
-
+*/
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didRotate:)
                                                  name:UIDeviceOrientationDidChangeNotification object:nil];
