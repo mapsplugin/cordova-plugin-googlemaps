@@ -13,11 +13,9 @@
 - (void)pluginInitialize
 {
 
-#if CORDOVA_VERSION_MIN_REQUIRED >= __CORDOVA_4_0_0
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
-#endif
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     self.executeQueue =  [NSOperationQueue new];
     self.executeQueue.maxConcurrentOperationCount = 10;
@@ -27,7 +25,8 @@
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
-    NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"Google Maps API Key"];
+    NSString *APIKey = [((CDVViewController *)self.viewController).settings objectForKey:@"google_maps_ios_api_key"];
+
     if (APIKey == nil) {
       NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
       NSString *errorMsg = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_MESSAGE"];

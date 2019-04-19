@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Cerrar</string>
-  <string name="pgm_api_key_error">Por favor reemplace \'API_KEY_FOR_ANDROID\' en el archivo platforms/android/app/src/AndroidManifest.xml por su API Key!</string>
+  <string name="pgm_api_key_error">Por favor reemplace \'GOOGLE_MAPS_ANDROID_API_KEY\' en el archivo config.xml por su API Key!</string>
   <string name="pgm_google_play_error">Por alguna razón Google Maps Android API v2 no está disponible en este dispositivo.</string>
   <string name="pgm_google_play_developer_error">La aplicación no está configurada correctamente. Ya que no es posible recuperarse de este error, será tratado como fatal. El desarrollador debe revisar los registros para determinar si existe alguna acción por realizar.</string>
   <string name="pgm_google_play_internal_error">Ocurrió un error interno en Google Play Services. Por favor inténtalo de nuevo, y el problema debería resolverse.</string>

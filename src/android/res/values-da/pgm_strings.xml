@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Zamknij</string>
-  <string name="pgm_api_key_error">Proszę zastąpić \'API_KEY_FOR_ANDROID\' w pliku platforms/android/app/src/AndroidManifest.xml własnym kluczem API!</string>
+  <string name="pgm_api_key_error">Proszę zastąpić \'GOOGLE_MAPS_ANDROID_API_KEY\' w pliku config.xml własnym kluczem API!</string>
   <string name="pgm_google_play_error">Google Maps Android API v2 .</string>
   <string name="pgm_google_play_developer_error">Aplikacja posiada niepoprawną konfigurację. Tego błędu nie można odtworzyć i będzie on traktowany jako krytyczny. W celu uzyskania bardziej szczegółowych informacji programista powinien przejrzeć pliki z logami.</string>
   <string name="pgm_google_play_internal_error">Wystąpił błąd wewnątrz usług Google Play. Ponowne uruchomienie powinno rozwiązać problem.</string>

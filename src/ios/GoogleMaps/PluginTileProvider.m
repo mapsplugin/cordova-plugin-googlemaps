@@ -131,7 +131,7 @@ NSDictionary *debugAttributes;
     [receiver receiveTileWithX:x y:y zoom:zoom image:image];
     return;
   }
-  
+
   NSRange range = [urlStr rangeOfString:@"http"];
   if (range.location == 0) {
       //-------------------------
@@ -152,7 +152,22 @@ NSDictionary *debugAttributes;
           //-------------------------------------------------------
           NSString *currentURL = [NSString stringWithString:self.webPageUrl];
           currentURL = [currentURL stringByDeletingLastPathComponent];
+          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"http:/localhost" withString:@"http://localhost"];
+          currentURL = [currentURL regReplace:@"\\#.*$" replaceTxt:@"" options:NSRegularExpressionCaseInsensitive];
+          currentURL = [currentURL regReplace:@"\\?.*$" replaceTxt:@"" options:NSRegularExpressionCaseInsensitive];
+          currentURL = [currentURL regReplace:@"[^\\/]*$" replaceTxt:@"" options:NSRegularExpressionCaseInsensitive];
+
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+
+          urlStr = [NSString stringWithFormat:@"%@%@", currentURL, urlStr];
+          NSRange range = [currentURL rangeOfString:@"http"];
+          if (range.location == 0) {
+            //-------------------------
+            // http:// or https://
+            //-------------------------
+            [self downloadImageWithX:x y:y zoom:zoom url:[NSURL URLWithString:urlStr] receiver:receiver];
+            return;
+          }
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
           urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
       } else {

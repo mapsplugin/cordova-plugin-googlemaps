@@ -1,12 +1,11 @@
 module.exports = function (ctx) {
 
-  var PluginInfoProvider = ctx.requireCordovaModule('cordova-common').PluginInfoProvider;
+  var PluginInfoProvider = require('cordova-common').PluginInfoProvider;
 
-  var Q = ctx.requireCordovaModule('q'),
-    path = ctx.requireCordovaModule('path');
+  var path = require('path');
 
   var projectRoot = ctx.opts.projectRoot;
-  return Q.Promise(function (resolve, reject) {
+  return (new Promise(function (resolve, reject) {
 
     var pluginsDir = path.join(projectRoot, 'plugins');
     var pluginInfoProvider = new PluginInfoProvider();
@@ -42,6 +41,6 @@ module.exports = function (ctx) {
     } else {
       resolve();
     }
-  });
+  }));
 
 };
