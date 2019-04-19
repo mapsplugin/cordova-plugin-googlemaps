@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser v2.5.3-beta
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.6.0-beta
 
 | Download | Build test (multiple_maps branch)|
 |----------|---------------------------|
@@ -39,26 +39,18 @@
 
   - *Stable version(npm)*
     ```
-    $> cordova plugin add cordova-plugin-googlemaps \
-        --variable API_KEY_FOR_ANDROID="..." \
-        --variable API_KEY_FOR_IOS="..."
+    $> cordova plugin add cordova-plugin-googlemaps
     ```
 
   - *Development version(beta version)*
     ```
-    $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps \
-        --variable API_KEY_FOR_ANDROID="..." \
-        --variable API_KEY_FOR_IOS="..."
+    $> cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#multiple_maps
     ```
 
 ## PhoneGap Build settings
 
   ```xml
   <widget ...>
-    <plugin name="cordova-plugin-googlemaps">
-      <variable name="API_KEY_FOR_ANDROID" value="(api key)" />
-      <variable name="API_KEY_FOR_IOS" value="(api key)" />
-    </plugin>
 
     <!--
       You need to specify cli-7.1.0 or greater version.
@@ -113,7 +105,22 @@
   $> cordova run (browser/android/ios) -- --live-reload
   ```
 
-### API key
+
+### API key (Android and iOS platforms)
+
+  From v2.6.0, you need to specify your API keys in `config.xml` file instead of `--variable`.
+  This allows you to change your API keys for anytime without reinstallation.
+
+  Please pay attention the variable names are changed.
+
+  ```xml
+  <widget ...>
+    <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="(api key)" />
+    <preference name="GOOGLE_MAPS_IOS_API_KEY" value="(api key)" />
+  </widget>
+  ```
+
+### API key (Browser platform)
 
   In the browser platform, the maps plugin uses [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
 
@@ -197,12 +204,13 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
-  - **v2.5.4**
+  - **v2.6.7**
     - Fix: Can not install to Cordova 9.0 project
     - Fix: (Android) `ConcurrentModificationException` error at `onStop`
     - Fix: (Android) Polygon becomes visible when you run `setPoints()` to invisible polygon
     - Fix: (Android/iOS) TileOverlay does not work when your app runs on `file:` protocol with ionic.
     - Update: (iOS) Specify the Google Maps SDK version as `=> 3.1.0`. You need to use `cordova-ios@5.0.0` or above.
+    - Add: (Android/iOS) API Key mechanism
 
   - **v2.5.3**
     - Fix: (iOS) touch problem
@@ -538,9 +546,6 @@ This means **you can use the native Google Maps views similar to HTML elements**
 
 ---------------------------------------------------------------------------------------------------------
 ## Official Communities
-- Google+ : (managed by @wf9a5m75)
-
-  https://plus.google.com/communities/117427728522929652853
 
 - Gitter : (managed by @Hirbod)
 

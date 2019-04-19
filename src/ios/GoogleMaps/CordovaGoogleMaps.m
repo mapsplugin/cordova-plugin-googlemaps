@@ -25,15 +25,8 @@
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
-    NSString *configKey;
-     #ifdef DEBUG
-      configKey = @"google_maps_ios_api_key_debug";
-     #else
-      configKey = @"google_maps_ios_api_key_release";
-     #endif
+    NSString *APIKey = [((CDVViewController *)self.viewController).settings objectForKey:@"google_maps_ios_api_key"];
 
-    NSString *APIKey = [NSString stringWithFormat:@"%@", [((CDVViewController *)self.viewController).settings objectForKey:configKey]];
-/*
     if (APIKey == nil) {
       NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
       NSString *errorMsg = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_MESSAGE"];
@@ -57,7 +50,7 @@
                                       completion:nil];
       return;
     }
-*/
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didRotate:)
                                                  name:UIDeviceOrientationDidChangeNotification object:nil];

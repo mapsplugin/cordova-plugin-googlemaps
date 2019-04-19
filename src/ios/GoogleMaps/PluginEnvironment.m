@@ -28,14 +28,8 @@ dispatch_queue_t queue;
       // Check the Google Maps API key
       //-------------------------------
       NSString *errorMsg = nil;
-      NSString *configKey;
-       #ifdef DEBUG
-        configKey = @"google_maps_ios_api_key_debug";
-       #else
-        configKey = @"google_maps_ios_api_key_release";
-       #endif
 
-      NSString *APIKey = [NSString stringWithFormat:@"%@", [((CDVViewController *)self.viewController).settings objectForKey:configKey]];
+      NSString *APIKey = [((CDVViewController *)self.viewController).settings objectForKey:@"google_maps_ios_api_key"];
 
       if (APIKey == nil) {
         NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];

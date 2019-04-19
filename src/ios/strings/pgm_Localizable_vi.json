@@ -1,7 +1,7 @@
 {
     "CLOSE_BUTTON" : "ĐÓNG",
     "APIKEY_IS_UNDEFINED_TITLE" : "Lỗi API Key",
-    "APIKEY_IS_UNDEFINED_MESSAGE" : "\"GOOGLE_MAPS_IOS_API_KEY_(DEBUG|RELEASE)\" chưa được đăng ký.",
+    "APIKEY_IS_UNDEFINED_MESSAGE" : "\"GOOGLE_MAPS_IOS_API_KEY\" chưa được đăng ký.",
     "APP_NAME_ERROR_TITLE" : "Bạn cần cập nhật file config.xml.",
     "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK cho iOS sẽ lỗi nếu CFBundleExecutable có chứa các ký tự không phải ký tự tiếng Anh..\nVui lòng kiểm tra bình luận trong file CordovaGoogleMaps.m để có thông tin.",
     "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Dịch vụ xác định vị trí không được hỗ trợ",

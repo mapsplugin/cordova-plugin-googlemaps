@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">बंद</string>
-  <string name="pgm_api_key_error">कृपया config.xml मे \'GOOGLE_MAPS_ANDROID_API_KEY_(DEBUG|RELEASE)\' को  अपनी  एपीआई कुंजी से बदलें</string>
+  <string name="pgm_api_key_error">कृपया config.xml मे \'GOOGLE_MAPS_ANDROID_API_KEY\' को  अपनी  एपीआई कुंजी से बदलें</string>
   <string name="pgm_google_play_error">इस डिवाइस पर Google Maps Android API v2 उपलब्ध नहीं है</string>
   <string name="pgm_google_play_developer_error">यह एप्लिकेशन गलत तरीके से कॉन्फ़िगर किया गया है. इस त्रुटि को ठीक किया नहीं जासकता इसे घातक माना जायेगा. डेवलपर को चाहिए वे लोग में देखकर कार्रवाई योग्य प्राप्त करे.</string>
   <string name="pgm_google_play_internal_error">Google Play सेवाओं की एक आंतरिक त्रुटि हुई. कृप्या फिरसे प्रयास करें, इस से समस्या हल होनी चाहिए.</string>
