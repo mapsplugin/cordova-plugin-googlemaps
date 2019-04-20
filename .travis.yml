@@ -4,7 +4,7 @@ env:
   global:
   - NODE_VERSION="10.12.0"
   - ANDROID_API="28"
-  - ANDROID_BUILD_TOOLS="26.0.2"
+  - ANDROID_BUILD_TOOLS="28.0.3"
   - CORDOVA_VERSION="9.0.0"
 
 notifications:

@@ -142,10 +142,10 @@ describe('[BaseClass]', () => {
         }
       }, 10);
 
-      // When 250ms, test should be complited.
+      // When 300ms, test should be complited.
       setTimeout(() => {
         resolve(eventCount);
-      }, 250);
+      }, 300);
 
     }))
     .then((answer) => {
