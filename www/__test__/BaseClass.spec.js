@@ -137,15 +137,15 @@ describe('[BaseClass]', () => {
       const triggerTimer = setInterval(() => {
         sendCount++;
         instance.trigger('myEvent', sendCount);
-        if (sendCount === 13) {
+        if (sendCount > 12) {
           clearInterval(triggerTimer);
         }
       }, 10);
 
-      // When 350ms, test should be complited.
+      // When 200ms, test should be complited.
       setTimeout(() => {
         resolve(eventCount);
-      }, 350);
+      }, 200);
 
     }))
     .then((answer) => {
