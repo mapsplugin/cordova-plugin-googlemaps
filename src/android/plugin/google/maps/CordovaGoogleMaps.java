@@ -169,6 +169,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
         mPluginLayout = new MyPluginLayout(webView, activity);
         mPluginLayout.stopTimer();
+        mPluginLayout.setBackgroundColor(Color.WHITE);
 
 
         // Check the API key
@@ -487,7 +488,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
+      if (pluginEntry.service != null && pluginEntry.service.startsWith("map_")) {
         pluginEntry.plugin.onStart();
       }
     }
@@ -499,7 +500,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
+      if (pluginEntry.service != null && pluginEntry.service.startsWith("map_")) {
         pluginEntry.plugin.onStop();
       }
     }
@@ -514,7 +515,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
+      if (pluginEntry.service != null && pluginEntry.service.startsWith("map_")) {
         pluginEntry.plugin.onPause(multitasking);
       }
     }
@@ -525,7 +526,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public void onResume(boolean multitasking) {
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
+      if (pluginEntry.service != null && pluginEntry.service.startsWith("map_")) {
         pluginEntry.plugin.onResume(multitasking);
       }
     }
@@ -538,7 +539,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
+      if (pluginEntry.service != null && pluginEntry.service.startsWith("map_")) {
         pluginEntry.plugin.onDestroy();
       }
     }

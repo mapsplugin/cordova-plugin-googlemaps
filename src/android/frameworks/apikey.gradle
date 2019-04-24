@@ -1,34 +1,49 @@
-android {
-  def searchPath = 'app/src/main/res/xml/config.xml'
-  def finalConfigXmlFile = null;
+def searchFileInParents(target) {
+  def searchPath = target
   for (int i = 0; i < 8; i++) {
-    def configXmlFile = file(searchPath)
-    println(configXmlFile.absolutePath)
-    if(!configXmlFile.canRead()) {
+    println(searchPath)
+    def targetFile = file(searchPath)
+    if(!targetFile.canRead()) {
       searchPath = '../' + searchPath;
     } else {
-      finalConfigXmlFile = configXmlFile;
-      break;
+      return targetFile;
     }
   }
+  return null;
+}
 
-  if (finalConfigXmlFile == null) {
-    throw new GradleException("Could not read config.xml file.")
+android {
+  def searchPath = 'app/src/main/res/xml/config.xml'
+  // #1. Find (project)/config.xml file,
+  //     because ionic capacitor does not copy <preference> nodes
+  def configXmlFile = searchFileInParents("config.xml")
+
+  if (configXmlFile == null) {
+    // #2. Find (project)/app/src/main/res/xml/config.xml file,
+    //     cordova should copy <preference> to this file
+    configXmlFile = searchFileInParents("app/src/main/res/xml/config.xml")
+  }
+
+  if (configXmlFile == null) {
+    throw new GradleException("Can not find config.xml file.")
   }
 
   // parse xml file
-  def widget = new XmlParser().parse(finalConfigXmlFile)
+  def widget = new XmlParser().parse(configXmlFile)
   if (widget.preference == null) {
     throw new GradleException("widget is null.")
   }
-  println(widget.preference[0].attributes().name);
+  if (widget.preference.size() == 0) {
+    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+  }
+  println("preference = " + widget.preference.size())
   Properties props = new Properties()
   def found = 0
   widget.preference.each { pref ->
     def name = pref.attributes().name
     def value = pref.attributes().value
+    println("name = " + name + ", value = " + value);
     if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
-      //println("name = " + name + ", value = " + value);
       found = 1
       props.setProperty(name, value);
     }
@@ -36,7 +51,7 @@ android {
 
 
   if (found == 0) {
-    throw new GradleException("You need to declare GOOGLE_MAPS_ANDROID_API_KEY in config.xml.")
+    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
   }
 
 
