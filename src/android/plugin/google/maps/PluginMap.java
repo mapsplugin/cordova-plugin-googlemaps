@@ -861,18 +861,20 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   e.printStackTrace();
                 }
               }
-              String[] pluginNames = plugins.keySet().toArray(new String[plugins.size()]);
-              PluginEntry pluginEntry;
-              for (int i = 0; i < pluginNames.length; i++) {
-                pluginEntry = plugins.remove(pluginNames[i]);
-                if (pluginEntry == null) {
-                  continue;
+              if (plugins.size() > 0) {
+                String[] pluginNames = plugins.keySet().toArray(new String[plugins.size()]);
+                PluginEntry pluginEntry;
+                for (int i = 0; i < pluginNames.length; i++) {
+                  pluginEntry = plugins.remove(pluginNames[i]);
+                  if (pluginEntry == null) {
+                    continue;
+                  }
+                  pluginEntry.plugin.onDestroy();
+                  ((MyPlugin)pluginEntry.plugin).map = null;
+                  ((MyPlugin)pluginEntry.plugin).mapCtrl = null;
+                  //((MyPlugin)pluginEntry.plugin).pluginMap = null; // Do not clear at here.
+                  pluginEntry = null;
                 }
-                pluginEntry.plugin.onDestroy();
-                ((MyPlugin)pluginEntry.plugin).map = null;
-                ((MyPlugin)pluginEntry.plugin).mapCtrl = null;
-                //((MyPlugin)pluginEntry.plugin).pluginMap = null; // Do not clear at here.
-                pluginEntry = null;
               }
               //Log.d("pluginMap", "--> mapView = " + mapView);
               projection = null;
@@ -2952,32 +2954,33 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             //}
             //pluginEntry = plugins.get(pluginName);
             //myPlugin = (MyPlugin) pluginEntry.plugin;
-
-            keys = objects.keys.toArray(new String[objects.size()]);
-            for (j = 0; j < keys.length; j++) {
-              key = keys[j];
-              if (key.contains("marker")) {
-                continue;
-              }
-              if (key.contains("property")) {
-                properties = (JSONObject) objects.get(key);
-                try {
-                  //Log.d("PluginMap", "-----> key = " + key + ", " + properties.toString(2));
-                  //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
-                  // skip invisible overlay
-                  if (!properties.getBoolean("isVisible") ||
-                      !properties.getBoolean("isClickable")) {
-                    continue;
+            if (objects.size() > 0) {
+              keys = objects.keys.toArray(new String[objects.size()]);
+              for (j = 0; j < keys.length; j++) {
+                key = keys[j];
+                if (key.contains("marker")) {
+                  continue;
+                }
+                if (key.contains("property")) {
+                  properties = (JSONObject) objects.get(key);
+                  try {
+                    //Log.d("PluginMap", "-----> key = " + key + ", " + properties.toString(2));
+                    //Log.d("PluginMap", "-----> key = " + key + ", isVisible = " + properties.getBoolean("isVisible") + ", isClickable = " + properties.getBoolean("isClickable"));
+                    // skip invisible overlay
+                    if (!properties.getBoolean("isVisible") ||
+                        !properties.getBoolean("isClickable")) {
+                      continue;
+                    }
+                  } catch (JSONException e) {
+                    e.printStackTrace();
                   }
-                } catch (JSONException e) {
-                  e.printStackTrace();
-                }
-                bounds = (LatLngBounds) objects.get(key.replace("property", "bounds"));
-                if (bounds.contains(point)) {
-                  //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
-                  boundsHitList.put(key, objects.get(key.replace("property_", "")));
-                }
+                  bounds = (LatLngBounds) objects.get(key.replace("property", "bounds"));
+                  if (bounds.contains(point)) {
+                    //Log.d("PluginMap", "-----> add key = " + key.replace("property_", ""));
+                    boundsHitList.put(key, objects.get(key.replace("property_", "")));
+                  }
 
+                }
               }
             }
 

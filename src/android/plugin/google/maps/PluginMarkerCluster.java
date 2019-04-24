@@ -61,11 +61,13 @@ public class PluginMarkerCluster extends PluginMarker {
       synchronized (pluginMarkers) {
         synchronized (deleteMarkers) {
           String clusterId_markerId;
-          String[] keys = pluginMarkers.keySet().toArray(new String[pluginMarkers.size()]);
-          for (int i = 0; i < keys.length; i++) {
-            clusterId_markerId = keys[i];
-            pluginMarkers.put(clusterId_markerId, STATUS.DELETED);
-            deleteMarkers.add(clusterId_markerId);
+          if (pluginMarkers.size() > 0) {
+            String[] keys = pluginMarkers.keySet().toArray(new String[pluginMarkers.size()]);
+            for (int i = 0; i < keys.length; i++) {
+              clusterId_markerId = keys[i];
+              pluginMarkers.put(clusterId_markerId, STATUS.DELETED);
+              deleteMarkers.add(clusterId_markerId);
+            }
           }
         }
       }
@@ -103,43 +105,44 @@ public class PluginMarkerCluster extends PluginMarker {
         Marker marker;
         STATUS status;
         String cacheKey;
-        String[] targetIDs = deleteMarkers.toArray(new String[deleteMarkers.size()]);
+        if (deleteMarkers.size() > 0) {
+          String[] targetIDs = deleteMarkers.toArray(new String[deleteMarkers.size()]);
 
-        for (int i = targetIDs.length - 1; i > -1; i--) {
-          markerId = targetIDs[i];
+          for (int i = targetIDs.length - 1; i > -1; i--) {
+            markerId = targetIDs[i];
 
-          marker = self.getMarker(markerId);
-          synchronized (pluginMarkers) {
-            status =  pluginMarkers.get(markerId);
+            marker = self.getMarker(markerId);
+            synchronized (pluginMarkers) {
+              status =  pluginMarkers.get(markerId);
 
-            if (!STATUS.WORKING.equals(status)) {
-              synchronized (pluginMap.objects) {
-                _removeMarker(marker);
-                marker = null;
+              if (!STATUS.WORKING.equals(status)) {
+                synchronized (pluginMap.objects) {
+                  _removeMarker(marker);
+                  marker = null;
 
-                cacheKey = (String) pluginMap.objects.remove("marker_icon_" + markerId);
-                if (cacheKey != null && iconCacheKeys.containsKey(cacheKey)) {
-                  int count = iconCacheKeys.get(cacheKey);
-                  if (count < 1) {
-                    iconCacheKeys.remove(cacheKey);
-                    AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
-                  } else {
-                    iconCacheKeys.put(cacheKey, count - 1);
+                  cacheKey = (String) pluginMap.objects.remove("marker_icon_" + markerId);
+                  if (cacheKey != null && iconCacheKeys.containsKey(cacheKey)) {
+                    int count = iconCacheKeys.get(cacheKey);
+                    if (count < 1) {
+                      iconCacheKeys.remove(cacheKey);
+                      AsyncLoadImage.removeBitmapFromMemCahce(cacheKey);
+                    } else {
+                      iconCacheKeys.put(cacheKey, count - 1);
+                    }
                   }
+
+
+                  pluginMap.objects.remove(markerId);
+                  pluginMap.objects.remove("marker_property_" + markerId);
+                  pluginMap.objects.remove("marker_imageSize_" + markerId);
                 }
-
-
-                pluginMap.objects.remove(markerId);
-                pluginMap.objects.remove("marker_property_" + markerId);
-                pluginMap.objects.remove("marker_imageSize_" + markerId);
+                pluginMarkers.remove(markerId);
+                deleteMarkers.remove(i);
+              } else {
+                pluginMarkers.put(markerId, STATUS.DELETED);
               }
-              pluginMarkers.remove(markerId);
-              deleteMarkers.remove(i);
-            } else {
-              pluginMarkers.put(markerId, STATUS.DELETED);
             }
           }
-
         }
       }
       System.gc();
