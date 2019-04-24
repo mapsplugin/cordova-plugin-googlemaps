@@ -11,7 +11,6 @@
 #endif
 #import <Foundation/Foundation.h>
 #import <Cordova/CDV.h>
-#import "MainViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 //#import "MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h"
@@ -53,15 +52,6 @@ typedef void (^MYCompletionHandler)(NSError *error);
 - (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId;
 @end
 
-//
-// Override the webViewDidFinishLoad
-// http://stackoverflow.com/questions/5272451/overriding-methods-using-categories-in-objective-c#5272612
-//
-@interface MainViewController (CDVViewController)
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
-- (void)webViewDidFinishLoad:(UIWebView*)theWebView;
-#endif
-@end
 
 //
 // animationDidStop for group animation

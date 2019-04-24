@@ -150,16 +150,6 @@ static char CAAnimationGroupBlockKey;
 @end
 
 
-@implementation MainViewController (CDVViewController)
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
-- (void)webViewDidFinishLoad:(UIWebView*)theWebView
-{
-  theWebView.backgroundColor = [UIColor clearColor];
-  theWebView.opaque = NO;
-  return [super webViewDidFinishLoad:theWebView];
-}
-#endif
-@end
 @implementation PluginUtil
 
 + (BOOL)isPolygonContains:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
@@ -221,7 +211,7 @@ static char CAAnimationGroupBlockKey;
 }
 
 + (CLLocationCoordinate2D)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)point threshold:(double)threshold projection:(GMSProjection *)projection {
-  
+
   int fingerSize = 40;  // assume finger size is 20px
   CGPoint touchPoint = [projection pointForCoordinate:CLLocationCoordinate2DMake(point.latitude, point.longitude)];
   GMSCoordinateBounds *possibleBounds = [[GMSCoordinateBounds alloc] init];
@@ -268,22 +258,22 @@ static char CAAnimationGroupBlockKey;
       break;
     }
   }
-  
+
   if (firstTest == NO) {
     return kCLLocationCoordinate2DInvalid;
   }
-  
+
   //----------------------------------------------------------------
   // Calculate waypoints from start to finish on geodesic line
   // @ref http://jamesmccaffrey.wordpress.com/2011/04/17/drawing-a-geodesic-line-for-bing-maps-ajax/
   //----------------------------------------------------------------
-  
+
   // convert to radians
   double lat1 = start.latitude * (M_PI / 180.0);
   double lng1 = start.longitude * (M_PI / 180.0);
   double lat2 = finish.latitude * (M_PI / 180.0);
   double lng2 = finish.longitude * (M_PI / 180.0);
-  
+
   double d = 2 * asin(sqrt(pow((sin((lat1 - lat2) / 2)), 2) +
       cos(lat1) * cos(lat2) * pow((sin((lng1 - lng2) / 2)), 2)));
   GMSMutablePath *wayPoints = [GMSMutablePath path];
@@ -307,7 +297,7 @@ static char CAAnimationGroupBlockKey;
 
     f += finc;
   } // while
-  
+
   // break into waypoints with negative longitudes and those with positive longitudes
   GMSMutablePath *negLons = [GMSMutablePath path]; // lat-lons where the lon part is negative
   GMSMutablePath *posLons = [GMSMutablePath path];
@@ -330,7 +320,7 @@ static char CAAnimationGroupBlockKey;
       }
     }
   }
-  
+
   GMSMutablePath *inspectPoints = [GMSMutablePath path];
   if ([negLons count] > 2) {
     for (int i = 0; i < [negLons count]; i++) {
@@ -347,7 +337,7 @@ static char CAAnimationGroupBlockKey;
       [inspectPoints addCoordinate:[connect coordinateAtIndex:i]];
     }
   }
-  
+
   double minDistance = 999999999;
   double distance;
   CLLocationCoordinate2D mostClosePoint;
