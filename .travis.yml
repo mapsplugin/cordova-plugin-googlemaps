@@ -95,5 +95,9 @@ install:
   - npm i > /dev/null
 
 script:
-  - npm test
-  - /bin/bash build_test.sh
+  - if: CORDOVA_PLATFORM = browser
+      npm test
+  - if: CORDOVA_PLATFORM = android
+      /bin/bash build_test.sh
+  - if: CORDOVA_PLATFORM = ios 
+      /bin/bash build_test.sh
