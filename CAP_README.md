@@ -63,6 +63,8 @@ $> npx cap sync
 ✔ copy in 231.11μp
 ✔ update web in 7.02μp
 Sync finished in 3.781s
+
+$> npx cap open ios
 ```
 
 Open `(project)/config.xml`, then add the below lines to the file.
