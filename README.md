@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser v2.6.0
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.6.1
 
 | Download | Build test (master branch)|
 |----------|---------------------------|
@@ -108,7 +108,7 @@
 
 ### API key (Android and iOS platforms)
 
-  From v2.6.0, you need to specify your API keys in `config.xml` file instead of `--variable`.
+  As of v2.6.0, you need to specify your API keys in `config.xml` file instead of `--variable`.
   This allows you to change your API keys for anytime without reinstallation.
 
   Please pay attention the variable names are changed.
@@ -204,6 +204,10 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+  - **v2.6.1**
+    - Fix: (Android)Conflicting with `OneSignal-Cordova-SDK`
+    - Fix: (iOS) App crashes when marker url isn't valid.
+
   - **v2.6.0**
     - Fix: Can not install to Cordova 9.0 project
     - Fix: (Android) `ConcurrentModificationException` error at `onStop`
