@@ -140,7 +140,7 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             @Override
             public void run() {
                 Set<String> keySet = pluginMap.objects.keys;
-                if (keySet.size()) {
+                if (keySet.size() > 0) {
                   String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
                   for (String objectId : objectIdArray) {
