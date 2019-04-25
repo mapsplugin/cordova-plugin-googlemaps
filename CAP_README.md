@@ -21,12 +21,18 @@ $> npx cap add ios
 
 $> npm install --save \@ionic-native/core \@ionic-native/google-maps
 
+$> ionic cordova plugin add cordova-plugin-googlemaps
+...
+CREATE config.xml
+[OK] Integration cordova added!
+> cordova plugin add cordova-plugin-googlemaps --save
+Adding cordova-plugin-googlemaps to package.json
+
 $> npx cap sync
 
 ```
 
 Open `(project)/config.xml`, then add the below lines to the file.
-If you can't find the config.xml file, please try `$> npm run build` or `$> ng build`.
 
 ```
 <widget ...>
