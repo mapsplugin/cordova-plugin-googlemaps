@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser v2.6.1
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.6.2
 
 | Download | Build test (master branch)|
 |----------|---------------------------|
@@ -205,7 +205,10 @@
 
 ## Release Notes
   - **v2.6.1**
-    - Fix: (Android)Conflicting with `OneSignal-Cordova-SDK`
+    - Fix: (Android) build error
+
+  - **v2.6.1**
+    - Fix: (Android) Conflicting with `OneSignal-Cordova-SDK`
     - Fix: (iOS) App crashes when marker url isn't valid.
 
   - **v2.6.0**

@@ -95,4 +95,5 @@ install:
   - npm i > /dev/null
 
 script
+  - npm test
   - /bin/bash build_test.sh
