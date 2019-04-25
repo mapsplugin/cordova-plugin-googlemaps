@@ -18,3 +18,7 @@ fi
 if [ ${DO_BUILD} -eq 1 ]; then
   cordova-paramedic  --verbose --platform  ${CORDOVA_PLATFORM} --justBuild --plugin ./tests;
 fi
+
+if [[ ${CORDOVA_PLATFORM} == "browser" ]]; then
+  npm run test
+fi

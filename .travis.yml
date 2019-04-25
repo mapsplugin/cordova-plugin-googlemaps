@@ -94,6 +94,5 @@ install:
     fi
   - npm i > /dev/null
 
-script
-  - npm test
+script:
   - /bin/bash build_test.sh
