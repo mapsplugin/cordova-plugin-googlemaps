@@ -1050,7 +1050,7 @@
 
           //url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", currentURL, iconPath]];
           currentURL = [NSString stringWithFormat:@"%@/%@", currentURL, iconPath];
-          currentURL = [currentURL regReplace:@"\\/.\\/" replaceTxt:@"/" options:0];
+          currentURL = [currentURL regReplace:@"\\/\\.\\/" replaceTxt:@"/" options:0];
           currentURL = [currentURL regReplace:@"\\/+" replaceTxt:@"/" options:0];
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
@@ -1063,18 +1063,20 @@
           [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
             if (!succeeded) {
-              NSLog(@"[fail] url = %@", url);
-              // The `visible` property
-              if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
-                marker.map = self.mapCtrl.map;
-              } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
-                marker.map = nil;
-              }
-              if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
-                [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
-              }
+              dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"[fail] url = %@", url);
+                // The `visible` property
+                if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
+                  marker.map = self.mapCtrl.map;
+                } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+                  marker.map = nil;
+                }
+                if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
+                  [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
+                }
 
-              callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
+                callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
+              });
               return;
             }
 
@@ -1311,7 +1313,7 @@
   // Load the icon from over the internet
   //
 
-  iconPath = [iconPath regReplace:@"\\/.\\/" replaceTxt:@"/" options:0];
+  iconPath = [iconPath regReplace:@"\\/\\.\\/" replaceTxt:@"/" options:0];
   iconPath = [iconPath regReplace:@"\\/+" replaceTxt:@"/" options:0];
   iconPath = [iconPath stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
   NSURL *url = [NSURL URLWithString:iconPath];
@@ -1319,18 +1321,20 @@
   [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
     if (!succeeded) {
-      NSLog(@"[fail] url = %@", url);
-      // The `visible` property
-      if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
-        marker.map = self.mapCtrl.map;
-      } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
-        marker.map = nil;
-      }
-      if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
-        [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
-      }
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"[fail] url = %@", url);
+        // The `visible` property
+        if (iconProperty[@"visible"] == [NSNumber numberWithBool:true]) {
+          marker.map = self.mapCtrl.map;
+        } else if (iconProperty[@"visible"] == [NSNumber numberWithBool:false]) {
+          marker.map = nil;
+        }
+        if ([[UIImageCache sharedInstance].iconCacheKeys objectForKey:iconCacheKey]) {
+          [[UIImageCache sharedInstance].iconCacheKeys removeObjectForKey:iconCacheKey];
+        }
 
-      callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
+        callbackBlock(NO, [NSString stringWithFormat:@"Can not load image from '%@'.", url]);
+      });
       return;
     }
 

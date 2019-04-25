@@ -67,20 +67,22 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
       @Override
       public void run() {
         Set<String> keySet = pluginMap.objects.keys;
-        String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+        if (keySet.size() > 0) {
+          String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
-        for (String objectId : objectIdArray) {
-          if (pluginMap.objects.containsKey(objectId)) {
-            if (objectId.startsWith("marker_") &&
-                !objectId.startsWith("marker_property_") &&
-                !objectId.startsWith("marker_imageSize_") &&
-                !objectId.startsWith("marker_icon_")) {
-              Marker marker = (Marker) pluginMap.objects.remove(objectId);
-              _removeMarker(marker);
-              marker = null;
-            } else {
-              Object object = pluginMap.objects.remove(objectId);
-              object = null;
+          for (String objectId : objectIdArray) {
+            if (pluginMap.objects.containsKey(objectId)) {
+              if (objectId.startsWith("marker_") &&
+                  !objectId.startsWith("marker_property_") &&
+                  !objectId.startsWith("marker_imageSize_") &&
+                  !objectId.startsWith("marker_icon_")) {
+                Marker marker = (Marker) pluginMap.objects.remove(objectId);
+                _removeMarker(marker);
+                marker = null;
+              } else {
+                Object object = pluginMap.objects.remove(objectId);
+                object = null;
+              }
             }
           }
         }

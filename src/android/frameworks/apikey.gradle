@@ -12,7 +12,6 @@ android {
     }
   }
 
-
   if (finalConfigXmlFile == null) {
     throw new GradleException("Could not read config.xml file.")
   }
@@ -35,14 +34,18 @@ android {
     }
   }
 
+
   if (found == 0) {
     throw new GradleException("You need to declare GOOGLE_MAPS_ANDROID_API_KEY in config.xml.")
   }
 
 
-  defaultConfig {
-    manifestPlaceholders = [
-            GOOGLE_MAPS_ANDROID_API_KEY: props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
-    ]
+  buildTypes {
+    debug {
+      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
+    }
+    release {
+      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
+    }
   }
 }

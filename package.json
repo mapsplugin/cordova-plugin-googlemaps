@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-googlemaps",
-  "version": "2.6.0",
+  "version": "2.6.1-beta-20190422-1817",
   "description": "Google Maps native SDK for Android and iOS, and Google Maps JavaScript API v3 for browser.",
   "cordova": {
     "id": "cordova-plugin-googlemaps",
@@ -31,7 +31,7 @@
     },
     {
       "name": "cordova-ios",
-      "version": ">=4.9.0"
+      "version": ">=4.5.0"
     },
     {
       "name": "apple-xcode",
@@ -58,5 +58,8 @@
     "cordova-js": "^4.2.4",
     "eslint": "^5.7.0",
     "jest": "^23.6.0"
+  },
+  "dependencies": {
+    "cordova-common": "^3.1.0"
   }
 }

@@ -140,20 +140,22 @@ public class PluginPolygon extends MyPlugin implements MyPluginInterface  {
             @Override
             public void run() {
                 Set<String> keySet = pluginMap.objects.keys;
-                String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
+                if (keySet.size()) {
+                  String[] objectIdArray = keySet.toArray(new String[keySet.size()]);
 
-                for (String objectId : objectIdArray) {
-                    if (pluginMap.objects.containsKey(objectId)) {
-                        if (objectId.contains("property")) {
-                            Polygon polygon = (Polygon) pluginMap.objects.remove(objectId.replace("property_", ""));
-                            if (polygon != null) {
-                                polygon.remove();
-                            }
-                        }
-                        Object object = pluginMap.objects.remove(objectId);
-                        object = null;
+                  for (String objectId : objectIdArray) {
+                      if (pluginMap.objects.containsKey(objectId)) {
+                          if (objectId.contains("property")) {
+                              Polygon polygon = (Polygon) pluginMap.objects.remove(objectId.replace("property_", ""));
+                              if (polygon != null) {
+                                  polygon.remove();
+                              }
+                          }
+                          Object object = pluginMap.objects.remove(objectId);
+                          object = null;
 
-                    }
+                      }
+                  }
                 }
             }
         });
