@@ -94,21 +94,5 @@ install:
     fi
   - npm i > /dev/null
 
-stages:
-  - name: browser Tests
-    if: env(CORDOVA_PLATFORM) = "browser"
-  - name: android build test
-    if: env(CORDOVA_PLATFORM) = "android"
-  - name: ios build test
-    if: env(CORDOVA_PLATFORM) = "ios"
-
-jobs:
-  include:
-    - stage: jest
-      script: npm test
-
-    - stage: android build test
-      script: /bin/bash build_test.sh
-
-    - stage:
-      script: /bin/bash build_test.sh
+script
+  - /bin/bash build_test.sh
