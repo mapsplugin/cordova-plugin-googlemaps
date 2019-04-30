@@ -36,7 +36,6 @@ dispatch_queue_t queue;
         CDVViewController *viewCtrl = (CDVViewController *)self.viewController;
         NSString *APIKey = [viewCtrl.settings objectForKey:@"google_maps_ios_api_key"];
        #endif
-       NSLog(@"--->apiKey = %@", APIKey);
 
       if (APIKey == nil) {
         NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
