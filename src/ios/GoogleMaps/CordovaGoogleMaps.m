@@ -12,7 +12,7 @@
 
 - (void)pluginInitialize
 {
-
+  isSdkAvailable = NO;
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
@@ -64,6 +64,7 @@
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 
     [GMSServices provideAPIKey:APIKey];
+    isSdkAvailable = YES;
   }];
 
 
@@ -234,7 +235,11 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
-  NSLog(@"---->getMap");
+  if (!isSdkAvailable) {
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Can not use Google Maps SDK"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  }
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
   }
@@ -423,6 +428,11 @@
  * Intialize the panorama
  */
 - (void)getPanorama:(CDVInvokedUrlCommand *)command {
+  if (!isSdkAvailable) {
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Can not use Google Maps SDK"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  }
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
   }
@@ -525,7 +535,6 @@
 
 }
 - (void)pause:(CDVInvokedUrlCommand *)command {
-  NSLog(@"---->pause");
   if (self.pluginLayer != nil) {
     if (!self.pluginLayer.isSuspended) {
       self.pluginLayer.isSuspended = YES;
