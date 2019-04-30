@@ -7,6 +7,163 @@
 //
 
 #import "PluginUtil.h"
+
+
+@implementation CDVCommandDelegateImpl (GoogleMapsPlugin)
+
+WKWebView* _hook_webView;
+CDVPluginManager* _hook_manager;
+NSRegularExpression* _hook_callbackIdPattern;
+
+- (id)initWithWebView:(WKWebView*)webView pluginManager:(CDVPluginManager *)manager {
+  self = [super init];
+  _hook_manager = manager;
+  _hook_webView = webView;
+  
+  NSError* err = nil;
+  _hook_callbackIdPattern = [NSRegularExpression regularExpressionWithPattern:@"[^A-Za-z0-9._-]" options:0 error:&err];
+  if (err != nil) {
+      // Couldn't initialize Regex
+      NSLog(@"Error: Couldn't initialize regex");
+      _hook_callbackIdPattern = nil;
+  }
+  return self;
+}
+
+// Override callbackIdPattern property
+// http://ddeville.me/2011/03/add-variables-to-an-existing-class-in-objective-c
+- (void)webView:(WKWebView *)webView {
+  _hook_webView = webView;
+}
+- (WKWebView *)webView {
+  return _hook_webView;
+}
+
+// Override callbackIdPattern property
+// http://ddeville.me/2011/03/add-variables-to-an-existing-class-in-objective-c
+- (NSRegularExpression *)callbackIdPattern {
+  return _hook_callbackIdPattern;
+}
+
+
+// Override manager property
+// http://ddeville.me/2011/03/add-variables-to-an-existing-class-in-objective-c
+- (CDVPluginManager *)manager {
+  NSLog(@"--->manager");
+  return _hook_manager;
+}
+
+- (NSString*)pathForResource:(NSString*)resourcepath
+{
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSMutableArray* directoryParts = [NSMutableArray arrayWithArray:[resourcepath componentsSeparatedByString:@"/"]];
+    NSString* filename = [directoryParts lastObject];
+
+    [directoryParts removeLastObject];
+
+    NSString* directoryPartsJoined = [directoryParts componentsJoinedByString:@"/"];
+
+
+    return [mainBundle pathForResource:filename ofType:@"" inDirectory:@"www"];
+}
+
+- (void)flushCommandQueueWithDelayedJs
+{
+    _delayResponses = YES;
+    _delayResponses = NO;
+}
+
+- (void)evalJsHelper2:(NSString*)js
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_hook_webView evaluateJavaScript:js completionHandler:^(id obj, NSError* error) {
+        // TODO: obj can be something other than string
+        if ([obj isKindOfClass:[NSString class]]) {
+            NSString* commandsJSON = (NSString*)obj;
+            if ([commandsJSON length] > 0) {
+                NSLog(@"Exec: Retrieved new exec messages by chaining.");
+            }
+        }
+        }];
+    });
+}
+
+- (BOOL)isValidCallbackId:(NSString*)callbackId
+{
+    if ((callbackId == nil) || (_hook_callbackIdPattern == nil)) {
+        return NO;
+    }
+
+    // Disallow if too long or if any invalid characters were found.
+    if (([callbackId length] > 100) || [_hook_callbackIdPattern firstMatchInString:callbackId options:0 range:NSMakeRange(0, [callbackId length])]) {
+        return NO;
+    }
+    return YES;
+}
+
+- (void)sendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId
+{
+
+    // This occurs when there is are no win/fail callbacks for the call.
+    if ([@"INVALID" isEqualToString:callbackId]) {
+        return;
+    }
+    // This occurs when the callback id is malformed.
+    if (![self isValidCallbackId:callbackId]) {
+        NSLog(@"Invalid callback id received by sendPluginResult");
+        return;
+    }
+    int status = [result.status intValue];
+    BOOL keepCallback = [result.keepCallback boolValue];
+    NSString* argumentsAsJSON = [result argumentsAsJSON];
+    BOOL debug = NO;
+  
+#if DEBUG
+    debug = YES;
+#endif
+
+    NSString* js = [NSString stringWithFormat:@"cordova.require('cordova/exec').nativeCallback('%@',%d,%@,%d, %d)", callbackId, status, argumentsAsJSON, keepCallback, debug];
+
+    [self evalJsHelper2:js];
+}
+
+- (void)evalJs:(NSString*)js
+{
+    [self evalJs:js scheduledOnRunLoop:YES];
+}
+
+- (void)evalJs:(NSString*)js scheduledOnRunLoop:(BOOL)scheduledOnRunLoop
+{
+    js = [NSString stringWithFormat:@"try{cordova.require('cordova/exec').nativeEvalAndFetch(function(){%@})}catch(e){console.log('exception nativeEvalAndFetch : '+e);};", js];
+     [self evalJsHelper2:js];
+}
+
+- (id)getCommandInstance:(NSString*)pluginName
+{
+    return [_hook_manager getCommandInstance:pluginName];
+}
+
+- (void)runInBackground:(void (^)())block
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), block);
+}
+
+- (NSString*)userAgent
+{
+    return nil;
+}
+
+- (NSDictionary*)settings
+{
+    return _hook_manager.settings;
+}
+
+@end
+
+
+
+
+
 @implementation UIView (GoogleMapsPlugin)
 - (void)setFrameWithDictionary:(NSDictionary *)params
 {
@@ -211,7 +368,7 @@ static char CAAnimationGroupBlockKey;
 }
 
 + (CLLocationCoordinate2D)isPointOnTheGeodesicLine:(GMSPath *)path coordinate:(CLLocationCoordinate2D)point threshold:(double)threshold projection:(GMSProjection *)projection {
-
+  
   int fingerSize = 40;  // assume finger size is 20px
   CGPoint touchPoint = [projection pointForCoordinate:CLLocationCoordinate2DMake(point.latitude, point.longitude)];
   GMSCoordinateBounds *possibleBounds = [[GMSCoordinateBounds alloc] init];
@@ -258,22 +415,22 @@ static char CAAnimationGroupBlockKey;
       break;
     }
   }
-
+  
   if (firstTest == NO) {
     return kCLLocationCoordinate2DInvalid;
   }
-
+  
   //----------------------------------------------------------------
   // Calculate waypoints from start to finish on geodesic line
   // @ref http://jamesmccaffrey.wordpress.com/2011/04/17/drawing-a-geodesic-line-for-bing-maps-ajax/
   //----------------------------------------------------------------
-
+  
   // convert to radians
   double lat1 = start.latitude * (M_PI / 180.0);
   double lng1 = start.longitude * (M_PI / 180.0);
   double lat2 = finish.latitude * (M_PI / 180.0);
   double lng2 = finish.longitude * (M_PI / 180.0);
-
+  
   double d = 2 * asin(sqrt(pow((sin((lat1 - lat2) / 2)), 2) +
       cos(lat1) * cos(lat2) * pow((sin((lng1 - lng2) / 2)), 2)));
   GMSMutablePath *wayPoints = [GMSMutablePath path];
@@ -297,7 +454,7 @@ static char CAAnimationGroupBlockKey;
 
     f += finc;
   } // while
-
+  
   // break into waypoints with negative longitudes and those with positive longitudes
   GMSMutablePath *negLons = [GMSMutablePath path]; // lat-lons where the lon part is negative
   GMSMutablePath *posLons = [GMSMutablePath path];
@@ -320,7 +477,7 @@ static char CAAnimationGroupBlockKey;
       }
     }
   }
-
+  
   GMSMutablePath *inspectPoints = [GMSMutablePath path];
   if ([negLons count] > 2) {
     for (int i = 0; i < [negLons count]; i++) {
@@ -337,7 +494,7 @@ static char CAAnimationGroupBlockKey;
       [inspectPoints addCoordinate:[connect coordinateAtIndex:i]];
     }
   }
-
+  
   double minDistance = 999999999;
   double distance;
   CLLocationCoordinate2D mostClosePoint;

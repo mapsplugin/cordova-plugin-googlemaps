@@ -91,10 +91,24 @@
         [plugin setViewController:cdvViewController];
       }
       if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
-        [plugin setCommandDelegate:cdvViewController.commandDelegate];
+         #ifdef PGM_PLATFORM_CAPACITOR
+          [plugin setCommandDelegate:self.commandDelegate];
+         #endif
+         #ifdef PGM_PLATFORM_CORDOVA
+          [plugin setCommandDelegate:cdvViewController.commandDelegate];
+         #endif
+        
       }
-      [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
-      [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
+       #ifdef PGM_PLATFORM_CAPACITOR
+        CDVCommandDelegateImpl *delegate = self.commandDelegate;
+        [delegate.manager.pluginObjects setObject:plugin forKey:pluginId];
+        [delegate.manager.pluginsMap setObject:pluginId forKey:pluginId];
+       #endif
+       #ifdef PGM_PLATFORM_CORDOVA
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+        [cdvViewController.pluginObjects setObject:plugin forKey:mapId];
+        [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
+       #endif
       [plugin pluginInitialize];
 
       //NSLog(@"--->loadPlugin : %@ className : %@, plugin : %@", pluginId, className, plugin);
@@ -178,8 +192,15 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+     #endif
+     #ifdef PGM_PLATFORM_CAPACITOR
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      CDVPluginManager *pluginManager = delegate.manager;
+      CordovaGoogleMaps *googlemaps = [pluginManager.pluginObjects objectForKey:@"CordovaGoogleMaps"];
+     #endif
     [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
     self.mapCtrl.attached = YES;
 
@@ -193,8 +214,15 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+     #endif
+     #ifdef PGM_PLATFORM_CAPACITOR
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      CDVPluginManager *pluginManager = delegate.manager;
+      CordovaGoogleMaps *googlemaps = [pluginManager.pluginObjects objectForKey:@"CordovaGoogleMaps"];
+     #endif
     [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
     self.mapCtrl.attached = NO;
 
@@ -215,8 +243,15 @@
     }
 
     // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
+     #endif
+     #ifdef PGM_PLATFORM_CAPACITOR
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      CDVPluginManager *pluginManager = delegate.manager;
+      CordovaGoogleMaps *googlemaps = [pluginManager.pluginObjects objectForKey:@"CordovaGoogleMaps"];
+     #endif
 
     // Save the map rectangle.
     if (![googlemaps.pluginLayer.pluginScrollView.HTMLNodes objectForKey:self.mapCtrl.divId]) {
@@ -260,7 +295,6 @@
   });
 
 
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   CDVPlugin<IPluginProtocol> *plugin;
   NSString *pluginName;
   NSArray *keys = [self.mapCtrl.plugins allKeys];
@@ -269,8 +303,16 @@
     plugin = [self.mapCtrl.plugins objectForKey:pluginName];
     [plugin pluginUnload];
 
-    [cdvViewController.pluginObjects removeObjectForKey:pluginName];
-    [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
+     #ifdef PGM_PLATFORM_CAPACITOR
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      [delegate.manager.pluginObjects removeObjectForKey:pluginName];
+      [delegate.manager.pluginsMap setValue:nil forKey:pluginName];
+     #endif
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      [cdvViewController.pluginObjects removeObjectForKey:pluginName];
+      [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
+     #endif
     //plugin = nil;
   }
 
@@ -694,7 +736,7 @@
       NSData *imageData = UIImagePNGRepresentation(image);
       NSString* base64Encoded = [imageData base64EncodedStringWithOptions:0];
       NSString* base64EncodedWithData = [@"data:image/png;base64," stringByAppendingString:base64Encoded];
-        
+      
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64EncodedWithData];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];

@@ -25,8 +25,14 @@
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
-    NSString *APIKey = [((CDVViewController *)self.viewController).settings objectForKey:@"google_maps_ios_api_key"];
-
+     #ifdef PGM_PLATFORM_CAPACITOR
+      NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"GOOGLE_MAPS_IOS_API_KEY"];
+     #endif
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *viewCtrl = (CDVViewController *)self.viewController;
+      NSString *APIKey = [viewCtrl.settings objectForKey:@"google_maps_ios_api_key"];
+     #endif
+ 
     if (APIKey == nil) {
       NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
       NSString *errorMsg = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_MESSAGE"];
@@ -60,26 +66,35 @@
     [GMSServices provideAPIKey:APIKey];
   }];
 
+
   //-------------------------------
   // Plugin initialization
   //-------------------------------
   self.viewPlugins = [[NSMutableDictionary alloc] init];
 
+
   self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
   self.pluginLayer.backgroundColor = [UIColor whiteColor];
   self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  
+  #ifdef PGM_PLATFORM_CAPACITOR
+    // TODO: other plugin's view have to move under the pluginLayer
+    [UIApplication sharedApplication].windows[0].rootViewController.view = self.pluginLayer;
+  #endif
+  #ifdef PGM_PLATFORM_CORDOVA
+    NSArray *subViews = self.viewController.view.subviews;
 
-
-  NSArray *subViews = self.viewController.view.subviews;
-  //NSLog(@"--->subViews count=%lu", subViews.count);
-  UIView *view;
-  for (int i = 0; i < [subViews count]; i++) {
-    view = [subViews objectAtIndex:i];
-    //NSLog(@"--->remove i=%d class=%@", i, view.class);
-    [view removeFromSuperview];
-    [self.pluginLayer addSubview: view];
-  }
-  [self.viewController.view addSubview:self.pluginLayer];
+    UIView *view;
+    for (int i = 0; i < [subViews count]; i++) {
+      view = [subViews objectAtIndex:i];
+      //NSLog(@"--->remove i=%d class=%@", i, view.class);
+      [view removeFromSuperview];
+      [self.pluginLayer addSubview: view];
+    }
+    [self.viewController.view addSubview:self.pluginLayer];
+  #endif
+  
 }
 - (void) didRotate:(id)sender
 {
@@ -148,7 +163,6 @@
   if (![self.viewPlugins objectForKey:mapId]) {
     return;
   }
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
   CDVPlugin<IPluginView> *pluginView = [self.viewPlugins objectForKey:mapId];
   if ([mapId hasPrefix:@"streetview_"]) {
@@ -156,8 +170,17 @@
     pluginSV.isRemoved = YES;
     //[pluginSV clear:nil];
     [pluginSV pluginUnload];
-    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+    
+     #ifdef PGM_PLATFORM_CAPACITOR
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      [delegate.manager.pluginObjects setObject:pluginView forKey:mapId];
+      [delegate.manager.pluginsMap setObject:mapId forKey:mapId];
+     #endif
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
+      [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+     #endif
 
     [self.pluginLayer removePluginOverlay:pluginSV.panoramaCtrl];
     pluginSV.panoramaCtrl.view = nil;
@@ -168,8 +191,8 @@
     //[pluginMap clear:nil];
     [pluginMap pluginUnload];
 
-    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+    //[cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
+    //[cdvViewController.pluginsMap setValue:mapId forKey:mapId];
 
     [self.pluginLayer removePluginOverlay:pluginMap.mapCtrl];
 
@@ -184,7 +207,14 @@
 
   [self.viewPlugins removeObjectForKey:mapId];
 
-  [cdvViewController.pluginObjects removeObjectForKey:mapId];
+   #ifdef PGM_PLATFORM_CAPACITOR
+    CDVCommandDelegateImpl *delegate = self.commandDelegate;
+    [delegate.manager.pluginObjects removeObjectForKey:mapId];
+   #endif
+   #ifdef PGM_PLATFORM_CORDOVA
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    [cdvViewController.pluginObjects removeObjectForKey:mapId];
+   #endif
 }
 /**
  * Remove the map
@@ -204,6 +234,7 @@
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
+  NSLog(@"---->getMap");
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
   }
@@ -211,7 +242,6 @@
 
   dispatch_async(dispatch_get_main_queue(), ^{
 
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     NSDictionary *meta = [command.arguments objectAtIndex:0];
     NSString *mapId = [meta objectForKey:@"__pgmId"];
     NSDictionary *initOptions = [command.arguments objectAtIndex:1];
@@ -230,17 +260,34 @@
     [pluginMap pluginInitialize];
     pluginMap.mapCtrl = viewCtrl;
 
-    // Hack:
-    // In order to load the plugin instance of the same class but different names,
-    // register the map plugin instance into the pluginObjects directly.
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     if ([pluginMap respondsToSelector:@selector(setViewController:)]) {
       [pluginMap setViewController:cdvViewController];
     }
     if ([pluginMap respondsToSelector:@selector(setCommandDelegate:)]) {
-      [pluginMap setCommandDelegate:cdvViewController.commandDelegate];
+       #ifdef PGM_PLATFORM_CAPACITOR
+        [pluginMap setCommandDelegate:self.commandDelegate];
+       #endif
+       #ifdef PGM_PLATFORM_CORDOVA
+        [pluginMap setCommandDelegate:cdvViewController.commandDelegate];
+       #endif
     }
-    [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+    
+     #ifdef PGM_PLATFORM_CAPACITOR
+      // Hack:
+      // In order to load the plugin instance of the same class but different names,
+      // register the map plugin instance into the pluginObjects directly.
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      [delegate.manager.pluginObjects setObject:pluginMap forKey:mapId];
+      [delegate.manager.pluginsMap setObject:mapId forKey:mapId];
+     #endif
+     #ifdef PGM_PLATFORM_CORDOVA
+      // Hack:
+      // In order to load the plugin instance of the same class but different names,
+      // register the map plugin instance into the pluginObjects directly.
+      [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
+      [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+     #endif
     [pluginMap pluginInitialize];
 
     [self.viewPlugins setObject:pluginMap forKey:mapId];
@@ -407,10 +454,31 @@
       [pluginStreetView setViewController:cdvViewController];
     }
     if ([pluginStreetView respondsToSelector:@selector(setCommandDelegate:)]) {
-      [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];
+       #ifdef PGM_PLATFORM_CAPACITOR
+        [pluginStreetView setCommandDelegate:self.commandDelegate];
+       #endif
+       #ifdef PGM_PLATFORM_CORDOVA
+        [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];
+       #endif
     }
-    [cdvViewController.pluginObjects setObject:pluginStreetView forKey:panoramaId];
-    [cdvViewController.pluginsMap setValue:panoramaId forKey:panoramaId];
+    
+    
+     #ifdef PGM_PLATFORM_CAPACITOR
+      // Hack:
+      // In order to load the plugin instance of the same class but different names,
+      // register the map plugin instance into the pluginObjects directly.
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      [delegate.manager.pluginObjects setObject:pluginStreetView forKey:panoramaId];
+      [delegate.manager.pluginsMap setObject:panoramaId forKey:panoramaId];
+     #endif
+     #ifdef PGM_PLATFORM_CORDOVA
+      // Hack:
+      // In order to load the plugin instance of the same class but different names,
+      // register the map plugin instance into the pluginObjects directly.
+      [cdvViewController.pluginObjects setObject:pluginStreetView forKey:panoramaId];
+      [cdvViewController.pluginsMap setValue:panoramaId forKey:panoramaId];
+     #endif
+    
     [pluginStreetView pluginInitialize];
 
     [self.viewPlugins setObject:pluginStreetView forKey:panoramaId];
@@ -457,6 +525,7 @@
 
 }
 - (void)pause:(CDVInvokedUrlCommand *)command {
+  NSLog(@"---->pause");
   if (self.pluginLayer != nil) {
     if (!self.pluginLayer.isSuspended) {
       self.pluginLayer.isSuspended = YES;

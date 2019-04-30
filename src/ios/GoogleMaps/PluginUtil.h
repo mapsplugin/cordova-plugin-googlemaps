@@ -18,7 +18,6 @@
 #import <math.h>
 #import "IPluginProtocol.h"
 #import "PluginViewController.h"
-#import <Cordova/CDVCommandDelegate.h>
 #import <Cordova/CDVCommandDelegateImpl.h>
 
 typedef void (^MYCompletionHandler)(NSError *error);
@@ -28,6 +27,40 @@ typedef void (^MYCompletionHandler)(NSError *error);
 #define CASE(str) if ([__s__ isEqualToString:(str)])
 #define SWITCH(s) for (NSString *__s__ = (s); __s__; __s__ = nil)
 #define DEFAULT
+
+
+#if __has_include(<CordovaPluginsStatic_vers.c>)
+  #define PGM_PLATFORM_CAPACITOR
+
+  @class CDVViewController;
+  @class CDVCommandQueue;
+
+  @interface CDVCommandDelegateImpl (GoogleMapsPlugin)
+    @property (nonatomic,retain) CDVPluginManager *manager;
+    @property (nonatomic,retain) WKWebView *webView;
+    @property (nonatomic,retain) NSRegularExpression *callbackIdPattern;
+
+    - (id)initWithWebView:(WKWebView*)webView pluginManager:(CDVPluginManager *)manager;
+    - (void)flushCommandQueueWithDelayedJs;
+
+    - (NSRegularExpression *)callbackIdPattern;
+    - (WKWebView *)webView;
+    - (CDVPluginManager *)manager;
+    - (NSString*)pathForResource:(NSString*)resourcepath;
+    - (void)evalJsHelper2:(NSString*)js;
+    - (BOOL)isValidCallbackId:(NSString*)callbackId;
+    - (void)sendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId;
+    - (void)evalJs:(NSString*)js;
+    - (void)evalJs:(NSString*)js scheduledOnRunLoop:(BOOL)scheduledOnRunLoop;
+    - (id)getCommandInstance:(NSString*)pluginName;
+    - (void)runInBackground:(void (^)())block;
+    - (NSString*)userAgent;
+    - (NSDictionary*)settings;
+  @end
+#else
+  #define PGM_PLATFORM_CORDOVA
+#endif
+
 
 @interface UIView (GoogleMapsPlugin)
 - (void)setFrameWithDictionary:(NSDictionary *) params;
@@ -47,11 +80,6 @@ typedef void (^MYCompletionHandler)(NSError *error);
 - (UIImage*)imageByApplyingAlpha:(CGFloat) alpha;
 - (UIImage *)resize:(CGFloat)width height:(CGFloat)height;
 @end
-
-@interface CDVCommandDelegateImpl (GoogleMapsPlugin)
-- (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId;
-@end
-
 
 //
 // animationDidStop for group animation

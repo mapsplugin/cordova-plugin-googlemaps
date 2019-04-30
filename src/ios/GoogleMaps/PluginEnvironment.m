@@ -29,7 +29,14 @@ dispatch_queue_t queue;
       //-------------------------------
       NSString *errorMsg = nil;
 
-      NSString *APIKey = [((CDVViewController *)self.viewController).settings objectForKey:@"google_maps_ios_api_key"];
+       #ifdef PGM_PLATFORM_CAPACITOR
+        NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"GOOGLE_MAPS_IOS_API_KEY"];
+       #endif
+       #ifdef PGM_PLATFORM_CORDOVA
+        CDVViewController *viewCtrl = (CDVViewController *)self.viewController;
+        NSString *APIKey = [viewCtrl.settings objectForKey:@"google_maps_ios_api_key"];
+       #endif
+       NSLog(@"--->apiKey = %@", APIKey);
 
       if (APIKey == nil) {
         NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
