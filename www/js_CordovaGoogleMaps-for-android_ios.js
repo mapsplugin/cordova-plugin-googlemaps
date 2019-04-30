@@ -123,9 +123,9 @@ function CordovaGoogleMaps(execCmd) {
 
   self.on('isSuspended_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+      cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'pause', []);
     } else {
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+      cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'resume', []);
     }
   });
 }
@@ -607,7 +607,7 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
 
   // If changed, move the map views.
   if (changed || opts.force) {
-    cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+    cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
     return changed;
   }
   return false;
@@ -694,9 +694,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   map.on('__isAttached_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, map.__pgmId, 'attachToWebView', []);
+      cordova_exec(null, function(){}, map.__pgmId, 'attachToWebView', []);
     } else {
-      cordova_exec(null, null, map.__pgmId, 'detachFromWebView', []);
+      cordova_exec(null, function(){}, map.__pgmId, 'detachFromWebView', []);
     }
   });
 
