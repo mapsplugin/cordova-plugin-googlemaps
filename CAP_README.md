@@ -21,7 +21,7 @@ $> npx cap add ios
 
 $> npm install --save \@ionic-native/core \@ionic-native/google-maps
 
-$> ionic cordova plugin add cordova-plugin-googlemaps
+$> ionic cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#cap2
 ...
 CREATE config.xml
 [OK] Integration cordova added!
@@ -89,7 +89,7 @@ $> npx cap copy   // copy the www directory to capacitor project
 ## iOS
 
 Unfortunately, `ionic/capacitor` can not keep the value of `<preference>` in `config.xml`.
-Therefore, you need to define your API key in `ios/App/App/Info.plist`.
+Therefore, you need to define `GOOGLE_MAPS_IOS_API_KEY` in `ios/App/App/Info.plist`.
 
 
 
