@@ -8,7 +8,7 @@
 
 #import "PluginUtil.h"
 
-
+#if __has_include(<CordovaPluginsStatic_vers.c>)
 @implementation CDVCommandDelegateImpl (GoogleMapsPlugin)
 
 WKWebView* _hook_webView;
@@ -49,7 +49,6 @@ NSRegularExpression* _hook_callbackIdPattern;
 // Override manager property
 // http://ddeville.me/2011/03/add-variables-to-an-existing-class-in-objective-c
 - (CDVPluginManager *)manager {
-  NSLog(@"--->manager");
   return _hook_manager;
 }
 
@@ -160,7 +159,7 @@ NSRegularExpression* _hook_callbackIdPattern;
 
 @end
 
-
+#endif
 
 
 

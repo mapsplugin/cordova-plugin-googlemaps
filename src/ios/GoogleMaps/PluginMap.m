@@ -105,8 +105,7 @@
         [delegate.manager.pluginsMap setObject:pluginId forKey:pluginId];
        #endif
        #ifdef PGM_PLATFORM_CORDOVA
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-        [cdvViewController.pluginObjects setObject:plugin forKey:mapId];
+        [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
         [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
        #endif
       [plugin pluginInitialize];
