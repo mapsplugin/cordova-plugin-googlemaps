@@ -17,11 +17,9 @@
 #import "IPluginProtocol.h"
 #import "IPluginView.h"
 
-@interface CordovaGoogleMaps : CDVPlugin {
-  @private
-  BOOL isSdkAvailable;
-}
+@interface CordovaGoogleMaps : CDVPlugin
 
+@property (nonatomic) BOOL isSdkAvailable;
 @property (nonatomic) MyPluginLayer *pluginLayer;
 @property (nonatomic) NSMutableDictionary *viewPlugins;
 @property (nonatomic) NSOperationQueue *executeQueue;
