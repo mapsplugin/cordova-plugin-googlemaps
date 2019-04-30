@@ -40,14 +40,14 @@ $> npx cap sync
   Found 1 Cordova plugin for ios
     CordovaPluginGooglemaps (2.6.1-beta-20190422-1817)
 ✔ Updating iOS native dependencies in 3.38s
-[info] Plugin cordova-plugin-googlemaps requires you to add 
+[info] Plugin cordova-plugin-googlemaps requires you to add
   <key>LSApplicationQueriesSchemes</key>
   <array>
     <string>googlechromes</string>
     <string>comgooglemaps</string>
   </array>
  to your Info.plist to work
-[info] Plugin cordova-plugin-googlemaps might require you to add 
+[info] Plugin cordova-plugin-googlemaps might require you to add
     <dict>
       <key>CFBundleTypeRole</key>
       <key>CFBundleURLName</key>
@@ -67,13 +67,14 @@ Sync finished in 3.781s
 $> npx cap open ios
 ```
 
+## Android
+
 Open `(project)/config.xml`, then add the below lines to the file.
 
 ```
 <widget ...>
   ...
   <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="(api key)" />
-  <preference name="GOOGLE_MAPS_IOS_API_KEY" value="(api key)" />
 </widget>
 ```
 
@@ -83,4 +84,21 @@ Then build the project, and synchronize the project.
 $> npm run build  // Do not "ionic cordova build android"
 
 $> npx cap copy   // copy the www directory to capacitor project
+```
+
+## iOS
+
+Unfortunately, `ionic/capacitor` can not keep the value of `<preference>` in `config.xml`.
+Therefore, you need to define your API key in `ios/App/App/Info.plist`.
+
+
+
+## How to upgrade the cordova-plugin-googlemaps in ionic/capacitor project?
+
+```
+$> npm uninstall cordova-plugin-googlemaps
+
+$> npm install cordova-plugin-googlemaps
+
+$> npx cap sync
 ```
