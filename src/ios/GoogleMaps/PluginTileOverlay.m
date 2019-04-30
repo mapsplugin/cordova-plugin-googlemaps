@@ -59,9 +59,16 @@
   keys = nil;
 
   NSString *pluginId = [NSString stringWithFormat:@"%@-tileoverlay", self.mapCtrl.overlayId];
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  [cdvViewController.pluginObjects removeObjectForKey:pluginId];
-  [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+   #ifdef PGM_PLATFORM_CAPACITOR
+    CDVCommandDelegateImpl *delegate = self.commandDelegate;
+    [delegate.manager.pluginObjects removeObjectForKey:pluginId];
+    [delegate.manager.pluginsMap setValue:nil forKey:pluginId];
+   #endif
+   #ifdef PGM_PLATFORM_CORDOVA
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    [cdvViewController.pluginObjects removeObjectForKey:pluginId];
+    [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+   #endif
   pluginId = nil;
 }
 
@@ -83,15 +90,22 @@
       //if (range.location != 0) {
           NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
 
-          CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-          id webview = cdvViewController.webView;
-          NSString *clsName = [webview className];
           NSURL *url;
-          if ([clsName isEqualToString:@"UIWebView"]) {
-            url = ((UIWebView *)cdvViewController.webView).request.URL;
-          } else {
-            url = [webview URL];
-          }
+          id webview;
+            #ifdef PGM_PLATFORM_CORDOVA
+            CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+            webview = cdvViewController.webView;
+            NSString *clsName = [webview className];
+            if ([clsName isEqualToString:@"UIWebView"]) {
+              url = ((UIWebView *)cdvViewController.webView).request.URL;
+            } else {
+              url = [webview URL];
+            }
+            #endif
+            #ifdef PGM_PLATFORM_CAPACITOR
+            url = [(WKWebView *)self.webView URL];
+            webview = self.webView;
+            #endif
           NSString *webPageUrl = url.absoluteString;
           [options setObject:webPageUrl forKey:@"webPageUrl"];
           [options setObject:self.mapCtrl.overlayId forKey:@"mapId"];

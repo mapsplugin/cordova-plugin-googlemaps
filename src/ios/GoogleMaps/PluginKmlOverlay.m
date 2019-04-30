@@ -48,9 +48,13 @@
 
 
         // Get the current URL, then calculate the relative path.
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
-        id webview = cdvViewController.webView;
+         #ifdef PGM_PLATFORM_CORDOVA
+          id webview = cdvViewController.webView;
+         #endif
+         #ifdef PGM_PLATFORM_CAPACITOR
+          id webview = self.webView;
+         #endif
         NSString *clsName = [webview className];
         NSURL *url;
         NSString *currentURL;
@@ -58,7 +62,10 @@
           //------------------------------------------
           // UIWebView
           //------------------------------------------
-          url = ((UIWebView *)cdvViewController.webView).request.URL;
+            #ifdef PGM_PLATFORM_CORDOVA
+            CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+            url = ((UIWebView *)cdvViewController.webView).request.URL;
+            #endif
           currentURL = url.absoluteString;
 
         } else {

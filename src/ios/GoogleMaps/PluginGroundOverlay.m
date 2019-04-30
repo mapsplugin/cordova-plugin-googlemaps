@@ -45,9 +45,16 @@
   keys = nil;
 
   NSString *pluginId = [NSString stringWithFormat:@"%@-groundoverlay", self.mapCtrl.overlayId];
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-  [cdvViewController.pluginObjects removeObjectForKey:pluginId];
-  [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+   #ifdef PGM_PLATFORM_CAPACITOR
+    CDVCommandDelegateImpl *delegate = self.commandDelegate;
+    [delegate.manager.pluginObjects removeObjectForKey:pluginId];
+    [delegate.manager.pluginsMap setValue:nil forKey:pluginId];
+   #endif
+   #ifdef PGM_PLATFORM_CORDOVA
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    [cdvViewController.pluginObjects removeObjectForKey:pluginId];
+    [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+   #endif
   pluginId = nil;
 }
 
@@ -222,12 +229,19 @@
                 range = [urlStr rangeOfString:@"/"];
                 if (range.location != 0) {
                   // Get the current URL, then calculate the relative path.
-                  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-                  id webview = cdvViewController.webView;
+                     #ifdef PGM_PLATFORM_CORDOVA
+                    id webview = cdvViewController.webView;
+                     #endif
+                     #ifdef PGM_PLATFORM_CAPACITOR
+                    id webview = self.webView;
+                     #endif
                   NSString *clsName = [webview className];
                   NSURL *url;
                   if ([clsName isEqualToString:@"UIWebView"]) {
-                    url = ((UIWebView *)cdvViewController.webView).request.URL;
+                       #ifdef PGM_PLATFORM_CORDOVA
+                      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+                      url = ((UIWebView *)cdvViewController.webView).request.URL;
+                       #endif
                     NSString *currentURL = url.absoluteString;
                     currentURL = [currentURL stringByDeletingLastPathComponent];
                     currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];

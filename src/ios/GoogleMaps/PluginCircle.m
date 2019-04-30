@@ -40,9 +40,17 @@
     keys = nil;
 
     NSString *pluginId = [NSString stringWithFormat:@"%@-circle", self.mapCtrl.overlayId];
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    [cdvViewController.pluginObjects removeObjectForKey:pluginId];
-    [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+  
+     #ifdef PGM_PLATFORM_CAPACITOR
+      CDVCommandDelegateImpl *delegate = self.commandDelegate;
+      [delegate.manager.pluginObjects removeObjectForKey:pluginId];
+      [delegate.manager.pluginsMap setValue:nil forKey:pluginId];
+     #endif
+     #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+      [cdvViewController.pluginObjects removeObjectForKey:pluginId];
+      [cdvViewController.pluginsMap setValue:nil forKey:pluginId];
+     #endif
     pluginId = nil;
 }
 -(void)setPluginViewController:(PluginViewController *)viewCtrl
