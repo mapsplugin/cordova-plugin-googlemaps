@@ -447,29 +447,6 @@
       <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
     </config-file>
 
-    <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
-      <array>
-        <string>googlechromes</string>
-        <string>comgooglemaps</string>
-      </array>
-    </config-file>
-
-    <config-file target="*-Info.plist" parent="CFBundleURLTypes">
-      <array>
-        <dict>
-          <key>CFBundleTypeRole</key>
-          <string>Editor</string>
-          <key>CFBundleURLName</key>
-          <string>$PACKAGE_NAME</string>
-          <key>CFBundleURLSchemes</key>
-          <array>
-            <string>$PACKAGE_NAME</string>
-          </array>
-        </dict>
-      </array>
-    </config-file>
-
-    <framework src="GoogleMaps" type="podspec" spec="~> 2.7.0" />
     <podspec>
       <config>
         <source url="https://github.com/CocoaPods/Specs.git"/>
@@ -478,6 +455,7 @@
         <pod name="GoogleMaps" spec="~> 3.1.0"/>
       </pods>
     </podspec>
+    <framework src="GoogleMaps" type="podspec" spec="~> 2.7.0" />
 
     <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
     <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>
