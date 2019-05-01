@@ -26,7 +26,12 @@
     // Check the Google Maps API key
     //-------------------------------
      #ifdef PGM_PLATFORM_CAPACITOR
-      NSString *APIKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"GOOGLE_MAPS_IOS_API_KEY"];
+      NSBundle *mainBundle = [NSBundle mainBundle];
+      NSString *path = [NSString stringWithFormat:@"%@/capacitor.config.json", [mainBundle bundlePath]];
+      NSString *fileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+      NSData *data = [fileContents dataUsingEncoding:NSUTF8StringEncoding];
+      NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+      NSString *APIKey = [json objectForKey:@"GOOGLE_MAPS_IOS_API_KEY"];
      #endif
      #ifdef PGM_PLATFORM_CORDOVA
       CDVViewController *viewCtrl = (CDVViewController *)self.viewController;

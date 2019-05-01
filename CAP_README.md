@@ -67,15 +67,14 @@ Sync finished in 3.781s
 $> npx cap open ios
 ```
 
-## Android
+Open `(project)/cap.config.json`, then add the below lines to the file.
 
-Open `(project)/config.xml`, then add the below lines to the file.
-
-```
-<widget ...>
+```js
+{
   ...
-  <preference name="GOOGLE_MAPS_ANDROID_API_KEY" value="(api key)" />
-</widget>
+  "GOOGLE_MAPS_ANDROID_API_KEY": "(API Key)",
+  "GOOGLE_MAPS_IOS_API_KEY": "(API Key)"
+}
 ```
 
 Then build the project, and synchronize the project.
@@ -85,12 +84,6 @@ $> npm run build  // Do not "ionic cordova build android"
 
 $> npx cap copy   // copy the www directory to capacitor project
 ```
-
-## iOS
-
-Unfortunately, `ionic/capacitor` can not keep the value of `<preference>` in `config.xml`.
-Therefore, you need to define `GOOGLE_MAPS_IOS_API_KEY` in `ios/App/App/Info.plist`.
-
 
 
 ## How to upgrade the cordova-plugin-googlemaps in ionic/capacitor project?

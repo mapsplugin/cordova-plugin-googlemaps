@@ -13,45 +13,78 @@ def searchFileInParents(target) {
 }
 
 android {
+  def isCapacitor = true
   def searchPath = 'app/src/main/res/xml/config.xml'
-  // #1. Find (project)/config.xml file,
-  //     because ionic capacitor does not copy <preference> nodes
-  def configXmlFile = searchFileInParents("config.xml")
 
-  if (configXmlFile == null) {
-    // #2. Find (project)/app/src/main/res/xml/config.xml file,
-    //     cordova should copy <preference> to this file
-    configXmlFile = searchFileInParents("app/src/main/res/xml/config.xml")
+  // #1. Find (project)/capacitor.config.json file,
+  //     ionic/capacitor should copy <preference> to this file
+  def configFile = searchFileInParents("capacitor.config.json")
+
+  // #2. Find (project)/config.xml file,
+  //     because ionic capacitor does not copy <preference> nodes
+  if (configFile == null) {
+    isCapacitor = false
+    configFile = searchFileInParents("config.xml")
   }
 
-  if (configXmlFile == null) {
+  if (configFile == null) {
+    // #3. Find (project)/app/src/main/res/xml/config.xml file,
+    //     cordova should copy <preference> to this file
+    configFile = searchFileInParents("app/src/main/res/xml/config.xml")
+    isCapacitor = false
+  }
+
+
+  if (!isCapacitor && configFile == null) {
     throw new GradleException("Can not find config.xml file.")
   }
+  if (isCapacitor && configFile == null) {
+    throw new GradleException("Can not find capacitor.config.json file.")
+  }
 
-  // parse xml file
-  def widget = new XmlParser().parse(configXmlFile)
-  if (widget.preference == null) {
-    throw new GradleException("widget is null.")
-  }
-  if (widget.preference.size() == 0) {
-    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
-  }
-  println("preference = " + widget.preference.size())
   Properties props = new Properties()
-  def found = 0
-  widget.preference.each { pref ->
-    def name = pref.attributes().name
-    def value = pref.attributes().value
-    println("name = " + name + ", value = " + value);
-    if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
-      found = 1
-      props.setProperty(name, value);
+  if (!isCapacitor) {
+    //-------------------
+    // cordova
+    //-------------------
+    // parse xml file
+    def widget = new XmlParser().parse(configFile)
+    if (widget.preference == null) {
+      throw new GradleException("widget is null.")
     }
-  }
+    if (widget.preference.size() == 0) {
+      throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+    }
+    println("preference = " + widget.preference.size())
+    def found = 0
+    widget.preference.each { pref ->
+      def name = pref.attributes().name
+      def value = pref.attributes().value
+      println("name = " + name + ", value = " + value);
+      if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
+        found = 1
+        props.setProperty(name, value);
+      }
+    }
+    if (found == 0) {
+      throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+    }
 
-
-  if (found == 0) {
-    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+  } else {
+    //-------------------
+    // ionic/capacitor
+    //-------------------
+    // parse json file
+    println("configFile = " + configFile)
+    def parser = new groovy.json.JsonSlurper()
+    def json = parser.parse file(configFile)
+    def value = json.GOOGLE_MAPS_ANDROID_API_KEY
+    println("APIKEY = " + value)
+    if (value != null) {
+      props.setProperty("GOOGLE_MAPS_ANDROID_API_KEY", value)
+    } else {
+      throw new GradleException("Please add '\"GOOGLE_MAPS_ANDROID_API_KEY\"' to the capacitor.config.json file.")
+    }
   }
 
 
