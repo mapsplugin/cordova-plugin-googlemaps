@@ -70,9 +70,9 @@ $> npx cap copy   // copy the www directory to capacitor project
 ## How to upgrade the cordova-plugin-googlemaps in ionic/capacitor project?
 
 ```
-$> npm uninstall cordova-plugin-googlemaps
+$> ionic cordova plugin rm cordova-plugin-googlemaps
 
-$> npm install cordova-plugin-googlemaps
+$> ionic cordova plugin add cordova-plugin-googlemaps
 
 $> npx cap sync
 ```
