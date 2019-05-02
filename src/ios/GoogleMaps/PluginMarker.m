@@ -1003,16 +1003,17 @@
       iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
 
       // Get the current URL, then calculate the relative path.
-      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
       
        #ifdef PGM_PLATFORM_CAPACITOR
-        id webview = self.webView;
+        WKWebView *webview = (WKWebView *)self.webView;
+        NSString *clsName = @"WKWebView";
        #endif
        #ifdef PGM_PLATFORM_CORDOVA
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
         id webview = cdvViewController.webView;
+        NSString *clsName = [webview className];
        #endif
-      NSString *clsName = [webview className];
       NSURL *url;
       if ([clsName isEqualToString:@"UIWebView"]) {
          #ifdef PGM_PLATFORM_CORDOVA
@@ -1050,7 +1051,7 @@
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           NSURL *url = [webview URL];
           NSString *currentURL = url.absoluteString;
-          //NSLog(@"currentURL = %@", url);
+          NSLog(@"currentURL = %@", currentURL);
           if (![[url lastPathComponent] isEqualToString:@"/"]) {
             currentURL = [currentURL stringByDeletingLastPathComponent];
           }
@@ -1070,6 +1071,7 @@
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
           //NSLog(@"currentURL = %@", currentURL);
           url = [NSURL URLWithString:currentURL];
+          NSLog(@"url = %@", url);
 
           //
           // Load the icon from over the internet
@@ -1510,12 +1512,22 @@
     // Since ionic local server declines HTTP access for some reason,
     // replace URL with file path
     NSBundle *mainBundle = [NSBundle mainBundle];
-    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
-    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
-    if ([urlStr containsString:@"assets/"]) {
-      urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
-    }
-    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    #ifdef PGM_PLATFORM_CORDOVA
+     NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+     wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+     if ([urlStr containsString:@"assets/"]) {
+       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+     }
+     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    #endif
+    #ifdef PGM_PLATFORM_CAPACITOR
+     NSString *wwwPath = [NSString stringWithFormat:@"%@/public", [mainBundle bundlePath]];
+     if ([urlStr containsString:@"assets/"]) {
+       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+     }
+     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"capacitor://localhost" withString: wwwPath];
+    #endif
+    NSLog(@"--->urlStr(1520) = %@", urlStr);
 
     if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
       NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];

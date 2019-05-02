@@ -277,6 +277,7 @@
     if ([pluginMap respondsToSelector:@selector(setCommandDelegate:)]) {
        #ifdef PGM_PLATFORM_CAPACITOR
         [pluginMap setCommandDelegate:self.commandDelegate];
+        pluginMap.webView = self.webView;
        #endif
        #ifdef PGM_PLATFORM_CORDOVA
         [pluginMap setCommandDelegate:cdvViewController.commandDelegate];
@@ -471,6 +472,7 @@
     if ([pluginStreetView respondsToSelector:@selector(setCommandDelegate:)]) {
        #ifdef PGM_PLATFORM_CAPACITOR
         [pluginStreetView setCommandDelegate:self.commandDelegate];
+        pluginStreetView.webView = self.webView;
        #endif
        #ifdef PGM_PLATFORM_CORDOVA
         [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];

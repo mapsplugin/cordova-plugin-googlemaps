@@ -103,6 +103,7 @@
         CDVCommandDelegateImpl *delegate = self.commandDelegate;
         [delegate.manager.pluginObjects setObject:plugin forKey:pluginId];
         [delegate.manager.pluginsMap setObject:pluginId forKey:pluginId];
+        plugin.webView = self.webView;
        #endif
        #ifdef PGM_PLATFORM_CORDOVA
         [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
