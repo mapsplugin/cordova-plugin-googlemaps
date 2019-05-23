@@ -77,7 +77,7 @@ utils.extend(Map, Overlay);
 Map.prototype.refreshLayout = function() {
   // Webkit redraw mandatory
   // http://stackoverflow.com/a/3485654/697856
-  document.body.style.display = 'none';
+  document.body.style.display = 'inline-block';
   document.body.offsetHeight;
   document.body.style.display = '';
 
