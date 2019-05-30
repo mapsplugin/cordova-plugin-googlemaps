@@ -1063,11 +1063,21 @@ KmlLoader.prototype.parseLookAtTag = function(params, callback) {
 //-------------------------------
 function kmlColorToRGBA(colorStr) {
   var rgba = [];
-  colorStr = colorStr.replace('#', '');
+  //colorStr may be read as a number e.g. "00000000", add leading zero to make it as a valid color
+  colorStr = addLeadZero(colorStr.toString(), 8).replace('#', '');
   for (var i = 6; i >= 0; i -= 2) {
     rgba.push(parseInt(colorStr.substring(i, i + 2), 16));
   }
   return rgba;
+}
+
+//-------------------------------
+// Add leading zero character to string 
+//-------------------------------
+function addLeadZero(str, length) {
+  while (str.length < length)
+      str = '0' + str;
+  return str;
 }
 //-------------------------------
 // KML color (AABBGGRR) to rgba(RR, GG, BB, AA)
