@@ -1076,7 +1076,7 @@ function kmlColorToRGBA(colorStr) {
 //-------------------------------
 function addLeadZero(str, length) {
   while (str.length < length)
-      str = '0' + str;
+    str = '0' + str;
   return str;
 }
 //-------------------------------
