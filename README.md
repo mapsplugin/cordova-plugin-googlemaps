@@ -20,7 +20,7 @@
 <img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps-doc/master/v2.3.0/hello-world/image1.gif"  height="300">
 </td>
 <td>
-<h3>Browser</h3>
+<h3>Browser, Windows</h3>
 <img src="https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/browser_demo.gif" height="300">
 </td>
 </tr>
@@ -105,6 +105,25 @@
   $> cordova run (browser/android/ios) -- --live-reload
   ```
 
+## Windows platform
+
+  We support windows platform now!
+  You can develop your application with windows, then run it!
+  At the end of development, you can upload the html files to your server, or run it on Android, iOS or Windows devices.
+
+  ```
+  $> cordova run windows
+  ```
+
+  If you want to use `live-reload`, but you don't want to use other framework or without framework,
+  [cordova-plugin-browsersync](https://www.npmjs.com/package/cordova-plugin-browsersync) is useful.
+
+  ```
+  $> cordova plugin add cordova-plugin-browsersync
+
+  $> cordova run (browser/android/ios/windows) -- --live-reload
+  ```
+
 
 ### API key (Android and iOS platforms)
 
@@ -120,14 +139,14 @@
   </widget>
   ```
 
-### API key (Browser platform)
+### API key (Browser and Windows platforms)
 
-  In the browser platform, the maps plugin uses [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
+  In the browser and windows platforms, the maps plugin uses [Google Maps JavaScript API v3](https://developers.google.com/maps/documentation/javascript/)
 
   You need to set **two API keys for Google Maps JavaScript API v3**.
 
   ```js
-  // If your app runs this program on browser,
+  // If your app runs this program on browser or windows,
   // you need to set `API_KEY_FOR_BROWSER_RELEASE` and `API_KEY_FOR_BROWSER_DEBUG`
   // before `plugin.google.maps.Map.getMap()`
   //

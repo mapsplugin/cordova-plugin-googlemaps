@@ -16,6 +16,8 @@ document.addEventListener('load_googlemaps', function() {
   if (envOptions) {
     if (location.protocol === 'https:') {
       API_KEY_FOR_BROWSER = envOptions.API_KEY_FOR_BROWSER_RELEASE;
+    } else if (location.protocol === 'ms-appx-web:'){
+      API_KEY_FOR_BROWSER = envOptions.API_KEY_FOR_BROWSER_RELEASE;
     } else {
       API_KEY_FOR_BROWSER = envOptions.API_KEY_FOR_BROWSER_DEBUG;
     }
