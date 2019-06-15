@@ -269,13 +269,13 @@
     NSDictionary *cameraOptions = [initOptions valueForKey:@"camera"];
     if (cameraOptions) {
 
-      if ([cameraOptions valueForKey:@"bearing"]) {
+      if ([cameraOptions valueForKey:@"bearing"] && [cameraOptions valueForKey:@"bearing"] != [NSNull null]) {
         bearing = (int)[[cameraOptions valueForKey:@"bearing"] integerValue];
       } else {
         bearing = 0;
       }
 
-      if ([cameraOptions valueForKey:@"tilt"]) {
+      if ([cameraOptions valueForKey:@"tilt"] && [cameraOptions valueForKey:@"tilt"] != [NSNull null]) {
         angle = [[cameraOptions valueForKey:@"tilt"] doubleValue];
       } else {
         angle = 0;
@@ -286,7 +286,7 @@
       } else {
         zoom = 0;
       }
-      if ([cameraOptions objectForKey:@"target"]) {
+      if ([cameraOptions objectForKey:@"target"] && [cameraOptions valueForKey:@"target"] != [NSNull null]) {
         NSString *targetClsName = [[cameraOptions objectForKey:@"target"] className];
         if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
           //--------------------------------------------

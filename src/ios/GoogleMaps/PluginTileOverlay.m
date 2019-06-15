@@ -126,13 +126,13 @@
         // true or default
         layer.map = self.mapCtrl.map;
       }
-      if ([json valueForKey:@"zIndex"]) {
+      if ([json valueForKey:@"zIndex"] && [json valueForKey:@"zIndex"] != [NSNull null]) {
         layer.zIndex = [[json valueForKey:@"zIndex"] floatValue];
       }
-      if ([json valueForKey:@"tileSize"]) {
+      if ([json valueForKey:@"tileSize"] && [json valueForKey:@"tileSize"] != [NSNull null]) {
         layer.tileSize = [[json valueForKey:@"tileSize"] integerValue];
       }
-      if ([json valueForKey:@"opacity"]) {
+      if ([json valueForKey:@"opacity"] && [json valueForKey:@"opacity"] != [NSNull null]) {
         layer.opacity = [[json valueForKey:@"opacity"] floatValue];
       }
 

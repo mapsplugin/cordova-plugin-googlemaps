@@ -68,7 +68,7 @@
 }
 - (void)_setPosition:(NSDictionary *)cameraOpts {
 
-  if ([cameraOpts valueForKey:@"target"]) {
+  if ([cameraOpts valueForKey:@"target"] && [cameraOpts valueForKey:@"target"] != [NSNull null]) {
     NSObject *target = [cameraOpts objectForKey:@"target"];
     if ([target isKindOfClass:NSString.class]) {
       [self.panoramaCtrl.panoramaView moveToPanoramaID:(NSString *)target];
@@ -78,7 +78,7 @@
       double longitude = [[latLng valueForKey:@"lng"] doubleValue];
       CLLocationCoordinate2D location = CLLocationCoordinate2DMake(latitude, longitude);
 
-      if ([cameraOpts objectForKey:@"source"]) {
+      if ([cameraOpts objectForKey:@"source"] && [cameraOpts valueForKey:@"source"] != [NSNull null]) {
         GMSPanoramaSource source = [@"OUTDOOR" isEqualToString:[cameraOpts objectForKey:@"source"]] ?
           kGMSPanoramaSourceOutside : kGMSPanoramaSourceDefault;
         if ([cameraOpts objectForKey:@"radius"]) {
@@ -105,17 +105,17 @@
 
 
   double bearing = self.panoramaCtrl.panoramaView.camera.orientation.heading;
-  if ([cameraOpts valueForKey:@"bearing"]) {
+  if ([cameraOpts valueForKey:@"bearing"] && [cameraOpts valueForKey:@"bearing"] != [NSNull null]) {
     bearing = [[cameraOpts valueForKey:@"bearing"] doubleValue];
   }
 
   double angle = self.panoramaCtrl.panoramaView.camera.orientation.pitch;
-  if ([cameraOpts valueForKey:@"tilt"]) {
+  if ([cameraOpts valueForKey:@"tilt"] && [cameraOpts valueForKey:@"tilt"] != [NSNull null]) {
     angle = [[cameraOpts valueForKey:@"tilt"] doubleValue];
   }
 
   float zoom = self.panoramaCtrl.panoramaView.camera.zoom;
-  if ([cameraOpts valueForKey:@"zoom"]) {
+  if ([cameraOpts valueForKey:@"zoom"] && [cameraOpts valueForKey:@"zoom"] != [NSNull null]) {
     zoom = [[cameraOpts valueForKey:@"zoom"] doubleValue];
   }
 

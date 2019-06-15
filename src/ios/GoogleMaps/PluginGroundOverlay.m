@@ -86,14 +86,14 @@
         groundOverlay.title = groundOverlayId;
         groundOverlay.anchor = CGPointMake(0.5f, 0.5f);
 
-        if ([json valueForKey:@"zIndex"]) {
+        if ([json valueForKey:@"zIndex"] && [json valueForKey:@"zIndex"] != [NSNull null]) {
             groundOverlay.zIndex = [[json valueForKey:@"zIndex"] floatValue];
         }
 
-        if ([json valueForKey:@"bearing"]) {
+        if ([json valueForKey:@"bearing"] && [json valueForKey:@"bearing"] != [NSNull null]) {
             groundOverlay.bearing = [[json valueForKey:@"bearing"] floatValue];
         }
-        if ([json valueForKey:@"anchor"]) {
+        if ([json valueForKey:@"anchor"] && [json valueForKey:@"anchor"] != [NSNull null]) {
             NSArray *anchor = [json valueForKey:@"anchor"];
             groundOverlay.anchor = CGPointMake([[anchor objectAtIndex:0] floatValue], [[anchor objectAtIndex:1] floatValue]);
         }
@@ -111,7 +111,7 @@
           groundOverlay.map = self.mapCtrl.map;
         }
         BOOL isClickable = NO;
-        if ([[json valueForKey:@"clickable"] boolValue]) {
+        if ([json valueForKey:@"clickable"] != [NSNull null] && [[json valueForKey:@"clickable"] boolValue]) {
             isClickable = YES;
         }
 
@@ -136,7 +136,7 @@
                   //NSString *imgId = [NSString stringWithFormat:@"groundoverlay_image_%lu", (unsigned long)groundOverlay.hash];
                   //[me.imgCache setObject:groundOverlay.icon forKey:imgId];
 
-                  if ([json valueForKey:@"opacity"]) {
+                  if ([json valueForKey:@"opacity"] && [json valueForKey:@"opacity"] != [NSNull null]) {
                       CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
                       groundOverlay.icon = [groundOverlay.icon imageByApplyingAlpha:opacity];
                   }
