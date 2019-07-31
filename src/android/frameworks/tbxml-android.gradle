@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-  compile(name:'tbxml-android', ext:'aar')
+  implementation(name:'tbxml-android', ext:'aar')
 }
 
 android {
