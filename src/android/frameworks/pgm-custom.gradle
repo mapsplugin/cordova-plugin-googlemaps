@@ -73,11 +73,11 @@ android {
     if (!libsDir.exists()) {
       libsDir.mkdirs()
     }
-    // println("---->libsDir = ${libsDir.absolutePath}/" + props.getProperty("GOOGLE_MAPS_ANDROID_SDK"))
+    println("---->libsDir = ${libsDir.absolutePath}/" + props.getProperty("GOOGLE_MAPS_ANDROID_SDK"))
 
     def mapsSDK = props.getProperty("GOOGLE_MAPS_ANDROID_SDK")
     def f = new File("${libsDir.absolutePath}/${mapsSDK}.aar")
-    // println("---->lib = " + f.absolutePath);
+    println("---->lib = " + f.absolutePath);
     if (!f.exists()) {
       new URL("https://dl.google.com/dl/geosdk/${mapsSDK}.aar").withInputStream{ i -> f.withOutputStream{ it << i }}
     }
@@ -88,6 +88,8 @@ android {
 
   def PLAY_SERVICES_VERSION = props.get("GOOGLE_MAPS_PLAY_SERVICES_VERSION")
   def ANDROID_SUPPORT_V4_VERSION = props.get("ANDROID_SUPPORT_V4_VERSION")
+  println("---->PLAY_SERVICES_VERSION = ${PLAY_SERVICES_VERSION}")
+  println("---->ANDROID_SUPPORT_V4_VERSION = ${ANDROID_SUPPORT_V4_VERSION}")
   dependencies {
     implementation "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
     implementation "com.google.android.gms:play-services-location:${PLAY_SERVICES_VERSION}"
