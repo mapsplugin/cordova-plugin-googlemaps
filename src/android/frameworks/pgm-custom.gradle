@@ -12,6 +12,10 @@ def searchFileInParents(target) {
   return null;
 }
 
+def libsDirPath = System.getProperty("user.dir")
+flatDir{
+  dirs "${libsDirPath}/libs"
+}
 android {
   def searchPath = 'app/src/main/res/xml/config.xml'
   // #1. Find (project)/config.xml file,
@@ -72,9 +76,6 @@ android {
     def libsDir = new File("${libsDirPath}/libs/")
     if (!libsDir.exists()) {
       libsDir.mkdirs()
-    }
-    flatDir{
-      dirs "${libsDirPath}/libs"
     }
 
     def mapsSDK = props.getProperty("GOOGLE_MAPS_ANDROID_SDK")
