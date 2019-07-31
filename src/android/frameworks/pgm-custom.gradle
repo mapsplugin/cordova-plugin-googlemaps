@@ -12,10 +12,6 @@ def searchFileInParents(target) {
   return null;
 }
 
-def libsDirPath = System.getProperty("user.dir")
-flatDir{
-  dirs "${libsDirPath}/libs"
-}
 android {
   def searchPath = 'app/src/main/res/xml/config.xml'
   // #1. Find (project)/config.xml file,
