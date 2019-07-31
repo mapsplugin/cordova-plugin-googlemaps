@@ -69,11 +69,13 @@ android {
 
   if (useBetaSdk == 1) {
     def libsDirPath = System.getProperty("user.dir")
-    def libsDir = new File("${libsDirPath}/platforms/android/app/libs/")
+    def libsDir = new File("${libsDirPath}/libs/")
     if (!libsDir.exists()) {
       libsDir.mkdirs()
     }
-    println("---->libsDir = ${libsDir.absolutePath}/" + props.getProperty("GOOGLE_MAPS_ANDROID_SDK"))
+    flatDir{
+      dirs "${libsDirPath}/libs"
+    }
 
     def mapsSDK = props.getProperty("GOOGLE_MAPS_ANDROID_SDK")
     def f = new File("${libsDir.absolutePath}/${mapsSDK}.aar")
