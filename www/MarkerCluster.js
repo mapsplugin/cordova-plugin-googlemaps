@@ -338,7 +338,7 @@ MarkerCluster.prototype.remove = function (callback) {
     } catch(e) {
       // ignore
     }
-  })
+  });
   keys.forEach(function (markerId) {
     self._markerMap[markerId].destroy();
     self._markerMap[markerId] = undefined;
