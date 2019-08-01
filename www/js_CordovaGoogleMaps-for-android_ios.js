@@ -269,10 +269,11 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
     }
     return isTouchable;
   });
-  if (touchableMapList.length === 0) {
+  if (self._prevMapCnt === 0 && touchableMapList.length === 0) {
     self.pause();
     return;
   }
+  self._prevMapCnt = touchableMapList.length;
 
   // If there is another check request,
   // DOM tree might be changed.
