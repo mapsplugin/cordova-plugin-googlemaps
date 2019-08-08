@@ -1331,6 +1331,11 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     marker = undefined;
   });
 
+  if (typeof markerOptions.anchor === 'object' &&
+      'x' in markerOptions.anchor && 'y' in markerOptions.anchor) {
+    markerOptions.anchor = [markerOptions.anchor.x, markerOptions.anchor.y];
+  }
+
   self.exec.call(self, function(result) {
 
     markerOptions.icon.size = markerOptions.icon.size || {};
