@@ -481,6 +481,12 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
       return Promise.reject(error);
     }
   }
+  if ("heading" in cameraPosition) {
+    cameraPosition.heading = cameraPosition.heading % 360;
+  }
+  if ("tilt" in cameraPosition) {
+    cameraPosition.tilt = Math.min(Math.max(0, cameraPosition.tilt), 90);
+  }
   // if (!('padding' in cameraPosition)) {
   //   cameraPosition.padding = 10;
   // }
