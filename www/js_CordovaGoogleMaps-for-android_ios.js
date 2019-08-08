@@ -435,7 +435,8 @@ CordovaGoogleMaps.prototype.detectTransitionFinish = function() {
     var target = self.transformTargets[elemId].target;
     var divRect = common.getDivRect(target);
     var prevRect = self.transformTargets[elemId];
-    if (divRect.left === prevRect.left &&
+    if (!prevRect ||
+        divRect.left === prevRect.left &&
         divRect.top === prevRect.top &&
         divRect.right === prevRect.right &&
         divRect.bottom === prevRect.bottom) {
