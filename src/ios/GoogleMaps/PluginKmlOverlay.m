@@ -147,6 +147,8 @@
   NSBundle *mainBundle = [NSBundle mainBundle];
   NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
   wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
   urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
   
   

@@ -546,6 +546,7 @@
     if ([iconPath containsString:@"assets/"]) {
       iconPath = [iconPath regReplace:@"^.*assets/" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
     }
+    iconPath = [iconPath stringByReplacingOccurrencesOfString:wwwPath withString: @""];
     iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
 
     if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
