@@ -57,7 +57,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
   self.on('icon_changed', function() {
     var icon = self.get('icon');
 
-    if (typeof icon === "object" &&
+    if (typeof icon === 'object' &&
         typeof icon.anchor === 'object' &&
         'x' in icon.anchor &&
         'y' in icon.anchor) {
