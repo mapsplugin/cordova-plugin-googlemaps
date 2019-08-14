@@ -221,7 +221,7 @@ function getDivRect(div) {
 }
 
 var ignoreTags = [
-  'pre', 'textarea', 'p', 'form', 'input', 'caption', 'canvas', 'svg'
+  'pre', 'textarea', 'p', 'input', 'caption', 'canvas', 'svg'
 ];
 
 function shouldWatchByNative(node) {
