@@ -236,7 +236,7 @@ var HTMLInfoWindow = function () {
     }
 
     // Adjust the HTMLInfoWindow size
-    var contentsWidth = contentBox.offsetWidth + 10; // padding 5px x 2
+    var contentsWidth = contentBox.offsetWidth;
     var contentsHeight = contentBox.offsetHeight;
     self.set('contentsHeight', contentsHeight);
     contentFrame.style.width = contentsWidth + 'px';
