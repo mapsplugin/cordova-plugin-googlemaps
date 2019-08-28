@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
   compile(name:'tbxml-android', ext:'aar')
+  implementation 'com.google.maps.android:android-maps-utils:0.5'
 }
 
 android {

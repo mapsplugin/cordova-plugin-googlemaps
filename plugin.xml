@@ -40,6 +40,9 @@
   <js-module name="Circle" src="www/Circle.js">
     <runs/>
   </js-module>
+  <js-module name="Heatmap" src="www/Heatmap.js">
+    <runs/>
+  </js-module>
   <js-module name="TileOverlay" src="www/TileOverlay.js">
     <runs/>
   </js-module>
@@ -124,7 +127,7 @@
 
   <engines>
     <engine name="cordova" version=">=7.0.0" />
-    <engine name="cordova-ios" version=">=4.5.0" />
+    <engine name="cordova-ios" version=">=5.0.0" />
     <engine name="apple-xcode" version=">=9.0.0" />
     <engine name="apple-ios" version=">=10.0.0" />
   </engines>
@@ -172,6 +175,9 @@
       <feature name="PluginCircle">
         <param name="android-package" value="plugin.google.maps.PluginCircle"/>
       </feature>
+      <feature name="PluginHeatmap">
+        <param name="android-package" value="plugin.google.maps.PluginHeatmap"/>
+      </feature>
       <feature name="PluginTileOverlay">
         <param name="android-package" value="plugin.google.maps.PluginTileOverlay"/>
       </feature>
@@ -207,6 +213,7 @@
     <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PluginHeatmap.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginLocationService.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginGroundOverlay.java" target-dir="src/plugin/google/maps"/>
@@ -508,6 +515,9 @@
       <runs/>
     </js-module>
     <js-module name="PluginCircle" src="src/browser/PluginCircle.js">
+      <runs/>
+    </js-module>
+    <js-module name="PluginHeatmap" src="src/browser/PluginHeatmap.js">
       <runs/>
     </js-module>
     <js-module name="PluginGroundOverlay" src="src/browser/PluginGroundOverlay.js">

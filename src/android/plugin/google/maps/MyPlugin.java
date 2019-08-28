@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlay;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -146,6 +147,15 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
     }
     return (Circle)pluginMap.objects.get(id);
   }
+
+  protected synchronized HeatmapTileProvider  getHeatmapTileProvider (String id) {
+    if (!pluginMap.objects.containsKey(id)) {
+      //Log.e(TAG, "---> can not find the circle : " + id);
+      return null;
+    }
+    return (HeatmapTileProvider )pluginMap.objects.get(id);
+  }
+
   protected synchronized GroundOverlay getGroundOverlay(String id) {
     if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the ground overlay : " + id);
