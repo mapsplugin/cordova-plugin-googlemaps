@@ -725,6 +725,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       @Override
       public void run() {
 
+        if(mapCtrl.mPluginLayout == null || mapDivId == null) {
+            callbackContext.success();
+            return;
+        }
+          
         RectF drawRect = mapCtrl.mPluginLayout.HTMLNodeRectFs.get(mapDivId);
 
         //Log.d(TAG, "--->mapDivId = " + mapDivId + ", drawRect = " + drawRect);
