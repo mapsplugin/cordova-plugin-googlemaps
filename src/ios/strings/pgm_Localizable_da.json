@@ -1,12 +1,12 @@
 {
-  "CLOSE_BUTTON" : "ZAMKNIJ",
-  "APIKEY_IS_UNDEFINED_TITLE" : "Błąd klucza API",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "Zmienna \"GOOGLE_MAPS_IOS_API_KEY\" nie została zarejestrowana.",
-  "APP_NAME_ERROR_TITLE" : "Proszę zmienić plik config.xml",
-  "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK dla iOS powoduje błędy, jeżeli CFBundleExecutable zawiera nie angielskie znaki.\nWięcej szczegółów dostępnych w komentarzu w pliku CordovaGoogleMaps.m.",
-  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Usługi lokalizacji są niedostępne",
-  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Aplikacja wymaga dostępu do usług lokalizacji. Proszę włączyć  \"Ustawienia > Prywatność > Usługi lokalizacji\"",
-  "LOCATION_IS_DENIED_MESSAGE" : "Aplikacja nie posiada zezwolenia na używanie usług lokalizacji.",
-  "CAN_NOT_GET_LOCATION_MESSAGE" : "Nie można określić położenia.",
-  "LOCATION_REJECTED_BY_USER_MESSAGE" : "Usługi lokalizacji zostały odrzucone przez użytkownika."
+  "CLOSE_BUTTON" : "LUK",
+  "APIKEY_IS_UNDEFINED_TITLE" : "Fejl med API-nøgle",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Proszę zastąpić \"GOOGLE_MAPS_IOS_API_KEY\" w pliku config.xml własnym kluczem API!",
+  "APP_NAME_ERROR_TITLE" : "Vær sød at ændre config.xml filen",
+  "APP_NAME_ERROR_MESSAGE" : "Google Maps IOS SDK forårsager fejl, hvis CFBundleExecutable indeholder ikke-engelske tegn.\n Flere detaljer er tilgængelige i kommentaren i filen CordovaGoogleMaps.m.",
+  "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Placeringstjenester er ikke tilgængelige",
+  "LOCATION_IS_UNAVAILABLE_ERROR_MESSAGE" : "Applikationen kræver adgang til lokationstjenester. Aktivér \"Indstillinger > Privatliv > Placeringstjenester\"",
+  "LOCATION_IS_DENIED_MESSAGE" : "Applikationen er ikke autoriseret til at bruge lokationstjenester.",
+  "CAN_NOT_GET_LOCATION_MESSAGE" : "Placeringen kan ikke bestemmes.",
+  "LOCATION_REJECTED_BY_USER_MESSAGE" : "Placeringstjenester blev afvist af brugeren."
 }
