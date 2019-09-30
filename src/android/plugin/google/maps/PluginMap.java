@@ -1752,6 +1752,24 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     });
   }
 
+
+  /**
+   * Stop camera animation
+   * @param args
+   * @param callbackContext
+   * @throws JSONException
+   */
+  public void stopAnimation(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+    this.activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        map.stopAnimation();
+        callbackContext.success();
+      }
+    });
+  }
+
   /**
    * Pan by the specified pixel
    * @param args

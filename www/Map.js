@@ -674,6 +674,17 @@ Map.prototype.getCameraPosition = function() {
 };
 
 /**
+ * Cancel the camera animation
+ * @return {CameraPosition}
+ */
+Map.prototype.stopAnimation = function() {
+  var self = this;
+  if (self._isReady) {
+    cordova_exec(null, null, self.__pgmId, 'stopAnimation', []);
+  }
+};
+
+/**
  * Remove the map completely.
  */
 Map.prototype.remove = function(callback) {
@@ -685,6 +696,7 @@ Map.prototype.remove = function(callback) {
     value: true,
     writable: false
   });
+  self.stopAnimation();
 
   self.trigger('remove');
   // var div = self.get('div');

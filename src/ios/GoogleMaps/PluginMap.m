@@ -486,7 +486,7 @@
 
 
 -(void)_changeCameraPosition: (NSString*)action requestMethod:(NSString *)requestMethod params:(NSDictionary *)json command:(CDVInvokedUrlCommand *)command {
-  
+
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
     __block double bearing;
     if ([json valueForKey:@"bearing"] && [json valueForKey:@"bearing"] != [NSNull null]) {
@@ -694,7 +694,7 @@
       NSData *imageData = UIImagePNGRepresentation(image);
       NSString* base64Encoded = [imageData base64EncodedStringWithOptions:0];
       NSString* base64EncodedWithData = [@"data:image/png;base64," stringByAppendingString:base64Encoded];
-        
+
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64EncodedWithData];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -993,5 +993,16 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
+}
+
+
+- (void)stopAnimation:(CDVInvokedUrlCommand*)command {
+
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self.mapCtrl.map.layer removeAllAnimations];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
 }
 @end
