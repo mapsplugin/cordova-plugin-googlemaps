@@ -831,9 +831,10 @@ Map.prototype.setDiv = function(div) {
 
     // Webkit redraw mandatory
     // http://stackoverflow.com/a/3485654/697856
-    div.style.display = 'none';
-    div.offsetHeight;
-    div.style.display = '';
+    // div.style.display = 'none';
+    // div.offsetHeight;
+    // div.style.display = '';
+    document.body.style.transform = 'rotateZ(0deg)';
 
     self.set('div', div);
 
