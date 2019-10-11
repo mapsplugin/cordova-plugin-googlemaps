@@ -468,7 +468,10 @@
         <pod name="GoogleMaps" spec="~> 3.1.0"/>
       </pods>
     </podspec>
+    <!-- Use for Cordova 8.x users -->
+    <!--
     <framework src="GoogleMaps" type="podspec" spec="~> 2.7.0" />
+    -->
 
     <hook type="before_platform_add" src="src/ios/check_sdk_version.js"/>
     <hook type="before_plugin_install" src="src/ios/check_sdk_version.js"/>
