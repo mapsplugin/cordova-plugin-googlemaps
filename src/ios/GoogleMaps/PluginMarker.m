@@ -1495,7 +1495,7 @@
     if ([urlStr containsString:@"assets/"]) {
       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
     }
-    urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
+    // urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
 
     if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
