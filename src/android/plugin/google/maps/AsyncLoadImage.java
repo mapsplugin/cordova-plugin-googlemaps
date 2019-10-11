@@ -125,6 +125,11 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     }
 
     String currentPage = webView.getUrl();
+    if (currentPage != null) {
+      // Maybe someone close the map page.
+      this.cancel(true);
+      return;
+    }
     currentPage = currentPage.replaceAll("#.*$", "");
     currentPage = currentPage.replaceAll("\\?.*$", "");
     currentPage = currentPage.replaceAll("[^\\/]*$", "");
