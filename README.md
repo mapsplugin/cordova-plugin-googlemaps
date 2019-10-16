@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser v2.6.2
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.7.0
 
 | Download | Build test (multiple_maps branch)|
 |----------|---------------------------|
@@ -204,7 +204,29 @@
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
-  - **v2.6.1**
+  - **v2.7.0**
+    - Re-adoption: <a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk" target="_blank">cordova-plugin-googlemaps-sdk dependency</a>
+    - Fix: (iOS) Can't load image files from local host on ionic 4 / 5
+    - Update: (Android) prevent null pointer error in AsyncLoadImage.java
+    - Fix: Css animation interference when call setDiv and there is a push/pop page
+    - Fix: (Android/iOS/Browser) KML parser crash
+    - Fix: flickering and wrong rendering of some DOM elements
+    - Add: `map.stopAnimation()`
+    - Fix: can't remove map while map.animateCamera() is running
+    - Update: (Android) Increase cache memory size
+    - Update: (Android/iOS) Danish localization
+    - Fix: (Android) Prevent resize event after `map.setDiv(null)`
+    - Fix: (Android/iOS) Can not interactive with the map inside <form>
+    - Fix: jslint errors
+    - Fix: marker.setIcon crashes
+    - Update: Set default value range to heading and tilt
+    - Fix: (Android/iOS) touch detection is wrong after clicking on back button very soon.
+    - Fix: An error occurs when you click a marker of marker cluster #2660
+    - Remove promise-7.0.4-min.js.map
+    - Fix: (iOS) bug fix: App crashes if "bearing" property is "<null>"
+    - Fix: HTMLColor2RGBA() converts to incorrect value
+
+  - **v2.6.2**
     - Fix: (Android) build error
 
   - **v2.6.1**
