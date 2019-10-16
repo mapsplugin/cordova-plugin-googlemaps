@@ -547,8 +547,13 @@
       iconPath = [iconPath regReplace:@"^.*assets/" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
     }
     // iconPath = [iconPath stringByReplacingOccurrencesOfString:wwwPath withString: @""];
+    
+    // ionic 4
     iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
 
+    // ionic 5
+    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: wwwPath];
+    
     if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
       iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
       if (![iconPath hasPrefix:@"/"]) {

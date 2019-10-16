@@ -1496,8 +1496,14 @@
       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
     }
     // urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
+    
+    // ionic 4
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    
+    // ionic 5
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: wwwPath];
 
+    
     if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
       NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
       NSFileManager *fileManager = [NSFileManager defaultManager];
