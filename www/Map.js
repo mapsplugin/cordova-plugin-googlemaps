@@ -1158,12 +1158,21 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     if (url instanceof Promise) {
       common.promiseTimeout(5000, url)
         .then(function(finalUrl) {
+
+          var link = document.createElement('a');
+          link.href = finalUrl;
+          finalUrl = link.protocol+'//'+link.host+link.pathname + link.search;
+
           cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
         })
         .catch(function() {
           cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, '(null)']);
         });
     } else {
+
+      var link = document.createElement('a');
+      link.href = url;
+      url = link.protocol+'//'+link.host+link.pathname + link.search;
       cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, url]);
     }
   };

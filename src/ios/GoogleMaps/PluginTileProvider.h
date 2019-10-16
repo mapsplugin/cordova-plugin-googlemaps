@@ -10,7 +10,7 @@
 
 @interface PluginTileProvider : GMSTileLayer
 @property (nonatomic) NSString *tileUrlFormat;
-@property (nonatomic) NSString *webPageUrl;
+@property (nonatomic) NSString *wwwPath;
 @property (nonatomic) UIView *webView;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic) NSString *pluginId;
