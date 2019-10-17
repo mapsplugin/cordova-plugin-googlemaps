@@ -333,11 +333,16 @@ MarkerCluster.prototype.remove = function (callback) {
 
   keys = Object.keys(self._markerMap);
   keys.forEach(function (markerId) {
-    self._markerMap[markerId].remove(function() {
-      self._markerMap[markerId].destroy();
-      self._markerMap[markerId] = undefined;
-      delete self._markerMap[markerId];
-    });
+    try {
+      self._markerMap[markerId].remove();
+    } catch(e) {
+      // ignore
+    }
+  });
+  keys.forEach(function (markerId) {
+    self._markerMap[markerId].destroy();
+    self._markerMap[markerId] = undefined;
+    delete self._markerMap[markerId];
   });
   if (self.boundsDraw && self.get('polygon')) {
     self.get('polygon').remove();

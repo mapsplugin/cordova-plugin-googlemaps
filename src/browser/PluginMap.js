@@ -419,6 +419,10 @@ PluginMap.prototype.setMyLocationEnabled = function(onSuccess) {
   // stub
   onSuccess();
 };
+PluginMap.prototype.stopAnimation = function(onSuccess) {
+  // stub
+  onSuccess();
+};
 
 PluginMap.prototype.animateCamera = function(onSuccess, onError, args) {
   var self = this;

@@ -51,15 +51,9 @@
 
 
   NSString *pluginId = [NSString stringWithFormat:@"%@-marker", self.mapCtrl.overlayId];
-  #ifdef PGM_PLATFORM_CAPACITOR
-    CDVCommandDelegateImpl *delegate = self.commandDelegate;
-    [delegate.manager.pluginObjects removeObjectForKey:pluginId];
-  #endif
-  #ifdef PGM_PLATFORM_CORDOVA
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    [cdvViewController.pluginObjects removeObjectForKey:pluginId];
-    //[cdvViewController.pluginsMap setValue:nil forKey:pluginId];
-  #endif
+  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+  [cdvViewController.pluginObjects removeObjectForKey:pluginId];
+  //[cdvViewController.pluginsMap setValue:nil forKey:pluginId];
   pluginId = nil;
 }
 
@@ -126,26 +120,26 @@
   marker.tracksViewChanges = NO;
   marker.tracksInfoWindowChanges = NO;
 
-  if ([json valueForKey:@"title"]) {
+  if ([json valueForKey:@"title"] && [json valueForKey:@"title"] != [NSNull null]) {
     [marker setTitle: [json valueForKey:@"title"]];
   }
-  if ([json valueForKey:@"snippet"]) {
+  if ([json valueForKey:@"snippet"] && [json valueForKey:@"snippet"] != [NSNull null]) {
     [marker setSnippet: [json valueForKey:@"snippet"]];
   }
-  if ([json valueForKey:@"draggable"]) {
+  if ([json valueForKey:@"draggable"] && [json valueForKey:@"draggable"] != [NSNull null]) {
     [marker setDraggable:[[json valueForKey:@"draggable"] boolValue]];
   }
-  if ([json valueForKey:@"flat"]) {
+  if ([json valueForKey:@"flat"] && [json valueForKey:@"flat"] != [NSNull null]) {
     [marker setFlat:[[json valueForKey:@"flat"] boolValue]];
   }
-  if ([json valueForKey:@"rotation"]) {
+  if ([json valueForKey:@"rotation"] && [json valueForKey:@"rotation"] != [NSNull null]) {
     CLLocationDegrees degrees = [[json valueForKey:@"rotation"] doubleValue];
     [marker setRotation:degrees];
   }
-  if ([json valueForKey:@"opacity"]) {
+  if ([json valueForKey:@"opacity"] && [json valueForKey:@"opacity"] != [NSNull null]) {
     [marker setOpacity:[[json valueForKey:@"opacity"] floatValue]];
   }
-  if ([json valueForKey:@"zIndex"]) {
+  if ([json valueForKey:@"zIndex"] && [json valueForKey:@"zIndex"] != [NSNull null]) {
     [marker setZIndex:[[json valueForKey:@"zIndex"] intValue]];
   }
 
@@ -156,13 +150,13 @@
   NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
   NSString *propertyId = [NSString stringWithFormat:@"marker_property_%@", markerId];
 
-  if ([json valueForKey:@"styles"]) {
+  if ([json valueForKey:@"styles"] && [json valueForKey:@"styles"] != [NSNull null]) {
     NSDictionary *styles = [json valueForKey:@"styles"];
     [properties setObject:styles forKey:@"styles"];
   }
 
   BOOL disableAutoPan = NO;
-  if ([json valueForKey:@"disableAutoPan"] != nil) {
+  if ([json valueForKey:@"disableAutoPan"] != nil && [json valueForKey:@"disableAutoPan"] != [NSNull null]) {
     disableAutoPan = [[json valueForKey:@"disableAutoPan"] boolValue];
   }
   [properties setObject:[NSNumber numberWithBool:disableAutoPan] forKey:@"disableAutoPan"];
@@ -210,7 +204,7 @@
   }
 
   // Animation
-  if ([json valueForKey:@"animation"]) {
+  if ([json valueForKey:@"animation"] && [json valueForKey:@"animation"] != [NSNull null]) {
     animation = [json valueForKey:@"animation"];
     if (iconProperty == nil) {
       iconProperty = [NSMutableDictionary dictionary];
@@ -219,7 +213,7 @@
     //NSLog(@"--->animation = %@", animation);
   }
 
-  if ([json valueForKey:@"infoWindowAnchor"]) {
+  if ([json valueForKey:@"infoWindowAnchor"] && [json valueForKey:@"infoWindowAnchor"] != [NSNull null]) {
     [iconProperty setObject:[json valueForKey:@"infoWindowAnchor"] forKey:@"infoWindowAnchor"];
   }
   if (iconProperty && ([iconProperty objectForKey:@"url"] || [iconProperty objectForKey:@"iconColor"])) {
@@ -831,7 +825,7 @@
 
   // `animation` property
   NSString *animationValue = nil;
-  if ([iconProperty valueForKey:@"animation"]) {
+  if ([iconProperty valueForKey:@"animation"] && [iconProperty valueForKey:@"animation"] != [NSNull null]) {
     animationValue = [iconProperty valueForKey:@"animation"];
   }
   __block NSString *animation = animationValue;
@@ -839,7 +833,7 @@
   //--------------------------------
   // the icon property is color name
   //--------------------------------
-  if ([iconProperty valueForKey:@"iconColor"]) {
+  if ([iconProperty valueForKey:@"iconColor"] && [iconProperty valueForKey:@"iconColor"] != [NSNull null]) {
     dispatch_async(dispatch_get_main_queue(), ^{
       UIColor *iconColor = [iconProperty valueForKey:@"iconColor"];
       marker.icon = [GMSMarker markerImageWithColor:iconColor];
@@ -871,7 +865,7 @@
   }
 
   // `size` property
-  if ([iconProperty valueForKey:@"size"]) {
+  if ([iconProperty valueForKey:@"size"] && [iconProperty valueForKey:@"size"] != [NSNull null]) {
     NSDictionary *size = [iconProperty valueForKey:@"size"];
     width = [[size objectForKey:@"width"] floatValue];
     height = [[size objectForKey:@"height"] floatValue];
@@ -931,7 +925,7 @@
       CGFloat anchorX = 0;
       CGFloat anchorY = 0;
       // The `anchor` property for the icon
-      if ([iconProperty valueForKey:@"anchor"]) {
+      if ([iconProperty valueForKey:@"anchor"] && [iconProperty valueForKey:@"anchor"] != [NSNull null]) {
         NSArray *points = [iconProperty valueForKey:@"anchor"];
         anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -939,7 +933,7 @@
       }
 
       // The `infoWindowAnchor` property
-      if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+      if ([iconProperty valueForKey:@"infoWindowAnchor"] && [iconProperty valueForKey:@"infoWindowAnchor"] != [NSNull null]) {
         NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
         anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1003,22 +997,13 @@
       iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"./"];
 
       // Get the current URL, then calculate the relative path.
+      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
-      
-       #ifdef PGM_PLATFORM_CAPACITOR
-        WKWebView *webview = (WKWebView *)self.webView;
-        NSString *clsName = @"WKWebView";
-       #endif
-       #ifdef PGM_PLATFORM_CORDOVA
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-        id webview = cdvViewController.webView;
-        NSString *clsName = [webview className];
-       #endif
+      id webview = cdvViewController.webView;
+      NSString *clsName = [webview className];
       NSURL *url;
       if ([clsName isEqualToString:@"UIWebView"]) {
-         #ifdef PGM_PLATFORM_CORDOVA
-          url = ((UIWebView *)cdvViewController.webView).request.URL;
-         #endif
+        url = ((UIWebView *)cdvViewController.webView).request.URL;
         NSString *currentURL = url.absoluteString;
 
         // remove page unchor (i.e index.html#page=test, index.html?key=value)
@@ -1051,7 +1036,7 @@
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
           NSURL *url = [webview URL];
           NSString *currentURL = url.absoluteString;
-          NSLog(@"currentURL = %@", currentURL);
+          //NSLog(@"currentURL = %@", url);
           if (![[url lastPathComponent] isEqualToString:@"/"]) {
             currentURL = [currentURL stringByDeletingLastPathComponent];
           }
@@ -1071,7 +1056,6 @@
           currentURL = [currentURL stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
           //NSLog(@"currentURL = %@", currentURL);
           url = [NSURL URLWithString:currentURL];
-          NSLog(@"url = %@", url);
 
           //
           // Load the icon from over the internet
@@ -1121,7 +1105,7 @@
               marker.icon = image;
 
               // The `anchor` property for the icon
-              if ([iconProperty valueForKey:@"anchor"]) {
+              if ([iconProperty valueForKey:@"anchor"] && [iconProperty valueForKey:@"anchor"] != [NSNull null]) {
                 NSArray *points = [iconProperty valueForKey:@"anchor"];
                 CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
                 CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1130,7 +1114,7 @@
 
 
               // The `infoWindowAnchor` property
-              if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+              if ([iconProperty valueForKey:@"infoWindowAnchor"] && [iconProperty valueForKey:@"infoWindowAnchor"] != [NSNull null]) {
                 NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
                 CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
                 CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1194,23 +1178,17 @@
        */
 
       if ([iconPath hasPrefix:@"/"]) {
+        // Get the current URL, then calculate the relative path.
+        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
-
-         #ifdef PGM_PLATFORM_CAPACITOR
-          NSURL *url = [(WKWebView *)self.webView URL];
-         #endif
-         #ifdef PGM_PLATFORM_CORDOVA
-          // Get the current URL, then calculate the relative path.
-          CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-          id webview = cdvViewController.webView;
-          NSString *clsName = [webview className];
-          NSURL *url;
-          if ([clsName isEqualToString:@"UIWebView"]) {
-            url = ((UIWebView *)cdvViewController.webView).request.URL;
-          } else {
-            url = [webview URL];
-          }
-         #endif
+        id webview = cdvViewController.webView;
+        NSString *clsName = [webview className];
+        NSURL *url;
+        if ([clsName isEqualToString:@"UIWebView"]) {
+          url = ((UIWebView *)cdvViewController.webView).request.URL;
+        } else {
+          url = [webview URL];
+        }
         NSString *currentURL = url.absoluteString;
         currentURL = [currentURL stringByDeletingLastPathComponent];
         currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
@@ -1287,7 +1265,7 @@
       CGFloat anchorX = 0;
       CGFloat anchorY = 0;
       // The `anchor` property for the icon
-      if ([iconProperty valueForKey:@"anchor"]) {
+      if ([iconProperty valueForKey:@"anchor"] && [iconProperty valueForKey:@"anchor"] != [NSNull null]) {
         NSArray *points = [iconProperty valueForKey:@"anchor"];
         anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1295,7 +1273,7 @@
       }
 
       // The `infoWindowAnchor` property
-      if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+      if ([iconProperty valueForKey:@"infoWindowAnchor"] && [iconProperty valueForKey:@"infoWindowAnchor"] != [NSNull null]) {
         NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
         anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
         anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1385,7 +1363,7 @@
       marker.icon = image;
 
       // The `anchor` property for the icon
-      if ([iconProperty valueForKey:@"anchor"]) {
+      if ([iconProperty valueForKey:@"anchor"] && [iconProperty valueForKey:@"anchor"] != [NSNull null]) {
         NSArray *points = [iconProperty valueForKey:@"anchor"];
         CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
         CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1394,7 +1372,7 @@
 
 
       // The `infoWindowAnchor` property
-      if ([iconProperty valueForKey:@"infoWindowAnchor"]) {
+      if ([iconProperty valueForKey:@"infoWindowAnchor"] && [iconProperty valueForKey:@"infoWindowAnchor"] != [NSNull null]) {
         NSArray *points = [iconProperty valueForKey:@"infoWindowAnchor"];
         CGFloat anchorX = [[points objectAtIndex:0] floatValue] / image.size.width;
         CGFloat anchorY = [[points objectAtIndex:1] floatValue] / image.size.height;
@@ -1512,23 +1490,20 @@
     // Since ionic local server declines HTTP access for some reason,
     // replace URL with file path
     NSBundle *mainBundle = [NSBundle mainBundle];
-    #ifdef PGM_PLATFORM_CORDOVA
-     NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
-     wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
-     if ([urlStr containsString:@"assets/"]) {
-       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
-     }
-     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
-    #endif
-    #ifdef PGM_PLATFORM_CAPACITOR
-     NSString *wwwPath = [NSString stringWithFormat:@"%@/public", [mainBundle bundlePath]];
-     if ([urlStr containsString:@"assets/"]) {
-       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
-     }
-     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"capacitor://localhost" withString: wwwPath];
-    #endif
-    NSLog(@"--->urlStr(1520) = %@", urlStr);
+    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    if ([urlStr containsString:@"assets/"]) {
+      urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+    }
+    // urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
+    
+    // ionic 4
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+    
+    // ionic 5
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: wwwPath];
 
+    
     if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
       NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
       NSFileManager *fileManager = [NSFileManager defaultManager];

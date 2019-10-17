@@ -91,24 +91,10 @@
         [plugin setViewController:cdvViewController];
       }
       if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
-         #ifdef PGM_PLATFORM_CAPACITOR
-          [plugin setCommandDelegate:self.commandDelegate];
-         #endif
-         #ifdef PGM_PLATFORM_CORDOVA
-          [plugin setCommandDelegate:cdvViewController.commandDelegate];
-         #endif
-        
+        [plugin setCommandDelegate:cdvViewController.commandDelegate];
       }
-       #ifdef PGM_PLATFORM_CAPACITOR
-        CDVCommandDelegateImpl *delegate = self.commandDelegate;
-        [delegate.manager.pluginObjects setObject:plugin forKey:pluginId];
-        [delegate.manager.pluginsMap setObject:pluginId forKey:pluginId];
-        plugin.webView = self.webView;
-       #endif
-       #ifdef PGM_PLATFORM_CORDOVA
-        [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
-        [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
-       #endif
+      [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
+      [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
       [plugin pluginInitialize];
 
       //NSLog(@"--->loadPlugin : %@ className : %@, plugin : %@", pluginId, className, plugin);
@@ -149,7 +135,7 @@
   self.mapCtrl.viewDepth = [[meta objectForKey:@"depth"] integerValue];
 
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
-  if ([initOptions valueForKey:@"camera"]) {
+  if ([initOptions valueForKey:@"camera"] && [initOptions valueForKey:@"camera"] != [NSNull null]) {
     double delayInSeconds = 1;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -192,15 +178,8 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
-     #ifdef PGM_PLATFORM_CORDOVA
-      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-      CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-     #endif
-     #ifdef PGM_PLATFORM_CAPACITOR
-      CDVCommandDelegateImpl *delegate = self.commandDelegate;
-      CDVPluginManager *pluginManager = delegate.manager;
-      CordovaGoogleMaps *googlemaps = [pluginManager.pluginObjects objectForKey:@"CordovaGoogleMaps"];
-     #endif
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
     [googlemaps.pluginLayer addPluginOverlay:self.mapCtrl];
     self.mapCtrl.attached = YES;
 
@@ -214,15 +193,8 @@
   [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
     // Load the GoogleMap.m
-     #ifdef PGM_PLATFORM_CORDOVA
-      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-      CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-     #endif
-     #ifdef PGM_PLATFORM_CAPACITOR
-      CDVCommandDelegateImpl *delegate = self.commandDelegate;
-      CDVPluginManager *pluginManager = delegate.manager;
-      CordovaGoogleMaps *googlemaps = [pluginManager.pluginObjects objectForKey:@"CordovaGoogleMaps"];
-     #endif
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
     [googlemaps.pluginLayer removePluginOverlay:self.mapCtrl];
     self.mapCtrl.attached = NO;
 
@@ -243,15 +215,8 @@
     }
 
     // Load the GoogleMap.m
-     #ifdef PGM_PLATFORM_CORDOVA
-      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-      CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-     #endif
-     #ifdef PGM_PLATFORM_CAPACITOR
-      CDVCommandDelegateImpl *delegate = self.commandDelegate;
-      CDVPluginManager *pluginManager = delegate.manager;
-      CordovaGoogleMaps *googlemaps = [pluginManager.pluginObjects objectForKey:@"CordovaGoogleMaps"];
-     #endif
+    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
+    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
 
     // Save the map rectangle.
     if (![googlemaps.pluginLayer.pluginScrollView.HTMLNodes objectForKey:self.mapCtrl.divId]) {
@@ -295,6 +260,7 @@
   });
 
 
+  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
   CDVPlugin<IPluginProtocol> *plugin;
   NSString *pluginName;
   NSArray *keys = [self.mapCtrl.plugins allKeys];
@@ -303,16 +269,8 @@
     plugin = [self.mapCtrl.plugins objectForKey:pluginName];
     [plugin pluginUnload];
 
-     #ifdef PGM_PLATFORM_CAPACITOR
-      CDVCommandDelegateImpl *delegate = self.commandDelegate;
-      [delegate.manager.pluginObjects removeObjectForKey:pluginName];
-      [delegate.manager.pluginsMap setValue:nil forKey:pluginName];
-     #endif
-     #ifdef PGM_PLATFORM_CORDOVA
-      CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-      [cdvViewController.pluginObjects removeObjectForKey:pluginName];
-      [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
-     #endif
+    [cdvViewController.pluginObjects removeObjectForKey:pluginName];
+    [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
     //plugin = nil;
   }
 
@@ -531,14 +489,14 @@
 
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
     __block double bearing;
-    if ([json valueForKey:@"bearing"]) {
+    if ([json valueForKey:@"bearing"] && [json valueForKey:@"bearing"] != [NSNull null]) {
       bearing = [[json valueForKey:@"bearing"] doubleValue];
     } else {
       bearing = self.mapCtrl.map.camera.bearing;
     }
 
     double angle;
-    if ([json valueForKey:@"tilt"]) {
+    if ([json valueForKey:@"tilt"] && [json valueForKey:@"tilt"] != [NSNull null]) {
       angle = [[json valueForKey:@"tilt"] doubleValue];
     } else {
       angle = self.mapCtrl.map.camera.viewingAngle;
@@ -552,7 +510,7 @@
     }
 
     double cameraPadding = 20;
-    if ([json valueForKey:@"padding"]) {
+    if ([json valueForKey:@"padding"] && [json valueForKey:@"zoom"] != [NSNull null]) {
       cameraPadding = [[json valueForKey:@"padding"] doubleValue];
     }
 
@@ -736,7 +694,7 @@
       NSData *imageData = UIImagePNGRepresentation(image);
       NSString* base64Encoded = [imageData base64EncodedStringWithOptions:0];
       NSString* base64EncodedWithData = [@"data:image/png;base64," stringByAppendingString:base64Encoded];
-      
+
       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64EncodedWithData];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -955,7 +913,7 @@
     // Redraw the map mandatory
     [self.mapCtrl.map setNeedsDisplay];
 
-    if ([initOptions valueForKey:@"camera"]) {
+    if ([initOptions valueForKey:@"camera"] && [initOptions valueForKey:@"camera"] != [NSNull null]) {
       //------------------------------------------
       // Case : The camera option is specified.
       //------------------------------------------
@@ -1035,5 +993,16 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
+}
+
+
+- (void)stopAnimation:(CDVInvokedUrlCommand*)command {
+
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self.mapCtrl.map.layer removeAllAnimations];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
 }
 @end

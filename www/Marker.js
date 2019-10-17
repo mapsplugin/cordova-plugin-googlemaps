@@ -56,6 +56,13 @@ var Marker = function(map, markerOptions, _exec, extras) {
   });
   self.on('icon_changed', function() {
     var icon = self.get('icon');
+
+    if (typeof icon === 'object' &&
+        typeof icon.anchor === 'object' &&
+        'x' in icon.anchor &&
+        'y' in icon.anchor) {
+      icon.anchor = [icon.anchor.x, icon.anchor.y];
+    }
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIcon', [self.getId(), icon]);
   });
   self.on('flat_changed', function() {

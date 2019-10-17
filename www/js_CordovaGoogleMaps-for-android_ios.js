@@ -269,10 +269,11 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
     }
     return isTouchable;
   });
-  if (touchableMapList.length === 0) {
+  if (self._prevMapCnt === 0 && touchableMapList.length === 0) {
     self.pause();
     return;
   }
+  self._prevMapCnt = touchableMapList.length;
 
   // If there is another check request,
   // DOM tree might be changed.
@@ -434,7 +435,8 @@ CordovaGoogleMaps.prototype.detectTransitionFinish = function() {
     var target = self.transformTargets[elemId].target;
     var divRect = common.getDivRect(target);
     var prevRect = self.transformTargets[elemId];
-    if (divRect.left === prevRect.left &&
+    if (!prevRect ||
+        divRect.left === prevRect.left &&
         divRect.top === prevRect.top &&
         divRect.right === prevRect.right &&
         divRect.bottom === prevRect.bottom) {

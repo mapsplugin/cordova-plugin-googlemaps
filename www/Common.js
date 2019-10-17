@@ -89,7 +89,7 @@ function HTMLColor2RGBA(colorValue, defaultOpacity) {
   // convert rgb(), rgba()
   if (colorStr.match(/^rgba?\([\d,.\s]+\)$/)) {
     matches = colorStr.match(/([\d.]+)/g);
-    alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 256) : alpha;
+    alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 255) : alpha;
     return [
       parseInt(matches[0], 10),
       parseInt(matches[1], 10),
@@ -101,7 +101,7 @@ function HTMLColor2RGBA(colorValue, defaultOpacity) {
   // convert hsl(), hsla()
   if (colorStr.match(/^hsla?\([\d%,.\s]+\)$/)) {
     matches = colorStr.match(/([\d%.]+)/g);
-    alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 256) : alpha;
+    alpha = matches.length == 4 ? Math.floor(parseFloat(matches[3]) * 255) : alpha;
     var rgb = HLStoRGB(matches[0], matches[1], matches[2]);
     rgb.push(alpha);
     return rgb;
@@ -221,7 +221,7 @@ function getDivRect(div) {
 }
 
 var ignoreTags = [
-  'pre', 'textarea', 'p', 'form', 'input', 'caption', 'canvas', 'svg'
+  'pre', 'textarea', 'p', 'input', 'caption', 'canvas', 'svg'
 ];
 
 function shouldWatchByNative(node) {

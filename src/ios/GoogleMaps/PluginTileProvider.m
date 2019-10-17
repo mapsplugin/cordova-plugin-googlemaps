@@ -19,7 +19,23 @@ NSDictionary *debugAttributes;
     self = [super init];
     self.webView  = webView;
     //self.tileUrlFormat = [options objectForKey:@"tileUrlFormat"];
-    self.webPageUrl = [options objectForKey:@"webPageUrl"];
+    //NSString *urlStr = [options objectForKey:@"wwwPath"];
+  
+  
+    // Since ionic local server declines HTTP access for some reason,
+    // replace URL with file path
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *urlStr = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+
+    // ionic 4
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: urlStr];
+    
+    // ionic 5
+    urlStr = [urlStr stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: urlStr];
+    self.wwwPath = urlStr;
+  
+  
     if ([options objectForKey:@"tileSize"]) {
         self.tileSize = [[options objectForKey:@"tileSize"] floatValue];
     } else {
@@ -141,63 +157,43 @@ NSDictionary *debugAttributes;
       return;
   }
   urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+  
+  // ionic 4
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: self.wwwPath];
+  
+  // ionic 5
+  urlStr = [urlStr stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: self.wwwPath];
+  
+  if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
+      //-------------------------
+      // http:// or https://
+      //-------------------------
+      [self downloadImageWithX:x y:y zoom:zoom url:[NSURL URLWithString:urlStr] receiver:receiver];
+      return;
+  } else {
+      //-------------------------
+      // Absolute file path
+      //-------------------------
+      urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
 
-  range = [urlStr rangeOfString:@"://"];
-  if (range.location == NSNotFound) {
+      //-------------------------
+      // file path
+      //-------------------------
+      urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
 
-      range = [urlStr rangeOfString:@"/"];
-      if (range.location != 0) {
-          //-------------------------------------------------------
-          // Get the current URL, then calculate the relative path.
-          //-------------------------------------------------------
-          NSString *currentURL = [NSString stringWithString:self.webPageUrl];
-          currentURL = [currentURL stringByDeletingLastPathComponent];
-          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"http:/localhost" withString:@"http://localhost"];
-          currentURL = [currentURL regReplace:@"\\#.*$" replaceTxt:@"" options:NSRegularExpressionCaseInsensitive];
-          currentURL = [currentURL regReplace:@"\\?.*$" replaceTxt:@"" options:NSRegularExpressionCaseInsensitive];
-          currentURL = [currentURL regReplace:@"[^\\/]*$" replaceTxt:@"" options:NSRegularExpressionCaseInsensitive];
-
-          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-
-          urlStr = [NSString stringWithFormat:@"%@%@", currentURL, urlStr];
-          NSRange range = [currentURL rangeOfString:@"http"];
-          if (range.location == 0) {
-            //-------------------------
-            // http:// or https://
-            //-------------------------
-            [self downloadImageWithX:x y:y zoom:zoom url:[NSURL URLWithString:urlStr] receiver:receiver];
-            return;
-          }
-          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-          urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
-      } else {
-          //-------------------------
-          // Absolute file path
-          //-------------------------
-          urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
-      }
-
-      range = [urlStr rangeOfString:@"file://"];
-      if (range.location != NSNotFound) {
-          //-------------------------
-          // file path
-          //-------------------------
-          urlStr = [urlStr stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-
-          NSFileManager *fileManager = [NSFileManager defaultManager];
-          if (![fileManager fileExistsAtPath:urlStr]) {
-             if (self.isDebug) {
-               UIImage *image = [self drawDebugInfoWithImage:nil
-                                                   x:x
-                                                   y:y
-                                                   zoom:zoom
-                                                   url: originalUrlStr];
-               [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-             } else {
-               [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
-             }
-             return;
-          }
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if (![fileManager fileExistsAtPath:urlStr]) {
+         if (self.isDebug) {
+           UIImage *image = [self drawDebugInfoWithImage:nil
+                                               x:x
+                                               y:y
+                                               zoom:zoom
+                                               url: originalUrlStr];
+           [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+         } else {
+           [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
+         }
+         return;
       }
 
 

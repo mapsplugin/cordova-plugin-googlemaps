@@ -2,13 +2,14 @@ repositories {
   maven { url 'https://maven.google.com' }
   mavenCentral()
   jcenter()
+  def libsDirPath = System.getProperty("user.dir")
   flatDir{
-    dirs 'src/main/libs', 'libs'
+    dirs 'src/main/libs', 'libs', "${libsDirPath}/libs"
   }
 }
 
 dependencies {
-  compile(name:'tbxml-android', ext:'aar')
+  implementation(name:'tbxml-android', ext:'aar')
 }
 
 android {
