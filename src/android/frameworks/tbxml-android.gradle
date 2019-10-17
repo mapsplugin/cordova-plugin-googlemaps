@@ -1,10 +1,13 @@
 repositories {
-  maven { url 'https://maven.google.com' }
-  mavenCentral()
-  jcenter()
+  //maven { url 'https://maven.google.com' }
+  //mavenCentral()
+  //jcenter()
   def libsDirPath = System.getProperty("user.dir")
   flatDir{
-    dirs 'src/main/libs', 'libs', "${libsDirPath}/libs"
+    dirs 'src/main/libs',
+          'libs',
+          "${libsDirPath}/libs",
+          "${libsDirPath}/capacitor-cordova-android-plugins/src/main/libs"
   }
 }
 
@@ -13,7 +16,6 @@ dependencies {
 }
 
 android {
-  compileSdkVersion 26
 
   packagingOptions {
     exclude 'README'

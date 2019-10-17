@@ -5,15 +5,17 @@
 ```
 $> npm -g install ionic
 
-$> ionic start myApp tabs
+$> ionic start myApp tabs --capacitor
+
+$> ? Framework: (Use arrow keys)
+$> ❯ Angular | https://angular.io   <-- use Angular at this time
+     React   | https://reactjs.org
 
 $> cd myApp
 
-$> npm run build
+$> npx cap init [appName] [appId]
 
-$> npm install --save @capacitor/cli @capacitor/core
-
-$> npx cap init
+$> ionic build
 
 $> npx cap add android
 
@@ -21,8 +23,9 @@ $> npx cap add ios
 
 $> npm install --save \@ionic-native/core \@ionic-native/google-maps
 
-$> ionic cordova plugin add https://github.com/mapsplugin/cordova-plugin-googlemaps#cap2
+$> npm install --save cordova-plugin-googlemaps@latest
 
+$> npx cap sync
 ```
 
 Open `(project)/cap.config.json`, then add the below lines to the file.

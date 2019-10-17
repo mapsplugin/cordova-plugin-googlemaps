@@ -13,59 +13,110 @@ def searchFileInParents(target) {
 }
 
 android {
+  def isCapacitor = false
   def searchPath = 'app/src/main/res/xml/config.xml'
-  // #1. Find (project)/config.xml file,
-  //     because ionic capacitor does not copy <preference> nodes
-  def configXmlFile = searchFileInParents("config.xml")
 
-  if (configXmlFile == null) {
-    // #2. Find (project)/app/src/main/res/xml/config.xml file,
-    //     cordova should copy <preference> to this file
-    configXmlFile = searchFileInParents("app/src/main/res/xml/config.xml")
+  lintOptions {
+      abortOnError false
   }
 
-  if (configXmlFile == null) {
+  // #1. Find (project)/capacitor.config.json file,
+  //     ionic/capacitor should copy <preference> to this file
+  def configFile = searchFileInParents("capacitor.config.json")
+
+  // #2. Find (project)/config.xml file,
+  //     because ionic capacitor does not copy <preference> nodes
+  if (configFile == null) {
+    isCapacitor = false
+    configFile = searchFileInParents("config.xml")
+
+    if (configFile == null) {
+      // #3. Find (project)/app/src/main/res/xml/config.xml file,
+      //     cordova should copy <preference> to this file
+      configFile = searchFileInParents("app/src/main/res/xml/config.xml")
+      isCapacitor = false
+    }
+  } else {
+    isCapacitor = true
+  }
+
+
+  if (!isCapacitor && configFile == null) {
     throw new GradleException("Can not find config.xml file.")
   }
-
-  // parse xml file
-  def widget = new XmlParser().parse(configXmlFile)
-  if (widget.preference == null) {
-    throw new GradleException("widget is null.")
+  if (isCapacitor && configFile == null) {
+    throw new GradleException("Can not find capacitor.config.json file.")
   }
-  if (widget.preference.size() == 0) {
-    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
-  }
-  println("preference = " + widget.preference.size())
-  Properties props = new Properties()
-  def isKeyFound = 0
   def useBetaSdk = 0
-  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION", "16.0.0");
-  props.setProperty("ANDROID_SUPPORT_V4_VERSION", "27.1.1");
+  def isKeyFound = 0
+  Properties props = new Properties()
+  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION", "15.0.1");
+  props.setProperty("ANDROID_SUPPORT_CORE_VERSION", "28.0.0");
   props.setProperty("GOOGLE_MAPS_ANDROID_SDK", "");
 
-  widget.preference.each { pref ->
-    def name = pref.attributes().name
-    def value = pref.attributes().value
-    println("name = " + name);
-    if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
-      isKeyFound = 1
-      props.setProperty(name, value)
+  if (!isCapacitor) {
+    //-------------------
+    // cordova
+    //-------------------
+    // parse xml file
+    def widget = new XmlParser().parse(configFile)
+    if (widget.preference == null) {
+      throw new GradleException("widget is null.")
     }
-    if (name == "GOOGLE_MAPS_PLAY_SERVICES_VERSION" ||
-        name == "ANDROID_SUPPORT_V4_VERSION") {
-      props.setProperty(name, value)
+    if (widget.preference.size() == 0) {
+      throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
     }
-    if (name == "GOOGLE_MAPS_ANDROID_SDK") {
+
+    println("preference = " + widget.preference.size())
+    widget.preference.each { pref ->
+      def name = pref.attributes().name
+      def value = pref.attributes().value
+      println("name = " + name + ", value = " + value);
+      if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
+        isKeyFound = 1
+        props.setProperty(name, value)
+      }
+      if (name == "GOOGLE_MAPS_PLAY_SERVICES_VERSION" ||
+          name == "ANDROID_SUPPORT_CORE_VERSION") {
+        props.setProperty(name, value)
+      }
+      if (name == "GOOGLE_MAPS_ANDROID_SDK") {
+        useBetaSdk = 1
+        props.setProperty("GOOGLE_MAPS_ANDROID_SDK", value)
+      }
+    }
+    if (isKeyFound == 0) {
+      throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+    }
+
+  } else {
+    //-------------------
+    // ionic/capacitor
+    //-------------------
+    // parse json file
+    println("configFile = " + configFile)
+    def parser = new groovy.json.JsonSlurper()
+    def json = parser.parse file(configFile)
+    def value = json.GOOGLE_MAPS_ANDROID_API_KEY
+    println("APIKEY = " + value)
+    if (value != null) {
+      props.setProperty("GOOGLE_MAPS_ANDROID_API_KEY", value)
+    } else {
+      throw new GradleException("Please add '\"GOOGLE_MAPS_ANDROID_API_KEY\"' to the capacitor.config.json file.")
+    }
+
+    if (json.ANDROID_SUPPORT_CORE_VERSION) {
+      props.setProperty("ANDROID_SUPPORT_CORE_VERSION", json.ANDROID_SUPPORT_CORE_VERSION)
+    }
+    if (json.GOOGLE_MAPS_PLAY_SERVICES_VERSION) {
+      props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION", json.GOOGLE_MAPS_PLAY_SERVICES_VERSION)
+    }
+    if (json.GOOGLE_MAPS_ANDROID_SDK) {
       useBetaSdk = 1
-      props.setProperty("GOOGLE_MAPS_ANDROID_SDK", value)
+      props.setProperty("GOOGLE_MAPS_ANDROID_SDK", json.GOOGLE_MAPS_ANDROID_SDK)
     }
   }
 
-
-  if (isKeyFound == 0) {
-    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
-  }
 
   if (useBetaSdk == 1) {
     def libsDirPath = System.getProperty("user.dir")
@@ -86,13 +137,13 @@ android {
   }
 
   def PLAY_SERVICES_VERSION = props.get("GOOGLE_MAPS_PLAY_SERVICES_VERSION")
-  def ANDROID_SUPPORT_V4_VERSION = props.get("ANDROID_SUPPORT_V4_VERSION")
+  def ANDROID_SUPPORT_CORE_VERSION = props.get("ANDROID_SUPPORT_CORE_VERSION")
   println("---->PLAY_SERVICES_VERSION = ${PLAY_SERVICES_VERSION}")
-  println("---->ANDROID_SUPPORT_V4_VERSION = ${ANDROID_SUPPORT_V4_VERSION}")
+  println("---->ANDROID_SUPPORT_CORE_VERSION = ${ANDROID_SUPPORT_CORE_VERSION}")
   dependencies {
     implementation "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
     implementation "com.google.android.gms:play-services-location:${PLAY_SERVICES_VERSION}"
-    implementation "com.android.support:support-core-utils:${ANDROID_SUPPORT_V4_VERSION}"
+    implementation "com.android.support:support-core-utils:${ANDROID_SUPPORT_CORE_VERSION}"
   }
 
 

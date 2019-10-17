@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLoadImageResult> {
   private AsyncLoadImageInterface callback;
@@ -198,16 +199,30 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
 
       if (currentPageUrl.startsWith("http://localhost") ||
           currentPageUrl.startsWith("http://127.0.0.1")) {
+
+        String wwwDirName = "www";
+
+        try {
+          if (Arrays.asList(cordova.getContext().getResources().getAssets().list("")).contains("capacitor.config.json")) {
+            // Capacitor
+            wwwDirName = "public";
+          }
+        } catch (Exception e) {
+          // ignore
+        }
+
         if (iconUrl.contains("://")) {
-          iconUrl = iconUrl.replaceAll("http://.+?/", "file:///android_asset/www/");
+          iconUrl = iconUrl.replaceAll("http://.+?/", "file:///android_asset/" + wwwDirName + "/");
         } else {
           // Avoid WebViewLocalServer (because can not make a connection for some reason)
-          iconUrl = "file:///android_asset/www/".concat(iconUrl);
+          iconUrl = "file:///android_asset/" + wwwDirName + "/" + iconUrl;
         }
+        Log.d(TAG, "--> iconUrl = " + iconUrl);
       }
 
       if (!iconUrl.contains("://") &&
           !iconUrl.startsWith("/") &&
+          !iconUrl.startsWith("public/") &&
           !iconUrl.startsWith("www/") &&
           !iconUrl.startsWith("data:image") &&
           !iconUrl.startsWith("./") &&
