@@ -34,7 +34,6 @@
 - (void)setPosition:(CDVInvokedUrlCommand*)command;
 - (void)setRotation:(CDVInvokedUrlCommand*)command;
 - (void)setAnimation:(CDVInvokedUrlCommand*)command;
-- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock;
 
 
 // Internal use

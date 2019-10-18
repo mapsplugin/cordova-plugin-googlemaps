@@ -29,7 +29,7 @@ typedef void (^MYCompletionHandler)(NSError *error);
 #define DEFAULT
 
 
-#if __has_include(<CordovaPluginsStatic_vers.c>)
+#if __has_include(<Cordova/CapacitorCordova-umbrella.h>)
   #define PGM_PLATFORM_CAPACITOR
 
   @class CDVViewController;
@@ -100,6 +100,8 @@ typedef void (^TIFAnimationGroupCompletionBlock)();
 + (GMSMutablePath *)getMutablePathFromCircle:(CLLocationCoordinate2D)center radius:(double)radius;
 + (NSString *)getAbsolutePathFromCDVFilePath:(UIView*)theWebView cdvFilePath:(NSString *)cdvFilePath;
 + (NSString *)PGM_LOCALIZATION:(NSString *)key;
+
++ (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock;
 @end
 
 

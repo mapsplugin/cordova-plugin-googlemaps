@@ -1020,6 +1020,7 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
     var link = document.createElement('a');
     link.href = kmlOverlayOptions.url;
     kmlOverlayOptions.url = link.protocol+'//'+link.host+link.pathname + link.search;
+    link = undefined;
 
     var invisible_dot = self.get('invisible_dot');
     if (!invisible_dot || invisible_dot._isRemoved) {
@@ -1162,6 +1163,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
           var link = document.createElement('a');
           link.href = finalUrl;
           finalUrl = link.protocol+'//'+link.host+link.pathname + link.search;
+          link = undefined;
 
           cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
         })
@@ -1173,6 +1175,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
       var link = document.createElement('a');
       link.href = url;
       url = link.protocol+'//'+link.host+link.pathname + link.search;
+      link = undefined;
       cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, url]);
     }
   };
@@ -1335,6 +1338,17 @@ Map.prototype.addMarker = function(markerOptions, callback) {
   // Generate a makrer instance at once.
   //------------------------------------
   markerOptions.icon = markerOptions.icon || {};
+  if (typeof markerOptions.icon === 'string') {
+    if (markerOptions.icon.indexOf("://") === -1 &&
+        markerOptions.icon.indexOf(".") === 0) {
+
+      var link = document.createElement('a');
+      link.href = markerOptions.icon;
+      markerOptions.icon = link.protocol+'//'+link.host+link.pathname + link.search;
+      link = undefined;
+    }
+  }
+
   if (typeof markerOptions.icon === 'string' || Array.isArray(markerOptions.icon)) {
     markerOptions.icon = {
       url: markerOptions.icon

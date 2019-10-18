@@ -15,31 +15,24 @@
     return;
   }
   [super pluginInitialize];
-  // Initialize this plugin
-  //self.imgCache = [[NSCache alloc]init];
-  //self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
 }
 
 - (void)pluginUnload
 {
 
-
-    // Plugin destroy
-    NSArray *keys = [self.mapCtrl.objects allKeys];
-    NSString *key;
-    for (int i = 0; i < [keys count]; i++) {
-        key = [keys objectAtIndex:i];
-        if ([key hasPrefix:@"groundoverlay_property"]) {
-          key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
-          GMSGroundOverlay *groundoverlay = (GMSGroundOverlay *)[self.mapCtrl.objects objectForKey:key];
-          groundoverlay.map = nil;
-          groundoverlay = nil;
-        }
-        [self.mapCtrl.objects removeObjectForKey:key];
-    }
-
-  //[self.imgCache removeAllObjects];
-  //self.imgCache = nil;
+  // Plugin destroy
+  NSArray *keys = [self.mapCtrl.objects allKeys];
+  NSString *key;
+  for (int i = 0; i < [keys count]; i++) {
+      key = [keys objectAtIndex:i];
+      if ([key hasPrefix:@"groundoverlay_property"]) {
+        key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
+        GMSGroundOverlay *groundoverlay = (GMSGroundOverlay *)[self.mapCtrl.objects objectForKey:key];
+        groundoverlay.map = nil;
+        groundoverlay = nil;
+      }
+      [self.mapCtrl.objects removeObjectForKey:key];
+  }
 
   key = nil;
   keys = nil;
@@ -139,9 +132,6 @@
                       [self_.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                       return;
                   }
-
-                  //NSString *imgId = [NSString stringWithFormat:@"groundoverlay_image_%lu", (unsigned long)groundOverlay.hash];
-                  //[me.imgCache setObject:groundOverlay.icon forKey:imgId];
 
                   if ([json valueForKey:@"opacity"] && [json valueForKey:@"opacity"] != [NSNull null]) {
                       CGFloat opacity = [[json valueForKey:@"opacity"] floatValue];
@@ -273,7 +263,7 @@
                       urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
                       url = [NSURL URLWithString:urlStr2];
 
-                      [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
+                      [PluginUtil downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
                         if (!succeeded) {
                           completionHandler(NO);
@@ -343,8 +333,6 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         NSString *groundOverlayId = [command.arguments objectAtIndex:0];
         GMSGroundOverlay *groundOverlay = [self.mapCtrl.objects objectForKey:groundOverlayId];
-
-        //[self.imgCache removeObjectForKey:groundOverlayId];
 
         NSString *propertyId = [groundOverlayId stringByReplacingOccurrencesOfString:@"groundoverlay_" withString:@"groundoverlay_property"];
         [self.mapCtrl.objects removeObjectForKey:propertyId];
@@ -546,88 +534,5 @@
 }
 
 
-- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
-{
-  [self.mapCtrl.executeQueue addOperationWithBlock:^{
-
-    NSString *iconPath = url.absoluteString;
-
-    // Since ionic local server declines HTTP access for some reason,
-    // replace URL with file path
-    NSBundle *mainBundle = [NSBundle mainBundle];
-    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
-    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
-    if ([iconPath containsString:@"assets/"]) {
-      iconPath = [iconPath regReplace:@"^.*assets/" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
-    }
-    // iconPath = [iconPath stringByReplacingOccurrencesOfString:wwwPath withString: @""];
-    
-    // ionic 4
-    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
-
-    // ionic 5
-    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: wwwPath];
-    
-    if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
-      iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-      if (![iconPath hasPrefix:@"/"]) {
-        iconPath = [NSString stringWithFormat:@"/%@", iconPath];
-      }
-      NSFileManager *fileManager = [NSFileManager defaultManager];
-      if (![fileManager fileExistsAtPath:iconPath]) {
-        //if (self.mapCtrl.debuggable) {
-        NSLog(@"(error)There is no file at '%@'.", iconPath);
-        //}
-        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
-        completionBlock(NO, nil);
-        return;
-      }
-
-      UIImage *image = [UIImage imageNamed:iconPath];
-      if (image) {
-        completionBlock(YES, image);
-        return;
-      }
-    }
-
-
-
-    NSURLRequest *req = [NSURLRequest requestWithURL:url
-                                         cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                     timeoutInterval:5];
-    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
-    if (cachedResponse != nil) {
-      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
-      if (image) {
-        completionBlock(YES, image);
-        return;
-      }
-    }
-
-
-    //-------------------------------------------------------------
-    // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
-    // https://stackoverflow.com/a/20871647
-    //-------------------------------------------------------------
-    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
-                                               completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
-                                                 [session finishTasksAndInvalidate];
-
-                                                 UIImage *image = [UIImage imageWithData:data];
-                                                 if (image) {
-                                                   completionBlock(YES, image);
-                                                   return;
-                                                 }
-
-                                                 completionBlock(NO, nil);
-
-                                               }];
-    [getTask resume];
-
-
-  }];
-}
 
 @end

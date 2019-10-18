@@ -64,8 +64,6 @@ NSDictionary *debugAttributes;
       };
     }
 
-    self.imgCache = [[NSCache alloc]init];
-    self.imgCache.totalCostLimit = 3 * 1024 * 1024 * 1024; // 3MB = Cache for image
     self.executeQueue =  [NSOperationQueue new];
 
     return self;
@@ -273,97 +271,22 @@ NSDictionary *debugAttributes;
 
 - (void)downloadImageWithX:(NSUInteger)x y:(NSUInteger)y  zoom:(NSUInteger)zoom  url:(NSURL *)url receiver: (id<GMSTileReceiver>) receiver
 {
-  [self.executeQueue addOperationWithBlock:^{
+  [PluginUtil downloadImageWithURL:url completionBlock:^(BOOL succeeded, UIImage *image) {
 
-    NSURLRequest *req = [NSURLRequest requestWithURL:url
-                                         cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                     timeoutInterval:5];
-    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
-    if (cachedResponse != nil) {
-      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
-      if (image) {
-        if (self.isDebug) {
-          image = [self drawDebugInfoWithImage:image
-                                             x:x
-                                             y:y
-                                             zoom:zoom
-                                             url: url.absoluteString];
-        }
-        [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-        return;
+    if (image) {
+      if (self.isDebug) {
+        image = [self drawDebugInfoWithImage:image
+                                            x:x
+                                            y:y
+                                            zoom:zoom
+                                            url: url.absoluteString];
       }
+      [receiver receiveTileWithX:x y:y zoom:zoom image:image];
+      return;
     }
-
-    NSString *uniqueKey = url.absoluteString;
-    NSData *cache = [self.imgCache objectForKey:uniqueKey];
-    if (cache != nil) {
-      UIImage *image = [[UIImage alloc] initWithData:cache];
-      if (image) {
-        if (self.isDebug) {
-          image = [self drawDebugInfoWithImage:image
-                                             x:x
-                                             y:y
-                                             zoom:zoom
-                                             url: url.absoluteString];
-        }
-        [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-        return;
-      }
-    }
-
-    //-------------------------------------------------------------
-    // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
-    // https://stackoverflow.com/a/20871647
-    //-------------------------------------------------------------
-    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
-                             completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
-                               [session finishTasksAndInvalidate];
-                               if ( !error ) {
-                                 [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
-                                 UIImage *image = [UIImage imageWithData:data];
-                                 if (self.isDebug) {
-                                   image = [self drawDebugInfoWithImage:image
-                                                                       x:x
-                                                                       y:y
-                                                                       zoom:zoom
-                                                                       url: url.absoluteString];
-                                 }
-                                 [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-                               } else {
-                                 if (self.isDebug) {
-                                   UIImage *image = [self drawDebugInfoWithImage:nil
-                                                                       x:x
-                                                                       y:y
-                                                                       zoom:zoom
-                                                                       url: url.absoluteString];
-                                   [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-                                 } else {
-                                   [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
-                                 }
-                               }
-
-                            }];
-    [getTask resume];
-    //-------------------------------------------------------------
-    // NSURLConnection sendAsynchronousRequest is deprecated.
-    //-------------------------------------------------------------
-/*
-    [NSURLConnection sendAsynchronousRequest:req
-                                       queue:self.executeQueue
-                           completionHandler:^(NSURLResponse *res, NSData *data, NSError *error) {
-                             if ( !error ) {
-                               [self.imgCache setObject:data forKey:uniqueKey cost:data.length];
-                               UIImage *image = [UIImage imageWithData:data];
-                               [receiver receiveTileWithX:x y:y zoom:zoom image:image];
-                             } else {
-                               [receiver receiveTileWithX:x y:y zoom:zoom image:kGMSTileLayerNoTile];
-                             }
-
-                           }];
-*/
+    
   }];
+  
 
 }
 

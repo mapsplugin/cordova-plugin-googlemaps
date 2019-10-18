@@ -623,4 +623,85 @@ static char CAAnimationGroupBlockKey;
   return result;
 }
 
+
++ (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
+{
+    NSString *iconPath = url.absoluteString;
+
+    // Since ionic local server declines HTTP access for some reason,
+    // replace URL with file path
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+    if ([iconPath containsString:@"assets/"]) {
+      iconPath = [iconPath regReplace:@"^.*assets/" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+    }
+    // iconPath = [iconPath stringByReplacingOccurrencesOfString:wwwPath withString: @""];
+    
+    // ionic 4
+    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+
+    // ionic 5
+    iconPath = [iconPath stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: wwwPath];
+    
+    if ([iconPath hasPrefix:@"file://"] || [iconPath hasPrefix:@"/"]) {
+      iconPath = [iconPath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+      if (![iconPath hasPrefix:@"/"]) {
+        iconPath = [NSString stringWithFormat:@"/%@", iconPath];
+      }
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if (![fileManager fileExistsAtPath:iconPath]) {
+        //if (self.mapCtrl.debuggable) {
+        NSLog(@"(error)There is no file at '%@'.", iconPath);
+        //}
+        //[self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        completionBlock(NO, nil);
+        return;
+      }
+
+      UIImage *image = [UIImage imageNamed:iconPath];
+      if (image) {
+        completionBlock(YES, image);
+        return;
+      }
+    }
+
+
+
+    NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                         cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                                     timeoutInterval:5];
+    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
+    if (cachedResponse != nil) {
+      UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
+      if (image) {
+        completionBlock(YES, image);
+        return;
+      }
+    }
+
+
+    //-------------------------------------------------------------
+    // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
+    // https://stackoverflow.com/a/20871647
+    //-------------------------------------------------------------
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                                               completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                                 [session finishTasksAndInvalidate];
+
+                                                 UIImage *image = [UIImage imageWithData:data];
+                                                 if (image) {
+                                                   completionBlock(YES, image);
+                                                   return;
+                                                 }
+
+                                                 completionBlock(NO, nil);
+
+                                               }];
+    [getTask resume];
+
+
+}
 @end

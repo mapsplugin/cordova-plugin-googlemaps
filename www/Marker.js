@@ -63,6 +63,24 @@ var Marker = function(map, markerOptions, _exec, extras) {
         'y' in icon.anchor) {
       icon.anchor = [icon.anchor.x, icon.anchor.y];
     }
+    if (typeof icon === 'object' &&
+        typeof icon.url === 'string' &&
+        icon.url.indexOf("://") === -1 &&
+        icon.url.indexOf(".") === 0) {
+
+        var link = document.createElement('a');
+        link.href = icon.url;
+        icon.url = link.protocol+'//'+link.host+link.pathname + link.search;;
+        link = undefined;
+    } else if (typeof icon === 'string' &&
+        icon.indexOf("://") === -1 &&
+        icon.indexOf(".") === 0) {
+
+        var link = document.createElement('a');
+        link.href = icon;
+        icon = link.protocol+'//'+link.host+link.pathname + link.search;;
+        link = undefined;
+    }
     self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setIcon', [self.getId(), icon]);
   });
   self.on('flat_changed', function() {
