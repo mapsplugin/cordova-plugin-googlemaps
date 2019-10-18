@@ -120,6 +120,7 @@
 
   <keywords>google,maps,geo</keywords>
 
+
   <engines>
     <engine name="cordova" version=">=7.0.0" />
     <engine name="cordova-ios" version=">=4.5.0" />
@@ -459,6 +460,7 @@
         </dict>
       </array>
     </config-file>
+
 
     <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk"  />
 

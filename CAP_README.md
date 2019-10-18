@@ -42,6 +42,24 @@ Open `(project)/cap.config.json`, then add the below lines to the file.
 }
 ```
 
+If you want to use this plugin in iOS platform, you need to modify the code of `@capacitor/cli`.
+
+```
+Open the `node_modules/@capacitor/cli/cordova.js`,
+then jump to around 322 lines.
+And comment out like below.
+
+//  if (platform === "ios") {
+//    pluginList.push("cordova-plugin-googlemaps");
+//  }
+
+```
+
+https://github.com/ionic-team/capacitor/blob/dc16b193bd12542491e398897d3c2c484d696ace/cli/src/cordova.ts#L322-L324
+
+
+
+
 Then build the project, and synchronize the project.
 
 ```
