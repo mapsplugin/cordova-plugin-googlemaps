@@ -90,11 +90,11 @@
       if ([plugin respondsToSelector:@selector(setViewController:)]) {
         [plugin setViewController:cdvViewController];
       }
-      if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
-        [plugin setCommandDelegate:cdvViewController.commandDelegate];
-      }
+//      if ([plugin respondsToSelector:@selector(setCommandDelegate:)]) {
+//        [plugin setCommandDelegate:cdvViewController.commandDelegate];
+//      }
       [cdvViewController.pluginObjects setObject:plugin forKey:pluginId];
-      [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
+//      [cdvViewController.pluginsMap setValue:pluginId forKey:pluginId];
       [plugin pluginInitialize];
 
       //NSLog(@"--->loadPlugin : %@ className : %@, plugin : %@", pluginId, className, plugin);
@@ -270,7 +270,7 @@
     [plugin pluginUnload];
 
     [cdvViewController.pluginObjects removeObjectForKey:pluginName];
-    [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
+//    [cdvViewController.pluginsMap setValue:nil forKey:pluginName];
     //plugin = nil;
   }
 

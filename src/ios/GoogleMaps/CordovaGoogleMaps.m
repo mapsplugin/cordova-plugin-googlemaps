@@ -25,18 +25,18 @@
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
-     #ifdef PGM_PLATFORM_CAPACITOR
+    #ifdef PGM_PLATFORM_CAPACITOR
       NSBundle *mainBundle = [NSBundle mainBundle];
       NSString *path = [NSString stringWithFormat:@"%@/capacitor.config.json", [mainBundle bundlePath]];
       NSString *fileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
       NSData *data = [fileContents dataUsingEncoding:NSUTF8StringEncoding];
       NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
       NSString *APIKey = [json objectForKey:@"GOOGLE_MAPS_IOS_API_KEY"];
-     #endif
-     #ifdef PGM_PLATFORM_CORDOVA
+    #endif
+    #ifdef PGM_PLATFORM_CORDOVA
       CDVViewController *viewCtrl = (CDVViewController *)self.viewController;
       NSString *APIKey = [viewCtrl.settings objectForKey:@"google_maps_ios_api_key"];
-     #endif
+    #endif
  
     if (APIKey == nil) {
       NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
@@ -164,6 +164,11 @@
   self.webView.opaque = NO;
 
 }
+- (void)exec:(CDVInvokedUrlCommand*)command {
+  
+  
+  
+}
 
 - (void)_destroyMap:(NSString *)mapId {
   if (![self.viewPlugins objectForKey:mapId]) {
@@ -269,11 +274,12 @@
     PluginMap *pluginMap = [[PluginMap alloc] init];
     [pluginMap pluginInitialize];
     pluginMap.mapCtrl = viewCtrl;
-
+    
     CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
     if ([pluginMap respondsToSelector:@selector(setViewController:)]) {
       [pluginMap setViewController:cdvViewController];
     }
+    
     if ([pluginMap respondsToSelector:@selector(setCommandDelegate:)]) {
        #ifdef PGM_PLATFORM_CAPACITOR
         [pluginMap setCommandDelegate:self.commandDelegate];
@@ -284,21 +290,6 @@
        #endif
     }
     
-     #ifdef PGM_PLATFORM_CAPACITOR
-      // Hack:
-      // In order to load the plugin instance of the same class but different names,
-      // register the map plugin instance into the pluginObjects directly.
-      CDVCommandDelegateImpl *delegate = self.commandDelegate;
-      [delegate.manager.pluginObjects setObject:pluginMap forKey:mapId];
-      [delegate.manager.pluginsMap setObject:mapId forKey:mapId];
-     #endif
-     #ifdef PGM_PLATFORM_CORDOVA
-      // Hack:
-      // In order to load the plugin instance of the same class but different names,
-      // register the map plugin instance into the pluginObjects directly.
-      [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
-      [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-     #endif
     [pluginMap pluginInitialize];
 
     [self.viewPlugins setObject:pluginMap forKey:mapId];

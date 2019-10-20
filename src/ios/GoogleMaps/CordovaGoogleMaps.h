@@ -24,6 +24,7 @@
 @property (nonatomic) NSMutableDictionary *viewPlugins;
 @property (nonatomic) NSOperationQueue *executeQueue;
 
+- (void)exec:(CDVInvokedUrlCommand*)command;
 - (void)getMap:(CDVInvokedUrlCommand*)command;
 - (void)getPanorama:(CDVInvokedUrlCommand*)command;
 - (void)clearHtmlElements:(CDVInvokedUrlCommand *)command;

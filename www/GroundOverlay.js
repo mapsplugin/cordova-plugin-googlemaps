@@ -21,31 +21,115 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
   //-----------------------------------------------
   self.on('visible_changed', function () {
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setVisible',
+        'args': [
+          self.getId(),
+          visible
+        ]
+      }]);
   });
   self.on('image_changed', function () {
     var image = self.get('image');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setImage', [self.getId(), image]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setImage',
+        'args': [
+          self.getId(),
+          image
+        ]
+      }]);
   });
   self.on('bounds_changed', function () {
     var bounds = self.get('bounds');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setBounds', [self.getId(), bounds]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setBounds',
+        'args': [
+          self.getId(),
+          bounds
+        ]
+      }]);
   });
   self.on('opacity_changed', function () {
     var opacity = self.get('opacity');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setOpacity',
+        'args': [
+          self.getId(),
+          opacity
+        ]
+      }]);
   });
   self.on('clickable_changed', function () {
     var clickable = self.get('clickable');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setClickable',
+        'args': [
+          self.getId(),
+          clickable
+        ]
+      }]);
   });
   self.on('bearing_changed', function () {
     var bearing = self.get('bearing');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setBearing', [self.getId(), bearing]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setBearing',
+        'args': [
+          self.getId(),
+          bearing
+        ]
+      }]);
   });
   self.on('zIndex_changed', function () {
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setZIndex',
+        'args': [
+          self.getId(),
+          zIndex
+        ]
+      }]);
   });
 
 };
@@ -136,9 +220,17 @@ GroundOverlay.prototype.remove = function (callback) {
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': self.get('map').__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'remove',
+        'args': [
+          self.getId()
+        ]
+      }, {
         remove: true
-      });
+      }]);
   };
 
   if (typeof callback === 'function') {

@@ -18,35 +18,133 @@ var Circle = function (map, circleOptions, _exec) {
     var center = self.get('center');
     center.lat = parseFloat(center.lat, 10);
     center.lng = parseFloat(center.lng, 10);
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setCenter',
+        'args': [
+          self.getId(),
+          center.lat,
+          center.lng
+        ]
+      }]);
   });
   self.on('fillColor_changed', function () {
     var color = self.get('fillColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setFillColor',
+        'args': [
+          self.getId(),
+          common.HTMLColor2RGBA(color, 0.75)
+        ]
+      }]);
   });
   self.on('strokeColor_changed', function () {
     var color = self.get('strokeColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setStrokeColor',
+        'args': [
+          self.getId(),
+          common.HTMLColor2RGBA(color, 0.75)
+        ]
+      }]);
   });
   self.on('strokeWidth_changed', function () {
     var width = self.get('strokeWidth');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setStrokeWidth',
+        'args': [
+          self.getId(),
+          width
+        ]
+      }]);
   });
   self.on('clickable_changed', function () {
     var clickable = self.get('clickable');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setClickable',
+        'args': [
+          self.getId(),
+          clickable
+        ]
+      }]);
   });
   self.on('radius_changed', function () {
     var radius = self.get('radius');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setRadius',
+        'args': [
+          self.getId(),
+          radius
+        ]
+      }]);
   });
   self.on('zIndex_changed', function () {
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setZIndex',
+        'args': [
+          self.getId(),
+          zIndex
+        ]
+      }]);
   });
   self.on('visible_changed', function () {
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setVisible',
+        'args': [
+          self.getId(),
+          visible
+        ]
+      }]);
   });
 
 };
@@ -127,15 +225,25 @@ Circle.prototype.remove = function (callback) {
   self.trigger(self.__pgmId + '_remove');
 
   var resolver = function(resolve, reject) {
+
     self.exec.call(self,
       function() {
         self.destroy();
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': self.get('map').__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'remove',
+        'args': [
+          self.getId()
+        ]
+      }], {
         remove: true
       });
+
   };
 
   if (typeof callback === 'function') {

@@ -306,7 +306,7 @@
 
     } else {
         NSURL *url = [NSURL URLWithString:urlStr];
-        [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
+        [PluginUtil downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
 
             if (!succeeded) {
               completionHandler(NO);

@@ -17,16 +17,59 @@ var Polyline = function (map, polylineOptions, _exec) {
   pointsProperty.on('set_at', function (index) {
     if (self._isRemoved) return;
     var value = common.getLatLng(pointsProperty.getAt(index));
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polylineId, index, value]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setPointAt',
+        'args': [
+          polylineId,
+          index,
+          value
+        ]
+      }]);
+
   });
   pointsProperty.on('insert_at', function (index) {
     if (self._isRemoved) return;
     var value = common.getLatLng(pointsProperty.getAt(index));
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polylineId, index, value]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'insertPointAt',
+        'args': [
+          polylineId,
+          index,
+          value
+        ]
+      }]);
+
   });
   pointsProperty.on('remove_at', function (index) {
     if (self._isRemoved) return;
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polylineId, index]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'removePointAt',
+        'args': [
+          polylineId,
+          index
+        ]
+      }]);
   });
 
   Object.defineProperty(self, 'points', {
@@ -49,32 +92,107 @@ var Polyline = function (map, polylineOptions, _exec) {
   self.on('geodesic_changed', function () {
     if (self._isRemoved) return;
     var geodesic = self.get('geodesic');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setGeodesic',
+        'args': [
+          self.getId(),
+          geodesic
+        ]
+      }]);
   });
   self.on('zIndex_changed', function () {
     if (self._isRemoved) return;
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setZIndex',
+        'args': [
+          self.getId(),
+          zIndex
+        ]
+      }]);
   });
   self.on('clickable_changed', function () {
     if (self._isRemoved) return;
     var clickable = self.get('clickable');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setClickable',
+        'args': [
+          self.getId(),
+          clickable
+        ]
+      }]);
   });
   self.on('visible_changed', function () {
     if (self._isRemoved) return;
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setVisible',
+        'args': [
+          self.getId(),
+          visible
+        ]
+      }]);
   });
   self.on('strokeWidth_changed', function () {
     if (self._isRemoved) return;
     var strokeWidth = self.get('strokeWidth');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), strokeWidth]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setStrokeWidth',
+        'args': [
+          self.getId(),
+          strokeWidth
+        ]
+      }]);
   });
   self.on('strokeColor_changed', function () {
     if (self._isRemoved) return;
     var color = self.get('strokeColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setStrokeColor',
+        'args': [
+          self.getId(),
+          common.HTMLColor2RGBA(color, 0.75)
+        ]
+      }]);
   });
 
 };
@@ -94,7 +212,19 @@ Polyline.prototype.setPoints = function (points) {
       'lng': points[i].lng
     }, true);
   }
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.__pgmId, mvcArray.getArray()]);
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'parent': self.get('map').__pgmId,
+      'instance': self.getPluginName(),
+      'cmd': 'setPoints',
+      'args': [
+        self.__pgmId,
+        mvcArray.getArray()
+      ]
+    }]);
   return self;
 };
 Polyline.prototype.getPoints = function () {
@@ -162,14 +292,22 @@ Polyline.prototype.remove = function (callback) {
 
   var resolver = function (resolve, reject) {
     self.exec.call(self,
-      function () {
+      function() {
         self.destroy();
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': self.get('map').__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'remove',
+        'args': [
+          self.getId()
+        ]
+      }, {
         remove: true
-      });
+      }]);
   };
 
   var result;

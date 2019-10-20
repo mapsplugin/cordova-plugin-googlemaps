@@ -65,7 +65,12 @@ var Map = function(__pgmId, _exec) {
     if (prevMarker) {
       prevMarker.hideInfoWindow.call(prevMarker);
     }
-    self.exec.call(self, null, null, self.__pgmId, 'setActiveMarkerId', [newMarkerId]);
+
+    self.exec.call(self, null, null, 'CordovaGoogleMaps', 'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setActiveMarkerId',
+      'args': [newMarkerId]
+    }]);
   });
 };
 
@@ -81,7 +86,12 @@ Map.prototype.refreshLayout = function() {
   document.body.offsetHeight;
   document.body.style.display = '';
 
-  this.exec.call(this, null, null, this.__pgmId, 'resizeMap', []);
+  var self = this;
+  self.exec.call(self, null, null, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': self.__pgmId,
+    'cmd': 'resizeMap',
+    'args': []
+  }]);
 };
 
 Map.prototype.getMap = function(meta, div, options) {
@@ -298,7 +308,11 @@ Map.prototype.setOptions = function(options) {
   if (utils.isArray(options.styles)) {
     options.styles = JSON.stringify(options.styles);
   }
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setOptions', [options]);
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'setOptions',
+    'args': [options]
+  }]);
   return this;
 };
 
@@ -308,13 +322,25 @@ Map.prototype.getMyLocation = function(params, success_callback, error_callback)
 
 Map.prototype.setCameraTarget = function(latLng) {
   this.set('camera_target', latLng);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraTarget', [latLng.lat, latLng.lng]);
+
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'setCameraTarget',
+    'args': [latLng.lat, latLng.lng]
+  }], {
+    sync: true
+  });
   return this;
 };
 
 Map.prototype.setCameraZoom = function(zoom) {
   this.set('camera_zoom', zoom);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraZoom', [zoom], {
+
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'setCameraZoom',
+    'args': [zoom]
+  }], {
     sync: true
   });
   return this;
@@ -322,7 +348,12 @@ Map.prototype.setCameraZoom = function(zoom) {
 Map.prototype.panBy = function(x, y) {
   x = parseInt(x, 10);
   y = parseInt(y, 10);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'panBy', [x, y], {
+
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'panBy',
+    'args': [x, y]
+  }], {
     sync: true
   });
   return this;
@@ -397,7 +428,12 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
     return this.errorHandler('Invalid MapTypeId was specified.');
   }
   this.set('mapTypeId', mapTypeId);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setMapTypeId', [mapTypeId]);
+
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'setMapTypeId',
+    'args': [mapTypeId]
+  }]);
   return this;
 };
 
@@ -407,7 +443,12 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
  */
 Map.prototype.setCameraTilt = function(tilt) {
   this.set('camera_tilt', tilt);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraTilt', [tilt], {
+
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'setCameraTilt',
+    'args': [tilt]
+  }], {
     sync: true
   });
   return this;
@@ -419,7 +460,12 @@ Map.prototype.setCameraTilt = function(tilt) {
  */
 Map.prototype.setCameraBearing = function(bearing) {
   this.set('camera_bearing', bearing);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setCameraBearing', [bearing], {
+
+  this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
+    'instance': this.__pgmId,
+    'cmd': 'setCameraBearing',
+    'args': [bearing]
+  }], {
     sync: true
   });
   return this;
@@ -510,7 +556,12 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.__pgmId, 'animateCamera', [cameraPosition], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'instance': self.__pgmId,
+        'cmd': 'animateCamera',
+        'args': [cameraPosition]
+      }], {
         sync: true
       });
   };
@@ -561,7 +612,12 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.__pgmId, 'moveCamera', [cameraPosition], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'instance': self.__pgmId,
+        'cmd': 'moveCamera',
+        'args': [cameraPosition]
+      }], {
         sync: true
       });
   };
@@ -577,12 +633,22 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set('myLocationButton', enabled);
-  self.exec.call(self, null, this.errorHandler, this.__pgmId, 'setMyLocationEnabled', [{
-    myLocationButton: enabled,
-    myLocation: self.get('myLocation') === true
-  }], {
-    sync: true
-  });
+
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setMyLocationEnabled',
+      'args': [{
+        myLocationButton: enabled,
+        myLocation: self.get('myLocation') === true
+      }]
+    }], {
+      sync: true
+    });
+
   return this;
 };
 
@@ -590,38 +656,83 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
   this.set('myLocation', enabled);
-  self.exec.call(self, null, this.errorHandler, this.__pgmId, 'setMyLocationEnabled', [{
-    myLocationButton: self.get('myLocationButton') === true,
-    myLocation: enabled
-  }], {
-    sync: true
-  });
+
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setMyLocationEnabled',
+      'args': [{
+        myLocationButton: self.get('myLocationButton') === true,
+        myLocation: enabled
+      }]
+    }], {
+      sync: true
+    });
+
   return this;
 };
 
 Map.prototype.setIndoorEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setIndoorEnabled', [enabled]);
+
+  var self = this;
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setIndoorEnabled',
+      'args': [enabled]
+    }]);
+
   return this;
 };
 Map.prototype.setTrafficEnabled = function(enabled) {
   enabled = common.parseBoolean(enabled);
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setTrafficEnabled', [enabled]);
+  var self = this;
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setTrafficEnabled',
+      'args': [enabled]
+    }]);
   return this;
 };
 Map.prototype.setCompassEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setCompassEnabled', [enabled]);
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setCompassEnabled',
+      'args': [enabled]
+    }]);
   return this;
 };
 Map.prototype.getFocusedBuilding = function(callback) {
   var self = this;
   var resolver = function(resolve, reject) {
+
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.__pgmId, 'getFocusedBuilding', []);
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'instance': self.__pgmId,
+        'cmd': 'getFocusedBuilding',
+        'args': []
+      }]);
+
   };
 
   if (typeof callback === 'function') {
@@ -638,7 +749,17 @@ Map.prototype.setVisible = function(isVisible) {
   var self = this;
   isVisible = common.parseBoolean(isVisible);
   self.set('visible', isVisible);
-  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setVisible', [isVisible]);
+
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setVisible',
+      'args': [isVisible]
+    }]);
+
   return this;
 };
 
@@ -647,7 +768,17 @@ Map.prototype.setClickable = function(isClickable) {
   var self = this;
   isClickable = common.parseBoolean(isClickable);
   self.set('clickable', isClickable);
-  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setClickable', [isClickable]);
+
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setClickable',
+      'args': [isClickable]
+    }]);
+
   return this;
 };
 Map.prototype.getClickable = function() {
@@ -661,7 +792,17 @@ Map.prototype.getClickable = function() {
 Map.prototype.setAllGesturesEnabled = function(enabled) {
   var self = this;
   enabled = common.parseBoolean(enabled);
-  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setAllGesturesEnabled', [enabled]);
+
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setAllGesturesEnabled',
+      'args': [enabled]
+    }]);
+
   return this;
 };
 
@@ -680,7 +821,16 @@ Map.prototype.getCameraPosition = function() {
 Map.prototype.stopAnimation = function() {
   var self = this;
   if (self._isReady) {
-    cordova_exec(null, null, self.__pgmId, 'stopAnimation', []);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'instance': self.__pgmId,
+        'cmd': 'stopAnimation',
+        'args': []
+      }]);
+
   }
 };
 
@@ -699,23 +849,6 @@ Map.prototype.remove = function(callback) {
   self.stopAnimation();
 
   self.trigger('remove');
-  // var div = self.get('div');
-  // if (div) {
-  //   while (div) {
-  //     if (div.style) {
-  //       div.style.backgroundColor = '';
-  //     }
-  //     if (div.classList) {
-  //       div.classList.remove('_gmaps_cdv_');
-  //     } else if (div.className) {
-  //       div.className = div.className.replace(/_gmaps_cdv_/g, '');
-  //       div.className = div.className.replace(/\s+/g, ' ');
-  //     }
-  //     div = div.parentNode;
-  //   }
-  // }
-  // self.set('div', undefined);
-
 
   // Close the active infoWindow
   var active_marker = self.get('active_marker');
@@ -745,14 +878,21 @@ Map.prototype.remove = function(callback) {
 
 
   var resolver = function(resolve, reject) {
+
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      'CordovaGoogleMaps', 'removeMap', [self.__pgmId],
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'instance': self.__pgmId,
+        'cmd': 'removeMap',
+        'args': []
+      }],
       {
         sync: true,
         remove: true
       });
+
   };
 
   if (typeof callback === 'function') {
@@ -776,10 +916,17 @@ Map.prototype.toDataURL = function(params, callback) {
   var self = this;
 
   var resolver = function(resolve, reject) {
+
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.__pgmId, 'toDataURL', [params]);
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'instance': self.__pgmId,
+        'cmd': 'toDataURL',
+        'args': [params]
+      }]);
+
   };
 
   if (typeof callback === 'function') {
@@ -858,15 +1005,23 @@ Map.prototype.setDiv = function(div) {
       div = div.parentNode;
     }
   }
-  self.exec.call(self, function() {
-    cordova.fireDocumentEvent('plugin_touch', {
-      force: true,
-      action: 'setDiv'
+  self.exec.call(self,
+    function() {
+      cordova.fireDocumentEvent('plugin_touch', {
+        force: true,
+        action: 'setDiv'
+      });
+      self.refreshLayout();
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setDiv',
+      'args': args
+    }], {
+      sync: true
     });
-    self.refreshLayout();
-  }, self.errorHandler, self.__pgmId, 'setDiv', args, {
-    sync: true
-  });
   return self;
 };
 
@@ -905,10 +1060,16 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
   if ('lat' in latLng && 'lng' in latLng) {
 
     var resolver = function(resolve, reject) {
+
       self.exec.call(self,
         resolve.bind(self),
         reject.bind(self),
-        self.__pgmId, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
+        'CordovaGoogleMaps',
+        'cmd', [{
+          'instance': self.__pgmId,
+          'cmd': 'fromLatLngToPoint',
+          'args': [latLng.lat, latLng.lng]
+        }]);
     };
 
     if (typeof callback === 'function') {
@@ -946,7 +1107,12 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
           resolve.call(self, latLng);
         },
         reject.bind(self),
-        self.__pgmId, 'fromPointToLatLng', [pixel[0], pixel[1]]);
+        'CordovaGoogleMaps',
+        'cmd', [{
+          'instance': self.__pgmId,
+          'cmd': 'fromPointToLatLng',
+          'args': [pixel[0], pixel[1]]
+        }]);
     };
 
     if (typeof callback === 'function') {
@@ -1003,7 +1169,16 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
     padding.left = padding.top;
     break;
   }
-  this.exec.call(this, null, self.errorHandler, this.__pgmId, 'setPadding', [padding]);
+  var self = this;
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'setPadding',
+      'args': [padding]
+    }]);
   return this;
 };
 
@@ -1093,13 +1268,25 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     groundOverlay = undefined;
   });
 
-  self.exec.call(self, function() {
-    groundOverlay._privateInitialize();
-    delete groundOverlay._privateInitialize;
-    if (typeof callback === 'function') {
-      callback.call(self, groundOverlay);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['GroundOverlay', groundOverlayOptions, groundOverlay.hashCode]);
+  self.exec.call(self,
+    function() {
+      groundOverlay._privateInitialize();
+      delete groundOverlay._privateInitialize;
+      if (typeof callback === 'function') {
+        callback.call(self, groundOverlay);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'GroundOverlay',
+        groundOverlayOptions,
+        groundOverlay.hashCode
+      ]
+    }]);
 
   return groundOverlay;
 };
@@ -1165,10 +1352,42 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
           finalUrl = link.protocol+'//'+link.host+link.pathname + link.search;
           link = undefined;
 
-          cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, finalUrl]);
+          cordova_exec(
+            null,
+            self.errorHandler,
+            'CordovaGoogleMaps',
+            'cmd',
+            [{
+              'parent': self.__pgmId,
+              'instance': self.__pgmId + '-tileoverlay',
+              'cmd': 'onGetTileUrlFromJS',
+              'args': [
+                hashCode,
+                params.key,
+                finalUrl
+              ]
+            }]
+          );
+
         })
         .catch(function() {
-          cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, '(null)']);
+          cordova_exec(
+            null,
+            self.errorHandler,
+            'CordovaGoogleMaps',
+            'cmd',
+            [{
+              'parent': self.__pgmId,
+              'instance': self.__pgmId + '-tileoverlay',
+              'cmd': 'onGetTileUrlFromJS',
+              'args': [
+                hashCode,
+                params.key,
+                '(null)'
+              ]
+            }]
+          );
+
         });
     } else {
 
@@ -1176,19 +1395,48 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
       link.href = url;
       url = link.protocol+'//'+link.host+link.pathname + link.search;
       link = undefined;
-      cordova_exec(null, self.errorHandler, self.__pgmId + '-tileoverlay', 'onGetTileUrlFromJS', [hashCode, params.key, url]);
+
+      cordova_exec(
+        null,
+        self.errorHandler,
+        'CordovaGoogleMaps',
+        'cmd',
+        [{
+          'parent': self.__pgmId,
+          'instance': self.__pgmId + '-tileoverlay',
+          'cmd': 'onGetTileUrlFromJS',
+          'args': [
+            hashCode,
+            params.key,
+            url
+          ]
+        }]
+      );
+
     }
   };
   document.addEventListener(self.__pgmId + '-' + hashCode + '-tileoverlay', onNativeCallback);
 
-  self.exec.call(self, function() {
-    tileOverlay._privateInitialize();
-    delete tileOverlay._privateInitialize;
+  self.exec.call(self,
+    function() {
+      tileOverlay._privateInitialize();
+      delete tileOverlay._privateInitialize;
 
-    if (typeof callback === 'function') {
-      callback.call(self, tileOverlay);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['TileOverlay', options, hashCode]);
+      if (typeof callback === 'function') {
+        callback.call(self, tileOverlay);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'TileOverlay',
+        options,
+        hashCode
+      ]
+    }]);
 
   return tileOverlay;
 };
@@ -1239,14 +1487,26 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     polygon = undefined;
   });
 
-  self.exec.call(self, function() {
-    polygon._privateInitialize();
-    delete polygon._privateInitialize;
+  self.exec.call(self,
+    function() {
+      polygon._privateInitialize();
+      delete polygon._privateInitialize;
 
-    if (typeof callback === 'function') {
-      callback.call(self, polygon);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Polygon', opts, polygon.hashCode]);
+      if (typeof callback === 'function') {
+        callback.call(self, polygon);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'Polygon',
+        opts,
+        polygon.hashCode
+      ]
+    }]);
 
   return polygon;
 };
@@ -1278,14 +1538,27 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     polyline = undefined;
   });
 
-  self.exec.call(self, function() {
-    polyline._privateInitialize();
-    delete polyline._privateInitialize;
+  self.exec.call(self,
+    function() {
+      polyline._privateInitialize();
+      delete polyline._privateInitialize;
 
-    if (typeof callback === 'function') {
-      callback.call(self, polyline);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Polyline', opts, polyline.hashCode]);
+      if (typeof callback === 'function') {
+        callback.call(self, polyline);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'Polyline',
+        opts,
+        polyline.hashCode
+      ]
+    }]);
+
 
   return polyline;
 };
@@ -1314,14 +1587,26 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     circle = undefined;
   });
 
-  self.exec.call(self, function() {
-    circle._privateInitialize();
-    delete circle._privateInitialize;
+  self.exec.call(self,
+    function() {
+      circle._privateInitialize();
+      delete circle._privateInitialize;
 
-    if (typeof callback === 'function') {
-      callback.call(self, circle);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Circle', circleOptions, circle.hashCode]);
+      if (typeof callback === 'function') {
+        callback.call(self, circle);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'Circle',
+        circleOptions,
+        circle.hashCode
+      ]
+    }]);
 
   return circle;
 };
@@ -1372,24 +1657,34 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     markerOptions.anchor = [markerOptions.anchor.x, markerOptions.anchor.y];
   }
 
-  self.exec.call(self, function(result) {
+  self.exec.call(self,
+    function(result) {
+      markerOptions.icon.size = markerOptions.icon.size || {};
+      markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
+      markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
+      markerOptions.icon.anchor = markerOptions.icon.anchor || [markerOptions.icon.size.width / 2, markerOptions.icon.size.height];
 
-    markerOptions.icon.size = markerOptions.icon.size || {};
-    markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
-    markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
-    markerOptions.icon.anchor = markerOptions.icon.anchor || [markerOptions.icon.size.width / 2, markerOptions.icon.size.height];
+      if (!markerOptions.infoWindowAnchor) {
+        markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
+      }
+      marker._privateInitialize(markerOptions);
+      delete marker._privateInitialize;
 
-    if (!markerOptions.infoWindowAnchor) {
-      markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
-    }
-    marker._privateInitialize(markerOptions);
-    delete marker._privateInitialize;
-
-    if (typeof callback === 'function') {
-      callback.call(self, marker);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Marker', markerOptions, marker.hashCode]);
-
+      if (typeof callback === 'function') {
+        callback.call(self, marker);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'Marker',
+        markerOptions,
+        marker.hashCode
+      ]
+    }]);
   return marker;
 };
 
@@ -1419,55 +1714,66 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
   var markerClusterId = markerCluster.getId();
   self.OVERLAYS[markerClusterId] = markerCluster;
 
-  self.exec.call(self, function(result) {
+  self.exec.call(self,
+    function(result) {
+      result.geocellList.forEach(function(geocell, idx) {
+        var markerOptions = markerClusterOptions.markers[idx];
+        markerOptions = common.markerOptionsFilter(markerOptions);
 
-    result.geocellList.forEach(function(geocell, idx) {
-      var markerOptions = markerClusterOptions.markers[idx];
-      markerOptions = common.markerOptionsFilter(markerOptions);
+        markerOptions._cluster = {
+          isRemoved: false,
+          isAdded: false,
+          geocell: geocell
+        };
+        markerCluster.addMarker(markerOptions);
 
-      markerOptions._cluster = {
-        isRemoved: false,
-        isAdded: false,
-        geocell: geocell
-      };
-      markerCluster.addMarker(markerOptions);
-
-      //self.MARKERS[marker.getId()] = marker;
-      //self.OVERLAYS[marker.getId()] = marker;
-    });
+        //self.MARKERS[marker.getId()] = marker;
+        //self.OVERLAYS[marker.getId()] = marker;
+      });
 
 
-    markerCluster.one('remove', function() {
-      delete self.OVERLAYS[result.__pgmId];
-      /*
-            result.geocellList.forEach(function(geocell, idx) {
-              var markerOptions = markerClusterOptions.markers[idx];
-              var markerId = result.__pgmId + '-' + (markerOptions.__pgmId || 'marker_' + idx);
-              var marker = self.MARKERS[markerId];
-              if (marker) {
-                marker.off();
-              }
-              //delete self.MARKERS[markerId];
-              delete self.OVERLAYS[markerId];
-            });
-      */
-      markerCluster.destroy();
-    });
+      markerCluster.one('remove', function() {
+        delete self.OVERLAYS[result.__pgmId];
+        /*
+              result.geocellList.forEach(function(geocell, idx) {
+                var markerOptions = markerClusterOptions.markers[idx];
+                var markerId = result.__pgmId + '-' + (markerOptions.__pgmId || 'marker_' + idx);
+                var marker = self.MARKERS[markerId];
+                if (marker) {
+                  marker.off();
+                }
+                //delete self.MARKERS[markerId];
+                delete self.OVERLAYS[markerId];
+              });
+        */
+        markerCluster.destroy();
+      });
 
-    markerCluster._privateInitialize();
-    delete markerCluster._privateInitialize;
+      markerCluster._privateInitialize();
+      delete markerCluster._privateInitialize;
 
-    markerCluster._triggerRedraw.call(markerCluster, {
-      force: true
-    });
+      markerCluster._triggerRedraw.call(markerCluster, {
+        force: true
+      });
 
-    if (typeof callback === 'function') {
-      callback.call(self, markerCluster);
-    }
-  }, self.errorHandler, self.__pgmId, 'loadPlugin', ['MarkerCluster', {
-    'positionList': positionList,
-    'debug': markerClusterOptions.debug === true
-  }, markerCluster.hashCode]);
+      if (typeof callback === 'function') {
+        callback.call(self, markerCluster);
+      }
+    },
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'instance': self.__pgmId,
+      'cmd': 'loadPlugin',
+      'args': [
+        'MarkerCluster',
+        {
+          'positionList': positionList,
+          'debug': markerClusterOptions.debug === true
+        },
+        markerCluster.hashCode
+      ]
+    }]);
 
   return markerCluster;
 };

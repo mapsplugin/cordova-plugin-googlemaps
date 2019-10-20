@@ -315,13 +315,22 @@ MarkerCluster.prototype.remove = function (callback) {
   }
 
   var resolver = function (resolve, reject) {
+
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': self.get('map').__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'remove',
+        'args': [
+          self.getId()
+        ]
+      }, {
         sync: true,
         remove: true
-      });
+      }]);
   };
 
   var answer;
@@ -384,11 +393,23 @@ Object.defineProperty(MarkerCluster.prototype, '_removeMarkerById', {
     marker.destroy();
     delete self._markerMap[markerId];
     if (isAdded) {
-      self.exec.call(self, null, null, self.getPluginName(), 'redrawClusters', [self.getId(), {
-        'delete': [markerId]
-      }], {
-        sync: true
-      });
+      self.exec.call(self,
+        null,
+        null,
+        'CordovaGoogleMaps',
+        'cmd', [{
+          'parent': map.__pgmId,
+          'instance': self.getPluginName(),
+          'cmd': 'redrawClusters',
+          'args': [
+            self.getId(),
+            {
+              'delete': [markerId]
+            }
+          ]
+        }], {
+          sync: true
+        });
     }
   },
   writable: false
@@ -1066,36 +1087,51 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
       return;
     }
 
-    self.exec.call(self, function (allResults) {
-      var markerIDs = Object.keys(allResults);
-      markerIDs.forEach(function (markerId) {
-        if (!self._markerMap[markerId]) {
-          return;
-        }
-        var marker = self._markerMap[markerId];
-        var size = allResults[markerId];
-        if (typeof marker.get('icon') === 'string') {
-          marker.set('icon', {
-            'url': marker.get('icon'),
-            'size': size,
-            'anchor': [size.width / 2, size.height]
-          }, true);
-        } else {
-          var icon = marker.get('icon') || {};
-          icon.size = icon.size || size;
-          icon.anchor = icon.anchor || [size.width / 2, size.height];
-          self._markerMap[markerId].set('icon', icon, true);
-        }
-        marker.set('infoWindowAnchor', marker.get('infoWindowAnchor') || [marker.get('icon').size.width / 2, 0], true);
+    self.exec.call(
+      self,
+      function (allResults) {
+        var markerIDs = Object.keys(allResults);
+        markerIDs.forEach(function (markerId) {
+          if (!self._markerMap[markerId]) {
+            return;
+          }
+          var marker = self._markerMap[markerId];
+          var size = allResults[markerId];
+          if (typeof marker.get('icon') === 'string') {
+            marker.set('icon', {
+              'url': marker.get('icon'),
+              'size': size,
+              'anchor': [size.width / 2, size.height]
+            }, true);
+          } else {
+            var icon = marker.get('icon') || {};
+            icon.size = icon.size || size;
+            icon.anchor = icon.anchor || [size.width / 2, size.height];
+            self._markerMap[markerId].set('icon', icon, true);
+          }
+          marker.set('infoWindowAnchor', marker.get('infoWindowAnchor') || [marker.get('icon').size.width / 2, 0], true);
+        });
+        self.trigger('nextTask');
+      },
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd',
+      [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'redrawClusters',
+        'args': [
+          self.getId(),
+          {
+            'resolution': resolution,
+            'new_or_update': new_or_update_clusters,
+            'delete': delete_clusters
+          }
+        ]
+      }], {
+        sync: true
       });
-      self.trigger('nextTask');
-    }, self.errorHandler, self.getPluginName(), 'redrawClusters', [self.getId(), {
-      'resolution': resolution,
-      'new_or_update': new_or_update_clusters,
-      'delete': delete_clusters
-    }], {
-      sync: true
-    });
+
     // console.log({
     //                 'resolution': resolution,
     //                 'new_or_update': new_or_update_clusters,

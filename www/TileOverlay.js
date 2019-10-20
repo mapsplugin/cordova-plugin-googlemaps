@@ -15,19 +15,67 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
   //-----------------------------------------------
   self.on('fadeIn_changed', function () {
     var fadeIn = self.get('fadeIn');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setFadeIn',
+        'args': [
+          self.getId(),
+          fadeIn
+        ]
+      }]);
   });
   self.on('opacity_changed', function () {
     var opacity = self.get('opacity');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setOpacity',
+        'args': [
+          self.getId(),
+          opacity
+        ]
+      }]);
   });
   self.on('zIndex_changed', function () {
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setZIndex',
+        'args': [
+          self.getId(),
+          zIndex
+        ]
+      }]);
   });
   self.on('visible_changed', function () {
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': map.__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'setVisible',
+        'args': [
+          self.getId(),
+          visible
+        ]
+      }]);
   });
 };
 
@@ -103,9 +151,17 @@ TileOverlay.prototype.remove = function (callback) {
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'parent': self.get('map').__pgmId,
+        'instance': self.getPluginName(),
+        'cmd': 'remove',
+        'args': [
+          self.getId()
+        ]
+      }, {
         remove: true
-      });
+      }]);
   };
 
   if (typeof callback === 'function') {
