@@ -1276,11 +1276,13 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
   });
 
   self.exec.call(self, function() {
-    polyline._privateInitialize();
-    delete polyline._privateInitialize;
+    if (polyline) {
+      polyline._privateInitialize();
+      delete polyline._privateInitialize;
 
-    if (typeof callback === 'function') {
-      callback.call(self, polyline);
+      if (typeof callback === 'function') {
+        callback.call(self, polyline);
+      }
     }
   }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Polyline', opts, polyline.hashCode]);
 
@@ -1374,21 +1376,22 @@ Map.prototype.addMarker = function(markerOptions, callback) {
   }
 
   self.exec.call(self, function(result) {
+   if (marker) {
+     markerOptions.icon.size = markerOptions.icon.size || {};
+     markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
+     markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
+     markerOptions.icon.anchor = markerOptions.icon.anchor || [markerOptions.icon.size.width / 2, markerOptions.icon.size.height];
 
-    markerOptions.icon.size = markerOptions.icon.size || {};
-    markerOptions.icon.size.width = markerOptions.icon.size.width || result.width;
-    markerOptions.icon.size.height = markerOptions.icon.size.height || result.height;
-    markerOptions.icon.anchor = markerOptions.icon.anchor || [markerOptions.icon.size.width / 2, markerOptions.icon.size.height];
+     if (!markerOptions.infoWindowAnchor) {
+       markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
+     }
+     marker._privateInitialize(markerOptions);
+     delete marker._privateInitialize;
 
-    if (!markerOptions.infoWindowAnchor) {
-      markerOptions.infoWindowAnchor = [markerOptions.icon.size.width / 2, 0];
-    }
-    marker._privateInitialize(markerOptions);
-    delete marker._privateInitialize;
-
-    if (typeof callback === 'function') {
-      callback.call(self, marker);
-    }
+     if (typeof callback === 'function') {
+       callback.call(self, marker);
+     }
+   }
   }, self.errorHandler, self.__pgmId, 'loadPlugin', ['Marker', markerOptions, marker.hashCode]);
 
   return marker;
