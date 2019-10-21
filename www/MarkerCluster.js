@@ -321,8 +321,8 @@ MarkerCluster.prototype.remove = function (callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [
           self.getId()
@@ -398,8 +398,8 @@ Object.defineProperty(MarkerCluster.prototype, '_removeMarkerById', {
         null,
         'CordovaGoogleMaps',
         'cmd', [{
-          'parent': map.__pgmId,
-          'instance': self.getPluginName(),
+          'mapId': map.__pgmId,
+          'instance': self.__pgmId,
           'cmd': 'redrawClusters',
           'args': [
             self.getId(),
@@ -1117,8 +1117,8 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
       'CordovaGoogleMaps',
       'cmd',
       [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'redrawClusters',
         'args': [
           self.getId(),

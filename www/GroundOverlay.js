@@ -26,8 +26,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
           self.getId(),
@@ -42,8 +42,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setImage',
         'args': [
           self.getId(),
@@ -58,8 +58,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setBounds',
         'args': [
           self.getId(),
@@ -74,8 +74,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setOpacity',
         'args': [
           self.getId(),
@@ -90,8 +90,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setClickable',
         'args': [
           self.getId(),
@@ -106,8 +106,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setBearing',
         'args': [
           self.getId(),
@@ -122,8 +122,8 @@ var GroundOverlay = function (map, groundOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
           self.getId(),
@@ -222,8 +222,8 @@ GroundOverlay.prototype.remove = function (callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [
           self.getId()

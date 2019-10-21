@@ -67,7 +67,7 @@ var Map = function(__pgmId, _exec) {
     }
 
     self.exec.call(self, null, null, 'CordovaGoogleMaps', 'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setActiveMarkerId',
       'args': [newMarkerId]
     }]);
@@ -88,7 +88,7 @@ Map.prototype.refreshLayout = function() {
 
   var self = this;
   self.exec.call(self, null, null, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': self.__pgmId,
+    'mapId': self.__pgmId,
     'cmd': 'resizeMap',
     'args': []
   }]);
@@ -309,7 +309,7 @@ Map.prototype.setOptions = function(options) {
     options.styles = JSON.stringify(options.styles);
   }
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'setOptions',
     'args': [options]
   }]);
@@ -324,7 +324,7 @@ Map.prototype.setCameraTarget = function(latLng) {
   this.set('camera_target', latLng);
 
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'setCameraTarget',
     'args': [latLng.lat, latLng.lng]
   }], {
@@ -337,7 +337,7 @@ Map.prototype.setCameraZoom = function(zoom) {
   this.set('camera_zoom', zoom);
 
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'setCameraZoom',
     'args': [zoom]
   }], {
@@ -350,7 +350,7 @@ Map.prototype.panBy = function(x, y) {
   y = parseInt(y, 10);
 
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'panBy',
     'args': [x, y]
   }], {
@@ -430,7 +430,7 @@ Map.prototype.setMapTypeId = function(mapTypeId) {
   this.set('mapTypeId', mapTypeId);
 
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'setMapTypeId',
     'args': [mapTypeId]
   }]);
@@ -445,7 +445,7 @@ Map.prototype.setCameraTilt = function(tilt) {
   this.set('camera_tilt', tilt);
 
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'setCameraTilt',
     'args': [tilt]
   }], {
@@ -462,7 +462,7 @@ Map.prototype.setCameraBearing = function(bearing) {
   this.set('camera_bearing', bearing);
 
   this.exec.call(this, null, this.errorHandler, 'CordovaGoogleMaps', 'cmd', [{
-    'instance': this.__pgmId,
+    'mapId': this.__pgmId,
     'cmd': 'setCameraBearing',
     'args': [bearing]
   }], {
@@ -558,7 +558,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'instance': self.__pgmId,
+        'mapId': self.__pgmId,
         'cmd': 'animateCamera',
         'args': [cameraPosition]
       }], {
@@ -614,7 +614,7 @@ Map.prototype.moveCamera = function(cameraPosition, callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'instance': self.__pgmId,
+        'mapId': self.__pgmId,
         'cmd': 'moveCamera',
         'args': [cameraPosition]
       }], {
@@ -639,7 +639,7 @@ Map.prototype.setMyLocationButtonEnabled = function(enabled) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setMyLocationEnabled',
       'args': [{
         myLocationButton: enabled,
@@ -662,7 +662,7 @@ Map.prototype.setMyLocationEnabled = function(enabled) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setMyLocationEnabled',
       'args': [{
         myLocationButton: self.get('myLocationButton') === true,
@@ -684,7 +684,7 @@ Map.prototype.setIndoorEnabled = function(enabled) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setIndoorEnabled',
       'args': [enabled]
     }]);
@@ -699,7 +699,7 @@ Map.prototype.setTrafficEnabled = function(enabled) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setTrafficEnabled',
       'args': [enabled]
     }]);
@@ -713,7 +713,7 @@ Map.prototype.setCompassEnabled = function(enabled) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setCompassEnabled',
       'args': [enabled]
     }]);
@@ -728,7 +728,7 @@ Map.prototype.getFocusedBuilding = function(callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'instance': self.__pgmId,
+        'mapId': self.__pgmId,
         'cmd': 'getFocusedBuilding',
         'args': []
       }]);
@@ -755,7 +755,7 @@ Map.prototype.setVisible = function(isVisible) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setVisible',
       'args': [isVisible]
     }]);
@@ -774,7 +774,7 @@ Map.prototype.setClickable = function(isClickable) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setClickable',
       'args': [isClickable]
     }]);
@@ -798,7 +798,7 @@ Map.prototype.setAllGesturesEnabled = function(enabled) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setAllGesturesEnabled',
       'args': [enabled]
     }]);
@@ -826,7 +826,7 @@ Map.prototype.stopAnimation = function() {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'instance': self.__pgmId,
+        'mapId': self.__pgmId,
         'cmd': 'stopAnimation',
         'args': []
       }]);
@@ -884,7 +884,7 @@ Map.prototype.remove = function(callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'instance': self.__pgmId,
+        'mapId': self.__pgmId,
         'cmd': 'removeMap',
         'args': []
       }],
@@ -922,7 +922,7 @@ Map.prototype.toDataURL = function(params, callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'instance': self.__pgmId,
+        'mapId': self.__pgmId,
         'cmd': 'toDataURL',
         'args': [params]
       }]);
@@ -1016,7 +1016,7 @@ Map.prototype.setDiv = function(div) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setDiv',
       'args': args
     }], {
@@ -1066,7 +1066,7 @@ Map.prototype.fromLatLngToPoint = function(latLng, callback) {
         reject.bind(self),
         'CordovaGoogleMaps',
         'cmd', [{
-          'instance': self.__pgmId,
+          'mapId': self.__pgmId,
           'cmd': 'fromLatLngToPoint',
           'args': [latLng.lat, latLng.lng]
         }]);
@@ -1109,7 +1109,7 @@ Map.prototype.fromPointToLatLng = function(pixel, callback) {
         reject.bind(self),
         'CordovaGoogleMaps',
         'cmd', [{
-          'instance': self.__pgmId,
+          'mapId': self.__pgmId,
           'cmd': 'fromPointToLatLng',
           'args': [pixel[0], pixel[1]]
         }]);
@@ -1175,7 +1175,7 @@ Map.prototype.setPadding = function(p1, p2, p3, p4) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'setPadding',
       'args': [padding]
     }]);
@@ -1279,7 +1279,7 @@ Map.prototype.addGroundOverlay = function(groundOverlayOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'GroundOverlay',
@@ -1358,8 +1358,8 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             'CordovaGoogleMaps',
             'cmd',
             [{
-              'parent': self.__pgmId,
-              'instance': self.__pgmId + '-tileoverlay',
+              'mapId': self.__pgmId,
+              'mapId': self.__pgmId + '-tileoverlay',
               'cmd': 'onGetTileUrlFromJS',
               'args': [
                 hashCode,
@@ -1377,8 +1377,8 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             'CordovaGoogleMaps',
             'cmd',
             [{
-              'parent': self.__pgmId,
-              'instance': self.__pgmId + '-tileoverlay',
+              'mapId': self.__pgmId,
+              'mapId': self.__pgmId + '-tileoverlay',
               'cmd': 'onGetTileUrlFromJS',
               'args': [
                 hashCode,
@@ -1402,8 +1402,8 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         'CordovaGoogleMaps',
         'cmd',
         [{
-          'parent': self.__pgmId,
-          'instance': self.__pgmId + '-tileoverlay',
+          'mapId': self.__pgmId,
+          'mapId': self.__pgmId + '-tileoverlay',
           'cmd': 'onGetTileUrlFromJS',
           'args': [
             hashCode,
@@ -1429,7 +1429,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'TileOverlay',
@@ -1499,7 +1499,7 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'Polygon',
@@ -1550,7 +1550,7 @@ Map.prototype.addPolyline = function(polylineOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'Polyline',
@@ -1599,7 +1599,7 @@ Map.prototype.addCircle = function(circleOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'Circle',
@@ -1677,7 +1677,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'Marker',
@@ -1763,7 +1763,7 @@ Map.prototype.addMarkerCluster = function(markerClusterOptions, callback) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'instance': self.__pgmId,
+      'mapId': self.__pgmId,
       'cmd': 'loadPlugin',
       'args': [
         'MarkerCluster',

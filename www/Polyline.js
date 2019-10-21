@@ -23,8 +23,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setPointAt',
         'args': [
           polylineId,
@@ -43,8 +43,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'insertPointAt',
         'args': [
           polylineId,
@@ -62,8 +62,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'removePointAt',
         'args': [
           polylineId,
@@ -98,8 +98,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setGeodesic',
         'args': [
           self.getId(),
@@ -116,8 +116,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
           self.getId(),
@@ -134,8 +134,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setClickable',
         'args': [
           self.getId(),
@@ -151,8 +151,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
           self.getId(),
@@ -168,8 +168,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setStrokeWidth',
         'args': [
           self.getId(),
@@ -185,8 +185,8 @@ var Polyline = function (map, polylineOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setStrokeColor',
         'args': [
           self.getId(),
@@ -217,8 +217,8 @@ Polyline.prototype.setPoints = function (points) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'parent': self.get('map').__pgmId,
-      'instance': self.getPluginName(),
+      'mapId': self.get('map').__pgmId,
+      'instance': self.__pgmId,
       'cmd': 'setPoints',
       'args': [
         self.__pgmId,
@@ -299,8 +299,8 @@ Polyline.prototype.remove = function (callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [
           self.getId()

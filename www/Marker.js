@@ -38,8 +38,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
         self.errorHandler,
         'CordovaGoogleMaps',
         'cmd', [{
-          'parent': map.__pgmId,
-          'instance': self.getPluginName(),
+          'mapId': map.__pgmId,
+          'instance': self.__pgmId,
           'cmd': 'setPosition',
           'args': [
             self.getId(),
@@ -58,8 +58,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setRotation',
         'args': [
           self.getId(),
@@ -74,8 +74,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setSnippet',
         'args': [
           self.getId(),
@@ -90,8 +90,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
           self.getId(),
@@ -106,8 +106,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setTitle',
         'args': [
           self.getId(),
@@ -147,8 +147,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setIcon',
         'args': [
           self.getId(),
@@ -164,8 +164,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setFlat',
         'args': [
           self.getId(),
@@ -181,8 +181,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setDraggable',
         'args': [
           self.getId(),
@@ -200,8 +200,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setIconAnchor',
         'args': [
           self.getId(),
@@ -220,8 +220,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setInfoWindowAnchor',
         'args': [
           self.getId(),
@@ -240,8 +240,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
           self.getId(),
@@ -256,8 +256,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setOpacity',
         'args': [
           self.getId(),
@@ -272,8 +272,8 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setDisableAutoPan',
         'args': [
           self.getId(),
@@ -312,8 +312,8 @@ Marker.prototype.remove = function(callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [
           self.getId()
@@ -376,7 +376,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.getPluginName(), 'setAnimation', [self.getId(), animation]);
+      self.__pgmId, 'setAnimation', [self.getId(), animation]);
   };
 
   if (typeof callback === 'function') {
@@ -486,7 +486,7 @@ Marker.prototype.showInfoWindow = function() {
   }
   self.set('isInfoWindowVisible', true);
   self.map.set('active_marker_id', self.__pgmId);
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'showInfoWindow', [self.getId()], {
+  self.exec.call(self, null, self.errorHandler, self.__pgmId, 'showInfoWindow', [self.getId()], {
     sync: true
   });
   return self;
@@ -498,7 +498,7 @@ Marker.prototype.hideInfoWindow = function() {
   }
   if (self.get('isInfoWindowVisible')) {
     self.set('isInfoWindowVisible', false);
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'hideInfoWindow', [self.getId()], {
+    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'hideInfoWindow', [self.getId()], {
       sync: true
     });
   }

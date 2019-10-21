@@ -23,8 +23,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setPointAt',
         'args': [
           polygonId,
@@ -41,8 +41,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'insertPointAt',
         'args': [
           polygonId,
@@ -57,8 +57,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': map.__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'removePointAt',
         'args': [
           polygonId,
@@ -96,8 +96,8 @@ var Polygon = function (map, polygonOptions, _exec) {
         self.errorHandler,
         'CordovaGoogleMaps',
         'cmd', [{
-          'parent': map.__pgmId,
-          'instance': self.getPluginName(),
+          'mapId': map.__pgmId,
+          'instance': self.__pgmId,
           'cmd': 'insertPointOfHoleAt',
           'args': [
             polygonId,
@@ -114,8 +114,8 @@ var Polygon = function (map, polygonOptions, _exec) {
         self.errorHandler,
         'CordovaGoogleMaps',
         'cmd', [{
-          'parent': self.get('map').__pgmId,
-          'instance': self.getPluginName(),
+          'mapId': self.get('map').__pgmId,
+          'instance': self.__pgmId,
           'cmd': 'setPointOfHoleAt',
           'args': [
             polygonId,
@@ -131,8 +131,8 @@ var Polygon = function (map, polygonOptions, _exec) {
         self.errorHandler,
         'CordovaGoogleMaps',
         'cmd', [{
-          'parent': self.get('map').__pgmId,
-          'instance': self.getPluginName(),
+          'mapId': self.get('map').__pgmId,
+          'instance': self.__pgmId,
           'cmd': 'removePointOfHoleAt',
           'args': [
             polygonId,
@@ -147,8 +147,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'insertHoleAt',
         'args': [
           polygonId,
@@ -183,8 +183,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setClickable',
         'args': [
           self.getId(),
@@ -199,8 +199,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setGeodesic',
         'args': [
           self.getId(),
@@ -215,8 +215,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
           self.getId(),
@@ -231,8 +231,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
           self.getId(),
@@ -247,8 +247,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setStrokeWidth',
         'args': [
           self.getId(),
@@ -263,8 +263,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setStrokeColor',
         'args': [
           self.getId(),
@@ -279,8 +279,8 @@ var Polygon = function (map, polygonOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'setFillColor',
         'args': [
           self.getId(),
@@ -317,8 +317,8 @@ Polygon.prototype.remove = function (callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'parent': self.get('map').__pgmId,
-        'instance': self.getPluginName(),
+        'mapId': self.get('map').__pgmId,
+        'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [
           self.getId()
@@ -352,8 +352,8 @@ Polygon.prototype.setPoints = function (points) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'parent': self.get('map').__pgmId,
-      'instance': self.getPluginName(),
+      'mapId': self.get('map').__pgmId,
+      'instance': self.__pgmId,
       'cmd': 'setPoints',
       'args': [
         self.__pgmId,
@@ -392,8 +392,8 @@ Polygon.prototype.setHoles = function (holes) {
     self.errorHandler,
     'CordovaGoogleMaps',
     'cmd', [{
-      'parent': self.get('map').__pgmId,
-      'instance': self.getPluginName(),
+      'mapId': self.get('map').__pgmId,
+      'instance': self.__pgmId,
       'cmd': 'setHoles',
       'args': [
         self.__pgmId,
