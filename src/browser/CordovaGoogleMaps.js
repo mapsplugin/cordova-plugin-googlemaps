@@ -84,12 +84,12 @@ var CordovaGoogleMaps = {
     }
     var method;
     if (info.instance) {
-      console.log('--->instance', info.instance);
       method = map._cmd;
+      method.call(map, onSuccess, onError, args);
     } else {
       method = map[info.cmd];
+      method.call(map, onSuccess, onError, info.args);
     }
-    method.call(map, onSuccess, onError, info.args);
   },
 
   getMap: function(onSuccess, onError, args) {

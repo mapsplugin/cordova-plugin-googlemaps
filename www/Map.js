@@ -1,5 +1,4 @@
 
-
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -398,10 +397,16 @@ Map.prototype.clear = function(callback) {
   self.trigger('map_clear');
 
   var resolver = function(resolve, reject) {
+
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.__pgmId, 'clear', [], {
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'mapId': self.__pgmId,
+        'cmd': 'clear',
+        'args': []
+      }], {
         sync: true
       });
   };
@@ -1356,11 +1361,10 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             null,
             self.errorHandler,
             'CordovaGoogleMaps',
-            'cmd',
+            'onGetTileUrlFromJS',
             [{
-              'mapId': self.__pgmId,
-              'mapId': self.__pgmId + '-tileoverlay',
-              'cmd': 'onGetTileUrlFromJS',
+              'mapId': self.map.__pgmId,
+              'instance': self.__pgmId + '-tileoverlay',
               'args': [
                 hashCode,
                 params.key,
@@ -1375,11 +1379,10 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             null,
             self.errorHandler,
             'CordovaGoogleMaps',
-            'cmd',
+            'onGetTileUrlFromJS',
             [{
-              'mapId': self.__pgmId,
-              'mapId': self.__pgmId + '-tileoverlay',
-              'cmd': 'onGetTileUrlFromJS',
+              'mapId': self.map.__pgmId,
+              'instance': self.__pgmId + '-tileoverlay',
               'args': [
                 hashCode,
                 params.key,
@@ -1400,11 +1403,10 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         null,
         self.errorHandler,
         'CordovaGoogleMaps',
-        'cmd',
+        'onGetTileUrlFromJS',
         [{
-          'mapId': self.__pgmId,
-          'mapId': self.__pgmId + '-tileoverlay',
-          'cmd': 'onGetTileUrlFromJS',
+          'mapId': self.map.__pgmId,
+          'instance': self.__pgmId + '-tileoverlay',
           'args': [
             hashCode,
             params.key,

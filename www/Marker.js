@@ -1,5 +1,4 @@
 
-
 var utils = require('cordova/utils'),
   common = require('./Common'),
   LatLng = require('./LatLng'),
@@ -376,7 +375,16 @@ Marker.prototype.setAnimation = function(animation, callback) {
     self.exec.call(self,
       resolve.bind(self),
       reject.bind(self),
-      self.__pgmId, 'setAnimation', [self.getId(), animation]);
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'mapId': map.__pgmId,
+        'instance': self.__pgmId,
+        'cmd': 'setAnimation',
+        'args': [
+          self.getId(),
+          animation
+        ]
+      }]);
   };
 
   if (typeof callback === 'function') {
@@ -486,9 +494,21 @@ Marker.prototype.showInfoWindow = function() {
   }
   self.set('isInfoWindowVisible', true);
   self.map.set('active_marker_id', self.__pgmId);
-  self.exec.call(self, null, self.errorHandler, self.__pgmId, 'showInfoWindow', [self.getId()], {
-    sync: true
-  });
+
+  self.exec.call(self,
+    null,
+    self.errorHandler,
+    'CordovaGoogleMaps',
+    'cmd', [{
+      'mapId': self.map.__pgmId,
+      'instance': self.__pgmId,
+      'cmd': 'showInfoWindow',
+      'args': [
+        self.getId()
+      ]
+    }], {
+      sync: true
+    });
   return self;
 };
 Marker.prototype.hideInfoWindow = function() {
@@ -498,9 +518,22 @@ Marker.prototype.hideInfoWindow = function() {
   }
   if (self.get('isInfoWindowVisible')) {
     self.set('isInfoWindowVisible', false);
-    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'hideInfoWindow', [self.getId()], {
-      sync: true
-    });
+
+    self.exec.call(self,
+      null,
+      self.errorHandler,
+      'CordovaGoogleMaps',
+      'cmd', [{
+        'mapId': self.map.__pgmId,
+        'instance': self.__pgmId,
+        'cmd': 'hideInfoWindow',
+        'args': [
+          self.getId()
+        ]
+      }], {
+        sync: true
+      });
+
   }
   return self;
 };

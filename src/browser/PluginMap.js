@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -252,7 +251,23 @@ function PluginMap(mapId, options) {
 utils.extend(PluginMap, BaseClass);
 
 PluginMap.prototype._cmd = function(onSuccess, onError, args) {
-  console.log('pluginMap', args);
+
+  var self = this;
+  var info = args[0];
+  if (!info.instance) {
+    return onError(new Error('info.instance is missing'));
+  }
+  if (!(info.instance in self.objects)) {
+    return onError(new Error(info.instance + 'is not found.'));
+  }
+
+  var className = (info.instance.split("_"))[0];
+  var pluginClass = self.PLUGINS[className];
+  if (!pluginClass) {
+    return onError(new Error('Invalid instance id "' + info.instance + '".'));
+  }
+
+  pluginClass[info.cmd].call(pluginClass, onSuccess, onError, info.args);
 };
 
 PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
@@ -703,11 +718,11 @@ PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
 
   var plugin;
   if (className in self.PLUGINS) {
-    plugin = self.PLUGINS[className];
+    plugin = self.PLUGINS[className.toLowerCase()];
   } else {
     var OverlayClass = require('cordova-plugin-googlemaps.Plugin' + className);
     plugin = new OverlayClass(this);
-    self.PLUGINS[className] = plugin;
+    self.PLUGINS[className.toLowerCase()] = plugin;
 
     // // Since Cordova involes methods as Window,
     // // the `this` keyword of involved method is Window, not overlay itself.
