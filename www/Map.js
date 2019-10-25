@@ -1363,7 +1363,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             'CordovaGoogleMaps',
             'onGetTileUrlFromJS',
             [{
-              'mapId': self.map.__pgmId,
+              'mapId': self.__pgmId,
               'instance': self.__pgmId + '-tileoverlay',
               'args': [
                 hashCode,
@@ -1381,7 +1381,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             'CordovaGoogleMaps',
             'onGetTileUrlFromJS',
             [{
-              'mapId': self.map.__pgmId,
+              'mapId': self.__pgmId,
               'instance': self.__pgmId + '-tileoverlay',
               'args': [
                 hashCode,
@@ -1405,7 +1405,7 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         'CordovaGoogleMaps',
         'onGetTileUrlFromJS',
         [{
-          'mapId': self.map.__pgmId,
+          'mapId': self.__pgmId,
           'instance': self.__pgmId + '-tileoverlay',
           'args': [
             hashCode,
