@@ -324,9 +324,9 @@ Polygon.prototype.remove = function (callback) {
         'args': [
           self.getId()
         ]
-      }, {
+      }], {
         remove: true
-      }]);
+      });
   };
 
   if (typeof callback === 'function') {

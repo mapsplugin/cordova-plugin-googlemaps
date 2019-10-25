@@ -1,4 +1,5 @@
-var utils = require('cordova/utils'),
+
+ var utils = require('cordova/utils'),
   common = require('./Common'),
   Overlay = require('./Overlay');
 
@@ -159,9 +160,9 @@ TileOverlay.prototype.remove = function (callback) {
         'args': [
           self.getId()
         ]
-      }, {
+      }], {
         remove: true
-      }]);
+      });
   };
 
   if (typeof callback === 'function') {

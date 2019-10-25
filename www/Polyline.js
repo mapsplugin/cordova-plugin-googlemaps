@@ -305,9 +305,9 @@ Polyline.prototype.remove = function (callback) {
         'args': [
           self.getId()
         ]
-      }, {
+      }], {
         remove: true
-      }]);
+      });
   };
 
   var result;
