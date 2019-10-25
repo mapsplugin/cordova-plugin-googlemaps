@@ -86,9 +86,22 @@ KmlLoader.prototype.parseKmlFile = function(callback) {
       //result.set('kmlData', rawKmlData);
       callback.call(self, self.camera, result);
     });
-  }, self.map.errorHandler, self.map.__pgmId, 'loadPlugin', ['KmlOverlay', {
-    url: self.options.url
-  }], {sync: true});
+  },
+  self.map.errorHandler,
+  'CordovaGoogleMaps',
+  'cmd',
+  [{
+    'mapId': self.map.__pgmId,
+    'cmd': 'loadPlugin',
+    'args': [
+      'KmlOverlay',
+      {
+        'url': self.options.url
+      }
+    ]
+  }], {
+    sync: true
+  });
 };
 
 KmlLoader.prototype.kmlTagProcess = function(params, callback) {

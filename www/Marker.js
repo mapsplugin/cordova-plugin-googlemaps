@@ -37,7 +37,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
         self.errorHandler,
         'CordovaGoogleMaps',
         'cmd', [{
-          'mapId': map.__pgmId,
+          'mapId': self.map.__pgmId,
           'instance': self.__pgmId,
           'cmd': 'setPosition',
           'args': [
@@ -57,7 +57,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setRotation',
         'args': [
@@ -73,7 +73,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setSnippet',
         'args': [
@@ -89,7 +89,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
@@ -105,7 +105,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setTitle',
         'args': [
@@ -146,7 +146,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setIcon',
         'args': [
@@ -163,7 +163,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setFlat',
         'args': [
@@ -180,7 +180,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setDraggable',
         'args': [
@@ -199,7 +199,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setIconAnchor',
         'args': [
@@ -219,7 +219,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setInfoWindowAnchor',
         'args': [
@@ -239,7 +239,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
@@ -255,7 +255,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setOpacity',
         'args': [
@@ -271,7 +271,7 @@ var Marker = function(map, markerOptions, _exec, extras) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setDisableAutoPan',
         'args': [
@@ -311,7 +311,7 @@ Marker.prototype.remove = function(callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': self.get('map').__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [
@@ -377,7 +377,7 @@ Marker.prototype.setAnimation = function(animation, callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setAnimation',
         'args': [

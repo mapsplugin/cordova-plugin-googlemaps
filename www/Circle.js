@@ -23,7 +23,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setCenter',
         'args': [
@@ -40,7 +40,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setFillColor',
         'args': [
@@ -56,7 +56,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setStrokeColor',
         'args': [
@@ -72,7 +72,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setStrokeWidth',
         'args': [
@@ -88,7 +88,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setClickable',
         'args': [
@@ -104,7 +104,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setRadius',
         'args': [
@@ -120,7 +120,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
@@ -137,7 +137,7 @@ var Circle = function (map, circleOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
@@ -234,7 +234,7 @@ Circle.prototype.remove = function (callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': self.get('map').__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [

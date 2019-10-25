@@ -20,7 +20,7 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setFadeIn',
         'args': [
@@ -36,7 +36,7 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setOpacity',
         'args': [
@@ -52,7 +52,7 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setZIndex',
         'args': [
@@ -68,7 +68,7 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
       self.errorHandler,
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'setVisible',
         'args': [
@@ -153,7 +153,7 @@ TileOverlay.prototype.remove = function (callback) {
       reject.bind(self),
       'CordovaGoogleMaps',
       'cmd', [{
-        'mapId': self.get('map').__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'remove',
         'args': [

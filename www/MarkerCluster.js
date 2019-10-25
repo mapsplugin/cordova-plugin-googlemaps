@@ -1,4 +1,5 @@
 
+
 /* eslint no-useless-escape: off */
 
 var utils = require('cordova/utils'),
@@ -398,7 +399,7 @@ Object.defineProperty(MarkerCluster.prototype, '_removeMarkerById', {
         null,
         'CordovaGoogleMaps',
         'cmd', [{
-          'mapId': map.__pgmId,
+          'mapId': self.map.__pgmId,
           'instance': self.__pgmId,
           'cmd': 'redrawClusters',
           'args': [
@@ -1117,7 +1118,7 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
       'CordovaGoogleMaps',
       'cmd',
       [{
-        'mapId': map.__pgmId,
+        'mapId': self.map.__pgmId,
         'instance': self.__pgmId,
         'cmd': 'redrawClusters',
         'args': [

@@ -257,9 +257,10 @@ PluginMap.prototype._cmd = function(onSuccess, onError, args) {
   if (!info.instance) {
     return onError(new Error('info.instance is missing'));
   }
-  if (!(info.instance in self.objects)) {
-    return onError(new Error(info.instance + 'is not found.'));
-  }
+  // if (!(info.instance in self.objects)) {
+  //   console.log(self.objects);
+  //   return onError(new Error(info.instance + 'is not found.'));
+  // }
 
   var className = (info.instance.split("_"))[0];
   var pluginClass = self.PLUGINS[className];
