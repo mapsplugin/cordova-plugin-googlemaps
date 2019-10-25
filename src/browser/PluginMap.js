@@ -716,14 +716,15 @@ PluginMap.prototype._onCameraEvent = function(evtName) {
 PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
   var self = this;
   var className = args[0];
+  var lowerClassName = className.toLowerCase();
 
   var plugin;
-  if (className in self.PLUGINS) {
-    plugin = self.PLUGINS[className.toLowerCase()];
+  if (lowerClassName in self.PLUGINS) {
+    plugin = self.PLUGINS[lowerClassName];
   } else {
     var OverlayClass = require('cordova-plugin-googlemaps.Plugin' + className);
     plugin = new OverlayClass(this);
-    self.PLUGINS[className.toLowerCase()] = plugin;
+    self.PLUGINS[lowerClassName] = plugin;
 
     // // Since Cordova involes methods as Window,
     // // the `this` keyword of involved method is Window, not overlay itself.
