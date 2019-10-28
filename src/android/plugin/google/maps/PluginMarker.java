@@ -181,7 +181,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
 
       try {
         if (!_clearDone) {
-          semaphoreAsync.wait(1000);
+          semaphoreAsync.wait(5);
         }
       } catch (InterruptedException e) {
         // ignore
