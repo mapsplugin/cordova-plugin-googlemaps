@@ -1361,10 +1361,11 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             null,
             self.errorHandler,
             'CordovaGoogleMaps',
-            'onGetTileUrlFromJS',
+            'cmd',
             [{
               'mapId': self.__pgmId,
               'instance': self.__pgmId + '-tileoverlay',
+              'cmd': 'onGetTileUrlFromJS',
               'args': [
                 hashCode,
                 params.key,
@@ -1379,10 +1380,11 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
             null,
             self.errorHandler,
             'CordovaGoogleMaps',
-            'onGetTileUrlFromJS',
+            'cmd',
             [{
               'mapId': self.__pgmId,
               'instance': self.__pgmId + '-tileoverlay',
+              'cmd': 'onGetTileUrlFromJS',
               'args': [
                 hashCode,
                 params.key,
@@ -1403,10 +1405,11 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
         null,
         self.errorHandler,
         'CordovaGoogleMaps',
-        'onGetTileUrlFromJS',
+        'cmd',
         [{
           'mapId': self.__pgmId,
           'instance': self.__pgmId + '-tileoverlay',
+          'cmd': 'onGetTileUrlFromJS',
           'args': [
             hashCode,
             params.key,

@@ -262,7 +262,13 @@ PluginMap.prototype._cmd = function(onSuccess, onError, args) {
   //   return onError(new Error(info.instance + 'is not found.'));
   // }
 
-  var className = (info.instance.split("_"))[0];
+  var tmp = info.instance.split('_');
+  var className;
+  if (info.instance.indexOf('-tileoverlay') > -1) {
+    className = 'tileoverlay';
+  } else {
+    className = (info.instance.split("_"))[0];
+  }
   var pluginClass = self.PLUGINS[className];
   if (!pluginClass) {
     return onError(new Error('Invalid instance id "' + info.instance + '".'));
