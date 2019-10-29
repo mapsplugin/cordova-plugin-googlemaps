@@ -169,11 +169,10 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
                 }
               }
             }
-
-            synchronized (semaphoreAsync) {
-              _clearDone = true;
-              semaphoreAsync.notify();
-            }
+          }
+          synchronized (semaphoreAsync) {
+            _clearDone = true;
+            semaphoreAsync.notify();
           }
 
         }
