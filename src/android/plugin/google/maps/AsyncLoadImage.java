@@ -30,7 +30,6 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
   private float density = Resources.getSystem().getDisplayMetrics().density;
   private AsyncLoadImageOptions mOptions;
   private String userAgent;
-  private String currentPageUrl;
 
   // Get max available VM memory, exceeding this amount will throw an
   // OutOfMemory exception.
@@ -125,19 +124,6 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       mOptions.url = PluginUtil.getAbsolutePathFromCDVFilePath(resourceApi, mOptions.url);
     }
 
-    String currentPage = webView.getUrl();
-    if (currentPage == null) {
-      // Maybe someone close the map page.
-      this.cancel(true);
-      return;
-    }
-    currentPage = currentPage.replaceAll("#.*$", "");
-    currentPage = currentPage.replaceAll("\\?.*$", "");
-    currentPage = currentPage.replaceAll("[^\\/]*$", "");
-    this.currentPageUrl = currentPage;
-
-    //Log.d(TAG, "-->currentPageUrl = " + this.currentPageUrl);
-
     //View browserView = webView.getView();
     //String browserViewName = browserView.getClass().getName();
     this.userAgent = "Mozilla";
@@ -197,8 +183,8 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
     //--------------------------------
     if (!iconUrl.startsWith("data:image")) {
 
-      if (currentPageUrl.startsWith("http://localhost") ||
-          currentPageUrl.startsWith("http://127.0.0.1")) {
+      if (iconUrl.startsWith("http://localhost") ||
+          iconUrl.startsWith("http://127.0.0.1")) {
 
         String wwwDirName = "www";
 
@@ -228,20 +214,6 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
           !iconUrl.startsWith("./") &&
           !iconUrl.startsWith("../")) {
         iconUrl = "./" + iconUrl;
-        //Log.d(TAG, "--> iconUrl = " + iconUrl);
-      }
-
-      if (iconUrl.startsWith("./") || iconUrl.startsWith("../")) {
-        iconUrl = iconUrl.replace("(\\.\\/)+", "./");
-        String currentPage = this.currentPageUrl;
-        currentPage = currentPage.replaceAll("[^\\/]*$", "");
-        currentPage = currentPage.replaceAll("#.*$", "");
-        currentPage = currentPage.replaceAll("\\/[^\\/]+\\.[^\\/]+$", "");
-        if (!currentPage.endsWith("/")) {
-          currentPage = currentPage + "/";
-        }
-        iconUrl = currentPage + iconUrl;
-        iconUrl = iconUrl.replaceAll("(\\/\\.\\/+)+", "/");
         //Log.d(TAG, "--> iconUrl = " + iconUrl);
       }
 
@@ -459,107 +431,6 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
           return null;
         }
       }
-      /*
-      //--------------------------------
-      // Load image from local path
-      //--------------------------------
-      if (!iconUrl.contains("://") &&
-          !iconUrl.startsWith("/") &&
-          !iconUrl.startsWith("www/") &&
-          !iconUrl.startsWith("data:image") &&
-          !iconUrl.startsWith("./") &&
-          !iconUrl.startsWith("../")) {
-        iconUrl = "./" + iconUrl;
-        Log.d(TAG, "--> iconUrl = " + iconUrl);
-      }
-
-      if (iconUrl.startsWith("./") || iconUrl.startsWith("../")) {
-        iconUrl = iconUrl.replace("(\\.\\/)+", "./");
-        String currentPage = this.currentPageUrl;
-        currentPage = currentPage.replaceAll("[^\\/]*$", "");
-        currentPage = currentPage.replaceAll("#.*$", "");
-        currentPage = currentPage.replaceAll("\\/[^\\/]+\\.[^\\/]+$", "");
-        if (!currentPage.endsWith("/")) {
-          currentPage = currentPage + "/";
-        }
-        iconUrl = currentPage + iconUrl;
-        iconUrl = iconUrl.replaceAll("(\\/\\.\\/+)+", "/");
-        Log.d(TAG, "--> iconUrl = " + iconUrl);
-      }
-
-      if (iconUrl.indexOf("data:image/") == 0 && iconUrl.contains(";base64,")) {
-        cacheKey = getCacheKey(iconUrl, mWidth, mHeight);
-
-        image = getBitmapFromMemCache(cacheKey);
-        if (image != null) {
-          AsyncLoadImageResult result = new AsyncLoadImageResult();
-          result.image = image;
-          result.cacheHit = true;
-          result.cacheKey = cacheKey;
-          return result;
-        }
-
-        String[] tmp = iconUrl.split(",");
-        image = PluginUtil.getBitmapFromBase64encodedImage(tmp[1]);
-      } else if (iconUrl.indexOf("file://") == 0 &&
-          !iconUrl.contains("file:///android_asset/")) {
-        iconUrl = iconUrl.replace("file://", "");
-        File tmp = new File(iconUrl);
-        if (tmp.exists()) {
-          cacheKey = getCacheKey(iconUrl, mWidth, mHeight);
-
-          image = getBitmapFromMemCache(cacheKey);
-          if (image != null) {
-            AsyncLoadImageResult result = new AsyncLoadImageResult();
-            result.image = image;
-            result.cacheHit = true;
-            result.cacheKey = cacheKey;
-            return result;
-          }
-
-          image = BitmapFactory.decodeFile(iconUrl);
-        } else {
-          //if (PluginMarker.this.mapCtrl.mPluginLayout.isDebug) {
-          Log.w(TAG, "icon is not found (" + iconUrl + ")");
-          //}
-          return null;
-        }
-      } else {
-        Log.d(TAG, "--> iconUrl = " + iconUrl);
-        cacheKey = getCacheKey(iconUrl, mWidth, mHeight);
-        image = getBitmapFromMemCache(cacheKey);
-
-        if (image != null) {
-          AsyncLoadImageResult result = new AsyncLoadImageResult();
-          result.image = image;
-          result.cacheHit = true;
-          result.cacheKey = cacheKey;
-          return result;
-        }
-
-        Log.d(TAG, "iconUrl = " + iconUrl);
-        if (iconUrl.indexOf("file:///android_asset/") == 0) {
-          iconUrl = iconUrl.replace("file:///android_asset/", "");
-        }
-
-        Log.d(TAG, "iconUrl = " + iconUrl);
-        if (iconUrl.contains("./")) {
-          try {
-            boolean isAbsolutePath = iconUrl.startsWith("/");
-            File relativePath = new File(iconUrl);
-            iconUrl = relativePath.getCanonicalPath();
-            Log.d(TAG, "iconUrl = " + iconUrl);
-            if (!isAbsolutePath) {
-              iconUrl = iconUrl.substring(1);
-            }
-            Log.d(TAG, "iconUrl = " + iconUrl);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-        */
-
-      //}
 
       if (mWidth > 0 && mHeight > 0) {
         mWidth = Math.round(mWidth * density);
