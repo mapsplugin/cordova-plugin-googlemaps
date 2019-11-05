@@ -225,6 +225,7 @@
     - Remove promise-7.0.4-min.js.map
     - Fix: (iOS) bug fix: App crashes if "bearing" property is "<null>"
     - Fix: HTMLColor2RGBA() converts to incorrect value
+    - Fix: (Android) Can't load marker image from the Ineternet
 
   - **v2.6.2**
     - Fix: (Android) build error
