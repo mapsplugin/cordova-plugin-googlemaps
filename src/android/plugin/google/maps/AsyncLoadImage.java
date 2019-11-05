@@ -190,14 +190,15 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       return result;
     }
 
-    //Log.d(TAG, "--> iconUrl = " + iconUrl);
+//    Log.d(TAG, String.format("---->iconURL = %s", iconUrl));
     //--------------------------------
     // Load image from local path
     //--------------------------------
     if (!iconUrl.startsWith("data:image")) {
 
-      if (currentPageUrl.startsWith("http://localhost") ||
-          currentPageUrl.startsWith("http://127.0.0.1")) {
+      if (iconUrl.startsWith("http://localhost") ||
+          iconUrl.startsWith("http://127.0.0.1")) {
+//        Log.d(TAG, String.format("---->(201)iconURL = %s", iconUrl));
         if (iconUrl.contains("://")) {
           iconUrl = iconUrl.replaceAll("http://.+?/", "file:///android_asset/www/");
         } else {
