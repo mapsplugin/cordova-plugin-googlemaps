@@ -117,30 +117,35 @@ var Marker = function(map, markerOptions, _exec, extras) {
   self.on('icon_changed', function() {
     var icon = self.get('icon');
 
-    if (typeof icon === 'object' &&
-        typeof icon.anchor === 'object' &&
-        'x' in icon.anchor &&
-        'y' in icon.anchor) {
-      icon.anchor = [icon.anchor.x, icon.anchor.y];
-    }
-    if (typeof icon === 'object' &&
-        typeof icon.url === 'string' &&
-        icon.url.indexOf("://") === -1 &&
-        icon.url.indexOf(".") === 0) {
+    icon = icon || {};
+    var link;
 
-        var link = document.createElement('a');
-        link.href = icon.url;
-        icon.url = link.protocol+'//'+link.host+link.pathname + link.search;;
-        link = undefined;
-    } else if (typeof icon === 'string' &&
-        icon.indexOf("://") === -1 &&
-        icon.indexOf(".") === 0) {
-
-        var link = document.createElement('a');
-        link.href = icon;
-        icon = link.protocol+'//'+link.host+link.pathname + link.search;;
-        link = undefined;
+    if (typeof icon === 'string' || Array.isArray(icon)) {
+      icon = {
+        url: icon
+      };
     }
+
+    if (typeof icon === 'object') {
+      if (typeof icon.url === 'string') {
+        if (icon.url.indexOf('://') === -1 &&
+            icon.url.indexOf('.') === 0) {
+
+          var link = document.createElement('a');
+          link.href = icon.url;
+          icon.url = link.protocol+'//'+link.host+link.pathname + link.search;
+          link = undefined;
+        }
+      }
+
+      if (typeof icon.anchor === 'object' &&
+          'x' in icon.anchor &&
+          'y' in icon.anchor) {
+        icon.anchor = [icon.anchor.x, icon.anchor.y];
+      }
+    }
+
+
     self.exec.call(self,
       null,
       self.errorHandler,

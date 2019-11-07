@@ -177,7 +177,7 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
       return result;
     }
 
-    //Log.d(TAG, "--> iconUrl = " + iconUrl);
+//    Log.d(TAG, String.format("---->iconURL = %s", iconUrl));
     //--------------------------------
     // Load image from local path
     //--------------------------------

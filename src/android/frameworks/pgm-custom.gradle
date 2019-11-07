@@ -14,7 +14,7 @@ def searchFileInParents(target) {
 
 android {
   def isCapacitor = false
-  def searchPath = 'app/src/main/res/xml/config.xml'
+  def isIonic = false
 
   lintOptions {
       abortOnError false
@@ -40,6 +40,9 @@ android {
     isCapacitor = true
   }
 
+  if (searchFileInParents("ionic.config.json")) {
+    isIonic = true
+  }
 
   if (!isCapacitor && configFile == null) {
     throw new GradleException("Can not find config.xml file.")
@@ -71,7 +74,7 @@ android {
     widget.preference.each { pref ->
       def name = pref.attributes().name
       def value = pref.attributes().value
-      println("name = " + name + ", value = " + value);
+      // println("name = " + name + ", value = " + value);
       if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
         isKeyFound = 1
         props.setProperty(name, value)
@@ -98,7 +101,7 @@ android {
     def parser = new groovy.json.JsonSlurper()
     def json = parser.parse file(configFile)
     def value = json.GOOGLE_MAPS_ANDROID_API_KEY
-    println("APIKEY = " + value)
+    // println("APIKEY = " + value)
     if (value != null) {
       props.setProperty("GOOGLE_MAPS_ANDROID_API_KEY", value)
     } else {
@@ -143,7 +146,12 @@ android {
   dependencies {
     implementation "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
     implementation "com.google.android.gms:play-services-location:${PLAY_SERVICES_VERSION}"
-    implementation "com.android.support:support-core-utils:${ANDROID_SUPPORT_CORE_VERSION}"
+  }
+  // println("----->isCapacitor = " + isCapacitor)
+  if (!isIonic) {
+    dependencies {
+       implementation "com.android.support:support-core-utils:${ANDROID_SUPPORT_CORE_VERSION}"
+    }
   }
 
 
