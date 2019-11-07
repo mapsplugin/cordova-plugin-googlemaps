@@ -13,7 +13,6 @@ def searchFileInParents(target) {
 }
 
 android {
-  def searchPath = 'app/src/main/res/xml/config.xml'
   // #1. Find (project)/config.xml file,
   //     because ionic capacitor does not copy <preference> nodes
   def configXmlFile = searchFileInParents("config.xml")
