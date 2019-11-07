@@ -1344,7 +1344,7 @@ Map.prototype.addMarker = function(markerOptions, callback) {
       markerOptions.icon = link.protocol+'//'+link.host+link.pathname + link.search;
       link = undefined;
     }
-  } else if (typeof markerOptions.icon.url === 'string') {
+  } else if (typeof markerOptions.icon === 'object' && typeof markerOptions.icon.url === 'string') {
     if (markerOptions.icon.url.indexOf("://") === -1 &&
         markerOptions.icon.url.indexOf(".") === 0) {
 
