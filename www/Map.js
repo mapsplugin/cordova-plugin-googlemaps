@@ -1335,20 +1335,21 @@ Map.prototype.addMarker = function(markerOptions, callback) {
   // Generate a makrer instance at once.
   //------------------------------------
   markerOptions.icon = markerOptions.icon || {};
+  var link;
   if (typeof markerOptions.icon === 'string') {
-    if (markerOptions.icon.indexOf("://") === -1 &&
-        markerOptions.icon.indexOf(".") === 0) {
+    if (markerOptions.icon.indexOf('://') === -1 &&
+        markerOptions.icon.indexOf('.') === 0) {
 
-      var link = document.createElement('a');
+      link = document.createElement('a');
       link.href = markerOptions.icon;
       markerOptions.icon = link.protocol+'//'+link.host+link.pathname + link.search;
       link = undefined;
     }
   } else if (typeof markerOptions.icon === 'object' && typeof markerOptions.icon.url === 'string') {
-    if (markerOptions.icon.url.indexOf("://") === -1 &&
-        markerOptions.icon.url.indexOf(".") === 0) {
+    if (markerOptions.icon.url.indexOf('://') === -1 &&
+        markerOptions.icon.url.indexOf('.') === 0) {
 
-      var link = document.createElement('a');
+      link = document.createElement('a');
       link.href = markerOptions.icon.url;
       markerOptions.icon.url = link.protocol+'//'+link.host+link.pathname + link.search;
       link = undefined;
