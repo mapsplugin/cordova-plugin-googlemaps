@@ -51,10 +51,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public ViewGroup root;
   public MyPluginLayout mPluginLayout = null;
   public boolean initialized = false;
-  public PluginManager pluginManager;
   private static final Object timerLock = new Object();
 
-  @SuppressLint("NewApi") @Override
+  @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     if (root != null) {
@@ -67,19 +66,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     view.getViewTreeObserver().addOnScrollChangedListener(CordovaGoogleMaps.this);
     root = (ViewGroup) view.getParent();
 
-    pluginManager = webView.getPluginManager();
-
     cordova.getActivity().runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
-
-        // Enable this, webView makes draw cache on the Android action bar issue.
-        //View view = webView.getView();
-        //if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())){
-        //  view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        //  Log.d("Layout", "--> view =" + view.isHardwareAccelerated()); //always false
-        //}
-
 
         // ------------------------------
         // Check of Google Play Services
@@ -173,29 +162,33 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
 
         // Check the API key
-        ApplicationInfo appliInfo = null;
         try {
-          appliInfo = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (NameNotFoundException e) {}
+          ApplicationInfo appliInfo = activity.getPackageManager().
+                  getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
 
-        String API_KEY = appliInfo.metaData.getString("com.google.android.maps.v2.API_KEY");
-        if ("API_KEY_FOR_ANDROID".equals(API_KEY)) {
 
-          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+          String API_KEY = appliInfo.metaData.getString("com.google.android.maps.v2.API_KEY");
+          if ("API_KEY_FOR_ANDROID".equals(API_KEY)) {
 
-          alertDialogBuilder
-              .setMessage(PluginUtil.getPgmStrings(activity,"pgm_api_key_error"))
-              .setCancelable(false)
-              .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
-                  dialog.dismiss();
-                }
-              });
-          AlertDialog alertDialog = alertDialogBuilder.create();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
 
-          // show it
-          alertDialog.show();
+            alertDialogBuilder
+                    .setMessage(PluginUtil.getPgmStrings(activity,"pgm_api_key_error"))
+                    .setCancelable(false)
+                    .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,int id) {
+                        dialog.dismiss();
+                      }
+                    });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+          }
+        } catch (NameNotFoundException e) {
+          // ignore
         }
+
 
 
         //------------------------------
@@ -250,7 +243,9 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       @Override
       public void run() {
         try {
-          if (action.equals("putHtmlElements")) {
+          if (action.equals("cmd")) {
+            CordovaGoogleMaps.this.cmd(args, callbackContext);
+          } else if ("putHtmlElements".equals(action)) {
             CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
           } else if ("clearHtmlElements".equals(action)) {
             CordovaGoogleMaps.this.clearHtmlElements(args, callbackContext);
@@ -345,6 +340,23 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       //On resume reapply background because it might have been changed by some other plugin
       webView.getView().setBackgroundColor(Color.TRANSPARENT);
     }
+  }
+  public void cmd(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    JSONObject info = args.getJSONObject(0);
+
+    if (!info.has("mapId")) {
+      callbackContext.error("mapId is missing");
+      return;
+    }
+
+    String mapId = info.getString("mapId");
+    if (!mPluginLayout.pluginOverlays.containsKey(mapId)) {
+      callbackContext.error(String.format("%s is not found", mapId));
+      return;
+    }
+
+    IPluginView target = mPluginLayout.pluginOverlays.get(mapId);
+    target._cmd(args, callbackContext);
   }
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {

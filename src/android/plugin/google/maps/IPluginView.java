@@ -18,6 +18,7 @@ public interface IPluginView {
   void onStop();
   void onPause(boolean multitasking);
   void onResume(boolean multitasking);
+  void _cmd(final JSONArray args, final CallbackContext callbackContext);
   void remove(JSONArray args, final CallbackContext callbackContext);
   void attachToWebView(JSONArray args, final CallbackContext callbackContext);
   void detachFromWebView(JSONArray args, final CallbackContext callbackContext);
