@@ -186,7 +186,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       }
 
 
-      if (controls.has("myLocationButton") || controls.has("myLocation")) {
+      if ((controls.has("myLocationButton") && controls.getBoolean("myLocationButton")) || (controls.has("myLocation") && controls.getBoolean("myLocation"))) {
 
         // Request geolocation permission.
         boolean locationPermission = PermissionChecker.checkSelfPermission(cordova.getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PermissionChecker.PERMISSION_GRANTED;
