@@ -512,9 +512,13 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             LatLng startLatLng = proj.fromScreenLocation(startPoint);
             long elapsed = SystemClock.uptimeMillis() - startTime;
             float t = interpolator.getInterpolation((float) elapsed / duration);
-            double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
-            double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
-            marker.setPosition(new LatLng(lat, lng));
+
+            if(startLatLng != null) {
+              double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+              double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
+              marker.setPosition(new LatLng(lat, lng));
+            }
+            
             if (t < 1.0) {
               // Post again 16ms later.
               handler.postDelayed(this, 16);
@@ -554,9 +558,12 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface  {
             LatLng startLatLng = projection.fromScreenLocation(startPoint);
             long elapsed = SystemClock.uptimeMillis() - startTime;
             float t = interpolator.getInterpolation((float) elapsed / duration);
-            double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
-            double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
-            marker.setPosition(new LatLng(lat, lng));
+
+            if(startLatLng != null) {
+              double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+              double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
+              marker.setPosition(new LatLng(lat, lng));
+            }
 
             if (t < 1.0) {
               // Post again 16ms later.
