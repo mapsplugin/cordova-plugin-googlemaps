@@ -102,6 +102,27 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
     if (!icons[i]) {
       continue;
     }
+    var link;
+    if (typeof icons[i] === 'string') {
+      if (icons[i].indexOf('://') === -1 &&
+        icons[i].indexOf('.') === 0) {
+
+        link = document.createElement('a');
+        link.href = icons[i];
+        icons[i] = link.protocol + '//' + link.host + link.pathname + link.search;
+        link = undefined;
+      }
+    } else if (typeof icons[i].url === 'string') {
+      if (icons[i].url.indexOf('://') === -1 &&
+        icons[i].url.indexOf('.') === 0) {
+
+        link = document.createElement('a');
+        link.href = icons[i].url;
+        icons[i].url = link.protocol + '//' + link.host + link.pathname + link.search;
+        link = undefined;
+      }
+
+    }
     if (icons[i].anchor &&
       typeof icons[i].anchor === 'object' &&
       'x' in icons[i].anchor &&
@@ -136,6 +157,27 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
       geocell: geocell
     };
 
+    if (typeof markerOptions.icon === 'string') {
+      if (markerOptions.icon.indexOf('://') === -1 &&
+        markerOptions.icon.indexOf('.') === 0) {
+
+        link = document.createElement('a');
+        link.href = markerOptions.icon;
+        markerOptions.icon = link.protocol + '//' + link.host + link.pathname + link.search;
+        link = undefined;
+      }
+    } else if (typeof markerOptions.icon === 'object' && typeof markerOptions.icon.url === 'string') {
+      if (markerOptions.icon.url.indexOf('://') === -1 &&
+        markerOptions.icon.url.indexOf('.') === 0) {
+
+        link = document.createElement('a');
+        link.href = markerOptions.icon.url;
+        markerOptions.icon.url = link.protocol + '//' + link.host + link.pathname + link.search;
+        link = undefined;
+      }
+    }
+
+
     var marker = self._createMarker(markerOptions);
     var markerId = marker.__pgmId.replace(/^.+-/, '');
     Object.defineProperty(marker, '__cid', {
@@ -151,6 +193,7 @@ var MarkerCluster = function (map, markerClusterOptions, _exec) {
     });
     return marker;
   };
+  
   self.addMarkers = function (markers) {
     var results = [];
     if (utils.isArray(markers) || Array.isArray(markers)) {
