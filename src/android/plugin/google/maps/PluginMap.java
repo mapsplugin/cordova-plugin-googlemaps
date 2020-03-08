@@ -729,7 +729,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             callbackContext.success();
             return;
         }
-          
+
         RectF drawRect = mapCtrl.mPluginLayout.HTMLNodeRectFs.get(mapDivId);
 
         //Log.d(TAG, "--->mapDivId = " + mapDivId + ", drawRect = " + drawRect);
@@ -1764,7 +1764,9 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     this.activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        map.stopAnimation();
+        if(map != null) {
+          map.stopAnimation();
+        }
         callbackContext.success();
       }
     });
