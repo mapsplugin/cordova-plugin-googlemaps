@@ -58,7 +58,7 @@ typedef void (^MYCompletionHandler)(NSError *error);
 // http://stackoverflow.com/questions/5272451/overriding-methods-using-categories-in-objective-c#5272612
 //
 @interface MainViewController (CDVViewController)
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
+#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0 && !WK_WEB_VIEW_ONLY
 - (void)webViewDidFinishLoad:(UIWebView*)theWebView;
 #endif
 @end

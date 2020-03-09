@@ -224,57 +224,25 @@
                   // Get the current URL, then calculate the relative path.
                   CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
                   id webview = cdvViewController.webView;
-                  NSString *clsName = [webview className];
-                  NSURL *url;
-                  if ([clsName isEqualToString:@"UIWebView"]) {
-                    url = ((UIWebView *)cdvViewController.webView).request.URL;
-                    NSString *currentURL = url.absoluteString;
-                    currentURL = [currentURL stringByDeletingLastPathComponent];
-                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
-                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-                    currentURL = [currentURL stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
-                    urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
-                  } else {
-                    //------------------------------------------
-                    // WKWebView URL is use http:// always
-                    //------------------------------------------
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-                      NSURL *url = [webview URL];
-                      NSString *currentURL = url.absoluteString;
-                      if (![[url lastPathComponent] isEqualToString:@"/"]) {
-                        currentURL = [currentURL stringByDeletingLastPathComponent];
-                      }
-
-                      // remove page unchor (i.e index.html#page=test, index.html?key=value)
-                      NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:nil];
-                      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
-
-                      // remove file name (i.e /index.html)
-                      regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:nil];
-                      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
-
-
-                      NSString *urlStr2 = [NSString stringWithFormat:@"%@/%@", currentURL, urlStr];
-                      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
-                      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
-                      url = [NSURL URLWithString:urlStr2];
-
-                      [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
-
-                        if (!succeeded) {
-                          completionHandler(NO);
+                  #if WK_WEB_VIEW_ONLY
+                      [self _WKsetImage:groundOverlay webview:(webview) urlStr:(urlStr) completionHandler:completionHandler];
+                      return;
+                  #else
+                      NSString *clsName = [webview className];
+                      NSURL *url;
+                      if ([clsName isEqualToString:@"UIWebView"]) {
+                          url = ((UIWebView *)cdvViewController.webView).request.URL;
+                          NSString *currentURL = url.absoluteString;
+                          currentURL = [currentURL stringByDeletingLastPathComponent];
+                          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+                          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
+                          currentURL = [currentURL stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+                          urlStr = [NSString stringWithFormat:@"file://%@/%@", currentURL, urlStr];
+                      } else {
+                          [self _WKsetImage:groundOverlay webview:(webview) urlStr:(urlStr) completionHandler:completionHandler];
                           return;
-                        }
-
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                          groundOverlay.icon = image;
-                          completionHandler(YES);
-                        });
-
-                      }];
-                    });
-                    return;
-                  }
+                      }
+                  #endif
                 } else {
                   urlStr = [NSString stringWithFormat:@"file://%@", urlStr];
                 }
@@ -316,8 +284,47 @@
 
         }];
     }
+}
+
+- (void)_WKsetImage:(GMSGroundOverlay *)groundOverlay webview:(id)webview urlStr:(NSString *)urlStr completionHandler:(void (^)(BOOL succeeded))completionHandler {
+    //------------------------------------------
+    // WKWebView URL is use http:// always
+    //------------------------------------------
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      NSURL *url = [webview URL];
+      NSString *currentURL = url.absoluteString;
+      if (![[url lastPathComponent] isEqualToString:@"/"]) {
+        currentURL = [currentURL stringByDeletingLastPathComponent];
+      }
+
+      // remove page unchor (i.e index.html#page=test, index.html?key=value)
+      NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:nil];
+      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+
+      // remove file name (i.e /index.html)
+      regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:nil];
+      currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
 
 
+      NSString *urlStr2 = [NSString stringWithFormat:@"%@/%@", currentURL, urlStr];
+      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":/" withString:@"://"];
+      urlStr2 = [urlStr2 stringByReplacingOccurrencesOfString:@":///" withString:@"://"];
+      url = [NSURL URLWithString:urlStr2];
+
+      [self downloadImageWithURL:url  completionBlock:^(BOOL succeeded, UIImage *image) {
+
+        if (!succeeded) {
+          completionHandler(NO);
+          return;
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+          groundOverlay.icon = image;
+          completionHandler(YES);
+        });
+
+      }];
+    });
 }
 
 /**

@@ -17,6 +17,7 @@
 @property (nonatomic) BOOL initialized;
 @property (nonatomic, strong) PluginMapViewController* mapCtrl;
 - (void)create:(CDVInvokedUrlCommand*)command;
+- (NSString *)_WKcurrentUrl:(id)webview;
 @end
 
 @interface KmlParseClass : NSObject
