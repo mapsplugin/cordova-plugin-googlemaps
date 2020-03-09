@@ -1007,38 +1007,38 @@
           return;
       #else
           if ([clsName isEqualToString:@"UIWebView"]) {
-            url = ((UIWebView *)cdvViewController.webView).request.URL;
-            NSString *currentURL = url.absoluteString;
+              url = ((UIWebView *)cdvViewController.webView).request.URL;
+              NSString *currentURL = url.absoluteString;
 
-            // remove page unchor (i.e index.html#page=test, index.html?key=value)
-            regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
-            currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+              // remove page unchor (i.e index.html#page=test, index.html?key=value)
+              regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
+              currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
 
-            // remove file name (i.e /index.html)
-            regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
-            currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
+              // remove file name (i.e /index.html)
+              regex = [NSRegularExpression regularExpressionWithPattern:@"\\/[^\\/]+\\.[^\\/]+$" options:NSRegularExpressionCaseInsensitive error:&error];
+              currentURL = [regex stringByReplacingMatchesInString:currentURL options:0 range:NSMakeRange(0, [currentURL length]) withTemplate:@""];
 
-            if (![currentURL hasSuffix:@"/"]) {
-              currentURL = [NSString stringWithFormat:@"%@/", currentURL];
-            }
-            iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
+              if (![currentURL hasSuffix:@"/"]) {
+                currentURL = [NSString stringWithFormat:@"%@/", currentURL];
+              }
+              iconPath = [NSString stringWithFormat:@"%@%@", currentURL, iconPath];
 
-            // remove file name (i.e /index.html)
-            regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
-            iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
+              // remove file name (i.e /index.html)
+              regex = [NSRegularExpression regularExpressionWithPattern:@"(\\/\\.\\/+)+" options:NSRegularExpressionCaseInsensitive error:&error];
+              iconPath = [regex stringByReplacingMatchesInString:iconPath options:0 range:NSMakeRange(0, [iconPath length]) withTemplate:@"/"];
 
-            iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+              iconPath = [iconPath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
 
-            if (self.mapCtrl.debuggable) {
-              NSLog(@"iconPath = %@", iconPath);
-            }
-        } else {
-            //------------------------------------------
-            // WKWebView
-            //------------------------------------------
-            [self _WksetIcon:webview iconPath:(iconPath) iconCacheKey:(iconCacheKey) animation:(animation) width:(width) height:(height) marker:(marker) iconProperty:(iconProperty) callbackBlock:(callbackBlock)];
-            return;
-        }
+              if (self.mapCtrl.debuggable) {
+                NSLog(@"iconPath = %@", iconPath);
+              }
+          } else {
+              //------------------------------------------
+              // WKWebView
+              //------------------------------------------
+              [self _WksetIcon:webview iconPath:(iconPath) iconCacheKey:(iconCacheKey) animation:(animation) width:(width) height:(height) marker:(marker) iconProperty:(iconProperty) callbackBlock:(callbackBlock)];
+              return;
+          }
       #endif
     }
 
