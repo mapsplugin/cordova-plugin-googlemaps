@@ -40,6 +40,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -524,12 +525,14 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public void onResume(boolean multitasking) {
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
+    ArrayList<PluginEntry>pluginsToResume = new ArrayList<PluginEntry>();
     for (PluginEntry pluginEntry: pluginEntries) {
       if (pluginEntry.service.startsWith("map_")) {
-        pluginEntry.plugin.onResume(multitasking);
+        pluginsToResume.add(pluginEntry);
       }
     }
 
+    pluginsToResume.forEach(p -> p.plugin.onResume(multitasking));
   }
 
   @Override
