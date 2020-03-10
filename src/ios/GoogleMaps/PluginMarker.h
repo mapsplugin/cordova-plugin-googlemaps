@@ -45,7 +45,6 @@
 */
 - (void)_create:(NSString *)markerId markerOptions:(NSDictionary *)json callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
 -(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
-- (void)_WksetIcon:(id)webview iconPath:(NSString *)iconPath iconCacheKey:(NSString *)iconCacheKey animation:(NSString *)animation width:(CGFloat)width height:(CGFloat)height marker:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
 -(void)_removeMarker:(GMSMarker *)marker;
 
 

@@ -51,25 +51,11 @@
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
         id webview = cdvViewController.webView;
-        NSString *clsName = [webview className];
-        NSURL *url;
         NSString *currentURL;
-        #if WK_WEB_VIEW_ONLY
-            currentURL = [self _WKcurrentUrl:webview];
-        #else
-            if ([clsName isEqualToString:@"UIWebView"]) {
-              //------------------------------------------
-              // UIWebView
-              //------------------------------------------
-              url = ((UIWebView *)cdvViewController.webView).request.URL;
-              currentURL = url.absoluteString;
-          } else {
-              //------------------------------------------
-              // WKWebView
-              //------------------------------------------
-              currentURL = [self _WKcurrentUrl:webview];
-          }
-         #endif
+        NSURL *url = [webview URL];
+        currentURL = url.absoluteString;
+        if (![[url lastPathComponent] isEqualToString:@"/"]) {
+            currentURL = [currentURL stringByReplacingOccurrencesOfString:[url lastPathComponent] withString:@""];
         }
         // remove page unchor (i.e index.html#page=test, index.html?key=value)
         regex = [NSRegularExpression regularExpressionWithPattern:@"[#\\?].*$" options:NSRegularExpressionCaseInsensitive error:&error];
@@ -135,16 +121,6 @@
 
   }];
 
-}
-
-- (NSString *)_WKcurrentUrl:(id)webview {
-    NSString *currentURL;
-    NSURL *url = [webview URL];
-    currentURL = url.absoluteString;
-    if (![[url lastPathComponent] isEqualToString:@"/"]) {
-      currentURL = [currentURL stringByReplacingOccurrencesOfString:[url lastPathComponent] withString:@""];
-    }
-    return currentURL;
 }
 
 - (void)loadKml:(NSString *)urlStr completionBlock:(void (^)(BOOL succeeded, id result))completionBlock {
