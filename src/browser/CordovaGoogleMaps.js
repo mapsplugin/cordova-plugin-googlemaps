@@ -23,7 +23,7 @@ document.addEventListener('load_googlemaps', function() {
   API_LOADED_STATUS = 1;
 
   var secureStripeScript = document.createElement('script');
-  if (API_KEY_FOR_BROWSER) {
+  if (API_KEY_FOR_BROWSER && API_KEY_FOR_BROWSER.length > 35) {
     secureStripeScript.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=' + API_KEY_FOR_BROWSER);
   } else {
     // for development only
