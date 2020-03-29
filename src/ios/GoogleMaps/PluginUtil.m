@@ -149,17 +149,6 @@ static char CAAnimationGroupBlockKey;
 
 @end
 
-
-@implementation MainViewController (CDVViewController)
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
-- (void)webViewDidFinishLoad:(UIWebView*)theWebView
-{
-  theWebView.backgroundColor = [UIColor clearColor];
-  theWebView.opaque = NO;
-  return [super webViewDidFinishLoad:theWebView];
-}
-#endif
-@end
 @implementation PluginUtil
 
 + (BOOL)isPolygonContains:(GMSPath *)path coordinate:(CLLocationCoordinate2D)coordinate projection:(GMSProjection *)projection {
