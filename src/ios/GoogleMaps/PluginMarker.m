@@ -1180,13 +1180,7 @@
         CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
         id webview = cdvViewController.webView;
-        NSString *clsName = [webview className];
-        NSURL *url;
-        if ([clsName isEqualToString:@"UIWebView"]) {
-          url = ((UIWebView *)cdvViewController.webView).request.URL;
-        } else {
-          url = [webview URL];
-        }
+        NSURL *url = [webview URL];
         NSString *currentURL = url.absoluteString;
         currentURL = [currentURL stringByDeletingLastPathComponent];
         currentURL = [currentURL stringByReplacingOccurrencesOfString:@"file:" withString:@""];
@@ -1492,6 +1486,7 @@
       urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
     }
     urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
+
 
     if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
       NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
