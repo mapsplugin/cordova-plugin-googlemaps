@@ -1,4 +1,4 @@
-# Cordova GoogleMaps plugin for Android, iOS and Browser v2.7.0
+# Cordova GoogleMaps plugin for Android, iOS and Browser v2.7.1
 
 | Download | Build test (multiple_maps branch)|
 |----------|---------------------------|
@@ -112,6 +112,10 @@ For browser platform,
 ---------------------------------------------------------------------------------------------------------
 
 ## Release Notes
+
+  - **v2.7.1**
+    - Fix: (iOS) UiWebView references present in v2.7.0
+
   - **v2.7.0**
     - Re-adoption: <a href="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk" target="_blank">cordova-plugin-googlemaps-sdk dependency</a>
     - Important update: No longer support `UIWebView` on iOS. `WKWebView` only.
@@ -137,20 +141,6 @@ For browser platform,
     - Fix: (Android) Can't load marker image from the Internet
     - many bug fixes...
 
-  - **v2.6.2**
-    - Fix: (Android) build error
-
-  - **v2.6.1**
-    - Fix: (Android) Conflicting with `OneSignal-Cordova-SDK`
-    - Fix: (iOS) App crashes when marker url isn't valid.
-
-  - **v2.6.0**
-    - Fix: Can not install to Cordova 9.0 project
-    - Fix: (Android) `ConcurrentModificationException` error at `onStop`
-    - Fix: (Android) Polygon becomes visible when you run `setPoints()` to invisible polygon
-    - Fix: (Android/iOS) TileOverlay does not work when your app runs on `file:` protocol with ionic.
-    - Update: (iOS) Specify the Google Maps SDK version as `=> 3.1.0`. Please use `cordova-ios@5.0.0` or above, otherwise modify `platform/ios/Podfile`.
-    - Add: (Android/iOS) API Key mechanism
 
 ---------------------------------------------------------------------------------------------------------
 
