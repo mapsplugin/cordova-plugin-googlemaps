@@ -16,8 +16,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v4.content.PermissionChecker;
+import androidx.annotation.NonNull;
+import androidx.core.content.PermissionChecker;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -388,6 +388,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
                 }
 
+                if (preferences.has("gestureBounds")) {
+                  JSONObject gestureBounds = preferences.getJSONObject("gestureBounds");
+                  LatLng sw = new LatLng(gestureBounds.getDouble("south"), gestureBounds.getDouble("west"));
+                  LatLng ne = new LatLng(gestureBounds.getDouble("north"), gestureBounds.getDouble("east"));
+                  LatLngBounds bounds = new LatLngBounds(sw, ne);
+
+                  map.setLatLngBoundsForCameraTarget(bounds);
+
+                  map.setMinZoomPreference((float)gestureBounds.getDouble("minZoom"));
+                  map.setMaxZoomPreference((float)gestureBounds.getDouble("maxZoom"));
+
+                }
+
                 if (preferences.has("zoom")) {
                   JSONObject zoom = preferences.getJSONObject("zoom");
                   if (zoom.has("minZoom")) {
@@ -399,16 +412,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 }
 
 
-                if (preferences.has("gestureBounds")) {
-                  Object target = preferences.get("gestureBounds");
-                  @SuppressWarnings("rawtypes")
-                  Class targetClass = target.getClass();
-                  if ("org.json.JSONArray".equals(targetClass.getName())) {
-                    JSONArray points = preferences.getJSONArray("gestureBounds");
-                    LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-                    map.setLatLngBoundsForCameraTarget(bounds);
-                  }
-                }
               }
 
               // Set event listener

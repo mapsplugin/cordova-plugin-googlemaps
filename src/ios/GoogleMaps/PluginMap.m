@@ -858,19 +858,8 @@
 
       // gestureBounds
       if ([preferences valueForKey:@"gestureBounds"] != nil) {
-        NSDictionary *latLng = nil;
-        double latitude, longitude;
-        int i = 0;
-        NSArray *latLngList = [preferences objectForKey:@"gestureBounds"];
-        GMSMutablePath *path = [GMSMutablePath path];
-        for (i = 0; i < [latLngList count]; i++) {
-          latLng = [latLngList objectAtIndex:i];
-          latitude = [[latLng valueForKey:@"lat"] doubleValue];
-          longitude = [[latLng valueForKey:@"lng"] doubleValue];
-          [path addLatitude:latitude longitude:longitude];
-        }
-
-        [self.mapCtrl.map setCameraTargetBounds:[[GMSCoordinateBounds alloc] initWithPath:path]];
+        NSDictionary *restriction = [preferences objectForKey:@"gestureBounds"];
+        [self _setCameraRestriction:restriction];
       }
     }
 
@@ -929,6 +918,22 @@
   }];
 
 };
+- (void)_setCameraRestriction:(NSDictionary *)params {
+
+  GMSMutablePath *path = [GMSMutablePath path];
+  [path
+    addCoordinate: CLLocationCoordinate2DMake([[params objectForKey:@"south"] doubleValue], [[params objectForKey:@"west"] doubleValue])];
+  [path
+    addCoordinate: CLLocationCoordinate2DMake([[params objectForKey:@"north"] doubleValue], [[params objectForKey:@"east"] doubleValue])];
+
+  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+  self.mapCtrl.map.cameraTargetBounds = bounds;
+
+  double minZoom = [[params objectForKey:@"minZoom"] doubleValue];
+  double maxZoom = [[params objectForKey:@"maxZoom"] doubleValue];
+  [self.mapCtrl.map setMinZoom:minZoom maxZoom:maxZoom];
+}
+
 
 - (void)setOptions:(CDVInvokedUrlCommand *)command {
   [self.mapCtrl.executeQueue addOperationWithBlock:^{

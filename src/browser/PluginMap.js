@@ -42,20 +42,38 @@ function displayGrayMap(container) {
 function PluginMap(mapId, options) {
   var self = this;
   BaseClass.apply(this);
-  var mapDiv = document.querySelector('[__pluginMapId=\'' + mapId + '\']');
+  var actualMapDiv = document.querySelector('[__pluginMapId=\'' + mapId + '\']');
+  var shadowRoot = actualMapDiv.attachShadow({mode: 'open'});
+
+  var style = document.createElement('style');
+  style.setAttribute('type', 'text/css');
+  style.innerHTML = ':host {color: black;}';
+  shadowRoot.appendChild(style);
+
+  var mapDiv = document.createElement('div');
+  mapDiv.style.position = 'relative';
+  mapDiv.style.left = 0;
+  mapDiv.style.top = 0;
+  mapDiv.style.right = 0;
+  mapDiv.style.bottom = 0;
+  mapDiv.style.width = "100%";
+  mapDiv.style.height = "100%";
+  shadowRoot.appendChild(mapDiv);
+
   mapDiv.style.backgroundColor = 'rgb(229, 227, 223)';
+
 
   var container = document.createElement('div');
   container.style.userSelect='none';
   container.style['-webkit-user-select']='none';
   container.style['-moz-user-select']='none';
   container.style['-ms-user-select']='none';
-  mapDiv.style.position = 'relative';
   container.style.position = 'absolute';
   container.style.top = 0;
   container.style.bottom = 0;
   container.style.right = 0;
   container.style.left = 0;
+
   mapDiv.insertBefore(container, mapDiv.firstElementChild);
 
   self.set('isGoogleReady', false);
@@ -114,6 +132,19 @@ function PluginMap(mapId, options) {
         }
       }
       if (options.preferences) {
+
+        if (options.preferences && options.preferences.gestureBounds) {
+          mapInitOptions.restriction = {
+            latLngBounds: {
+              south: options.preferences.gestureBounds.south,
+              west: options.preferences.gestureBounds.west,
+              north: options.preferences.gestureBounds.north,
+              east: options.preferences.gestureBounds.east
+            },
+            strictBounds: false
+          };
+        }
+        
         if (options.preferences.zoom) {
           mapInitOptions.minZoom = options.preferences.zoom.minZoom;
           if (options.preferences.zoom.maxZoom) {
@@ -127,60 +158,12 @@ function PluginMap(mapId, options) {
     map.mapTypes = mapTypeReg;
     self.set('map', map);
 
-    var boundsLimit = null;
-    if (options.preferences && options.preferences.gestureBounds &&
-        options.preferences.gestureBounds.length > 0) {
-      boundsLimit = new google.maps.LatLngBounds();
-      options.preferences.gestureBounds.forEach(function(pos) {
-        boundsLimit.extend(pos);
-      });
-    }
-    map.set('boundsLimit', boundsLimit);
 
     var timeoutError = setTimeout(function() {
       self.trigger('load_error');
       displayGrayMap(mapDiv);
     }, 3000);
 
-    map.addListener('bounds_changed', function() {
-      var boundsLimit = map.get('boundsLimit');
-      if (!boundsLimit) {
-        return;
-      }
-      var visibleBounds = map.getBounds();
-      if (boundsLimit.intersects(visibleBounds) ||
-          visibleBounds.contains(boundsLimit.getNorthEast()) && visibleBounds.contains(boundsLimit.getSouthWest()) ||
-          boundsLimit.contains(visibleBounds.getNorthEast()) && boundsLimit.contains(visibleBounds.getSouthWest())) {
-        return;
-      }
-      var center = map.getCenter();
-      var dummyLat = center.lat(),
-        dummyLng = center.lng();
-      var ne = boundsLimit.getNorthEast(),
-        sw = boundsLimit.getSouthWest();
-      if (dummyLat < sw.lat() ) {
-        dummyLat = sw.lat();
-      } else if (dummyLat > ne.lat()) {
-        dummyLat = ne.lat();
-      }
-      if (dummyLng < 0) {
-        // the Western Hemisphere
-        if (dummyLng > ne.lng()) {
-          dummyLng = ne.lng();
-        } else if (dummyLng < sw.lng()) {
-          dummyLng = sw.lng();
-        }
-      } else {
-        // the Eastern Hemisphere
-        if (dummyLng > ne.lng()) {
-          dummyLng = ne.lng();
-        } else if (dummyLng < sw.lng()) {
-          dummyLng = sw.lng();
-        }
-      }
-      var dummyLatLng = new google.maps.LatLng(dummyLat, dummyLng);
-      map.panTo(dummyLatLng);
-    });
 
     google.maps.event.addListenerOnce(map, 'projection_changed', function() {
       clearTimeout(timeoutError);

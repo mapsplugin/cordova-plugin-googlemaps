@@ -7,6 +7,7 @@ var utils = require('cordova/utils'),
   BaseClass = require('./BaseClass'),
   BaseArrayClass = require('./BaseArrayClass'),
   LatLng = require('./LatLng'),
+  LatLngBounds = require('./LatLngBounds'),
   MapTypeId = require('./MapTypeId'),
   event = require('./event'),
   VisibleRegion = require('./VisibleRegion'),
@@ -18,6 +19,7 @@ var utils = require('cordova/utils'),
   GroundOverlay = require('./GroundOverlay'),
   KmlOverlay = require('./KmlOverlay'),
   KmlLoader = require('./KmlLoader'),
+  spherical = require('cordova-plugin-googlemaps.spherical'),
   MarkerCluster = require('./MarkerCluster');
 
 /**
@@ -98,11 +100,52 @@ Map.prototype.getMap = function(meta, div, options) {
   }
 
   if (options.preferences && options.preferences.gestureBounds) {
-    if (utils.isArray(options.preferences.gestureBounds) ||
-        options.preferences.gestureBounds.type === 'LatLngBounds') {
-      options.preferences.gestureBounds = common.convertToPositionArray(options.preferences.gestureBounds);
+
+    var bounds = new LatLngBounds();
+    if (utils.isArray(options.preferences.gestureBounds)) {
+      options.preferences.gestureBounds.forEach(function(ele) {
+        if (ele.lat && ele.lng) {
+          bounds.extend(ele);
+        }
+      });
+    } else if (options.preferences.gestureBounds.type === 'LatLngBounds' ||
+      options.preferences.gestureBounds.northeast && options.preferences.gestureBounds.southwest) {
+      bounds.extend(options.preferences.gestureBounds.southwest);
+      bounds.extend(options.preferences.gestureBounds.northeast);
+    }
+
+    if (!bounds.southwest || !bounds.northeast) {
+      console.warn('(getMap) options.preferences.gestureBounds is invalid.');
+      delete options.preferences.gestureBounds;
+    } else {
+      var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
+      var maxZoom = 23;
+      var prefMinZoom = 0;
+      var prefMaxZoom = 23;
+      if (options.preferences.zoom) {
+        if (options.preferences.zoom.minZoom) {
+          minZoom = options.preferences.zoom.minZoom;
+          prefMinZoom = minZoom;
+        }
+        if (options.preferences.zoom.maxZoom) {
+          maxZoom = options.preferences.zoom.maxZoom;
+          maxZoom = minZoom;
+        }
+      }
+      options.preferences.gestureBounds = {
+        'south': bounds.southwest.lat,
+        'west': bounds.southwest.lng,
+        'north': bounds.northeast.lat,
+        'east': bounds.northeast.lng,
+        'prefMinZoom': prefMinZoom,
+        'prefMaxZoom': prefMaxZoom,
+        'minZoom': minZoom,
+        'maxZoom': maxZoom
+      };
+      self.set('restriction', options.preferences.gestureBounds);
     }
   }
+
 
   if (!common.isDom(div)) {
     self.set('visible', false);

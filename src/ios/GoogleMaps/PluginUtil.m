@@ -466,4 +466,70 @@ static char CAAnimationGroupBlockKey;
   return result;
 }
 
+
++ (void)getJsonWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, NSDictionary *response, NSString *error))completionBlock
+{
+
+  NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                        cachePolicy: NSURLRequestReloadIgnoringCacheData
+                                        timeoutInterval:5];
+  //-------------------------------------------------------------
+  // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
+  // https://stackoverflow.com/a/20871647
+  //-------------------------------------------------------------
+  NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+  NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                                             completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                               [session finishTasksAndInvalidate];
+
+                          
+                                               NSDictionary *json;
+                                               if (!error) {
+                                                json = [NSJSONSerialization
+                                                                          JSONObjectWithData:data
+                                                                          options:kNilOptions error:&error];
+                                               }
+    
+                                               if (json) {
+                                                 if ([@"OK" isEqualToString:[json objectForKey:@"status"]]) {
+                                                   completionBlock(YES, json, nil);
+                                                 } else {
+                                                   completionBlock(NO, nil, [json objectForKey:@"status"]);
+                                                 }
+                                               } else {
+                                                 NSLog(@"[elevation] error = %@", error.description);
+                                                 completionBlock(NO, nil, @"UNKNOWN_ERROR");
+                                               }
+                                             }];
+  [getTask resume];
+
+
+}
+
+
++ (double)_latRad:(double)lat {
+  double sin = sinh(lat * M_PI / 180);
+  double radX2 = log((1 + sin) / (1 - sin)) / 2;
+  return MAX(MIN(radX2, M_PI), -M_PI) / 2;
+}
+
++ (double)_zoom:(double)mapPx worldPx:(double)worldPx fraction:(double)fraction {
+  return floor(log(mapPx / worldPx / fraction) / M_LN2);
+}
+
++ (double)getZoomFromBounds:(GMSCoordinateBounds *)bounds mapWidth:(double)mapWidth mapHeight:(double)mapHeight {
+  CLLocationCoordinate2D ne = bounds.northEast;
+  CLLocationCoordinate2D sw = bounds.southWest;
+  double latFraction = ([PluginUtil _latRad:ne.latitude] - [PluginUtil _latRad:sw.latitude]) / M_PI;
+  double lngDiff = ne.longitude - sw.longitude;
+  
+  double lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+  
+  double latZoom = [PluginUtil _zoom: mapHeight worldPx:256 fraction: latFraction];
+  double lngZoom = [PluginUtil _zoom: mapWidth worldPx:256 fraction: lngFraction];
+
+  return MIN(MIN(latZoom, lngZoom), 21);
+}
+
 @end

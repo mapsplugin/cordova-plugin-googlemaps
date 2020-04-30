@@ -269,6 +269,38 @@ function computeLength(path) {
   });
   return length * EARTH_RADIUS;
 }
+
+/**
+ * Returns the zoom level that fits for given bounds.
+ * https://stackoverflow.com/a/13274361/697856
+ */
+function computeBoundsZoom(bounds, mapWidth, mapHeight, tileSize) {
+  var ZOOM_MAX = 23;
+
+  var ne = bounds.northeast;
+  var sw = bounds.southwest;
+
+  var latFraction = (_latRad(ne.lat) - _latRad(sw.lat)) / Math.PI;
+
+  var lngDiff = ne.lng - sw.lng;
+  var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+
+  var latZoom = _zoom(mapHeight, tileSize, latFraction);
+  var lngZoom = _zoom(mapWidth, tileSize, lngFraction);
+
+  return Math.min(latZoom, lngZoom, ZOOM_MAX);
+}
+
+function _latRad(lat) {
+    var sin = Math.sin(lat * Math.PI / 180);
+    var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+    return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+}
+
+function _zoom(mapPx, worldPx, fraction) {
+    return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
+}
+
 module.exports = {
   computeDistanceBetween: computeDistanceBetween,
   computeOffset: computeOffset,
@@ -277,5 +309,6 @@ module.exports = {
   computeSignedArea: computeSignedArea,
   computeHeading: computeHeading,
   interpolate: interpolate,
-  computeLength: computeLength
+  computeLength: computeLength,
+  computeBoundsZoom: computeBoundsZoom
 };

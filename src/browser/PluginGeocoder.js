@@ -1,5 +1,4 @@
 
-
 var BaseArrayClass = require('cordova-plugin-googlemaps.BaseArrayClass');
 
 var geocoder = null;
@@ -32,9 +31,11 @@ QUEUE.on('next', function() {
   geocoder.geocode(cmd.geocoderRequest, function(results, status) {
     switch(status) {
     case google.maps.GeocoderStatus.ERROR:
+      self._executing = false;
       cmd.onError('[geocoding] Cannot connect to Google servers');
       return;
     case google.maps.GeocoderStatus.INVALID_REQUEST:
+      self._executing = false;
       cmd.onError('[geocoding] Invalid request for geocoder');
       return;
     case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
@@ -46,9 +47,11 @@ QUEUE.on('next', function() {
       }, 3000 + Math.floor(Math.random() * 200));
       return;
     case google.maps.GeocoderStatus.REQUEST_DENIED:
+      self._executing = false;
       cmd.onError('[geocoding] Google denited your geocoding request.');
       return;
     case google.maps.GeocoderStatus.UNKNOWN_ERROR:
+      self._executing = false;
       cmd.onError('[geocoding] There was an unknown error. Please try again.');
       return;
     }
