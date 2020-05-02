@@ -107,6 +107,42 @@ public class PluginElevationService extends CordovaPlugin {
   @SuppressWarnings("unused")
   public void getElevationForLocations(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
+    HashMap<String, String> params = new HashMap<String, String>();
+
+    JSONObject opts = args.getJSONObject(0);
+
+    JSONArray points = opts.getJSONArray("locations");
+    List<LatLng> path = PluginUtil.JSONArray2LatLngList(points);
+    params.put("locations", "enc:" + PluginUtil.encodePath(path));
+    params.put("key", this.API_KEY);
+
+    AsyncGetJsonWithURL httpGet = new AsyncGetJsonWithURL("https://maps.googleapis.com/maps/api/elevation/json", new AsyncHttpGetInterface() {
+      @Override
+      public void onPostExecute(JSONObject result) {
+        PluginResult pluginResult = null;
+
+        try {
+          if (result == null) {
+            pluginResult = new PluginResult(PluginResult.Status.ERROR, "UNKNOWN_ERROR");
+          } else {
+            if ("OK".equals(result.getString("status"))) {
+              pluginResult = new PluginResult(PluginResult.Status.OK, result);
+            } else {
+              pluginResult = new PluginResult(PluginResult.Status.ERROR, result.getString("status"));
+            }
+          }
+        } catch (Exception e){
+          pluginResult = new PluginResult(PluginResult.Status.ERROR, "UNKNOWN_ERROR");
+        } finally {
+          if (pluginResult == null) {
+            pluginResult = new PluginResult(PluginResult.Status.ERROR, "UNKNOWN_ERROR");
+          }
+          callbackContext.sendPluginResult(pluginResult);
+        }
+      }
+    });
+
+    httpGet.execute(params);
   }
 
 }

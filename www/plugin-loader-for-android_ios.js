@@ -155,6 +155,7 @@ if (!cordova) {
     Geocoder: require('./Geocoder')(execCmd),
     LocationService: require('./LocationService')(execCmd),
     ElevationService: require('./ElevationService')(execCmd),
+    DirectionsService: require('./DirectionsService')(execCmd),
     geometry: {
       encoding: require('./encoding'),
       spherical: require('./spherical'),

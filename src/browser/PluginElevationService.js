@@ -6,11 +6,19 @@ var service = null;
 var lastRequestTime = 0;
 var QUEUE = new BaseArrayClass();
 QUEUE.on('insert_at', function() {
+  if (!window.google || !window.google.maps) {
+    return;
+  }
   if (QUEUE.getLength() === 1) {
     this.trigger('next');
   }
 });
 QUEUE.one('insert_at', function() {
+
+  if (!window.google || !window.google.maps) {
+    setTimeout(arguments.callee.bind(this), 100);
+    return;
+  }
   service = new google.maps.ElevationService();
   this.trigger('next');
 });
@@ -70,7 +78,6 @@ QUEUE.on('next', function() {
 
     self._executing = false;
     cmd.onSuccess({
-      'idx': cmd.pluginRequest.idx,
       'results': pluginResults
     });
 

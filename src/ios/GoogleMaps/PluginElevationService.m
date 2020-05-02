@@ -83,20 +83,12 @@
   
   NSString *urlStr = @"https://maps.googleapis.com/maps/api/elevation/json?";
   
-  NSEnumerator *keys = [params keyEnumerator];
-  NSString *pName;
-  while(pName = [keys nextObject]) {
-    urlStr = [urlStr stringByAppendingFormat:@"%@=%@&", pName, [params objectForKey:pName]];
-  }
-  
   NSUserDefaults *myDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"cordova.plugin.googlemaps"];
   NSString *DEFAULT_APIKey = [myDefaults objectForKey:@"GOOGLE_MAPS_API_KEY"];
-  urlStr = [urlStr stringByAppendingFormat:@"key=%@", DEFAULT_APIKey];
-  
-  NSURL *url = [NSURL URLWithString: urlStr];
-  
+  urlStr = [urlStr stringByAppendingFormat:@"key=%@&", DEFAULT_APIKey];
+
   [self.executeQueue addOperationWithBlock:^{
-    [PluginUtil getJsonWithURL:url completionBlock:^(BOOL succeeded, NSDictionary *response, NSString *error) {
+    [PluginUtil getJsonWithURL:urlStr params:params completionBlock:^(BOOL succeeded, NSDictionary *response, NSString *error) {
 
       CDVPluginResult* pluginResult;
       if (!succeeded) {

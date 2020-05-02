@@ -550,7 +550,7 @@ function convertToPositionArray(array) {
   array = array || [];
 
   if (!utils.isArray(array)) {
-    if (array.type === 'LatLngBounds') {
+    if (array.type === 'LatLngBounds' || array.southwest && array.northeast) {
       array = [
         array.southwest,
         {

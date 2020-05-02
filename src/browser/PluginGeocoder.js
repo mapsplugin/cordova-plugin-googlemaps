@@ -5,11 +5,19 @@ var geocoder = null;
 var lastRequestTime = 0;
 var QUEUE = new BaseArrayClass();
 QUEUE.on('insert_at', function() {
+  if (!window.google || !window.google.maps) {
+    return;
+  }
   if (QUEUE.getLength() === 1) {
     this.trigger('next');
   }
 });
 QUEUE.one('insert_at', function() {
+
+  if (!window.google || !window.google.maps) {
+    setTimeout(arguments.callee.bind(this), 100);
+    return;
+  }
   geocoder = new google.maps.Geocoder();
   this.trigger('next');
 });

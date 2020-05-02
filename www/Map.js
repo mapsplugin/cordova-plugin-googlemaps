@@ -19,7 +19,9 @@ var utils = require('cordova/utils'),
   GroundOverlay = require('./GroundOverlay'),
   KmlOverlay = require('./KmlOverlay'),
   KmlLoader = require('./KmlLoader'),
-  spherical = require('cordova-plugin-googlemaps.spherical'),
+  DirectionsRenderer = require('./DirectionsRenderer'),
+  spherical = require('./spherical'),
+  encoding = require('./encoding'),
   MarkerCluster = require('./MarkerCluster');
 
 /**
@@ -534,7 +536,7 @@ Map.prototype.animateCamera = function(cameraPosition, callback) {
   //   cameraPosition.padding = 10;
   // }
 
-  if (utils.isArray(target) || target.type === 'LatLngBounds') {
+  if (utils.isArray(target) || target.type === 'LatLngBounds' || target.southwest && target.northeast) {
     target = common.convertToPositionArray(target);
     if (target.length === 0) {
       // skip if no point is specified
@@ -1111,6 +1113,33 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 };
 
 
+Map.prototype.addDirectionsRenderer = function(directionsRendererOptions, callback) {
+  var self = this;
+  directionsRendererOptions = directionsRendererOptions || {};
+
+  if (directionsRendererOptions.directions) {
+
+    var resolver = function(resolve, reject) {
+      var renderer = new DirectionsRenderer(self, self.exec, directionsRendererOptions);
+      renderer.setRouteIndex(0);
+      resolve(renderer);
+    };
+
+    if (typeof callback === 'function') {
+      resolver(callback, self.errorHandler);
+    } else {
+      return new Promise(resolver);
+    }
+  } else {
+
+    if (typeof callback === 'function') {
+      throw new Error('directionsRendererOptions.directions is required.');
+    } else {
+      return Promise.reject('directionsRendererOptions.directions is required.');
+    }
+  }
+};
+
 //-------------
 // Ground overlay
 //-------------
@@ -1239,6 +1268,9 @@ Map.prototype.addTileOverlay = function(tilelayerOptions, callback) {
 Map.prototype.addPolygon = function(polygonOptions, callback) {
   var self = this;
   polygonOptions.points = polygonOptions.points || [];
+  if (typeof polygonOptions.points === 'string') {
+    polygonOptions.points = encoding.decodePath(polygonOptions.points);
+  }
   var _orgs = polygonOptions.points;
   polygonOptions.points = common.convertToPositionArray(polygonOptions.points);
   polygonOptions.holes = polygonOptions.holes || [];
@@ -1297,6 +1329,9 @@ Map.prototype.addPolygon = function(polygonOptions, callback) {
 Map.prototype.addPolyline = function(polylineOptions, callback) {
   var self = this;
   polylineOptions.points = polylineOptions.points || [];
+  if (typeof polylineOptions.points === 'string') {
+    polylineOptions.points = encoding.decodePath(polylineOptions.points);
+  }
   var _orgs = polylineOptions.points;
   polylineOptions.points = common.convertToPositionArray(polylineOptions.points);
   polylineOptions.color = common.HTMLColor2RGBA(polylineOptions.color || '#FF000080', 0.75);
