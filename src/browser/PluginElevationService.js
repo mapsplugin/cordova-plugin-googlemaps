@@ -98,7 +98,7 @@ module.exports = {
     params.samples = request.samples;
     params.path = [];
     for (var i = 0; i < request.path.length; i++) {
-      params.path.push(new google.maps.LatLng(request.path[i].lat, request.path[i].lng));
+      params.path.push(request.path[i]);
     }
 
     QUEUE.push({
@@ -115,7 +115,7 @@ module.exports = {
     var params = {};
     params.locations = [];
     for (var i = 0; i < request.locations.length; i++) {
-      params.locations.push(new google.maps.LatLng(request.locations[i].lat, request.locations[i].lng));
+      params.locations.push(request.locations[i]);
     }
 
     QUEUE.push({
