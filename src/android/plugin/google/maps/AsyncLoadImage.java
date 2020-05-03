@@ -230,6 +230,16 @@ public class AsyncLoadImage extends AsyncTask<Void, Void, AsyncLoadImage.AsyncLo
         iconUrl = iconUrl.replaceAll("(\\/\\.\\/+)+", "/");
         //Log.d(TAG, "--> iconUrl = " + iconUrl);
       }
+      if (iconUrl.startsWith("http://localhost") ||
+              iconUrl.startsWith("http://127.0.0.1")) {
+//        Log.d(TAG, String.format("---->(201)iconURL = %s", iconUrl));
+        if (iconUrl.contains("://")) {
+          iconUrl = iconUrl.replaceAll("http://.+?/", "file:///android_asset/www/");
+        } else {
+          // Avoid WebViewLocalServer (because can not make a connection for some reason)
+          iconUrl = "file:///android_asset/www/".concat(iconUrl);
+        }
+      }
 
       if (iconUrl.indexOf("file://") == 0 &&
           !iconUrl.contains("file:///android_asset/")) {
