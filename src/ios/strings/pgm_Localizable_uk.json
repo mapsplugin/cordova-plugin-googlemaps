@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "ЗАКРИТИ",
   "APIKEY_IS_UNDEFINED_TITLE" : "Невірний API ключ",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "Змінна \"API_KEY_FOR_IOS\" не зареєстрована.",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Змінна \"GOOGLE_MAPS_IOS_API_KEY\" не зареєстрована.",
   "APP_NAME_ERROR_TITLE" : "Вам потрібно змінити файл config.xml",
   "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK for iOS не працюватиме, якщо CFBundleExecutable міститиме неанглійські слова.\nБільш дутально, в коментарях до файлу CordovaGoogleMaps.m.",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Сервіс пошуку розташування недоступний",

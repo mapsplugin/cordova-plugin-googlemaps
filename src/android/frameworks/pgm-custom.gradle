@@ -1,0 +1,106 @@
+def searchFileInParents(target) {
+  def searchPath = target
+  for (int i = 0; i < 8; i++) {
+    println(searchPath)
+    def targetFile = file(searchPath)
+    if(!targetFile.canRead()) {
+      searchPath = '../' + searchPath;
+    } else {
+      return targetFile;
+    }
+  }
+  return null;
+}
+
+android {
+  // #1. Find (project)/config.xml file,
+  //     because ionic capacitor does not copy <preference> nodes
+  def configXmlFile = searchFileInParents("config.xml")
+
+  if (configXmlFile == null) {
+    // #2. Find (project)/app/src/main/res/xml/config.xml file,
+    //     cordova should copy <preference> to this file
+    configXmlFile = searchFileInParents("app/src/main/res/xml/config.xml")
+  }
+
+  if (configXmlFile == null) {
+    throw new GradleException("Can not find config.xml file.")
+  }
+
+  // parse xml file
+  def widget = new XmlParser().parse(configXmlFile)
+  if (widget.preference == null) {
+    throw new GradleException("widget is null.")
+  }
+  if (widget.preference.size() == 0) {
+    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+  }
+  println("preference = " + widget.preference.size())
+  Properties props = new Properties()
+  def isKeyFound = 0
+  def useBetaSdk = 0
+  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION", "16.0.0");
+  props.setProperty("ANDROID_SUPPORT_V4_VERSION", "27.1.1");
+  props.setProperty("GOOGLE_MAPS_ANDROID_SDK", "");
+
+  widget.preference.each { pref ->
+    def name = pref.attributes().name
+    def value = pref.attributes().value
+    println("name = " + name);
+    if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
+      isKeyFound = 1
+      props.setProperty(name, value)
+    }
+    if (name == "GOOGLE_MAPS_PLAY_SERVICES_VERSION" ||
+        name == "ANDROID_SUPPORT_V4_VERSION") {
+      props.setProperty(name, value)
+    }
+    if (name == "GOOGLE_MAPS_ANDROID_SDK") {
+      useBetaSdk = 1
+      props.setProperty("GOOGLE_MAPS_ANDROID_SDK", value)
+    }
+  }
+
+
+  if (isKeyFound == 0) {
+    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
+  }
+
+  if (useBetaSdk == 1) {
+    def libsDirPath = System.getProperty("user.dir")
+    def libsDir = new File("${libsDirPath}/libs/")
+    if (!libsDir.exists()) {
+      libsDir.mkdirs()
+    }
+
+    def mapsSDK = props.getProperty("GOOGLE_MAPS_ANDROID_SDK")
+    def f = new File("${libsDir.absolutePath}/${mapsSDK}.aar")
+    println("---->lib = " + f.absolutePath);
+    if (!f.exists()) {
+      new URL("https://dl.google.com/dl/geosdk/${mapsSDK}.aar").withInputStream{ i -> f.withOutputStream{ it << i }}
+    }
+    dependencies {
+      implementation name: mapsSDK, ext:'aar'
+    }
+  }
+
+  def PLAY_SERVICES_VERSION = props.get("GOOGLE_MAPS_PLAY_SERVICES_VERSION")
+  def ANDROID_SUPPORT_V4_VERSION = props.get("ANDROID_SUPPORT_V4_VERSION")
+  println("---->PLAY_SERVICES_VERSION = ${PLAY_SERVICES_VERSION}")
+  println("---->ANDROID_SUPPORT_V4_VERSION = ${ANDROID_SUPPORT_V4_VERSION}")
+  dependencies {
+    implementation "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
+    implementation "com.google.android.gms:play-services-location:${PLAY_SERVICES_VERSION}"
+    implementation "com.android.support:support-core-utils:${ANDROID_SUPPORT_V4_VERSION}"
+  }
+
+
+  buildTypes {
+    debug {
+      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
+    }
+    release {
+      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
+    }
+  }
+}

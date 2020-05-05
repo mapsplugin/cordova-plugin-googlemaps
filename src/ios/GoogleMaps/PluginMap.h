@@ -41,7 +41,6 @@
 - (void)panBy:(CDVInvokedUrlCommand*)command;
 - (void)getFocusedBuilding:(CDVInvokedUrlCommand*)command;
 - (void)setActiveMarkerId:(CDVInvokedUrlCommand*)command;
+- (void)stopAnimation:(CDVInvokedUrlCommand*)command;
 
 @end
-
-

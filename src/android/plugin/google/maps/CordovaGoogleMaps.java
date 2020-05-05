@@ -495,7 +495,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   }
   @Override
   public void onStop() {
-    super.onStart();
+    super.onStop();
 
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
     for (PluginEntry pluginEntry: pluginEntries) {
@@ -524,12 +524,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public void onResume(boolean multitasking) {
     Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
-    for (PluginEntry pluginEntry: pluginEntries) {
+    for (Iterator<PluginEntry> iterator = pluginEntries.iterator(); iterator.hasNext();) {
+      PluginEntry pluginEntry = iterator.next();
       if (pluginEntry.service.startsWith("map_")) {
         pluginEntry.plugin.onResume(multitasking);
       }
     }
-
   }
 
   @Override

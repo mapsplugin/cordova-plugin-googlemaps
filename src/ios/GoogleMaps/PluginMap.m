@@ -135,7 +135,7 @@
   self.mapCtrl.viewDepth = [[meta objectForKey:@"depth"] integerValue];
 
   NSDictionary *initOptions = [command.arguments objectAtIndex:1];
-  if ([initOptions valueForKey:@"camera"]) {
+  if ([initOptions valueForKey:@"camera"] && [initOptions valueForKey:@"camera"] != [NSNull null]) {
     double delayInSeconds = 1;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -489,14 +489,14 @@
 
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
     __block double bearing;
-    if ([json valueForKey:@"bearing"]) {
+    if ([json valueForKey:@"bearing"] && [json valueForKey:@"bearing"] != [NSNull null]) {
       bearing = [[json valueForKey:@"bearing"] doubleValue];
     } else {
       bearing = self.mapCtrl.map.camera.bearing;
     }
 
     double angle;
-    if ([json valueForKey:@"tilt"]) {
+    if ([json valueForKey:@"tilt"] && [json valueForKey:@"tilt"] != [NSNull null]) {
       angle = [[json valueForKey:@"tilt"] doubleValue];
     } else {
       angle = self.mapCtrl.map.camera.viewingAngle;
@@ -510,7 +510,7 @@
     }
 
     double cameraPadding = 20;
-    if ([json valueForKey:@"padding"]) {
+    if ([json valueForKey:@"padding"] && [json valueForKey:@"zoom"] != [NSNull null]) {
       cameraPadding = [[json valueForKey:@"padding"] doubleValue];
     }
 
@@ -693,8 +693,9 @@
     [self.mapCtrl.executeQueue addOperationWithBlock:^{
       NSData *imageData = UIImagePNGRepresentation(image);
       NSString* base64Encoded = [imageData base64EncodedStringWithOptions:0];
+      NSString* base64EncodedWithData = [@"data:image/png;base64," stringByAppendingString:base64Encoded];
 
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64Encoded];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64EncodedWithData];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
@@ -912,7 +913,7 @@
     // Redraw the map mandatory
     [self.mapCtrl.map setNeedsDisplay];
 
-    if ([initOptions valueForKey:@"camera"]) {
+    if ([initOptions valueForKey:@"camera"] && [initOptions valueForKey:@"camera"] != [NSNull null]) {
       //------------------------------------------
       // Case : The camera option is specified.
       //------------------------------------------
@@ -992,5 +993,16 @@
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }];
+}
+
+
+- (void)stopAnimation:(CDVInvokedUrlCommand*)command {
+
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self.mapCtrl.map.layer removeAllAnimations];
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
 }
 @end

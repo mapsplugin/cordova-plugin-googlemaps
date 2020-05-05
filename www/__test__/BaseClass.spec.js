@@ -137,7 +137,7 @@ describe('[BaseClass]', () => {
       const triggerTimer = setInterval(() => {
         sendCount++;
         instance.trigger('myEvent', sendCount);
-        if (sendCount === 13) {
+        if (sendCount > 12) {
           clearInterval(triggerTimer);
         }
       }, 10);

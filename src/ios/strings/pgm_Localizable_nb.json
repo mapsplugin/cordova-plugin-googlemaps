@@ -1,7 +1,7 @@
 {
   "CLOSE_BUTTON" : "Lukk",
   "APIKEY_IS_UNDEFINED_TITLE" : "API-nøkkel feil",
-  "APIKEY_IS_UNDEFINED_MESSAGE" : "Variabelen \"API_KEY_FOR_IOS\" er ikke registrert.",
+  "APIKEY_IS_UNDEFINED_MESSAGE" : "Variabelen \"GOOGLE_MAPS_IOS_API_KEY\" er ikke registrert.",
   "APP_NAME_ERROR_TITLE" : "Du må endre config.xml filen",
   "APP_NAME_ERROR_MESSAGE" : "Google Maps SDK til iOS ødelegges hvis CFBundleExecutable inneholder ikke-engelske simboler.\nFlere detaljer, Skjekk ut kommentar i CordovaGoogleMaps.m filen.",
   "LOCATION_IS_UNAVAILABLE_ERROR_TITLE" : "Stedtjenester er ikke tilgjengelig",

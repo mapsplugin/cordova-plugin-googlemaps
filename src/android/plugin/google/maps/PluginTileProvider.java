@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
@@ -296,6 +297,8 @@ public class PluginTileProvider implements TileProvider  {
         if (urlStr.startsWith("./")  || urlStr.startsWith("../")) {
           urlStr = urlStr.replace("././", "./");
           String currentPage = webPageUrl;
+          currentPage = currentPage.replaceAll("#.*$", "");
+          currentPage = currentPage.replaceAll("\\?.*$", "");
           currentPage = currentPage.replaceAll("[^\\/]*$", "");
           urlStr = currentPage + "/" + urlStr;
         }

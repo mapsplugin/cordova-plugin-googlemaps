@@ -81,6 +81,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       RectF drawRect;
       for (int i = 0; i < mapIds.length; i++) {
         mapId = mapIds[i];
+        if (mapId == null) {
+          continue;
+        }
         pluginOverlay = pluginOverlays.get(mapId);
         if (pluginOverlay == null || pluginOverlay.getDivId() == null) {
           continue;

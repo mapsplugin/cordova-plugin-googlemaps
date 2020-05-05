@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">閉じる</string>
-  <string name="pgm_api_key_error">platforms/android/app/src/AndroidManifest.xmlファイル内の\'API_KEY_FOR_ANDROID\'をあなたのAPIキーに置き換えてください</string>
+  <string name="pgm_api_key_error">config.xmlファイル内の\'GOOGLE_MAPS_ANDROID_API_KEY\'をあなたのAPIキーに置き換えてください</string>
   <string name="pgm_google_play_error">この端末ではGoogle Maps Android API v2が利用できません。</string>
   <string name="pgm_google_play_developer_error">アプリケーションの設定が間違えています。このエラーは修復不可能かつ重大な失敗なものです。開発者は端末ログを確認してください。</string>
   <string name="pgm_google_play_internal_error">Google Play Servicesの内部エラーが発生しました。おそらくもう一度試みていただければ解決します。</string>

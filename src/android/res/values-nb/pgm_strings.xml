@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="pgm_google_close_button">Lukk</string>
-  <string name="pgm_api_key_error">Vennligst erstatt \'API_KEY_FOR_ANDROID\' i  platforms/android/app/src/AndroidManifest.xml med din API-nøkkel!</string>
+  <string name="pgm_api_key_error">Vennligst erstatt \'GOOGLE_MAPS_ANDROID_API_KEY\' i  config.xml med din API-nøkkel!</string>
   <string name="pgm_google_play_error">Google Maps Android API v2 er ikke tilgjengelig av ukjent grunn på enheten.</string>
   <string name="pgm_google_play_developer_error">Applikasjon er feilkonfigurert. Denne feilen er ikke gjenvinnbart og skal behandles som fatal. Utvikleren bør se på loggen etter dette for å fastslå mer handlingsbar informasjon.</string>
   <string name="pgm_google_play_internal_error">Det har skjedd en intern feil av Google Play tjeneste. Vennligst prøv igjen og problemme skal løses ut.</string>
