@@ -47,7 +47,11 @@ function PluginMap(mapId, options) {
 
   var style = document.createElement('style');
   style.setAttribute('type', 'text/css');
-  style.innerHTML = ':host {color: black;}';
+  style.innerHTML = [
+    ':host {color: black;}',
+    'button.gm-control-active>img {display: none;}',
+    'button.gm-control-active>img:nth-child(1) {display: inline;}'
+  ].join("\n");
   shadowRoot.appendChild(style);
 
   var mapDiv = document.createElement('div');
@@ -78,6 +82,7 @@ function PluginMap(mapId, options) {
 
   self.set('isGoogleReady', false);
   self.set('container', container);
+  self.set('_actualDiv', actualMapDiv);
   self.PLUGINS = {};
 
   Object.defineProperty(self, '__pgmId', {
@@ -131,6 +136,12 @@ function PluginMap(mapId, options) {
           mapInitOptions.zoomControl = options.controls.zoom == true;
         }
       }
+
+      if (options.gestures) {
+        mapInitOptions.draggable = options.gestures.scroll;
+        mapInitOptions.gestureHandling = options.gestures.scroll;
+        mapInitOptions.disableDoubleClickZoom = !options.gestures.zoom;
+      }
       if (options.preferences) {
 
         if (options.preferences && options.preferences.gestureBounds) {
@@ -144,7 +155,7 @@ function PluginMap(mapId, options) {
             strictBounds: false
           };
         }
-        
+
         if (options.preferences.zoom) {
           mapInitOptions.minZoom = options.preferences.zoom.minZoom;
           if (options.preferences.zoom.maxZoom) {
@@ -239,7 +250,13 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
   var map = self.get('map'),
     options = args[0];
 
-  var mapInitOptions = {};
+  var mapInitOptions = {
+    draggable: true,
+    gestureHandling: 'auto',
+    disableDoubleClickZoom: false,
+    heading: 0,
+    tilt: 0
+  };
 
   if (options) {
     if (options.mapType) {
@@ -254,6 +271,12 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
         mapInitOptions.zoomControl = options.controls.zoom == true;
       }
     }
+    if (options.gestures) {
+      mapInitOptions.draggable = options.gestures.scroll;
+      mapInitOptions.gestureHandling = options.gestures.scroll;
+      mapInitOptions.disableDoubleClickZoom = !options.gestures.zoom;
+    }
+
     if (options.preferences) {
       if (options.preferences.zoom) {
         mapInitOptions.minZoom = Math.max(options.preferences.zoom || 2, 2);
@@ -332,16 +355,37 @@ PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
     container = self.get('container');
 
   if (args.length === 0) {
-    if (container && container.parentNode) {
-      container.parentNode.removeAttribute('__pluginMapId');
+    var actualMapDiv = self.get('_actualDiv');
+    if (actualMapDiv && actualMapDiv.parentNode) {
+      actualMapDiv.removeAttribute('__pluginMapId');
       container.parentNode.removeChild(container);
     }
   } else {
+
+    // var domId = args[0];
+    // var mapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
+    // mapDiv.style.position = 'relative';
+    // mapDiv.insertBefore(container, mapDiv.firstElementChild);
+    // mapDiv.setAttribute('__pluginMapId', self.__pgmId);
     var domId = args[0];
-    var mapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
-    mapDiv.style.position = 'relative';
-    mapDiv.insertBefore(container, mapDiv.firstElementChild);
-    mapDiv.setAttribute('__pluginMapId', self.__pgmId);
+    var actualMapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
+    actualMapDiv.setAttribute('__pluginMapId', self.__pgmId);
+    actualMapDiv.style.position = 'relative';
+
+    var shadowRoot = actualMapDiv.attachShadow({ mode: 'open' });
+
+    var style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.innerHTML = [
+      ':host {color: black;}',
+      'button.gm-control-active>img {display: none;}',
+      'button.gm-control-active>img:nth-child(1) {display: inline;}'
+    ].join("\n");
+    shadowRoot.appendChild(style);
+    shadowRoot.appendChild(container);
+
+
+    // mapDiv.insertBefore(container, mapDiv.firstElementChild);
   }
 
   google.maps.event.trigger(map, 'resize');

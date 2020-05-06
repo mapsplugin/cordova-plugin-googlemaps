@@ -253,13 +253,26 @@ Map.prototype.getMap = function(meta, div, options) {
       div.insertBefore(self._layers.info, div.firstChild);
 
 
+      var background = undefined;
+      var bg;
       while (div.parentNode) {
-        div.style.backgroundColor = 'rgba(0,0,0,0) !important';
+        bg = common.getStyle(div, '--background');
+        if (!bg) {
+          bg = common.getStyle(div, 'background-color');
+        }
+        bg = (bg || "").trim();
+        background = background || bg;
+          // console.log(`background = ${background}`);
+        // div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
         // Add _gmaps_cdv_ class
         common.attachTransparentClass(div);
 
         div = div.parentNode;
+      }
+
+      if (background) {
+        plugin.google.maps.environment.setBackgroundColor(background);
       }
     }
     cordova.fireDocumentEvent('plugin_touch', {
@@ -295,50 +308,59 @@ Map.prototype.getMap = function(meta, div, options) {
 Map.prototype.setOptions = function(options) {
   options = options || {};
 
+  var self = this;
   if (options.controls) {
-    var myLocation = this.get('myLocation');
-    if ('myLocation' in options.controls) {
-      myLocation = options.controls.myLocation === true;
-    }
-    var myLocationButton = this.get('myLocationButton');
-    if ('myLocationButton' in options.controls) {
-      myLocationButton = options.controls.myLocationButton === true;
-    }
-    this.set('myLocation', myLocation);
-    this.set('myLocationButton', myLocationButton);
-    if (myLocation === true || myLocation === false) {
-      options.controls.myLocation = myLocation;
-    }
-    if (myLocationButton === true || myLocationButton === false) {
-      options.controls.myLocationButton = myLocationButton;
-    }
-  }
-  if (options.camera) {
-    if (options.camera.latLng) {
-      options.camera.target = options.camera.latLng;
-      delete options.camera.latLng;
-    }
-    this.set('camera', options.camera);
-    if (options.camera.target) {
-      this.set('camera_target', options.camera.target);
-    }
-    if (options.camera.bearing) {
-      this.set('camera_bearing', options.camera.bearing);
-    }
-    if (options.camera.zoom) {
-      this.set('camera_zoom', options.camera.zoom);
-    }
-    if (options.camera.tilt) {
-      this.set('camera_tilt', options.camera.tilt);
-    }
+    this.set('myLocation', options.controls.myLocation === true);
+    this.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
   if (options.preferences && options.preferences.gestureBounds) {
-    if (utils.isArray(options.preferences.gestureBounds) ||
-        options.preferences.gestureBounds.type === 'LatLngBounds') {
-      options.preferences.gestureBounds = common.convertToPositionArray(options.preferences.gestureBounds);
+
+    var bounds = new LatLngBounds();
+    if (utils.isArray(options.preferences.gestureBounds)) {
+      options.preferences.gestureBounds.forEach(function(ele) {
+        if (ele.lat && ele.lng) {
+          bounds.extend(ele);
+        }
+      });
+    } else if (options.preferences.gestureBounds.type === 'LatLngBounds' ||
+      options.preferences.gestureBounds.northeast && options.preferences.gestureBounds.southwest) {
+      bounds.extend(options.preferences.gestureBounds.southwest);
+      bounds.extend(options.preferences.gestureBounds.northeast);
+    }
+
+    if (!bounds.southwest || !bounds.northeast) {
+      console.warn('(getMap) options.preferences.gestureBounds is invalid.');
+      delete options.preferences.gestureBounds;
+    } else {
+      var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
+      var maxZoom = 23;
+      var prefMinZoom = 0;
+      var prefMaxZoom = 23;
+      if (options.preferences.zoom) {
+        if (options.preferences.zoom.minZoom) {
+          minZoom = options.preferences.zoom.minZoom;
+          prefMinZoom = minZoom;
+        }
+        if (options.preferences.zoom.maxZoom) {
+          maxZoom = options.preferences.zoom.maxZoom;
+          maxZoom = minZoom;
+        }
+      }
+      options.preferences.gestureBounds = {
+        'south': bounds.southwest.lat,
+        'west': bounds.southwest.lng,
+        'north': bounds.northeast.lat,
+        'east': bounds.northeast.lng,
+        'prefMinZoom': prefMinZoom,
+        'prefMaxZoom': prefMaxZoom,
+        'minZoom': minZoom,
+        'maxZoom': maxZoom
+      };
+      self.set('restriction', options.preferences.gestureBounds);
     }
   }
+
 
   if (utils.isArray(options.styles)) {
     options.styles = JSON.stringify(options.styles);
@@ -894,13 +916,27 @@ Map.prototype.setDiv = function(div) {
     }
     var elemId = common.getPluginDomId(div);
     args.push(elemId);
+
+    var background = undefined;
+    var bg;
     while (div.parentNode) {
-      div.style.backgroundColor = 'rgba(0,0,0,0)';
+      bg = common.getStyle(div, '--background');
+      if (!bg) {
+        bg = common.getStyle(div, 'background-color');
+      }
+      bg = (bg || "").trim();
+      background = background || bg;
+        // console.log(`background = ${background}`);
+      // div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
       // Add _gmaps_cdv_ class
       common.attachTransparentClass(div);
 
       div = div.parentNode;
+    }
+
+    if (background) {
+      plugin.google.maps.environment.setBackgroundColor(background);
     }
   }
   self.exec.call(self, function() {

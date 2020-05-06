@@ -1463,11 +1463,11 @@
       if (![fileManager fileExistsAtPath:iconPath]) {
         NSLog(@"(error)There is no file at '%@'.", iconPath);
         completionBlock(NO, nil);
-        return;
       } else {
         UIImage *image = [UIImage imageNamed:iconPath];
         completionBlock(YES, image);
       }
+      return;
     }
 
     NSURLRequest *req = [NSURLRequest requestWithURL:url
