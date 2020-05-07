@@ -45,11 +45,14 @@ function HTMLColor2RGBA(colorValue, defaultOpacity) {
   }
   if (colorStr.match(/^#([0-9A-F]){3}$/i)) {
     matches = colorStr.match(/([0-9A-F])/ig);
+    var r = parseInt(matches[0], 16);
+    var g = parseInt(matches[1], 16);
+    var b = parseInt(matches[2], 16);
 
     return [
-      parseInt(matches[0], 16),
-      parseInt(matches[1], 16),
-      parseInt(matches[2], 16),
+      (r << 4) + r,
+      (g << 4) + g,
+      (b << 4) + b,
       alpha
     ];
   }
@@ -59,10 +62,14 @@ function HTMLColor2RGBA(colorValue, defaultOpacity) {
     alpha = parseInt(alpha + alpha, 16);
 
     matches = colorStr.match(/([0-9A-F])/ig);
+    var r = parseInt(matches[0], 16);
+    var g = parseInt(matches[1], 16);
+    var b = parseInt(matches[2], 16);
+
     return [
-      parseInt(matches[0], 16),
-      parseInt(matches[1], 16),
-      parseInt(matches[2], 16),
+      (r << 4) + r,
+      (g << 4) + g,
+      (b << 4) + b,
       alpha
     ];
   }
