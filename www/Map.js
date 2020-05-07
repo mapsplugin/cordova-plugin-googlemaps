@@ -82,11 +82,15 @@ utils.extend(Map, Overlay);
 Map.prototype.refreshLayout = function() {
   // Webkit redraw mandatory
   // http://stackoverflow.com/a/3485654/697856
-  document.body.style.display = 'inline-block';
-  document.body.offsetHeight;
-  document.body.style.display = '';
+  // document.body.style.display = 'inline-block';
+  // document.body.offsetHeight;
+  // document.body.style.display = '';
+  document.body.style.transform = 'rotateZ(0deg)';
+  var self = this;
 
-  this.exec.call(this, null, null, this.__pgmId, 'resizeMap', []);
+  return (new Promise(function(resolve) {
+    self.exec.call(self, resolve, resolve, self.__pgmId, 'resizeMap', []);
+  }));
 };
 
 Map.prototype.getMap = function(meta, div, options) {
@@ -981,7 +985,21 @@ Map.prototype.setDiv = function(div) {
         action: 'setDiv'
       });
       self.refreshLayout();
-      resolve();
+
+      var waitCnt = 0;
+      var waitCameraSync = function() {
+        if (!self.getVisibleRegion() && (waitCnt++ < 10)) {
+          setTimeout(function() {
+            common.nextTick(waitCameraSync);
+          }, 100);
+          return;
+        }
+        resolve();
+      };
+      setTimeout(function() {
+        common.nextTick(waitCameraSync);
+      }, 100);
+
     }, self.errorHandler, self.__pgmId, 'setDiv', args, {
       sync: true
     });
