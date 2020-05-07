@@ -316,16 +316,39 @@ Map.prototype.setOptions = function(options) {
     this.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
-  if (options.camera && utils.isArray(options.camera.target)) {
-    var cameraBounds = new LatLngBounds();
-    options.camera.target.forEach(function(ele) {
-      if (ele.lat && ele.lng) {
-        cameraBounds.extend(ele);
-      }
-    });
-    options.camera.target = cameraBounds.getCenter();
-    options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
+  if (options && options.camera) {
+    this.set('camera', options.camera);
+    if (options.camera.target) {
+      this.set('camera_target', options.camera.target);
+    }
+    if (options.camera.bearing) {
+      this.set('camera_bearing', options.camera.bearing);
+    }
+    if (options.camera.zoom) {
+      this.set('camera_zoom', options.camera.zoom);
+    }
+    if (options.camera.tilt) {
+      this.set('camera_tilt', options.camera.tilt);
+    }
   }
+
+  // if (options && options.camera) {
+  //   if (utils.isArray(options.camera.target)) {
+  //     var bounds = new LatLngBounds();
+  //     options.camera.target.forEach(function(latlng) {
+  //       bounds.extend(latlng);
+  //     });
+  //     options.camera.zoom = spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
+  //     console.log(options.camera.zoom, bounds);
+  //     options.camera.target = bounds.getCenter();
+  //   } else if ('southwest' in options.camera.target && 'northeast' in options.camera.target) {
+  //     bounds.extend(options.camera.target.southwest);
+  //     bounds.extend(options.camera.target.northeast);
+  //     options.camera.zoom = spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
+  //     options.camera.target = bounds.getCenter();
+  //   }
+  // }
+  // console.log(options);
   if (options.preferences && options.preferences.gestureBounds) {
 
     var bounds = new LatLngBounds();
@@ -341,7 +364,7 @@ Map.prototype.setOptions = function(options) {
       bounds.extend(options.preferences.gestureBounds.northeast);
     }
 
-    if (!bounds.southwest || !bounds.northeast) {
+    if (!('southwest' in bounds) || !('northeast' in bounds)) {
       console.warn('(getMap) options.preferences.gestureBounds is invalid.');
       delete options.preferences.gestureBounds;
     } else {
@@ -918,7 +941,7 @@ Map.prototype.setDiv = function(div) {
     self.set('div', div);
 
     if (cordova.platform === 'browser') {
-      return;
+      return Promise.resolve();
     }
 
 
@@ -951,16 +974,18 @@ Map.prototype.setDiv = function(div) {
       plugin.google.maps.environment.setBackgroundColor(background);
     }
   }
-  self.exec.call(self, function() {
-    cordova.fireDocumentEvent('plugin_touch', {
-      force: true,
-      action: 'setDiv'
+  return (new Promise(function(resolve) {
+    self.exec.call(self, function() {
+      cordova.fireDocumentEvent('plugin_touch', {
+        force: true,
+        action: 'setDiv'
+      });
+      self.refreshLayout();
+      resolve();
+    }, self.errorHandler, self.__pgmId, 'setDiv', args, {
+      sync: true
     });
-    self.refreshLayout();
-  }, self.errorHandler, self.__pgmId, 'setDiv', args, {
-    sync: true
-  });
-  return self;
+  }));
 };
 
 /**
