@@ -520,7 +520,7 @@
     double longitude;
     GMSCameraPosition *cameraPosition;
     GMSCoordinateBounds *cameraBounds = nil;
-    CGFloat scale = self.mapCtrl.screenScale;
+    CGFloat scale = 1; //self.mapCtrl.screenScale;
 
     UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding / scale, cameraPadding / scale, cameraPadding / scale, cameraPadding / scale);
 

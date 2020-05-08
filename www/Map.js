@@ -55,9 +55,15 @@ var Map = function(__pgmId, _exec) {
   var style = document.createElement('style');
   style.setAttribute('type', 'text/css');
   style.innerHTML = [
-    ':host {color: black;}',
-    'button.gm-control-active>img {display: none;}',
-    'button.gm-control-active>img:nth-child(1) {display: inline;}'
+    '.pgm-html-info-frame > * {',
+      'margin: 0;',
+      'padding: 0;',
+      'border: 0;',
+      'font-size: 100%;',
+      'font: inherit;',
+      'vertical-align: baseline;',
+      'color: black;',
+    '}'
   ].join("\n");
   infoWindowLayer.appendChild(style);
 
@@ -927,6 +933,7 @@ Map.prototype.setDiv = function(div) {
     // div.style.display = '';
     document.body.style.transform = 'rotateZ(0deg)';
     div.style.overflow = 'hidden';
+    div.style.position = 'relative';
 
     self.set('div', div);
 
