@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -53,9 +52,22 @@ var Map = function(__pgmId, _exec) {
   infoWindowLayer.style.overflow = 'visible';
   infoWindowLayer.style['z-index'] = 1;
 
+
+  var shadowInfo = infoWindowLayer.attachShadow({mode: 'open'});
+
+  var style = document.createElement('style');
+  style.setAttribute('type', 'text/css');
+  style.innerHTML = [
+    ':host {color: black;}',
+    'button.gm-control-active>img {display: none;}',
+    'button.gm-control-active>img:nth-child(1) {display: inline;}'
+  ].join("\n");
+  shadowInfo.appendChild(style);
+
   Object.defineProperty(self, '_layers', {
     value: {
-      info: infoWindowLayer
+      info: shadowInfo,
+      _info: infoWindowLayer
     },
     enumerable: false,
     writable: false
@@ -82,15 +94,11 @@ utils.extend(Map, Overlay);
 Map.prototype.refreshLayout = function() {
   // Webkit redraw mandatory
   // http://stackoverflow.com/a/3485654/697856
-  // document.body.style.display = 'inline-block';
-  // document.body.offsetHeight;
-  // document.body.style.display = '';
-  document.body.style.transform = 'rotateZ(0deg)';
-  var self = this;
+  document.body.style.display = 'inline-block';
+  document.body.offsetHeight;
+  document.body.style.display = '';
 
-  return (new Promise(function(resolve) {
-    self.exec.call(self, resolve, resolve, self.__pgmId, 'resizeMap', []);
-  }));
+  this.exec.call(this, null, null, this.__pgmId, 'resizeMap', []);
 };
 
 Map.prototype.getMap = function(meta, div, options) {
@@ -241,9 +249,9 @@ Map.prototype.getMap = function(meta, div, options) {
     if (common.isDom(div)) {
 
       // Insert the infoWindow layer
-      if (self._layers.info.parentNode) {
+      if (self._layers._info.parentNode) {
         try {
-          self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+          self._layers._info.parentNode.removeChild(self._layers._info.parentNode);
         } catch (e) {
           // ignore
         }
@@ -255,7 +263,7 @@ Map.prototype.getMap = function(meta, div, options) {
           div.children[i].style.position = 'relative';
         }
       }
-      div.insertBefore(self._layers.info, div.firstChild);
+      div.insertBefore(self._layers._info, div.firstChild);
 
 
       var background = undefined;
@@ -277,6 +285,7 @@ Map.prototype.getMap = function(meta, div, options) {
       }
 
       if (background) {
+        background = common.HTMLColor2RGBA(background);
         plugin.google.maps.environment.setBackgroundColor(background);
       }
     }
@@ -320,39 +329,16 @@ Map.prototype.setOptions = function(options) {
     this.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
-  if (options && options.camera) {
-    this.set('camera', options.camera);
-    if (options.camera.target) {
-      this.set('camera_target', options.camera.target);
-    }
-    if (options.camera.bearing) {
-      this.set('camera_bearing', options.camera.bearing);
-    }
-    if (options.camera.zoom) {
-      this.set('camera_zoom', options.camera.zoom);
-    }
-    if (options.camera.tilt) {
-      this.set('camera_tilt', options.camera.tilt);
-    }
+  if (options.camera && utils.isArray(options.camera.target)) {
+    var cameraBounds = new LatLngBounds();
+    options.camera.target.forEach(function(ele) {
+      if (ele.lat && ele.lng) {
+        cameraBounds.extend(ele);
+      }
+    });
+    options.camera.target = cameraBounds.getCenter();
+    options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
   }
-
-  // if (options && options.camera) {
-  //   if (utils.isArray(options.camera.target)) {
-  //     var bounds = new LatLngBounds();
-  //     options.camera.target.forEach(function(latlng) {
-  //       bounds.extend(latlng);
-  //     });
-  //     options.camera.zoom = spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
-  //     console.log(options.camera.zoom, bounds);
-  //     options.camera.target = bounds.getCenter();
-  //   } else if ('southwest' in options.camera.target && 'northeast' in options.camera.target) {
-  //     bounds.extend(options.camera.target.southwest);
-  //     bounds.extend(options.camera.target.northeast);
-  //     options.camera.zoom = spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
-  //     options.camera.target = bounds.getCenter();
-  //   }
-  // }
-  // console.log(options);
   if (options.preferences && options.preferences.gestureBounds) {
 
     var bounds = new LatLngBounds();
@@ -368,7 +354,7 @@ Map.prototype.setOptions = function(options) {
       bounds.extend(options.preferences.gestureBounds.northeast);
     }
 
-    if (!('southwest' in bounds) || !('northeast' in bounds)) {
+    if (!bounds.southwest || !bounds.northeast) {
       console.warn('(getMap) options.preferences.gestureBounds is invalid.');
       delete options.preferences.gestureBounds;
     } else {
@@ -919,9 +905,9 @@ Map.prototype.setDiv = function(div) {
     div.setAttribute('__pluginMapId', self.__pgmId);
 
     // Insert the infoWindow layer
-    if (self._layers.info.parentNode) {
+    if (self._layers._info.parentNode) {
       try {
-        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
+        self._layers._info.parentNode.removeChild(self._layers._info.parentNode);
       } catch(e) {
         //ignore
       }
@@ -933,7 +919,7 @@ Map.prototype.setDiv = function(div) {
         div.children[i].style.position = 'relative';
       }
     }
-    div.insertBefore(self._layers.info, div.firstChild);
+    div.insertBefore(self._layers._info, div.firstChild);
 
     // Webkit redraw mandatory
     // http://stackoverflow.com/a/3485654/697856
@@ -945,7 +931,7 @@ Map.prototype.setDiv = function(div) {
     self.set('div', div);
 
     if (cordova.platform === 'browser') {
-      return Promise.resolve();
+      return;
     }
 
 
@@ -975,35 +961,20 @@ Map.prototype.setDiv = function(div) {
     }
 
     if (background) {
+      background = common.HTMLColor2RGBA(background);
       plugin.google.maps.environment.setBackgroundColor(background);
     }
   }
-  return (new Promise(function(resolve) {
-    self.exec.call(self, function() {
-      cordova.fireDocumentEvent('plugin_touch', {
-        force: true,
-        action: 'setDiv'
-      });
-      self.refreshLayout();
-
-      var waitCnt = 0;
-      var waitCameraSync = function() {
-        if (!self.getVisibleRegion() && (waitCnt++ < 10)) {
-          setTimeout(function() {
-            common.nextTick(waitCameraSync);
-          }, 100);
-          return;
-        }
-        resolve();
-      };
-      setTimeout(function() {
-        common.nextTick(waitCameraSync);
-      }, 100);
-
-    }, self.errorHandler, self.__pgmId, 'setDiv', args, {
-      sync: true
+  self.exec.call(self, function() {
+    cordova.fireDocumentEvent('plugin_touch', {
+      force: true,
+      action: 'setDiv'
     });
-  }));
+    self.refreshLayout();
+  }, self.errorHandler, self.__pgmId, 'setDiv', args, {
+    sync: true
+  });
+  return self;
 };
 
 /**

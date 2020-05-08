@@ -43,7 +43,20 @@ function PluginMap(mapId, options) {
   var self = this;
   BaseClass.apply(this);
   var actualMapDiv = document.querySelector('[__pluginMapId=\'' + mapId + '\']');
-  var shadowRoot = actualMapDiv.attachShadow({mode: 'open'});
+
+  var container = document.createElement('div');
+  container.style.userSelect='none';
+  container.style['-webkit-user-select']='none';
+  container.style['-moz-user-select']='none';
+  container.style['-ms-user-select']='none';
+  container.style.position = 'absolute';
+  container.style.top = 0;
+  container.style.bottom = 0;
+  container.style.right = 0;
+  container.style.left = 0;
+  actualMapDiv.appendChild(container);
+
+  var shadowRoot = container.attachShadow({mode: 'open'});
 
   var style = document.createElement('style');
   style.setAttribute('type', 'text/css');
@@ -67,22 +80,14 @@ function PluginMap(mapId, options) {
   mapDiv.style.backgroundColor = 'rgb(229, 227, 223)';
 
 
-  var container = document.createElement('div');
-  container.style.userSelect='none';
-  container.style['-webkit-user-select']='none';
-  container.style['-moz-user-select']='none';
-  container.style['-ms-user-select']='none';
-  container.style.position = 'absolute';
-  container.style.top = 0;
-  container.style.bottom = 0;
-  container.style.right = 0;
-  container.style.left = 0;
 
-  mapDiv.insertBefore(container, mapDiv.firstElementChild);
+
+  // mapDiv.insertBefore(container, mapDiv.firstElementChild);
+  // shadowRoot.appendChild(container);
 
   self.set('isGoogleReady', false);
   self.set('container', container);
-  self.set('_actualDiv', actualMapDiv);
+  // self.set('shadowRoot', shadowRoot);
   self.PLUGINS = {};
 
   Object.defineProperty(self, '__pgmId', {
@@ -165,7 +170,7 @@ function PluginMap(mapId, options) {
       }
     }
 
-    var map = new google.maps.Map(container, mapInitOptions);
+    var map = new google.maps.Map(mapDiv, mapInitOptions);
     map.mapTypes = mapTypeReg;
     self.set('map', map);
 
@@ -353,43 +358,28 @@ PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
   var self = this,
     map = self.get('map'),
     container = self.get('container');
+    // shadowRoot = self.get('shadowRoot');
 
   if (args.length === 0) {
-    var actualMapDiv = self.get('_actualDiv');
-    if (actualMapDiv && actualMapDiv.parentNode) {
-      actualMapDiv.removeAttribute('__pluginMapId');
+    if (container.parentNode) {
       container.parentNode.removeChild(container);
     }
+    onSuccess();
   } else {
 
-    // var domId = args[0];
-    // var mapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
-    // mapDiv.style.position = 'relative';
-    // mapDiv.insertBefore(container, mapDiv.firstElementChild);
-    // mapDiv.setAttribute('__pluginMapId', self.__pgmId);
-    var domId = args[0];
-    var actualMapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
-    actualMapDiv.setAttribute('__pluginMapId', self.__pgmId);
-    actualMapDiv.style.position = 'relative';
+    if (!container.parentNode) {
+      var domId = args[0];
+      var actualMapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
+      actualMapDiv.setAttribute('__pluginMapId', self.__pgmId);
+      actualMapDiv.style.position = 'relative';
+      actualMapDiv.appendChild(container);
+    }
 
-    var shadowRoot = actualMapDiv.attachShadow({ mode: 'open' });
-
-    var style = document.createElement('style');
-    style.setAttribute('type', 'text/css');
-    style.innerHTML = [
-      ':host {color: black;}',
-      'button.gm-control-active>img {display: none;}',
-      'button.gm-control-active>img:nth-child(1) {display: inline;}'
-    ].join("\n");
-    shadowRoot.appendChild(style);
-    shadowRoot.appendChild(container);
-
-
-    // mapDiv.insertBefore(container, mapDiv.firstElementChild);
+    setTimeout(function() {
+      onSuccess();
+    }, 1000);
   }
 
-  google.maps.event.trigger(map, 'resize');
-  onSuccess();
 };
 PluginMap.prototype.resizeMap = function(onSuccess) {
   var self = this;
