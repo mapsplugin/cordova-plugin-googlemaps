@@ -1,4 +1,5 @@
 
+
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -51,9 +52,6 @@ var Map = function(__pgmId, _exec) {
   infoWindowLayer.style.overflow = 'visible';
   infoWindowLayer.style['z-index'] = 1;
 
-
-  var shadowInfo = infoWindowLayer.attachShadow({mode: 'open'});
-
   var style = document.createElement('style');
   style.setAttribute('type', 'text/css');
   style.innerHTML = [
@@ -61,12 +59,11 @@ var Map = function(__pgmId, _exec) {
     'button.gm-control-active>img {display: none;}',
     'button.gm-control-active>img:nth-child(1) {display: inline;}'
   ].join("\n");
-  shadowInfo.appendChild(style);
+  infoWindowLayer.appendChild(style);
 
   Object.defineProperty(self, '_layers', {
     value: {
-      info: shadowInfo,
-      _info: infoWindowLayer
+      info: infoWindowLayer
     },
     enumerable: false,
     writable: false
@@ -99,9 +96,7 @@ Map.prototype.refreshLayout = function() {
   document.body.style.transform = 'rotateZ(0deg)';
 
   var self = this;
-  return (new Promise(function(resolve) {
-    self.exec.call(self, null, null, self.__pgmId, 'resizeMap', []);
-  }));
+  self.exec.call(self, null, null, self.__pgmId, 'resizeMap', []);
 };
 
 Map.prototype.getMap = function(meta, div, options) {
@@ -252,9 +247,9 @@ Map.prototype.getMap = function(meta, div, options) {
     if (common.isDom(div)) {
 
       // Insert the infoWindow layer
-      if (self._layers._info.parentNode) {
+      if (self._layers.info.parentNode) {
         try {
-          self._layers._info.parentNode.removeChild(self._layers._info.parentNode);
+          self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
         } catch (e) {
           // ignore
         }
@@ -266,7 +261,7 @@ Map.prototype.getMap = function(meta, div, options) {
           div.children[i].style.position = 'relative';
         }
       }
-      div.insertBefore(self._layers._info, div.firstChild);
+      div.insertBefore(self._layers.info, div.firstChild);
 
 
       var background = undefined;
@@ -311,9 +306,8 @@ Map.prototype.getMap = function(meta, div, options) {
 
       self._privateInitialize();
       delete self._privateInitialize;
-      self.refreshLayout().then(function() {
-        self.trigger(event.MAP_READY, self);
-      });
+      self.refreshLayout();
+      self.trigger(event.MAP_READY, self);
     };
     setTimeout(function() {
       common.nextTick(waitCameraSync);
@@ -329,8 +323,8 @@ Map.prototype.setOptions = function(options) {
   var self = this;
   var div = self.get('div');
   if (options.controls) {
-    this.set('myLocation', options.controls.myLocation === true);
-    this.set('myLocationButton', options.controls.myLocationButton === true);
+    self.set('myLocation', options.controls.myLocation === true);
+    self.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
   if (options.camera && utils.isArray(options.camera.target)) {
@@ -359,7 +353,7 @@ Map.prototype.setOptions = function(options) {
     }
 
     if (!bounds.southwest || !bounds.northeast) {
-      console.warn('(getMap) options.preferences.gestureBounds is invalid.');
+      console.warn('(setOptions) options.preferences.gestureBounds is invalid.');
       delete options.preferences.gestureBounds;
     } else {
       var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
@@ -394,8 +388,9 @@ Map.prototype.setOptions = function(options) {
   if (utils.isArray(options.styles)) {
     options.styles = JSON.stringify(options.styles);
   }
-  this.exec.call(this, null, this.errorHandler, this.__pgmId, 'setOptions', [options]);
-  return this;
+  return (new Promise(function(resolve, reject) {
+    self.exec.call(self, resolve, reject, self.__pgmId, 'setOptions', [options]);
+  }));
 };
 
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
@@ -909,9 +904,9 @@ Map.prototype.setDiv = function(div) {
     div.setAttribute('__pluginMapId', self.__pgmId);
 
     // Insert the infoWindow layer
-    if (self._layers._info.parentNode) {
+    if (self._layers.info.parentNode) {
       try {
-        self._layers._info.parentNode.removeChild(self._layers._info.parentNode);
+        self._layers.info.parentNode.removeChild(self._layers.info.parentNode);
       } catch(e) {
         //ignore
       }
@@ -923,7 +918,7 @@ Map.prototype.setDiv = function(div) {
         div.children[i].style.position = 'relative';
       }
     }
-    div.insertBefore(self._layers._info, div.firstChild);
+    div.insertBefore(self._layers.info, div.firstChild);
 
     // Webkit redraw mandatory
     // http://stackoverflow.com/a/3485654/697856
@@ -931,6 +926,7 @@ Map.prototype.setDiv = function(div) {
     // div.offsetHeight;
     // div.style.display = '';
     document.body.style.transform = 'rotateZ(0deg)';
+    div.style.overflow = 'hidden';
 
     self.set('div', div);
 
@@ -975,7 +971,8 @@ Map.prototype.setDiv = function(div) {
         force: true,
         action: 'setDiv'
       });
-      self.refreshLayout().then(resolve);
+      self.refreshLayout();
+      resolve();
     }, self.errorHandler, self.__pgmId, 'setDiv', args, {
       sync: true
     });
