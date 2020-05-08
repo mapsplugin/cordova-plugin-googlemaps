@@ -1,5 +1,4 @@
 
-
 var utils = require('cordova/utils'),
   cordova_exec = require('cordova/exec'),
   common = require('./Common'),
@@ -94,11 +93,15 @@ utils.extend(Map, Overlay);
 Map.prototype.refreshLayout = function() {
   // Webkit redraw mandatory
   // http://stackoverflow.com/a/3485654/697856
-  document.body.style.display = 'inline-block';
-  document.body.offsetHeight;
-  document.body.style.display = '';
+  // document.body.style.display = 'inline-block';
+  // document.body.offsetHeight;
+  // document.body.style.display = '';
+  document.body.style.transform = 'rotateZ(0deg)';
 
-  this.exec.call(this, null, null, this.__pgmId, 'resizeMap', []);
+  var self = this;
+  return (new Promise(function(resolve) {
+    self.exec.call(self, null, null, self.__pgmId, 'resizeMap', []);
+  }));
 };
 
 Map.prototype.getMap = function(meta, div, options) {
@@ -308,8 +311,9 @@ Map.prototype.getMap = function(meta, div, options) {
 
       self._privateInitialize();
       delete self._privateInitialize;
-      self.refreshLayout();
-      self.trigger(event.MAP_READY, self);
+      self.refreshLayout().then(function() {
+        self.trigger(event.MAP_READY, self);
+      });
     };
     setTimeout(function() {
       common.nextTick(waitCameraSync);
@@ -931,7 +935,7 @@ Map.prototype.setDiv = function(div) {
     self.set('div', div);
 
     if (cordova.platform === 'browser') {
-      return;
+      return Promise.resolve();
     }
 
 
@@ -965,16 +969,17 @@ Map.prototype.setDiv = function(div) {
       plugin.google.maps.environment.setBackgroundColor(background);
     }
   }
-  self.exec.call(self, function() {
-    cordova.fireDocumentEvent('plugin_touch', {
-      force: true,
-      action: 'setDiv'
+  return (new Promise(function(resolve) {
+    self.exec.call(self, function() {
+      cordova.fireDocumentEvent('plugin_touch', {
+        force: true,
+        action: 'setDiv'
+      });
+      self.refreshLayout().then(resolve);
+    }, self.errorHandler, self.__pgmId, 'setDiv', args, {
+      sync: true
     });
-    self.refreshLayout();
-  }, self.errorHandler, self.__pgmId, 'setDiv', args, {
-    sync: true
-  });
-  return self;
+  }));
 };
 
 /**
