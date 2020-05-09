@@ -520,7 +520,7 @@
     double longitude;
     GMSCameraPosition *cameraPosition;
     GMSCoordinateBounds *cameraBounds = nil;
-    CGFloat scale = 1; //self.mapCtrl.screenScale;
+    CGFloat scale = self.mapCtrl.screenScale;
 
     UIEdgeInsets paddingUiEdgeInsets = UIEdgeInsetsMake(cameraPadding / scale, cameraPadding / scale, cameraPadding / scale, cameraPadding / scale);
 
@@ -921,13 +921,13 @@
 
 };
 - (void)_setCameraRestriction:(NSDictionary *)params {
-  
+
   if (params == (id)[NSNull null]) {
     self.mapCtrl.map.cameraTargetBounds = nil;
     double minZoom = 0;
     double maxZoom = 23;
     [self.mapCtrl.map setMinZoom:minZoom maxZoom:maxZoom];
-    
+
   } else {
 
     GMSMutablePath *path = [GMSMutablePath path];

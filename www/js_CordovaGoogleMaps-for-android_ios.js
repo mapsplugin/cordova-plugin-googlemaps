@@ -574,6 +574,12 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
       // Obtain only minimum information
       var mapDiv = map.getDiv();
       var divId = mapDiv.getAttribute('__pluginDomId');
+      if (!divId) {
+        changed = true;
+        map.remove();
+        return;
+      }
+      var divId = mapDiv.getAttribute('__pluginDomId');
       mapRects[divId] = {
         size: common.getDivRect(mapDiv),
         zIndex: common.getZIndex(mapDiv)
