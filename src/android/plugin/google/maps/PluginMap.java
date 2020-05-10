@@ -693,11 +693,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   public void resizeMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mapCtrl.mPluginLayout == null || mapDivId == null) {
       //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
-      callbackContext.success();
       if (initCameraBounds != null) {
         mainHandler.postDelayed(new Runnable() {
           @Override
           public void run() {
+            callbackContext.success();
           }
         }, 100);
       }
@@ -729,8 +729,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       public void run() {
 
         if(mapCtrl.mPluginLayout == null || mapDivId == null) {
-            callbackContext.success();
-            return;
+          callbackContext.success();
+          return;
         }
 
         RectF drawRect = mapCtrl.mPluginLayout.HTMLNodeRectFs.get(mapDivId);
@@ -752,7 +752,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
           params.topMargin = y;
           mapView.setLayoutParams(params);
 
-          callbackContext.success();
+          mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+              callbackContext.success();
+            }
+          }, 500);
         }
       }
     });

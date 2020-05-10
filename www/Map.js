@@ -333,16 +333,16 @@ Map.prototype.setOptions = function(options) {
     self.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
-  if (options.camera && utils.isArray(options.camera.target)) {
-    var cameraBounds = new LatLngBounds();
-    options.camera.target.forEach(function(ele) {
-      if (ele.lat && ele.lng) {
-        cameraBounds.extend(ele);
-      }
-    });
-    options.camera.target = cameraBounds.getCenter();
-    options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
-  }
+  // if (options.camera && utils.isArray(options.camera.target)) {
+  //   var cameraBounds = new LatLngBounds();
+  //   options.camera.target.forEach(function(ele) {
+  //     if (ele.lat && ele.lng) {
+  //       cameraBounds.extend(ele);
+  //     }
+  //   });
+  //   options.camera.target = cameraBounds.getCenter();
+  //   options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
+  // }
   if (options.preferences && options.preferences.gestureBounds) {
 
     var bounds = new LatLngBounds();
