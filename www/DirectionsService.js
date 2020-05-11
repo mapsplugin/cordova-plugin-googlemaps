@@ -1,4 +1,5 @@
 
+
 /*****************************************************************************
  * DirectionsService class
  *****************************************************************************/
@@ -81,25 +82,22 @@ function _cnv_DirectionsRequestLocation(position) {
 }
 
 var DirectionsService = function(exec) {
-  function _errorHandler(err) {
-    console.error(err);
-  }
 
   return {
     route: function(request, callback, errorCallback) {
       var self = this;
 
       if (!request) {
-        return errorHandler('route needs request parameter');
+        throw new Error('route needs request parameter');
       }
       if (!request.destination) {
-        return errorHandler('route() needs request.destination parameter');
+        throw new Error('route() needs request.destination parameter');
       }
       if (!request.origin) {
-        return errorHandler('route() needs request.origin parameter');
+        throw new Error('route() needs request.origin parameter');
       }
       if (!request.travelMode) {
-        return errorHandler('route() needs request.travelMode parameter');
+        throw new Error('route() needs request.travelMode parameter');
       }
 
       request.origin = _cnv_DirectionsRequestLocation(request.origin);
