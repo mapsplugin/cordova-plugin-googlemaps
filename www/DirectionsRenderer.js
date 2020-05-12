@@ -1,5 +1,6 @@
 
 
+
 var utils = require('cordova/utils'),
   event = require('./event'),
   BaseClass = require('./BaseClass'),
@@ -13,6 +14,8 @@ var _decodePolyline = function(property) {
     return encoding.decodePath(property.points);
   } else if (typeof property === 'string') {
     return encoding.decodePath(property);
+  } else if (utils.isArray(property)) {
+    return property;
   }
 };
 
@@ -63,7 +66,13 @@ var DirectionsRenderer = function(map, exec, options) {
     value: new BaseArrayClass(),
     writable: false
   });
+  options = options || {};
   self.set('options', options);
+  self.set('markerOptions', options.markerOptions);
+
+  self.set('directions', options.directions || {
+    'routes': []
+  });
   self.set('draggable', options.draggable || false);
   self.set('requestingFlag', false);
   self.set('routeIndex', options.routeIndex || 0, false);
@@ -88,6 +97,13 @@ DirectionsRenderer.prototype.getId = function () {
   return this.__pgmId;
 };
 
+DirectionsRenderer.prototype.getRouteIndex = function () {
+  return this.get('routeIndex') || 0;
+};
+DirectionsRenderer.prototype.getDirections = function () {
+  return this.get('directions') || [];
+};
+
 DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
   var self = this;
   if (oldDivId) {
@@ -97,10 +113,10 @@ DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
     }
   }
   if (newDivId) {
-    var options = self.get('options');
+    var directions = self.get('directions');
 
     var newDiv = document.getElementById(newDivId);
-    if (newDiv && options.directions.routes.length) {
+    if (newDiv && directions.routes.length) {
 
 
       var routeIndex = self.get('routeIndex');
@@ -147,12 +163,12 @@ DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
       var summary1 = document.createElement('div');
       summary1.classList.add('summary1');
       summary1.innerHTML = [
-        options.directions.routes[routeIndex].legs[0].duration.text,
-        options.directions.routes[routeIndex].legs[0].distance.text
+        directions.routes[routeIndex].legs[0].duration.text,
+        directions.routes[routeIndex].legs[0].distance.text
       ].join(' / ');
       summary.appendChild(summary1);
 
-      var eta = new Date(Date.now() + options.directions.routes[routeIndex].legs[0].duration.value);
+      var eta = new Date(Date.now() + directions.routes[routeIndex].legs[0].duration.value);
       var summary2 = document.createElement('div');
       summary2.classList.add('summary2');
       summary2.innerHTML = eta;
@@ -163,7 +179,7 @@ DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
       var ul = document.createElement('ul');
       ul.classList.add('steps');
 
-      options.directions.routes[routeIndex].legs[0].steps.forEach(function(step) {
+      directions.routes[routeIndex].legs[0].steps.forEach(function(step) {
         var stepLi = document.createElement('li');
         stepLi.classList.add('step');
 
@@ -191,11 +207,15 @@ DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
 DirectionsRenderer.prototype._pathList_created = function(index) {
   var self = this;
   var path = self.pathList.getAt(index);
-  var polyline = self.map.addPolyline({
-    'points': path,
-    'color': '#AA00FF',
-    'width': 10
-  });
+
+  var polylineOpts = Object.create(self.get('polylineOptions') || {});
+  delete polylineOpts.points;
+
+  polylineOpts.color = polylineOpts.color || '#0000FF';
+  polylineOpts.width = ('width' in polylineOpts) ? polylineOpts.width : 10;
+  polylineOpts.points = path;
+
+  var polyline = self.map.addPolyline(polylineOpts);
   self.pathCollection.push(polyline);
 };
 
@@ -204,6 +224,8 @@ DirectionsRenderer.prototype._pathList_updated = function(index) {
   var polyline = self.pathCollection.getAt(index);
   var path = self.pathList.getAt(index);
   polyline.setPoints(path);
+  polyline.setStrokeColor(`rgb(${index * 63}, ${index * 63}, ${index * 63})`);
+
 };
 
 DirectionsRenderer.prototype._pathList_removed = function(index) {
@@ -215,11 +237,11 @@ DirectionsRenderer.prototype._pathList_removed = function(index) {
 DirectionsRenderer.prototype._waypoint_created = function(index) {
   var self = this;
   var position = self.waypoints.getAt(index);
-  var marker = self.map.addMarker({
-    'position': position,
-    'idx': index,
-    'title': `idx=${index}`
-  });
+  var markerOpts = Object.create(self.get('markerOptions') || {});
+  delete markerOpts.position;
+  markerOpts.idx = index;
+
+  var marker = self.map.addMarker(markerOpts);
   self.bindTo('draggable', marker);
   marker.on('marker_drag_end', self._onWaypointMoved.bind(self, marker));
   self.markers.push(marker);
@@ -244,7 +266,7 @@ DirectionsRenderer.prototype._onWaypointMoved = function(marker) {
   var n = self.waypoints.getLength();
   var routeIndex = self.get('routeIndex');
 
-  var options = self.get('options');
+  var directions = self.get('directions');
   var points = [];
   if (index == 0) {
     points.push(self.waypoints.getAt(0));
@@ -258,46 +280,81 @@ DirectionsRenderer.prototype._onWaypointMoved = function(marker) {
     points.push(self.waypoints.getAt(index + 1));
   }
 
+  directions = directions || {
+    request: {
+      travelMod: 'DRIVING'
+    }
+  };
 
   plugin.google.maps.DirectionsService.route({
     'origin': points.shift(),
     'destination': points.pop(),
-    'travelMode': options.directions.request.travelMode || 'DRIVING',
+    'travelMode': directions.request.travelMode || 'DRIVING',
     'waypoints': points
   }, function(result) {
 
     // Redraw the polyline
-    options.directions.routes = result.routes;
-    var route = options.directions.routes[routeIndex];
+    self.set('directions', result.directions);
+    var route = result.routes[routeIndex];
     var leg = route.legs[0];
 
-    var currentPath = [];
-      console.log(`index = ${index}`);
+    // var currentPath = [];
+    // leg.steps.forEach(function(step) {
+    //   currentPath = currentPath.concat(_decodePolyline(step.polyline));
+    // });
+    var currentPath = _decodePolyline(route.overview_polyline);
+
     if (index == 0) {
-      leg.steps.forEach(function(step) {
-        currentPath = currentPath.concat(_decodePolyline(step.polyline));
-      });
       self.pathList.setAt(0, currentPath);
     } else if (index == n - 1) {
-      leg.steps.forEach(function(step) {
-        currentPath = currentPath.concat(_decodePolyline(step.polyline));
-      });
       self.pathList.setAt(index - 1, currentPath);
     } else {
-      var i;
-      for (i = 0; i < leg.steps.length; i++) {
-        currentPath = currentPath.concat(_decodePolyline(leg.steps[i].polyline));
-        if (spherical.computeDistanceBetween(position, leg.steps[i].end_location) < 5) {
+
+      // Find the middle point (= marker point)
+      var closestDist = Math.pow(2, 32) - 1;
+      var closestIdx = 0;
+      var left = 0;
+      var right = currentPath.length;
+      while (left < right) {
+        var idx = Math.floor((left + right) / 2);
+        var howFar = spherical.computeDistanceBetween(position, currentPath[idx]);
+        if (howFar < closestDist) {
+          closestDist = howFar;
+          closestIdx = idx;
+          var howFarLeft = spherical.computeDistanceBetween(position, currentPath[Math.floor((left + idx) / 2)]);
+          var howFarRight = spherical.computeDistanceBetween(position, currentPath[Math.floor((right + idx) / 2)]);
+          if (howFarLeft < howFarRight && howFarLeft < closestDist) {
+            right = idx;
+          } else if (howFarLeft > howFarRight && howFarRight < closestDist) {
+            left = idx;
+          } else {
+
+            // The middle point should be in the range of left and right.
+            idx = left;
+            while (idx < right) {
+              var howFar = spherical.computeDistanceBetween(position, currentPath[idx]);
+              if (howFar < closestDist) {
+                closestDist = howFar;
+                closestIdx = idx;
+              }
+              idx++;
+            }
+
+            break;
+          }
+        } else {
           break;
         }
       }
-      self.pathList.setAt(index - 1, currentPath);
 
-      currentPath = [];
-      while (i < leg.steps.length) {
-        currentPath = currentPath.concat(_decodePolyline(leg.steps[i++].polyline));
-      }
-      self.pathList.setAt(index, currentPath);
+      var twoPath = [
+        currentPath.slice(0, closestIdx),
+        currentPath.slice(closestIdx)
+      ];
+      twoPath[0].push(position);
+      twoPath[1].unshift(position);
+      self.pathList.setAt(index - 1, twoPath[0]);
+      self.pathList.setAt(index, twoPath[1]);
     }
 
 
@@ -309,6 +366,17 @@ DirectionsRenderer.prototype._onWaypointMoved = function(marker) {
   });
 };
 
+DirectionsRenderer.prototype.setOptions = function (options) {
+  var self = this;
+  options = options || {};
+  self.set('options', options);
+  self.set('routeIndex', options.routeIndex || 0);
+  self.set('directions', options.directions || {
+    'routes': [],
+    'request': 'DRIVING'
+  });
+
+};
 DirectionsRenderer.prototype.setRouteIndex = function(index) {
   var self = this;
   self.set('routeIndex', index);
@@ -317,14 +385,14 @@ DirectionsRenderer.prototype.setRouteIndex = function(index) {
 DirectionsRenderer.prototype._redrawRoute = function(oldIdx, newIdx) {
   var self = this;
   var options = self.get('options');
-  var n = options.directions.routes.length;
+  var n = self.get('directions').routes.length;
   var routeIndex = self.get('routeIndex');
 
   if (newIdx < 0 || newIdx > n - 1) {
     return;
   }
   var stepOverlays = new BaseArrayClass();
-  var route = options.directions.routes[routeIndex];
+  var route = self.get('directions').routes[routeIndex];
 
   var waypointsRef = self.waypoints;
   waypointsRef.empty();

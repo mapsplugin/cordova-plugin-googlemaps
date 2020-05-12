@@ -1184,23 +1184,16 @@ Map.prototype.addKmlOverlay = function(kmlOverlayOptions, callback) {
 };
 
 
-Map.prototype.addDirectionsRenderer = function(directionsRendererOptions, callback) {
+Map.prototype.addDirectionsRenderer = function(directionsRendererOptions) {
   var self = this;
   directionsRendererOptions = directionsRendererOptions || {};
 
   if (directionsRendererOptions.directions) {
 
-    var resolver = function(resolve, reject) {
-      var renderer = new DirectionsRenderer(self, self.exec, directionsRendererOptions);
-      renderer.setRouteIndex(0);
-      resolve(renderer);
-    };
+    var renderer = new DirectionsRenderer(self, self.exec, directionsRendererOptions);
+    renderer.setRouteIndex(0);
 
-    if (typeof callback === 'function') {
-      resolver(callback, self.errorHandler);
-    } else {
-      return new Promise(resolver);
-    }
+    return renderer;
   } else {
 
     if (typeof callback === 'function') {
