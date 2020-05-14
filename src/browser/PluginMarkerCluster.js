@@ -550,6 +550,9 @@ function ClusterIconClass(options) {
       console.error(e);
     };
     img.src = iconUrl;
+
+    // Load icon image at once. The marker of Google Maps JavaScript v3 fails to load after img.onload frequently.
+    iconMarker.setIcon(icon.url);
   });
 
   //debug
