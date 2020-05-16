@@ -3031,6 +3031,8 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
             Object overlay;
             String key;
 
+            double currDistance = -1;
+
             while(iterator.hasNext()) {
               entry = iterator.next();
               key = entry.getKey();
@@ -3041,12 +3043,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 if (polyline == null) {
                   continue;
                 }
-                zIndex = polyline.getZIndex();
-                if (zIndex < maxZIndex) {
-                  continue;
-                }
 
+                zIndex = polyline.getZIndex();
                 points = polyline.getPoints();
+                LatLng touchPoint_OnPolyline;
 
                 if (polyline.isGeodesic()) {
                   hitArea.x = (int)(polyline.getWidth() * density);
@@ -3054,19 +3054,21 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   double threshold = calculateDistance(
                     projection.fromScreenLocation(origin),
                     projection.fromScreenLocation(hitArea));
-                  touchPoint = isPointOnTheGeodesicLine(points, point, threshold);
-                  if (touchPoint != null) {
-                    hitOverlay = polyline;
-                    maxZIndex = zIndex;
-                    continue;
-                  }
+                  touchPoint_OnPolyline = isPointOnTheGeodesicLine(points, point, threshold);
                 } else {
-                  touchPoint = isPointOnTheLine(points, point);
-                  if (touchPoint != null) {
+                  touchPoint_OnPolyline = isPointOnTheLine(points, point);
+                }
+
+                if (touchPoint_OnPolyline != null) {
+                  double distance = calcDistance(point, touchPoint_OnPolyline);
+                  if(currDistance < 0 || distance < currDistance || (distance == currDistance && zIndex > maxZIndex)) {
+                    currDistance = distance;
+                    touchPoint = touchPoint_OnPolyline;
                     hitOverlay = polyline;
                     maxZIndex = zIndex;
-                    continue;
                   }
+
+                  continue;
                 }
               }
 
@@ -3122,7 +3124,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
             }
 
-
             final Object finalHitOverlay = hitOverlay;
             final LatLng finalTouchPoint = touchPoint;
 
@@ -3154,5 +3155,10 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
   }
 
+  private double calcDistance(LatLng l1, LatLng l2) {
+    Point p1 = projection.toScreenLocation(l1);
+    Point p2 = projection.toScreenLocation(l2);
+    return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
+  }
 
 }
