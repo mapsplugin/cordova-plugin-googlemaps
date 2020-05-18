@@ -160,6 +160,9 @@ public class PluginPolyline extends MyPlugin implements MyPluginInterface  {
     id = "polyline_bounds_" + polylineHashCode;
     pluginMap.objects.remove(id);
 
+    String propertyKey = "polyline_property_" + polylineHashCode;
+    pluginMap.objects.remove(propertyKey);
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
