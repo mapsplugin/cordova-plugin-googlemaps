@@ -19,6 +19,10 @@ function _cnv_DirectionsLeg(leg) {
   if (leg.departure_time) {
     leg.departure_time.value = new Date(leg.departure_time.value);
   }
+  if (!step.instructions && step.html_instructions) {
+    step.instructions = step.html_instructions;
+    delete step.html_instructions;
+  }
   if (leg.steps) {
     leg.steps = leg.steps.map(function(step) {
       return _cnv_DirectionsStep(step);

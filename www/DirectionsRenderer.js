@@ -190,6 +190,14 @@ DirectionsRenderer.prototype._redraw_panel = function() {
       summary2.innerHTML = eta;
       summary.appendChild(summary2);
 
+      var copyrights = document.createElement('div');
+      copyrights.style.fontSize = '0.8em';
+      copyrights.style.color = 'white';
+      copyrights.style.padding = '0.5em 0em';
+      copyrights.style.textAlign = 'right';
+      copyrights.innerHTML = directions.routes[routeIndex].copyrights;
+      summary.appendChild(copyrights);
+
       container.appendChild(summary);
 
       var ul = document.createElement('ul');
