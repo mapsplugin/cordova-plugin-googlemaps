@@ -1344,14 +1344,34 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 Object target = preferences.get("restriction");
                 @SuppressWarnings("rawtypes")
                 Class targetClass = target.getClass();
-                if ("org.json.JSONArray".equals(targetClass.getName())) {
-                  JSONArray points = preferences.getJSONArray("restriction");
-                  if (points.length() > 0) {
-                    LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
-                    map.setLatLngBoundsForCameraTarget(bounds);
+                if ("org.json.JSONObject".equals(targetClass.getName()) && target != null) {
+                  JSONObject restriction = preferences.getJSONObject("restriction");
+                  LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                  builder.include(new LatLng(restriction.getDouble("south"), restriction.getDouble("west")));
+                  builder.include(new LatLng(restriction.getDouble("north"), restriction.getDouble("east")));
+                  map.setLatLngBoundsForCameraTarget(builder.build());
+
+                  map.setMaxZoomPreference((float)restriction.getDouble("maxZoom"));
+                  map.setMinZoomPreference((float)restriction.getDouble("minZoom"));
+                } else {
+
+                  if (preferences.has("zoom")) {
+                    JSONObject zoom = preferences.getJSONObject("zoom");
+                    if (zoom.has("minZoom")) {
+                      map.setMinZoomPreference((float)zoom.getDouble("minZoom"));
+                    } else {
+                      map.setMinZoomPreference(0);
+                    }
+                    if (zoom.has("maxZoom")) {
+                      map.setMaxZoomPreference((float) zoom.getDouble("maxZoom"));
+                    } else {
+                      map.setMaxZoomPreference(23);
+                    }
                   } else {
-                    map.setLatLngBoundsForCameraTarget(null);
+                    map.setMinZoomPreference(0);
+                    map.setMaxZoomPreference(23);
                   }
+                  map.setLatLngBoundsForCameraTarget(null);
                 }
               }
 

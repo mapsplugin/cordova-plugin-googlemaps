@@ -857,11 +857,12 @@
       }
 
       // restriction
-      if ([preferences valueForKey:@"restriction"]) {
+      NSDictionary *restriction = [preferences valueForKey:@"restriction"];
+      if (restriction == (id)[NSNull null]) {
+        [self _setCameraRestriction:nil];
+      } else {
         NSDictionary *restriction = [preferences objectForKey:@"restriction"];
         [self _setCameraRestriction:restriction];
-      } else {
-        [self _setCameraRestriction:nil];
       }
     }
 
@@ -922,7 +923,7 @@
 };
 - (void)_setCameraRestriction:(NSDictionary *)params {
 
-  if (params == (id)[NSNull null]) {
+  if (params == (id)[NSNull null] || params == nil) {
     self.mapCtrl.map.cameraTargetBounds = nil;
     double minZoom = 0;
     double maxZoom = 23;
