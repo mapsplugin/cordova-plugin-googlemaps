@@ -101,7 +101,7 @@ DirectionsRenderer.prototype.getRouteIndex = function () {
   return this.get('routeIndex') || 0;
 };
 DirectionsRenderer.prototype.getDirections = function () {
-  return this.get('directions') || [];
+  return this.get('directions') || {};
 };
 
 DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {

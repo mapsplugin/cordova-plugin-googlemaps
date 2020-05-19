@@ -90,11 +90,6 @@ For browser platform,
     _You need to specify the same version number with all other plugins._
     Check out the latest version [here](https://developers.google.com/android/guides/releases).
 
-  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **ANDROID_SUPPORT_V4_VERSION = (27.1.1)**<br>
-    This plugin requires the Android support library v4.
-    _The minimum version is 24.1.0._
-    Check out the latest version [here](https://developer.android.com/topic/libraries/support-library/revisions.html).
-
   - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **GOOGLE_MAPS_ANDROID_SDK = ()**<br>
     The Google Maps SDK for Android version.
     `i.e. GOOGLE_MAPS_ANDROID_SDK=maps-sdk-3.0.0-beta`.
