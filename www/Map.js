@@ -343,50 +343,54 @@ Map.prototype.setOptions = function(options) {
   //   options.camera.target = cameraBounds.getCenter();
   //   options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
   // }
-  if (options.preferences && options.preferences.gestureBounds) {
+  if (options.preferences) {
+    if (options.preferences.gestureBounds) {
 
-    var bounds = new LatLngBounds();
-    if (utils.isArray(options.preferences.gestureBounds)) {
-      options.preferences.gestureBounds.forEach(function(ele) {
-        if (ele.lat && ele.lng) {
-          bounds.extend(ele);
-        }
-      });
-    } else if (options.preferences.gestureBounds.type === 'LatLngBounds' ||
-      options.preferences.gestureBounds.northeast && options.preferences.gestureBounds.southwest) {
-      bounds.extend(options.preferences.gestureBounds.southwest);
-      bounds.extend(options.preferences.gestureBounds.northeast);
-    }
-
-    if (!bounds.southwest || !bounds.northeast) {
-      console.warn('(setOptions) options.preferences.gestureBounds is invalid.');
-      delete options.preferences.gestureBounds;
-    } else {
-      var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
-      var maxZoom = 23;
-      var prefMinZoom = 0;
-      var prefMaxZoom = 23;
-      if (options.preferences.zoom) {
-        if (options.preferences.zoom.minZoom) {
-          minZoom = options.preferences.zoom.minZoom;
-          prefMinZoom = minZoom;
-        }
-        if (options.preferences.zoom.maxZoom) {
-          maxZoom = options.preferences.zoom.maxZoom;
-          maxZoom = minZoom;
-        }
+      var bounds = new LatLngBounds();
+      if (utils.isArray(options.preferences.gestureBounds)) {
+        options.preferences.gestureBounds.forEach(function(ele) {
+          if (ele.lat && ele.lng) {
+            bounds.extend(ele);
+          }
+        });
+      } else if (options.preferences.gestureBounds.type === 'LatLngBounds' ||
+        options.preferences.gestureBounds.northeast && options.preferences.gestureBounds.southwest) {
+        bounds.extend(options.preferences.gestureBounds.southwest);
+        bounds.extend(options.preferences.gestureBounds.northeast);
       }
-      options.preferences.gestureBounds = {
-        'south': bounds.southwest.lat,
-        'west': bounds.southwest.lng,
-        'north': bounds.northeast.lat,
-        'east': bounds.northeast.lng,
-        'prefMinZoom': prefMinZoom,
-        'prefMaxZoom': prefMaxZoom,
-        'minZoom': minZoom,
-        'maxZoom': maxZoom
-      };
-      self.set('restriction', options.preferences.gestureBounds);
+
+      if (!bounds.southwest || !bounds.northeast) {
+        console.warn('(setOptions) options.preferences.gestureBounds is invalid.');
+        delete options.preferences.gestureBounds;
+      } else {
+        var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
+        var maxZoom = 23;
+        var prefMinZoom = 0;
+        var prefMaxZoom = 23;
+        if (options.preferences.zoom) {
+          if (options.preferences.zoom.minZoom) {
+            minZoom = options.preferences.zoom.minZoom;
+            prefMinZoom = minZoom;
+          }
+          if (options.preferences.zoom.maxZoom) {
+            maxZoom = options.preferences.zoom.maxZoom;
+            maxZoom = minZoom;
+          }
+        }
+        options.preferences.gestureBounds = {
+          'south': bounds.southwest.lat,
+          'west': bounds.southwest.lng,
+          'north': bounds.northeast.lat,
+          'east': bounds.northeast.lng,
+          'prefMinZoom': prefMinZoom,
+          'prefMaxZoom': prefMaxZoom,
+          'minZoom': minZoom,
+          'maxZoom': maxZoom
+        };
+        self.set('restriction', options.preferences.gestureBounds);
+      }
+    } else {
+      self.set('restriction', undefined);
     }
   }
 
@@ -398,6 +402,7 @@ Map.prototype.setOptions = function(options) {
     self.exec.call(self, resolve, reject, self.__pgmId, 'setOptions', [options]);
   }));
 };
+
 
 Map.prototype.getMyLocation = function(params, success_callback, error_callback) {
   return window.plugin.google.maps.LocationService.getMyLocation.call(this, params, success_callback, error_callback);

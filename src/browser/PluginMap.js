@@ -273,33 +273,60 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
 
     if (options.controls) {
       if (options.controls.zoom !== undefined) {
-        mapInitOptions.zoomControl = options.controls.zoom == true;
+        mapInitOptions.zoomControl = options.controls.zoom === true;
       }
     }
     if (options.gestures) {
-      mapInitOptions.draggable = options.gestures.scroll;
-      mapInitOptions.gestureHandling = options.gestures.scroll;
-      mapInitOptions.disableDoubleClickZoom = !options.gestures.zoom;
+      mapInitOptions.draggable = options.gestures.scroll === true;
+      mapInitOptions.gestureHandling = options.gestures.scroll === true;
+      mapInitOptions.disableDoubleClickZoom = !(options.gestures.zoom === true);
     }
 
     if (options.preferences) {
-      if (options.preferences.zoom) {
-        mapInitOptions.minZoom = Math.max(options.preferences.zoom || 2, 2);
-        if (options.preferences.zoom.maxZoom) {
-          mapInitOptions.maxZoom = options.preferences.zoom.maxZoom;
+      if ('zoom' in options.preferences) {
+        if (options.preferences.zoom) {
+          if ('minZoom' in options.preferences.zoom) {
+            mapInitOptions.minZoom = Math.max(options.preferences.zoom.minZoom, 2);
+          } else {
+            mapInitOptions.minZoom = undefined;
+          }
+          if ('maxZoom' in options.preferences.zoom) {
+            mapInitOptions.maxZoom = Math.min(options.preferences.zoom.maxZoom, 23);
+          } else {
+            mapInitOptions.maxZoom = undefined;
+          }
+        } else {
+          mapInitOptions.zoom = undefined;
         }
       }
 
       if ('gestureBounds' in options.preferences) {
-        var boundsLimit = null;
-        if (options.preferences.gestureBounds && options.preferences.gestureBounds.length > 0) {
-          boundsLimit = new google.maps.LatLngBounds();
-          options.preferences.gestureBounds.forEach(function(pos) {
-            boundsLimit.extend(pos);
-          });
+        if (options.preferences.gestureBounds) {
+          mapInitOptions.restriction = {
+            latLngBounds: {
+              south: options.preferences.gestureBounds.south,
+              west: options.preferences.gestureBounds.west,
+              north: options.preferences.gestureBounds.north,
+              east: options.preferences.gestureBounds.east
+            },
+            strictBounds: false
+          };
+        } else {
+          mapInitOptions.restriction = undefined;
         }
-        map.set('boundsLimit', boundsLimit);
       }
+
+      console.log(mapInitOptions);
+      // if ('gestureBounds' in options.preferences) {
+      //   var boundsLimit = null;
+      //   if (options.preferences.gestureBounds && options.preferences.gestureBounds.length > 0) {
+      //     boundsLimit = new google.maps.LatLngBounds();
+      //     options.preferences.gestureBounds.forEach(function(pos) {
+      //       boundsLimit.extend(pos);
+      //     });
+      //   }
+      //   map.set('boundsLimit', boundsLimit);
+      // }
 
     }
   }
@@ -337,6 +364,7 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
 
   onSuccess();
 };
+
 
 PluginMap.prototype.setActiveMarkerId = function(onSuccess, onError, args) {
   var self = this,
