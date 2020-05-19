@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   event = require('./event'),
   BaseClass = require('./BaseClass'),
@@ -77,6 +76,7 @@ var DirectionsRenderer = function(map, exec, options) {
   self.set('requestingFlag', false);
   self.set('routeIndex', options.routeIndex || 0, false);
 
+  self.on('directions_changed', self._redraw_panel.bind(self));
   self.on('panel_changed', self._panel_changed.bind(self));
   self.set('panel', options.panel);
 
@@ -112,15 +112,31 @@ DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
       oldDivId.innerHTML = '';
     }
   }
+  self._redraw_panel();
+};
+
+DirectionsRenderer.prototype._redraw_panel = function() {
+  var self = this;
+
+  var newDivId = self.get('panel');
   if (newDivId) {
     var directions = self.get('directions');
 
     var newDiv = document.getElementById(newDivId);
     if (newDiv && directions.routes.length) {
 
+      newDiv.style.position = 'relative';
 
       var routeIndex = self.get('routeIndex');
-      var shadowRoot = newDiv.attachShadow({mode: 'open'});
+      var frame = document.createElement('div');
+      frame.style.position = 'absolute';
+      frame.style.left = '0px';
+      frame.style.top = '0px';
+      frame.style.bottom = '0px';
+      frame.style.right = '0px';
+      frame.style.width = '100%';
+      frame.style.height = '100%';
+      var shadowRoot = frame.attachShadow({mode: 'open'});
 
       var style = document.createElement('style');
       shadowRoot.appendChild(style);
@@ -198,8 +214,9 @@ DirectionsRenderer.prototype._panel_changed = function(oldDivId, newDivId) {
 
         ul.appendChild(stepLi);
       });
-      newDiv.innerHTML = '';
       container.appendChild(ul);
+      newDiv.innerHTML = '';
+      newDiv.appendChild(frame);
     }
   }
 };
@@ -212,7 +229,7 @@ DirectionsRenderer.prototype._pathList_created = function(index) {
   delete polylineOpts.points;
 
   polylineOpts.color = polylineOpts.color || '#0000FF';
-  polylineOpts.width = ('width' in polylineOpts) ? polylineOpts.width : 10;
+  polylineOpts.width = ('width' in polylineOpts) ? polylineOpts.width : 5;
   polylineOpts.points = path;
 
   var polyline = self.map.addPolyline(polylineOpts);
@@ -242,6 +259,15 @@ DirectionsRenderer.prototype._waypoint_created = function(index) {
   var markerOpts = Object.create(self.get('markerOptions') || {});
   markerOpts.position = position;
   markerOpts.idx = index;
+  markerOpts.icon = markerOpts.icon || {};
+  // if (typeof markerOpts.icon === 'object' && !markerOpts.icon.url) {
+  //   markerOpts.icon.url = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElNRQfkBRMFExpRC/42AAACY0lEQVRIx6WVv0tbYRSGny80BpWYQTBLO7Q4pAXlWqzU3UDjov+B7VSSdknc/AMcdG2HdjKboy5NwWC3WlooRdFmkBbiEBXkkpgovQm+HfwRr97EK55vuXz3vs85F855jxF3i8Ad9dxr/cpRhWOgkx46TKuvjNcv1PSdPBscUAeC9DLAGCN0Gx+Auj7xkX2e8px+IkCZbb7xkz5ekyB4FSLXKSkpS/PakRAVlVRSRULsaF6WkirJrXBV8EdvCTHLY7OnHCsUqAA9xIiTIGp+a4Z/vOOR8aygpIReyVZDC7IUcCUKyNKCGrL1UglXFRcPjpKalK2q0goJjxNSRlXZmlRSjq4BlmRpSw2lZTzlCBll1NCmLC1fBVQ1rnmJbIvszSqyEnMaV1UuwKqGtaNdWW3lCFnaVVHDWj0DnLVyniHumxzrN7buOjkemCHyl2fB0QajQJ6TGwEn5IFRNnB0AahwQD+HKvganwKH6ueASrOCI+pEqFH2BShTI0Kd4ybA+BJ6RwCgkyBluon4kkTopkyQriagh162CZuYL0CMsNmml3AT0GEGWAPiPgwqQBxYY/DcZJqNVLxVI31xN9IIfSwSNWlCbfOHSBM1i/Tx7PzqHL0sS5tqKNN2mKZbDZNwlNKEbFWVaTnO06rJ1oRSXuN8aihTstVQ1tNQsmrI1tQVQ3FZ2l+9oYNZnpg9fWaFAmUgQow4L4iaLc3g8J6H3pZ2WkVKluZUvGaqRc3JUqq9qQLUleMD+wwxesnWv/Krha23WCw/yLN+abEMMsYIXX4WSzMcHXIEdBG+7Wq7Tdx5O/8H1JclvcjQgdMAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDUtMTlUMDU6MTk6MjArMDA6MDAKWm6xAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA1LTE5VDA1OjE5OjIwKzAwOjAwewfWDQAAAABJRU5ErkJggg==';
+  //   markerOpts.icon.size = {
+  //     'width': 24,
+  //     'height': 24
+  //   };
+  //   markerOpts.icon.anchor = [12, 12];
+  // }
 
   var marker = self.map.addMarker(markerOpts);
   self.bindTo('draggable', marker);
@@ -296,7 +322,7 @@ DirectionsRenderer.prototype._onWaypointMoved = function(marker) {
   }, function(result) {
 
     // Redraw the polyline
-    self.set('directions', result.directions);
+    self.set('directions', result);
     var route = result.routes[routeIndex];
     var leg = route.legs[0];
 
