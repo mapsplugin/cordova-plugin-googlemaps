@@ -174,7 +174,7 @@ QUEUE.on('next', function() {
       return;
     case google.maps.DirectionsStatus.REQUEST_DENIED:
       self._executing = false;
-      cmd.onError('[directions] Google denited your elevation request.');
+      cmd.onError('[directions] Google denited your directions request.');
       return;
     case google.maps.DirectionsStatus.UNKNOWN_ERROR:
       self._executing = false;

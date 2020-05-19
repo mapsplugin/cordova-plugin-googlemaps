@@ -224,7 +224,9 @@ DirectionsRenderer.prototype._pathList_updated = function(index) {
   var polyline = self.pathCollection.getAt(index);
   var path = self.pathList.getAt(index);
   polyline.setPoints(path);
-  polyline.setStrokeColor(`rgb(${index * 63}, ${index * 63}, ${index * 63})`);
+
+  // for test
+  //polyline.setStrokeColor(`rgb(${index * 63}, ${index * 63}, ${index * 63})`);
 
 };
 
@@ -238,7 +240,7 @@ DirectionsRenderer.prototype._waypoint_created = function(index) {
   var self = this;
   var position = self.waypoints.getAt(index);
   var markerOpts = Object.create(self.get('markerOptions') || {});
-  delete markerOpts.position;
+  markerOpts.position = position;
   markerOpts.idx = index;
 
   var marker = self.map.addMarker(markerOpts);
