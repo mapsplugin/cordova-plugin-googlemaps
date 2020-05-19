@@ -388,16 +388,16 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
 
                 }
 
-                if (preferences.has("gestureBounds")) {
-                  JSONObject gestureBounds = preferences.getJSONObject("gestureBounds");
-                  LatLng sw = new LatLng(gestureBounds.getDouble("south"), gestureBounds.getDouble("west"));
-                  LatLng ne = new LatLng(gestureBounds.getDouble("north"), gestureBounds.getDouble("east"));
+                if (preferences.has("restriction")) {
+                  JSONObject restriction = preferences.getJSONObject("restriction");
+                  LatLng sw = new LatLng(restriction.getDouble("south"), restriction.getDouble("west"));
+                  LatLng ne = new LatLng(restriction.getDouble("north"), restriction.getDouble("east"));
                   LatLngBounds bounds = new LatLngBounds(sw, ne);
 
                   map.setLatLngBoundsForCameraTarget(bounds);
 
-                  map.setMinZoomPreference((float)gestureBounds.getDouble("minZoom"));
-                  map.setMaxZoomPreference((float)gestureBounds.getDouble("maxZoom"));
+                  map.setMinZoomPreference((float)restriction.getDouble("minZoom"));
+                  map.setMaxZoomPreference((float)restriction.getDouble("maxZoom"));
 
                 }
 
@@ -1340,12 +1340,12 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
               }
 
 
-              if (preferences.has("gestureBounds")) {
-                Object target = preferences.get("gestureBounds");
+              if (preferences.has("restriction")) {
+                Object target = preferences.get("restriction");
                 @SuppressWarnings("rawtypes")
                 Class targetClass = target.getClass();
                 if ("org.json.JSONArray".equals(targetClass.getName())) {
-                  JSONArray points = preferences.getJSONArray("gestureBounds");
+                  JSONArray points = preferences.getJSONArray("restriction");
                   if (points.length() > 0) {
                     LatLngBounds bounds = PluginUtil.JSONArray2LatLngBounds(points);
                     map.setLatLngBoundsForCameraTarget(bounds);

@@ -113,7 +113,7 @@ For browser platform,
 ## Release Notes
 
   - **v2.8.0**
-    - Add: (Android/iOS/Browser) `mapOptions.preferences.gestureBounds`
+    - Add: (Android/iOS/Browser) `mapOptions.preferences.restriction`
     - Add: (Android/iOS/Browser) ElevationService
 
 

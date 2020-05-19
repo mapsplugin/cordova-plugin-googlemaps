@@ -118,24 +118,24 @@ Map.prototype.getMap = function(meta, div, options) {
     this.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
-  if (options.preferences && options.preferences.gestureBounds) {
+  if (options.preferences && options.preferences.restriction) {
 
     var bounds = new LatLngBounds();
-    if (utils.isArray(options.preferences.gestureBounds)) {
-      options.preferences.gestureBounds.forEach(function(ele) {
+    if (utils.isArray(options.preferences.restriction)) {
+      options.preferences.restriction.forEach(function(ele) {
         if (ele.lat && ele.lng) {
           bounds.extend(ele);
         }
       });
-    } else if (options.preferences.gestureBounds.type === 'LatLngBounds' ||
-      options.preferences.gestureBounds.northeast && options.preferences.gestureBounds.southwest) {
-      bounds.extend(options.preferences.gestureBounds.southwest);
-      bounds.extend(options.preferences.gestureBounds.northeast);
+    } else if (options.preferences.restriction.type === 'LatLngBounds' ||
+      options.preferences.restriction.northeast && options.preferences.restriction.southwest) {
+      bounds.extend(options.preferences.restriction.southwest);
+      bounds.extend(options.preferences.restriction.northeast);
     }
 
     if (!bounds.southwest || !bounds.northeast) {
-      console.warn('(getMap) options.preferences.gestureBounds is invalid.');
-      delete options.preferences.gestureBounds;
+      console.warn('(getMap) options.preferences.restriction is invalid.');
+      delete options.preferences.restriction;
     } else {
       var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
       var maxZoom = 23;
@@ -151,7 +151,7 @@ Map.prototype.getMap = function(meta, div, options) {
           maxZoom = minZoom;
         }
       }
-      options.preferences.gestureBounds = {
+      options.preferences.restriction = {
         'south': bounds.southwest.lat,
         'west': bounds.southwest.lng,
         'north': bounds.northeast.lat,
@@ -161,7 +161,7 @@ Map.prototype.getMap = function(meta, div, options) {
         'minZoom': minZoom,
         'maxZoom': maxZoom
       };
-      self.set('restriction', options.preferences.gestureBounds);
+      self.set('restriction', options.preferences.restriction);
     }
   }
 
@@ -344,24 +344,24 @@ Map.prototype.setOptions = function(options) {
   //   options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
   // }
   if (options.preferences) {
-    if (options.preferences.gestureBounds) {
+    if (options.preferences.restriction) {
 
       var bounds = new LatLngBounds();
-      if (utils.isArray(options.preferences.gestureBounds)) {
-        options.preferences.gestureBounds.forEach(function(ele) {
+      if (utils.isArray(options.preferences.restriction)) {
+        options.preferences.restriction.forEach(function(ele) {
           if (ele.lat && ele.lng) {
             bounds.extend(ele);
           }
         });
-      } else if (options.preferences.gestureBounds.type === 'LatLngBounds' ||
-        options.preferences.gestureBounds.northeast && options.preferences.gestureBounds.southwest) {
-        bounds.extend(options.preferences.gestureBounds.southwest);
-        bounds.extend(options.preferences.gestureBounds.northeast);
+      } else if (options.preferences.restriction.type === 'LatLngBounds' ||
+        options.preferences.restriction.northeast && options.preferences.restriction.southwest) {
+        bounds.extend(options.preferences.restriction.southwest);
+        bounds.extend(options.preferences.restriction.northeast);
       }
 
       if (!bounds.southwest || !bounds.northeast) {
-        console.warn('(setOptions) options.preferences.gestureBounds is invalid.');
-        delete options.preferences.gestureBounds;
+        console.warn('(setOptions) options.preferences.restriction is invalid.');
+        delete options.preferences.restriction;
       } else {
         var minZoom = !div ? 0 : spherical.computeBoundsZoom(bounds, div.offsetWidth, div.offsetHeight, 256);
         var maxZoom = 23;
@@ -377,7 +377,7 @@ Map.prototype.setOptions = function(options) {
             maxZoom = minZoom;
           }
         }
-        options.preferences.gestureBounds = {
+        options.preferences.restriction = {
           'south': bounds.southwest.lat,
           'west': bounds.southwest.lng,
           'north': bounds.northeast.lat,
@@ -387,7 +387,7 @@ Map.prototype.setOptions = function(options) {
           'minZoom': minZoom,
           'maxZoom': maxZoom
         };
-        self.set('restriction', options.preferences.gestureBounds);
+        self.set('restriction', options.preferences.restriction);
       }
     } else {
       self.set('restriction', undefined);

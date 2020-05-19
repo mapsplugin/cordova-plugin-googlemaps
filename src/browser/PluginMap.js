@@ -149,13 +149,13 @@ function PluginMap(mapId, options) {
       }
       if (options.preferences) {
 
-        if (options.preferences && options.preferences.gestureBounds) {
+        if (options.preferences && options.preferences.restriction) {
           mapInitOptions.restriction = {
             latLngBounds: {
-              south: options.preferences.gestureBounds.south,
-              west: options.preferences.gestureBounds.west,
-              north: options.preferences.gestureBounds.north,
-              east: options.preferences.gestureBounds.east
+              south: options.preferences.restriction.south,
+              west: options.preferences.restriction.west,
+              north: options.preferences.restriction.north,
+              east: options.preferences.restriction.east
             },
             strictBounds: false
           };
@@ -300,14 +300,14 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
         }
       }
 
-      if ('gestureBounds' in options.preferences) {
-        if (options.preferences.gestureBounds) {
+      if ('restriction' in options.preferences) {
+        if (options.preferences.restriction) {
           mapInitOptions.restriction = {
             latLngBounds: {
-              south: options.preferences.gestureBounds.south,
-              west: options.preferences.gestureBounds.west,
-              north: options.preferences.gestureBounds.north,
-              east: options.preferences.gestureBounds.east
+              south: options.preferences.restriction.south,
+              west: options.preferences.restriction.west,
+              north: options.preferences.restriction.north,
+              east: options.preferences.restriction.east
             },
             strictBounds: false
           };
@@ -317,11 +317,11 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
       }
 
       console.log(mapInitOptions);
-      // if ('gestureBounds' in options.preferences) {
+      // if ('restriction' in options.preferences) {
       //   var boundsLimit = null;
-      //   if (options.preferences.gestureBounds && options.preferences.gestureBounds.length > 0) {
+      //   if (options.preferences.restriction && options.preferences.restriction.length > 0) {
       //     boundsLimit = new google.maps.LatLngBounds();
-      //     options.preferences.gestureBounds.forEach(function(pos) {
+      //     options.preferences.restriction.forEach(function(pos) {
       //       boundsLimit.extend(pos);
       //     });
       //   }
@@ -389,21 +389,24 @@ PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
     // shadowRoot = self.get('shadowRoot');
 
   if (args.length === 0) {
-    if (container.parentNode) {
-      container.parentNode.removeChild(container);
+    if (container.parentNode && container.parentNode.parentNode) {
+      container.parentNode.parentNode.removeChild(container.parentNode);
     }
     onSuccess();
   } else {
 
-    if (!container.parentNode) {
+    // if (!container.parentNode) {
       var domId = args[0];
       var actualMapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
       actualMapDiv.setAttribute('__pluginMapId', self.__pgmId);
       actualMapDiv.style.position = 'relative';
       actualMapDiv.appendChild(container);
-    }
+      container.style.width = '99%';
+    // }
 
     setTimeout(function() {
+      container.style.width = '100%';
+      google.maps.event.trigger(map, 'resize');
       onSuccess();
     }, 1000);
   }

@@ -856,9 +856,9 @@
         [self.mapCtrl.map setMinZoom:minZoom maxZoom:maxZoom];
       }
 
-      // gestureBounds
-      if ([preferences valueForKey:@"gestureBounds"]) {
-        NSDictionary *restriction = [preferences objectForKey:@"gestureBounds"];
+      // restriction
+      if ([preferences valueForKey:@"restriction"]) {
+        NSDictionary *restriction = [preferences objectForKey:@"restriction"];
         [self _setCameraRestriction:restriction];
       } else {
         [self _setCameraRestriction:nil];
