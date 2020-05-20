@@ -3179,5 +3179,20 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
   }
 
+  public void setClickablePOI(JSONArray args, final CallbackContext callbackContext)  throws JSONException {
+    final boolean clickable = args.getBoolean(0);
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (clickable) {
+          map.setOnPoiClickListener(PluginMap.this);
+        } else {
+          map.setOnPoiClickListener(null);
+        }
 
+        callbackContext.success();
+      }
+    });
+  }
+  
 }

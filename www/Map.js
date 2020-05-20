@@ -1586,4 +1586,15 @@ Map.prototype._onCameraEvent = function(eventName, cameraPosition) {
   }
 };
 
+Map.prototype.setClickablePOI = function(isClickable) {
+  var self = this;
+  isClickable = common.parseBoolean(isClickable);
+  self.set('clickablePOI', isClickable);
+  self.exec.call(self, null, self.errorHandler, this.__pgmId, 'setClickablePOI', [isClickable]);
+  return this;
+};
+Map.prototype.getClickablePOI = function() {
+  return this.get('clickablePOI');
+};
+
 module.exports = Map;
