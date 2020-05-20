@@ -89,6 +89,8 @@ Map.prototype.getMap = function(meta, div, options) {
     args = [meta];
   options = options || {};
 
+  self.set('clickablePOI', true)  // Current POI are clickable by default
+  
   self.set('clickable', options.clickable === false ? false : true);
   self.set('visible', options.visible === false ? false : true);
 
