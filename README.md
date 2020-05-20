@@ -113,9 +113,13 @@ For browser platform,
 ## Release Notes
 
   - **v2.8.0**
-    - Add: (Android/iOS/Browser) `mapOptions.preferences.restriction`
+    - Add: (Android/iOS/Browser) `mapOptions.preferences.restriction` which is able to set the camera bounds.
+    - Add: (Android/iOS/Browser) `mapOptions.preferences.clickableIcons` which is able to be disable clicking on POI icons.
+    - Bug fix: (Android/iOS/Browser) `mapOptions.preferences.building` does not work.
     - Add: (Android/iOS/Browser) ElevationService
-
+    - Add: (Android/iOS/Browser) DirectionsService
+    - Add: (Android/iOS/Browser) `map.addDirectionsRenderer()`
+    - Change: (Android/iOS/Browser) `map.setDiv()`, `map.setOptions()` returns `Promise`.
 
 ---------------------------------------------------------------------------------------------------------
 
