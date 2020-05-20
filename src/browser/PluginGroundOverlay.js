@@ -257,14 +257,14 @@ function CustomGroundOverlay(url, bounds, options) {
   });
   self.set('touchPolygon', touchPolygon);
 
-  var markers = [];
-  for (var i = 0; i < 4; i++) {
-    markers.push(new google.maps.Marker({
-      'position': {'lat': 0, 'lng': 0},
-      'map': options.map
-    }));
-  }
-  self.set('markers', markers);
+  // var markers = [];
+  // for (var i = 0; i < 4; i++) {
+  //   markers.push(new google.maps.Marker({
+  //     'position': {'lat': 0, 'lng': 0},
+  //     'map': options.map
+  //   }));
+  // }
+  // self.set('markers', markers);
 
 
   //---------------------------------------------------------
