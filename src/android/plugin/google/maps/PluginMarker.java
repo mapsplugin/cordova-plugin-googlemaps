@@ -855,6 +855,9 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface {
     String propertyId = "marker_property_" + id;
     pluginMap.objects.remove(propertyId);
 
+    String imageSizeKey = "marker_imageSize_" + id;
+    pluginMap.objects.remove(imageSizeKey);
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {

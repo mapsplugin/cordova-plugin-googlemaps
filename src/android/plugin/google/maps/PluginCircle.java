@@ -253,13 +253,17 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       callbackContext.success();
       return;
     }
+
+    if (pluginMap.objects != null) {
+      pluginMap.objects.remove("circle_" + circleHashCode);
+      pluginMap.objects.remove("circle_property_" + circleHashCode);
+      pluginMap.objects.remove("circle_property_" + circleHashCode);
+    }
+
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
         circle.remove();
-        if (pluginMap.objects != null) {
-          pluginMap.objects.remove(id);
-        }
         callbackContext.success();
       }
     });

@@ -207,6 +207,7 @@ public class PluginGroundOverlay extends MyPlugin implements MyPluginInterface  
     }
 
     synchronized (pluginMap.objects) {
+      pluginMap.objects.remove(id);
       pluginMap.objects.remove(id.replace("groundoverlay_", "groundoverlay_property_"));
       pluginMap.objects.remove(id.replace("groundoverlay_", "groundoverlay_initOpts_"));
       pluginMap.objects.remove(id.replace("groundoverlay_", "groundoverlay_bounds_"));
