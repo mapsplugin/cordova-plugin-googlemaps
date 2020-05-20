@@ -700,17 +700,23 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
   // (Don't execute this native callback from your code)
   window.plugin.google.maps[mapId] = nativeCallback.bind(map);
 
-  map.on('__isAttached_changed', function(oldValue, newValue) {
+  var __isAttached_changed_callback = function(oldValue, newValue) {
     if (newValue) {
       cordova_exec(null, null, map.__pgmId, 'attachToWebView', []);
     } else {
       cordova_exec(null, null, map.__pgmId, 'detachFromWebView', []);
     }
+  };
+  Object.defineProperty(__isAttached_changed_callback, '_protect', {
+    enumerable: false,
+    value: true,
+    writable: false
   });
+  map.on('__isAttached_changed', __isAttached_changed_callback);
 
   // If the mapDiv is changed, clean up the information for old map div,
   // then add new information for new map div.
-  map.on('div_changed', function(oldDiv, newDiv) {
+  var onDivChanged = function(oldDiv, newDiv) {
     var elemId, ele;
 
     if (common.isDom(oldDiv)) {
@@ -770,10 +776,26 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       elemId = common.getPluginDomId(newDiv);
       self.domPositions[elemId].isMap = true;
     }
+  };
+
+  Object.defineProperty(onDivChanged, '_protect', {
+    enumerable: false,
+    value: true,
+    writable: false
   });
+  map.on('div_changed', onDivChanged);
 
   // If the map is removed, clean up the information.
-  map.one('remove', self._remove.bind(self, mapId));
+  var onRemove = function(mapId) {
+    self._remove.call(self, mapId);
+  };
+
+  Object.defineProperty(onRemove, '_protect', {
+    enumerable: false,
+    value: true,
+    writable: false
+  });
+  map.one('remove', onRemove);
   self.MAP_CNT++;
   self.isThereAnyChange = true;
 
@@ -807,7 +829,16 @@ CordovaGoogleMaps.prototype.getPanorama = function(div, streetViewOptions) {
 
   self.MAP_CNT++;
 
-  panorama.one('remove', self._remove.bind(self, mapId));
+  var onRemove = function(mapId) {
+    self._remove.call(self, mapId)
+  };
+  Object.defineProperty(onRemove, '_protect', {
+    enumerable: false,
+    value: true,
+    writable: false
+  });
+
+  panorama.one('remove', onRemove);
 
   if (div instanceof Promise) {
     // This hack code for @ionic-native/google-maps

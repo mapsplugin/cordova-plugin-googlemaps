@@ -28,6 +28,14 @@ var utils = require('cordova/utils'),
  * Google Maps model.
  */
 var exec;
+var _protect = function(listener) {
+  Object.defineProperty(listener, '_protect', {
+    enumerable: false,
+    value: true,
+    writable: false
+  });
+  return listener;
+}
 var Map = function(__pgmId, _exec) {
   var self = this;
   exec = _exec;
@@ -75,17 +83,17 @@ var Map = function(__pgmId, _exec) {
     writable: false
   });
 
-  self.on(event.MAP_CLICK, function() {
+  self.on(event.MAP_CLICK, _protect(function() {
     self.set('active_marker', undefined);
-  });
+  }));
 
-  self.on('active_marker_changed', function(prevMarker, newMarker) {
+  self.on('active_marker_changed', _protect(function(prevMarker, newMarker) {
     var newMarkerId = newMarker ? newMarker.getId() : null;
     if (prevMarker) {
       prevMarker.hideInfoWindow.call(prevMarker);
     }
     self.exec.call(self, null, null, self.__pgmId, 'setActiveMarkerId', [newMarkerId]);
-  });
+  }));
 };
 
 utils.extend(Map, Overlay);
@@ -844,6 +852,7 @@ Map.prototype.remove = function(callback) {
 
   clearObj(self.OVERLAYS);
   clearObj(self.MARKERS);
+  self[SUBSCRIPTIONS_FIELD] = null;
 
 
   var resolver = function(resolve, reject) {
