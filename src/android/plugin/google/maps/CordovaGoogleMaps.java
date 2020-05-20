@@ -60,7 +60,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     if (root != null) {
       return;
     }
-    LOG.setLogLevel(LOG.ERROR);
+    LOG.setLogLevel(LOG.DEBUG);
 
     activity = cordova.getActivity();
     final View view = webView.getView();
