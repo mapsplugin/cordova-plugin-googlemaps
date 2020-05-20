@@ -125,7 +125,8 @@ function PluginMap(mapId, options) {
       minZoom: 2,
       disableDefaultUI: true,
       zoomControl: true,
-      center: {lat: 0, lng: 0}
+      center: {lat: 0, lng: 0},
+      clickableIcons: true
     };
 
     if (options) {
@@ -166,6 +167,10 @@ function PluginMap(mapId, options) {
           if (options.preferences.zoom.maxZoom) {
             mapInitOptions.maxZoom = options.preferences.zoom.maxZoom;
           }
+        }
+
+        if ('clickableIcons' in options.preferences) {
+          mapInitOptions.clickableIcons = options.preferences.clickableIcons === true;
         }
       }
     }
@@ -316,17 +321,9 @@ PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
         }
       }
 
-      console.log(mapInitOptions);
-      // if ('restriction' in options.preferences) {
-      //   var boundsLimit = null;
-      //   if (options.preferences.restriction && options.preferences.restriction.length > 0) {
-      //     boundsLimit = new google.maps.LatLngBounds();
-      //     options.preferences.restriction.forEach(function(pos) {
-      //       boundsLimit.extend(pos);
-      //     });
-      //   }
-      //   map.set('boundsLimit', boundsLimit);
-      // }
+      if ('clickableIcons' in options.preferences) {
+        mapInitOptions.clickableIcons = options.preferences.clickableIcons === true;
+      }
 
     }
   }

@@ -99,6 +99,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   private String mapId;
   private boolean isVisible = true;
   private boolean isClickable = true;
+  private boolean clickableIcons = true;
   private final String TAG = mapId;
   private String mapDivId;
   public Map<String, PluginEntry> plugins = new ConcurrentHashMap<String, PluginEntry>();
@@ -411,6 +412,15 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   }
                 }
 
+
+                if (preferences.has("clickableIcons")) {
+                  clickableIcons = preferences.getBoolean("clickableIcons");
+                }
+
+
+                if (preferences.has("building")) {
+                  map.setBuildingsEnabled(preferences.getBoolean("building"));
+                }
 
               }
 
@@ -1339,6 +1349,13 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                 }
               }
 
+              if (preferences.has("building")) {
+                map.setBuildingsEnabled(preferences.getBoolean("building"));
+              }
+
+              if (preferences.has("clickableIcons")) {
+                clickableIcons = preferences.getBoolean("clickableIcons");
+              }
 
               if (preferences.has("restriction")) {
                 Object target = preferences.get("restriction");
@@ -1360,7 +1377,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                     if (zoom.has("minZoom")) {
                       map.setMinZoomPreference((float)zoom.getDouble("minZoom"));
                     } else {
-                      map.setMinZoomPreference(0);
+                      map.setMinZoomPreference(2);
                     }
                     if (zoom.has("maxZoom")) {
                       map.setMaxZoomPreference((float) zoom.getDouble("maxZoom"));
@@ -1368,7 +1385,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                       map.setMaxZoomPreference(23);
                     }
                   } else {
-                    map.setMinZoomPreference(0);
+                    map.setMinZoomPreference(2);
                     map.setMaxZoomPreference(23);
                   }
                   map.setLatLngBoundsForCameraTarget(null);
@@ -2961,6 +2978,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
   }
   @Override
   public void onPoiClick(PointOfInterest pointOfInterest) {
+    if (!this.clickableIcons) {
+      this.onMapClick(pointOfInterest.latLng);
+      return;
+    }
+
     String js = String.format(Locale.ENGLISH, "javascript:if('%s' in plugin.google.maps){plugin.google.maps['%s']({evtName: '%s', callback:'_onMapEvent', args:['%s', \"%s\", new plugin.google.maps.LatLng(%f, %f)]});}",
     mapId, mapId, "poi_click", pointOfInterest.placeId, pointOfInterest.name, pointOfInterest.latLng.latitude, pointOfInterest.latLng.longitude);
     jsCallback(js);

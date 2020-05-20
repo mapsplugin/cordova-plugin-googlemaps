@@ -864,6 +864,11 @@
         NSDictionary *restriction = [preferences objectForKey:@"restriction"];
         [self _setCameraRestriction:restriction];
       }
+
+      // building
+      if ([preferences valueForKey:@"building"] != nil) {
+        self.mapCtrl.map.buildingsEnabled = [[preferences valueForKey:@"building"] boolValue];
+      }
     }
 
     //styles
