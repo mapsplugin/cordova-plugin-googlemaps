@@ -22,7 +22,8 @@ var utils = require('cordova/utils'),
   DirectionsRenderer = require('./DirectionsRenderer'),
   spherical = require('./spherical'),
   encoding = require('./encoding'),
-  MarkerCluster = require('./MarkerCluster');
+  MarkerCluster = require('./MarkerCluster'),
+  Projection = require('./Projection');
 
 /**
  * Google Maps model.
@@ -74,6 +75,12 @@ var Map = function(__pgmId, _exec) {
     '}'
   ].join("\n");
   infoWindowLayer.appendChild(style);
+
+  Object.defineProperty(self, 'projection', {
+    value: new Projection(256),
+    enumerable: false,
+    writable: false
+  });
 
   Object.defineProperty(self, '_layers', {
     value: {
@@ -341,16 +348,47 @@ Map.prototype.setOptions = function(options) {
     self.set('myLocationButton', options.controls.myLocationButton === true);
   }
 
-  // if (options.camera && utils.isArray(options.camera.target)) {
-  //   var cameraBounds = new LatLngBounds();
-  //   options.camera.target.forEach(function(ele) {
-  //     if (ele.lat && ele.lng) {
-  //       cameraBounds.extend(ele);
-  //     }
-  //   });
-  //   options.camera.target = cameraBounds.getCenter();
-  //   options.camera.zoom = spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256);
-  // }
+  if (options.camera && utils.isArray(options.camera.target)) {
+    var cameraBounds = new LatLngBounds();
+    options.camera.target.forEach(function(ele) {
+      if (ele.lat && ele.lng) {
+        cameraBounds.extend(ele);
+      }
+    });
+
+    var cameraPosition = {
+      'target': cameraBounds.getCenter(),
+      'zoom': spherical.computeBoundsZoom(cameraBounds, div.offsetWidth, div.offsetHeight, 256),
+      'bearing': ('bearing' in options.camera.bearing ? options.camera.bearing : self.get('camera_bearing')) || 0,
+      'tilt': ('tilt' in options.camera.tilt ? options.camera.tilt : self.get('camera_tilt')) || 0,
+      'northeast': cameraBounds.northeast,
+      'southwest': cameraBounds.southwest,
+
+      // TODO: calculate based on bearing
+      'farLeft': {
+        'lat': cameraBounds.northeast.lat,
+        'lng': cameraBounds.southwest.lng
+      },
+      'farRight': cameraBounds.northeast,
+      'nearLeft': cameraBounds.southwest,
+      'nearRight': {
+        'lat': cameraBounds.southwest.lat,
+        'lng': cameraBounds.northeast.lng
+      }
+    };
+
+    this.set('camera', cameraPosition);
+    this.set('camera_target', cameraPosition.target);
+    this.set('camera_zoom', cameraPosition.zoom);
+    this.set('camera_bearing', cameraPosition.bearing);
+    this.set('camera_tilt', cameraPosition.viewAngle || cameraPosition.tilt);
+    this.set('camera_northeast', cameraPosition.northeast);
+    this.set('camera_southwest', cameraPosition.southwest);
+    this.set('camera_nearLeft', cameraPosition.nearLeft);
+    this.set('camera_nearRight', cameraPosition.nearRight);
+    this.set('camera_farLeft', cameraPosition.farLeft);
+    this.set('camera_farRight', cameraPosition.farRight);
+  }
   if (options.preferences) {
     if (options.preferences.restriction) {
 
@@ -1032,69 +1070,97 @@ Map.prototype.getVisibleRegion = function(callback) {
 Map.prototype.fromLatLngToPoint = function(latLng, callback) {
   var self = this;
 
-  if ('lat' in latLng && 'lng' in latLng) {
-
-    var resolver = function(resolve, reject) {
-      self.exec.call(self,
-        resolve.bind(self),
-        reject.bind(self),
-        self.__pgmId, 'fromLatLngToPoint', [latLng.lat, latLng.lng]);
-    };
-
-    if (typeof callback === 'function') {
-      resolver(callback, self.errorHandler);
-    } else {
-      return new Promise(resolver);
+  return (new Promise(function(resolve) {
+    var interval = setInterval(function() {
+        if (self._isReady) {
+          clearInterval(interval);
+          resolve();
+        }
+    }, 100);
+  }))
+  .then(function() {
+    var cameraPosition = self.get('camera');
+    if (!cameraPosition || !cameraPosition.southwest || !cameraPosition.northeast) {
+      return Promise.reject('camera position is null');
     }
-  } else {
-    var rejector = function(resolve, reject) {
-      reject('The latLng is invalid');
-    };
 
+    var north = cameraPosition.northeast.lat;
+    var west = cameraPosition.southwest.lng;
+    var bounds = new LatLngBounds(cameraPosition.northeast, cameraPosition.southwest);
+
+    var ne = bounds.northeast,
+      sw = bounds.southwest,
+      zoom = self.getCameraZoom(),
+      north = ne.lat,
+      west = sw.lng;
+    var nowrapFlag = !bounds.contains({
+      'lat': north,
+      'lng': 179
+    });
+
+    var scale = Math.pow(2, zoom),
+      topLeft = self.projection.fromLatLngToPoint({
+        'lat': north,
+        'lng': west + 360
+      }),
+      worldPoint = self.projection.fromLatLngToPoint({
+        'lat': latLng.lat,
+        'lng': latLng.lng + 360
+      });
+
+
+    return Promise.resolve([(worldPoint.x - topLeft.x) * scale, (worldPoint.y - topLeft.y) * scale]);
+  })
+  .then(function(result) {
     if (typeof callback === 'function') {
-      rejector(callback, self.errorHandler);
-    } else {
-      return new Promise(rejector);
+      callback(result);
+      return;
     }
-  }
-
+    return Promise.resolve(result);
+  });
 };
 /**
  * Maps a point coordinate in the map's view to an Earth coordinate.
  */
-Map.prototype.fromPointToLatLng = function(pixel, callback) {
+Map.prototype.fromPointToLatLng = function(pixel) {
   var self = this;
-  if (typeof pixel === 'object' && 'x' in pixel && 'y' in pixel) {
-    pixel = [pixel.x, pixel.y];
-  }
-  if (pixel.length == 2 && utils.isArray(pixel)) {
 
-    var resolver = function(resolve, reject) {
-      self.exec.call(self,
-        function(result) {
-          var latLng = new LatLng(result[0] || 0, result[1] || 0);
-          resolve.call(self, latLng);
-        },
-        reject.bind(self),
-        self.__pgmId, 'fromPointToLatLng', [pixel[0], pixel[1]]);
-    };
+  var x = args[0],
+    y = args[1];
 
-    if (typeof callback === 'function') {
-      resolver(callback, self.errorHandler);
-    } else {
-      return new Promise(resolver);
+  return (new Promise(function(resolve) {
+    var interval = setInterval(function() {
+        if (self._isReady) {
+          clearInterval(interval);
+          resolve();
+        }
+    }, 100);
+  }))
+  .then(function() {
+    var cameraPosition = self.get('camera');
+    if (!cameraPosition || !cameraPosition.southwest || !cameraPosition.northeast) {
+      return Promise.reject('camera position is null');
     }
-  } else {
-    var rejector = function(resolve, reject) {
-      reject('The pixel[] argument is invalid');
-    };
 
+    var ne = cameraPosition.northeast,
+      sw = cameraPosition.southwest,
+      zoom = self.getCameraZoom();
+
+    var topRight = self.projection.fromLatLngToPoint(ne);
+    var bottomLeft = self.projection.fromLatLngToPoint(sw);
+    var scale = Math.pow(2, zoom);
+    var worldPoint = [x / scale + bottomLeft.x, y / scale + topRight.y];
+    var latLng = self.projection.fromPointToLatLng(worldPoint);
+
+    return Promise.resolve(latLng);
+  })
+  .then(function(result) {
     if (typeof callback === 'function') {
-      rejector(callback, self.errorHandler);
-    } else {
-      return new Promise(rejector);
+      callback(result);
+      return;
     }
-  }
+    return Promise.resolve(result);
+  });
 
 };
 

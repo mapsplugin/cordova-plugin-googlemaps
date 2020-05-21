@@ -116,6 +116,9 @@
   <js-module name="InlineWorker" src="www/InlineWorker.js">
     <runs/>
   </js-module>
+  <js-module name="Projection" src="www/Projection.js">
+    <runs/>
+  </js-module>
 
   <description>You can display native Google Maps views in cordova application. Native Google Maps view is faster, powerful, and more friendly for mobile applications. You can control the native Google Maps view through this plugin API.
 
