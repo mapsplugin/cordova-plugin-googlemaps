@@ -117,9 +117,9 @@ For browser platform,
     - Add: (Android/iOS/Browser) `mapOptions.preferences.clickableIcons` which is able to be disable clicking on POI icons.
     - Bug fix: (Android/iOS/Browser) `mapOptions.preferences.building` does not work.
     - Add: (Android/iOS/Browser) ElevationService
-    - Add: (Android/iOS/Browser) DirectionsService
-    - Add: (Android/iOS/Browser) `map.addDirectionsRenderer()`
+    - Add: (Android/iOS/Browser) DirectionsService and `map.addDirectionsRenderer()`
     - Change: (Android/iOS/Browser) `map.setDiv()`, `map.setOptions()` returns `Promise`.
+    - Change: (Android/iOS/Browser) Hides `__pluginDomId` and `__pluginMapId` properties.
 
 ---------------------------------------------------------------------------------------------------------
 

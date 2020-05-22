@@ -75,7 +75,7 @@ function CordovaGoogleMaps(execCmd) {
           // If some elements are removed from the DOM tree, remove their information.
           if (mutation.removedNodes) {
             Array.prototype.slice.call(mutation.removedNodes, 0).forEach(function(node) {
-              if (node.nodeType !== Node.ELEMENT_NODE || !node.hasAttribute('__pluginDomId')) {
+              if (node.nodeType !== Node.ELEMENT_NODE || !node.__pluginDomId) {
                 return;
               }
               node._isRemoved = true;
@@ -88,7 +88,7 @@ function CordovaGoogleMaps(execCmd) {
           if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
             return;
           }
-          if (mutation.target.hasAttribute('__pluginDomId')) {
+          if (mutation.target.__pluginDomId) {
             // elemId = mutation.target.getAttribute('__pluginDomId');
             var transformCSS = common.getStyle(mutation.target, 'transform') ||
                   common.getStyle(mutation.target, '-webkit-transform') ||
@@ -157,7 +157,7 @@ CordovaGoogleMaps.prototype.traceDomTree = function(element, elemId, isMapChild)
     pointerEvents: common.getStyle(element, 'pointer-events'),
 
     // Only true if element is mapDiv
-    isMap: element.hasAttribute('__pluginMapId'),
+    isMap: element.__pluginMapId !== undefined,
 
     // Calculate dom clickable region
     size: common.getDivRect(element),
@@ -304,7 +304,7 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
     }
 
     // Does this dom is really existed?
-    var elemId = div.getAttribute('__pluginDomId');
+    var elemId = div.__pluginDomId;
     if (!elemId) {
       // The map div is removed
       if (mapId in self.MAPS) {
@@ -316,8 +316,11 @@ CordovaGoogleMaps.prototype.putHtmlElements = function() {
 
     if (!(elemId in self.domPositions)) {
       // Is the map div removed?
-      var ele = document.querySelector('[__pluginMapId="' + mapId + '"]');
-      if (!ele) {
+      var eles = Array.from(document.querySelectorAll('*'));
+      eles = eles.filter(function(e) {
+        return e.__pluginMapId === mapId;
+      });
+      if (eles.length === 0) {
         // If no div element, remove the map.
         if (mapId in self.MAPS) {
           self.MAPS[mapId].remove();
@@ -417,7 +420,7 @@ CordovaGoogleMaps.prototype.onTransitionEnd = function(evt) {
     target = document.body;
   }
   target = target.getAttribute === 'function' ? target : document.body;
-  var elemId = target.getAttribute('__pluginDomId');
+  var elemId = target.__pluginDomId;
   self.transformTargets[elemId] = {left: -1, top: -1, right: -1, bottom: -1, finish: false, target: target};
   if (!self.transitionEndTimer) {
     self.transitionEndTimer = setTimeout(self.detectTransitionFinish.bind(self), 100);
@@ -503,7 +506,10 @@ CordovaGoogleMaps.prototype.removeDomTree = function(node) {
 
   // Remove the information of children
   // which have the `__pluginDomId` attribute.
-  var nodeList = node.querySelectorAll('[__pluginDomId]');
+  var nodeList = Array.from(node.querySelectorAll('*'));
+  nodeList = nodeList.filter(function(child) {
+    return child.__pluginDomId !== undefined;
+  });
   var children = [];
   for (var i = 0; i < nodeList.length; i++) {
     children.push(nodeList[i]);
@@ -512,17 +518,22 @@ CordovaGoogleMaps.prototype.removeDomTree = function(node) {
 
   var isRemoved = node._isRemoved;
   children.forEach(function(child) {
-    var elemId = child.getAttribute('__pluginDomId');
+    var elemId = child.__pluginDomId;
 
     // If the DOM is removed from the DOM tree,
     // remove the attribute.
     // (Note that the `_isRemoved` flag is set in MutationObserver.)
     if (isRemoved) {
-      child.removeAttribute('__pluginDomId');
+
+
+      Object.defineProperty(child, '__pluginDomId', {
+        enumerable: false,
+        value: undefined
+      });
 
       // If map div, remove the map also.
-      if (child.hasAttribute('__pluginMapId')) {
-        var mapId = child.getAttribute('__pluginMapId');
+      if (child.__pluginMapId) {
+        var mapId = child.__pluginMapId;
         if (mapId in self.MAPS) {
           self.MAPS[mapId].remove();
         }
@@ -573,13 +584,13 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
 
       // Obtain only minimum information
       var mapDiv = map.getDiv();
-      var divId = mapDiv.getAttribute('__pluginDomId');
+      var divId = mapDiv.__pluginDomId;
       if (!divId) {
         changed = true;
         map.remove();
         return;
       }
-      var divId = mapDiv.getAttribute('__pluginDomId');
+      var divId = mapDiv.__pluginDomId;
       mapRects[divId] = {
         size: common.getDivRect(mapDiv),
         zIndex: common.getZIndex(mapDiv)
@@ -659,7 +670,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     mapId, elem, elemId;
 
   if (common.isDom(div)) {
-    mapId = div.getAttribute('__pluginMapId');
+    mapId = div.__pluginMapId;
 
     // Wow, the app specifies the map div that has already another map,
     // but the app try to create new map.
@@ -667,7 +678,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     if (mapId && self.MAPS[mapId].getDiv() !== div) {
       elem = self.MAPS[mapId].getDiv();
       while(elem && elem.nodeType === Node.ELEMENT_NODE) {
-        elemId = elem.getAttribute('__pluginDomId');
+        elemId = elem.__pluginDomId;
         if (elemId && elemId in self.domPositions) {
           self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
           delete self.domPositions[elemId].containMapIDs[mapId];
@@ -720,10 +731,13 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     var elemId, ele;
 
     if (common.isDom(oldDiv)) {
-      oldDiv.removeAttribute('__pluginMapId');
+      Object.defineProperty(oldDiv, '__pluginMapId', {
+        enumerable: false,
+        value: undefined
+      });
       ele = oldDiv;
       while(ele && ele != document.body.parentNode) {
-        elemId = ele.getAttribute('__pluginDomId');
+        elemId = ele.__pluginDomId;
         if (elemId) {
           self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
           delete self.domPositions[elemId].containMapIDs[mapId];
@@ -731,7 +745,10 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
             delete self.domPositions[elemId];
           }
         }
-        ele.removeAttribute('__pluginDomId');
+        Object.defineProperty(ele, '__pluginDomId', {
+          enumerable: false,
+          value: undefined
+        });
         if (ele.classList) {
           ele.classList.remove('_gmaps_cdv_');
         } else if (ele.className) {
@@ -864,10 +881,19 @@ CordovaGoogleMaps.prototype._remove = function(mapId) {
   if (map) {
     var div = map.getDiv();
     if (!div) {
-      div = document.querySelector('[__pluginMapId="' + mapId + '"]');
+      var allEle = Array.from(document.querySelectorAll('*'));
+      allEle = allEle.filter(function(ele) {
+        return ele.__pluginMapId === mapId;
+      });
+      if (allEle.length === 1) {
+        div = allEle[0];
+      }
     }
     if (div) {
-      div.removeAttribute('__pluginMapId');
+      Object.defineProperty(div, '__pluginMapId', {
+        enumerable: false,
+        value: undefined
+      });
     }
 
     var keys = Object.keys(self.domPositions);
@@ -921,7 +947,10 @@ function postPanoramaInit(panorama, div, options) {
   // If the mapDiv is specified,
   // the native side needs to know the map div position
   // before creating the map view.
-  div.setAttribute('__pluginMapId', mapId);
+  Object.defineProperty(div, '__pluginMapId', {
+    enumerable: false,
+    value: mapId
+  });
   var elemId = common.getPluginDomId(div);
 
   var elem = div;
@@ -994,7 +1023,10 @@ function postMapInit(map, div, options) {
     // If the mapDiv is specified,
     // the native side needs to know the map div position
     // before creating the map view.
-    div.setAttribute('__pluginMapId', mapId);
+    Object.defineProperty(div, '__pluginMapId', {
+      enumerable: false,
+      value: mapId
+    });
     var elemId = common.getPluginDomId(div);
 
     var elem = div;

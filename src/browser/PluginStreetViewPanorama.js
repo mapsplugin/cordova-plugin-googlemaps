@@ -21,7 +21,11 @@ function displayGrayMap(container) {
 function PluginStreetViewPanorama(panoramaId, options) {
   var self = this;
   BaseClass.apply(this);
-  var panoramaDiv = document.querySelector('[__pluginMapId=\'' + panoramaId + '\']');
+  var eles = Array.from(document.querySelectorAll('*'));
+  eles = eles.filter(function(e) {
+    return e.__pluginMapId === panoramaId;
+  });
+  var panoramaDiv = eles[0];
   panoramaDiv.style.backgroundColor = 'rgb(229, 227, 223)';
   var container = document.createElement('div');
   container.style.userSelect='none';

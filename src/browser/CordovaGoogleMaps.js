@@ -71,13 +71,16 @@ var CordovaGoogleMaps = {
     // memory cleanup
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
-      var mapDivId = document.querySelector('[__pluginmapid=\'' + mapId + '\']');
-      if (!mapDivId) {
-        if (MAPS[mapDivId]) {
-          MAPS[mapDivId].destroy();
+      var eles = Array.from(document.querySelectorAll('*'));
+      eles = eles.filter(function(e) {
+        return e.__pluginMapId === mapId;
+      });
+      if (eles.length === 0) {
+        if (MAPS[mapId]) {
+          MAPS[mapId].destroy();
         }
-        MAPS[mapDivId] = undefined;
-        delete MAPS[mapDivId];
+        MAPS[mapId] = undefined;
+        delete MAPS[mapId];
       }
     });
 
@@ -135,13 +138,16 @@ var CordovaGoogleMaps = {
     // memory cleanup
     var mapIDs = Object.keys(MAPS);
     mapIDs.forEach(function(mapId) {
-      var mapDivId = document.querySelector('[__pluginmapid=\'' + mapId + '\']');
-      if (!mapDivId) {
-        if (MAPS[mapDivId]) {
-          MAPS[mapDivId].destroy();
+      var eles = Array.from(document.querySelectorAll('*'));
+      eles = eles.filter(function(e) {
+        return e.__pluginMapId === mapId;
+      });
+      if (eles.length === 0) {
+        if (MAPS[mapId]) {
+          MAPS[mapId].destroy();
         }
-        MAPS[mapDivId] = undefined;
-        delete MAPS[mapDivId];
+        MAPS[mapId] = undefined;
+        delete MAPS[mapId];
       }
     });
 

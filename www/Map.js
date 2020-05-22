@@ -917,11 +917,17 @@ Map.prototype.setDiv = function(div) {
   if (!common.isDom(div)) {
     div = self.get('div');
     if (common.isDom(div)) {
-      div.removeAttribute('__pluginMapId');
+      Object.defineProperty(div, '__pluginMapId', {
+        enumerable: false,
+        value: undefined
+      });
     }
     self.set('div', null);
   } else {
-    div.setAttribute('__pluginMapId', self.__pgmId);
+    Object.defineProperty(div, '__pluginMapId', {
+      enumerable: false,
+      value: self.__pgmId
+    });
 
     // Insert the infoWindow layer
     if (self._layers.info.parentNode) {

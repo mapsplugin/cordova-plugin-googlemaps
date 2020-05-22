@@ -42,7 +42,14 @@ function displayGrayMap(container) {
 function PluginMap(mapId, options) {
   var self = this;
   BaseClass.apply(this);
-  var actualMapDiv = document.querySelector('[__pluginMapId=\'' + mapId + '\']');
+  var eles = Array.from(document.querySelectorAll('*'));
+  eles = eles.filter(function(e) {
+    return e.__pluginMapId === mapId;
+  });
+  var actualMapDiv = null;
+  if (eles.length === 1) {
+    actualMapDiv = eles[0];
+  }
 
   var container = document.createElement('div');
   container.style.userSelect='none';
@@ -54,7 +61,7 @@ function PluginMap(mapId, options) {
   container.style.bottom = 0;
   container.style.right = 0;
   container.style.left = 0;
-  actualMapDiv.appendChild(container);
+  actualMapDiv.insertBefore(container, actualMapDiv.firstElementChild);
 
   var shadowRoot = container.attachShadow({mode: 'open'});
 
@@ -228,7 +235,7 @@ function PluginMap(mapId, options) {
             options.camera.target.forEach(function(pos) {
               bounds.extend(pos);
             });
-            map.fitBounds(bounds, 5);
+            map.fitBounds(bounds, 'padding' in options.camera ? options.camera.padding || 0 : 5);
           } else {
             map.setCenter(options.camera.target);
           }
@@ -384,6 +391,10 @@ PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
     map = self.get('map'),
     container = self.get('container');
     // shadowRoot = self.get('shadowRoot');
+  if (!container) {
+    onError('[map.setDiv] container is undefined');
+    return;
+  }
 
   if (args.length === 0) {
     if (container.parentNode && container.parentNode.parentNode) {
@@ -392,20 +403,29 @@ PluginMap.prototype.setDiv = function(onSuccess, onError, args) {
     onSuccess();
   } else {
 
-    // if (!container.parentNode) {
+    if (container.parentNode && !container.parentNode.parentNode) {
       var domId = args[0];
-      var actualMapDiv = document.querySelector('[__pluginDomId=\'' + domId + '\']');
-      actualMapDiv.setAttribute('__pluginMapId', self.__pgmId);
+      var eles = Array.from(document.querySelectorAll('*'));
+      eles = eles.filter(function(e) {
+        return e.__pluginDomId === domId;
+      });
+      var actualMapDiv = eles[0];
+      Object.defineProperty(actualMapDiv, '__pluginMapId', {
+        enumerable: false,
+        value: self.__pgmId
+      });
       actualMapDiv.style.position = 'relative';
-      actualMapDiv.appendChild(container);
-      container.style.width = '99%';
-    // }
+      actualMapDiv.insertBefore(container, actualMapDiv.firstElementChild);
 
-    setTimeout(function() {
-      container.style.width = '100%';
-      google.maps.event.trigger(map, 'resize');
-      onSuccess();
-    }, 1000);
+      var offsetHeight = container.offsetHeight;
+      container.offsetHeight = offsetHeight - 1;
+      setTimeout(function() {
+        container.offsetHeight = offsetHeight;
+        google.maps.event.trigger(map, 'resize');
+      }, 1000);
+    }
+
+    onSuccess();
   }
 
 };

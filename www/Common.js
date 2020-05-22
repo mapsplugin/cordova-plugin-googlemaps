@@ -302,11 +302,11 @@ function getZIndex(dom) {
   if (dom.currentStyle) {
     z = dom.currentStyle['z-index'];
   }
-  var elemId = dom.getAttribute('__pluginDomId');
+  var elemId = dom.__pluginDomId;
   var parentNode = dom.parentNode;
   var parentZIndex = 0;
   if (parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
-    var parentElemId = parentNode.getAttribute('__pluginDomId');
+    var parentElemId = parentNode.__pluginDomId;
     if (parentElemId in internalCache) {
       parentZIndex = internalCache[parentElemId];
     } else {
@@ -684,14 +684,17 @@ function getPluginDomId(element) {
   if (!element || !shouldWatchByNative(element)) {
     return;
   }
-  var elemId = element.getAttribute('__pluginDomId');
+  var elemId = element.__pluginDomId;
   if (!elemId) {
     if (element === document.body) {
       elemId = 'root';
     } else {
       elemId = 'pgm' + Math.floor(Math.random() * Date.now());
     }
-    element.setAttribute('__pluginDomId', elemId);
+    Object.defineProperty(element, '__pluginDomId', {
+      enumerable: false,
+      value: elemId
+    });
   }
   return elemId;
 }
