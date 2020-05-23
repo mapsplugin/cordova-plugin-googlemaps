@@ -77,13 +77,7 @@ function TileOverlay(mapId, hashCode, options) {
 
     releaseTile: function(div) {
       var cacheId = div.getAttribute('cacheId');
-      var div = tileCaches[cacheId];
-      if (div) {
-        if (div.parentNode) {
-          div.parentNode.removeChild(div);
-        }
-        delete tileCaches[cacheId];
-      }
+      delete tileCaches[cacheId];
     },
 
     remove: function() {
