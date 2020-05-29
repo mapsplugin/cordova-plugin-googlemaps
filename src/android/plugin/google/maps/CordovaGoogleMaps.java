@@ -24,7 +24,7 @@ import android.view.ViewTreeObserver;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.libraries.maps.MapsInitializer;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -84,86 +84,86 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         // ------------------------------
         // Check of Google Play Services
         // ------------------------------
-        int checkGooglePlayServices = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
-
-        Log.d(TAG, "----> checkGooglePlayServices = " + (ConnectionResult.SUCCESS == checkGooglePlayServices));
-
-        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-          // google play services is missing!!!!
-          /*
-           * Returns status code indicating whether there was an error. Can be one
-           * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
-           * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
-           */
-          Log.e(TAG, "---Google Play Services is not available: " + GooglePlayServicesUtil.getErrorString(checkGooglePlayServices));
-
-          boolean isNeedToUpdate = false;
-
-          String errorMsg = PluginUtil.getPgmStrings(activity, "pgm_google_play_error");
-          switch (checkGooglePlayServices) {
-            case ConnectionResult.DEVELOPER_ERROR:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_developer_error");
-              break;
-            case ConnectionResult.INTERNAL_ERROR:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_internal_error");
-              break;
-            case ConnectionResult.INVALID_ACCOUNT:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_invalid_account");
-              break;
-            case ConnectionResult.LICENSE_CHECK_FAILED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_license_check_failed");
-              break;
-            case ConnectionResult.NETWORK_ERROR:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_network_error");
-              break;
-            case ConnectionResult.SERVICE_DISABLED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_disabled");
-              break;
-            case ConnectionResult.SERVICE_INVALID:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_invalid");
-              isNeedToUpdate = true;
-              break;
-            case ConnectionResult.SERVICE_MISSING:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_missing");
-              isNeedToUpdate = true;
-              break;
-            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_update_required");
-              isNeedToUpdate = true;
-              break;
-            case ConnectionResult.SIGN_IN_REQUIRED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_sign_in_required");
-              break;
-            default:
-              isNeedToUpdate = true;
-              break;
-          }
-
-          final boolean finalIsNeedToUpdate = isNeedToUpdate;
-          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-          alertDialogBuilder
-              .setMessage(errorMsg)
-              .setCancelable(false)
-              .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
-                  dialog.dismiss();
-                  if (finalIsNeedToUpdate) {
-                    try {
-                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
-                    } catch (android.content.ActivityNotFoundException anfe) {
-                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
-                    }
-                  }
-                }
-              });
-          AlertDialog alertDialog = alertDialogBuilder.create();
-
-          // show it
-          alertDialog.show();
-
-          Log.e(TAG, "Google Play Services is not available.");
-          return;
-        }
+//        int checkGooglePlayServices = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
+//
+//        Log.d(TAG, "----> checkGooglePlayServices = " + (ConnectionResult.SUCCESS == checkGooglePlayServices));
+//
+//        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
+//          // google play services is missing!!!!
+//          /*
+//           * Returns status code indicating whether there was an error. Can be one
+//           * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
+//           * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
+//           */
+//          Log.e(TAG, "---Google Play Services is not available: " + GooglePlayServicesUtil.getErrorString(checkGooglePlayServices));
+//
+//          boolean isNeedToUpdate = false;
+//
+//          String errorMsg = PluginUtil.getPgmStrings(activity, "pgm_google_play_error");
+//          switch (checkGooglePlayServices) {
+//            case ConnectionResult.DEVELOPER_ERROR:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_developer_error");
+//              break;
+//            case ConnectionResult.INTERNAL_ERROR:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_internal_error");
+//              break;
+//            case ConnectionResult.INVALID_ACCOUNT:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_invalid_account");
+//              break;
+//            case ConnectionResult.LICENSE_CHECK_FAILED:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_license_check_failed");
+//              break;
+//            case ConnectionResult.NETWORK_ERROR:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_network_error");
+//              break;
+//            case ConnectionResult.SERVICE_DISABLED:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_disabled");
+//              break;
+//            case ConnectionResult.SERVICE_INVALID:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_invalid");
+//              isNeedToUpdate = true;
+//              break;
+//            case ConnectionResult.SERVICE_MISSING:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_missing");
+//              isNeedToUpdate = true;
+//              break;
+//            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_update_required");
+//              isNeedToUpdate = true;
+//              break;
+//            case ConnectionResult.SIGN_IN_REQUIRED:
+//              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_sign_in_required");
+//              break;
+//            default:
+//              isNeedToUpdate = true;
+//              break;
+//          }
+//
+//          final boolean finalIsNeedToUpdate = isNeedToUpdate;
+//          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+//          alertDialogBuilder
+//              .setMessage(errorMsg)
+//              .setCancelable(false)
+//              .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog,int id) {
+//                  dialog.dismiss();
+//                  if (finalIsNeedToUpdate) {
+//                    try {
+//                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+//                    } catch (android.content.ActivityNotFoundException anfe) {
+//                      activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
+//                    }
+//                  }
+//                }
+//              });
+//          AlertDialog alertDialog = alertDialogBuilder.create();
+//
+//          // show it
+//          alertDialog.show();
+//
+//          Log.e(TAG, "Google Play Services is not available.");
+//          return;
+//        }
 
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);

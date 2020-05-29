@@ -3,12 +3,12 @@ package plugin.google.maps;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.maps.model.CircleOptions;
+import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.LatLngBounds;
+import com.google.android.libraries.maps.model.MarkerOptions;
+import com.google.android.libraries.maps.model.Polyline;
+import com.google.android.libraries.maps.model.PolylineOptions;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
