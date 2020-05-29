@@ -1,9 +1,9 @@
 package plugin.google.maps;
 
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.libraries.maps.model.Circle;
+import com.google.android.libraries.maps.model.CircleOptions;
+import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.LatLngBounds;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;

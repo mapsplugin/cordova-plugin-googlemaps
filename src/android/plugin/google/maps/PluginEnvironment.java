@@ -78,7 +78,7 @@ public class PluginEnvironment extends CordovaPlugin {
     // ------------------------------
     try {
       @SuppressWarnings({ "rawtypes" })
-      Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.GoogleMap");
+      Class GoogleMapsClass = Class.forName("com.google.android.libraries.maps.GoogleMap");
     } catch (Exception e) {
       Log.e("GoogleMaps", "Error", e);
       callbackContext.error(e.getMessage());

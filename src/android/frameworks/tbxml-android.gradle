@@ -13,7 +13,7 @@ dependencies {
 }
 
 android {
-  compileSdkVersion 26
+  compileSdkVersion 28
 
   packagingOptions {
     exclude 'README'

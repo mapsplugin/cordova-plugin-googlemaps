@@ -4,14 +4,14 @@ import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.libraries.maps.GoogleMap;
+import com.google.android.libraries.maps.model.Circle;
+import com.google.android.libraries.maps.model.GroundOverlay;
+import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.Marker;
+import com.google.android.libraries.maps.model.Polygon;
+import com.google.android.libraries.maps.model.Polyline;
+import com.google.android.libraries.maps.model.TileOverlay;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
