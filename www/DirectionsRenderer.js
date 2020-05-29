@@ -418,32 +418,6 @@ DirectionsRenderer.prototype.setRouteIndex = function(index) {
   self.set('routeIndex', index);
 };
 
-DirectionsRenderer.prototype.remove = function(callback) {
-  var self = this;
-  if (self._isRemoved) {
-    if (typeof callback === 'function') {
-      return;
-    } else {
-      return Promise.resolve();
-    }
-  }
-  Object.defineProperty(self, '_isRemoved', {
-    value: true,
-    writable: false
-  });
-
-
-  var resolver = function(resolve) {
-    self.polyline.remove().then(resolve);
-  };
-
-  if (typeof callback === 'function') {
-    resolver.call(self, callback, null);
-    return;
-  } else {
-    return Promise.resolve();
-  }
-};
 DirectionsRenderer.prototype._redrawRoute = function(oldIdx, newIdx) {
   var self = this;
   var options = self.get('options');

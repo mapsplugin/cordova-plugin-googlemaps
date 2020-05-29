@@ -1,7 +1,7 @@
 package plugin.google.maps;
 
 import android.graphics.Bitmap;
-import androidx.collection.LruCache;
+import android.util.LruCache;
 
 public class BitmapCache extends LruCache<String, Bitmap> {
 

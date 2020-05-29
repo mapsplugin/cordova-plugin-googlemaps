@@ -85,13 +85,14 @@ For browser platform,
 
 ## Install optional variables (config.xml)
 
-  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **APP_COMPAT_VERSION = (1.1.0)**<br>
-  **PLAY_SERVICES_BASEMENT_VERSION = (17.2.1)**<br>
-  **PLAY_SERVICES_BASE_VERSION = (17.2.1)**<br>
-  **PLAY_SERVICES_GCM_VERSION = (17.0.0)**<br>
-  **PLAY_SERVICES_LOCATION_VERSION = (17.0.0)**<br>
-  **GOOGLE_MAPS_ANDROID_SDK = (maps-sdk-3.0.0-beta)**<br>
-    cordova-plugin-googlemaps version 2.8.0 or later uses [Maps SDK for Android v.3](https://developers.google.com/maps/documentation/android-sdk/v3-client-migration).
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **PLAY_SERVICES_VERSION = (17.0.0)**<br>
+    The Google Play Services SDK version.
+    _You need to specify the same version number with all other plugins._
+    Check out the latest version [here](https://developers.google.com/android/guides/releases).
+
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **GOOGLE_MAPS_ANDROID_SDK = ()**<br>
+    The Google Maps SDK for Android version.
+    `i.e. GOOGLE_MAPS_ANDROID_SDK=maps-sdk-3.0.0-beta`.
 
   - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-ios.png) **LOCATION_WHEN_IN_USE_DESCRIPTION**<br>
     This message is displayed when your application requests **LOCATION PERMISSION for only necessary times**.
@@ -112,8 +113,6 @@ For browser platform,
 ## Release Notes
 
   - **v2.8.0**
-    - Important Change: (Android) This plugin uses [Maps SDK for Android v.3.0.0 BETA](https://developers.google.com/maps/documentation/android-sdk/v3-client-migration). **No longer use `com.google.android.gms:play-services-maps` library.**
-      Because of this, this plugin uses `Androidx`.
     - Add: (Android/iOS/Browser) `mapOptions.preferences.restriction` which is able to set the camera bounds.
     - Add: (Android/iOS/Browser) `mapOptions.preferences.clickableIcons` which is able to be disable clicking on POI icons.
     - Bug fix: (Android/iOS/Browser) `mapOptions.preferences.building` does not work.
