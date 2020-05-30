@@ -5,16 +5,16 @@ import android.graphics.Point;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.libraries.maps.OnStreetViewPanoramaReadyCallback;
-import com.google.android.libraries.maps.StreetViewPanorama;
-import com.google.android.libraries.maps.StreetViewPanoramaOptions;
-import com.google.android.libraries.maps.StreetViewPanoramaView;
-import com.google.android.libraries.maps.model.LatLng;
-import com.google.android.libraries.maps.model.StreetViewPanoramaCamera;
-import com.google.android.libraries.maps.model.StreetViewPanoramaLink;
-import com.google.android.libraries.maps.model.StreetViewPanoramaLocation;
-import com.google.android.libraries.maps.model.StreetViewPanoramaOrientation;
-import com.google.android.libraries.maps.model.StreetViewSource;
+import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
+import com.google.android.gms.maps.StreetViewPanorama;
+import com.google.android.gms.maps.StreetViewPanoramaOptions;
+import com.google.android.gms.maps.StreetViewPanoramaView;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
+import com.google.android.gms.maps.model.StreetViewPanoramaLink;
+import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
+import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
+import com.google.android.gms.maps.model.StreetViewSource;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -24,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
-
 
 public class PluginStreetViewPanorama extends MyPlugin implements
     IPluginView, StreetViewPanorama.OnStreetViewPanoramaCameraChangeListener,

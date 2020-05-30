@@ -9,10 +9,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.v4.content.PermissionChecker;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.PermissionChecker;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -37,7 +36,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
 public class PluginLocationService extends CordovaPlugin {
   private Activity activity;
   private final String TAG = "PluginLocationService";

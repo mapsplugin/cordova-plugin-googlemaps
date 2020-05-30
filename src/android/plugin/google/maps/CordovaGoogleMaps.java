@@ -24,7 +24,7 @@ import android.view.ViewTreeObserver;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.libraries.maps.MapsInitializer;
+import com.google.android.gms.maps.MapsInitializer;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
-
 @SuppressWarnings("deprecation")
 public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
   private final String TAG = "GoogleMapsPlugin";

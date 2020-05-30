@@ -17,11 +17,11 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Base64;
 
-import com.google.android.libraries.maps.model.IndoorBuilding;
-import com.google.android.libraries.maps.model.IndoorLevel;
-import com.google.android.libraries.maps.model.LatLng;
-import com.google.android.libraries.maps.model.LatLngBounds;
-import com.google.android.libraries.maps.model.LatLngBounds.Builder;
+import com.google.android.gms.maps.model.IndoorBuilding;
+import com.google.android.gms.maps.model.IndoorLevel;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.LatLngBounds.Builder;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaResourceApi;
