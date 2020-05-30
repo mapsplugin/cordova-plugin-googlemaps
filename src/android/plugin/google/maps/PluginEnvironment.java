@@ -73,17 +73,6 @@ public class PluginEnvironment extends CordovaPlugin {
       return;
     }
 
-    // ------------------------------
-    // Check of Google Maps Android API v2
-    // ------------------------------
-    try {
-      @SuppressWarnings({ "rawtypes" })
-      Class GoogleMapsClass = Class.forName("com.google.android.gms.maps.model.GoogleMap");
-    } catch (Exception e) {
-      Log.e("GoogleMaps", "Error", e);
-      callbackContext.error(e.getMessage());
-      return;
-    }
     callbackContext.success();
   }
 

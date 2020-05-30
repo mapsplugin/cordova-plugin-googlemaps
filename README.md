@@ -112,8 +112,11 @@ For browser platform,
 ## Release Notes
 
   - **v2.8.0**
-    - Important Change: (Android) This plugin uses [Maps SDK for Android v.3.0.0 BETA](https://developers.google.com/maps/documentation/android-sdk/v3-client-migration). **No longer use `com.google.android.gms:play-services-maps` library.**
-      Because of this, this plugin uses `Androidx`.
+    - Important Change: (Android)
+      If `android.useAndroidX=true` and `android.enableJetifier=true` are defined in `gradle.properties`,
+      this plugin uses [Maps SDK for Android v.3.0.0 BETA](https://developers.google.com/maps/documentation/android-sdk/v3-client-migration).
+      If no definition, this plugin uses `com.google.android.gms:play-services-maps`
+
     - Add: (Android/iOS/Browser) `mapOptions.preferences.restriction` which is able to set the camera bounds.
     - Add: (Android/iOS/Browser) `mapOptions.preferences.clickableIcons` which is able to be disable clicking on POI icons.
     - Bug fix: (Android/iOS/Browser) `mapOptions.preferences.building` does not work.
