@@ -3129,17 +3129,19 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
                   hitArea.x = (int)(polyline.getWidth() * density);
                   hitArea.y = hitArea.x;
                   double threshold = calculateDistance(
-                    projection.fromScreenLocation(origin),
-                    projection.fromScreenLocation(hitArea));
-                  touchPoint = isPointOnTheGeodesicLine(points, point, threshold);
-                  if (touchPoint != null) {
+                          projection.fromScreenLocation(origin),
+                          projection.fromScreenLocation(hitArea));
+                  LatLng polyTouchPoint = isPointOnTheGeodesicLine(points, point, threshold);
+                  if (polyTouchPoint != null) {
+                    touchPoint = polyTouchPoint;
                     hitOverlay = polyline;
                     maxZIndex = zIndex;
                     continue;
                   }
                 } else {
-                  touchPoint = isPointOnTheLine(points, point);
-                  if (touchPoint != null) {
+                  LatLng polyTouchPoint = isPointOnTheLine(points, point);
+                  if (polyTouchPoint != null) {
+                    touchPoint = polyTouchPoint;
                     hitOverlay = polyline;
                     maxZIndex = zIndex;
                     continue;
