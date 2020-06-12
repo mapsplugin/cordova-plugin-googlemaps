@@ -285,9 +285,9 @@
   self.isDragging = gesture;
 
   if (self.isDragging) {
-    [self triggerMapEvent:@"map_drag_start"];
+    [self triggerMapEvent:@"map_drag_start" useDebounce:false];
   }
-  [self triggerCameraEvent:@"camera_move_start" position:self.map.camera];
+  [self triggerCameraEvent:@"camera_move_start" position:self.map.camera useDebounce:false];
 }
 
 
@@ -297,9 +297,9 @@
 - (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
 
   if (self.isDragging) {
-    [self triggerMapEvent:@"map_drag"];
+    [self triggerMapEvent:@"map_drag" useDebounce:true];
   }
-  [self triggerCameraEvent:(@"camera_move") position:position];
+  [self triggerCameraEvent:(@"camera_move") position:position useDebounce:true];
 }
 
 /**
@@ -308,9 +308,9 @@
 - (void) mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position
 {
   if (self.isDragging) {
-    [self triggerMapEvent:@"map_drag_end"];
+    [self triggerMapEvent:@"map_drag_end" useDebounce:false];
   }
-  [self triggerCameraEvent:(@"camera_move_end") position:position];
+  [self triggerCameraEvent:(@"camera_move_end") position:position useDebounce:false];
   self.isDragging = NO;
 }
 
@@ -503,13 +503,18 @@
 /**
  * plugin.google.maps.event.MAP_***()) events
  */
-- (void)triggerMapEvent: (NSString *)eventName
+- (void)triggerMapEvent: (NSString *)eventName useDebounce:(BOOL)useDebounce
 {
 
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onMapEvent', args: []});}",
                         self.overlayId, self.overlayId, eventName];
-  [self execJS:jsString];
+
+  if (useDebounce) {
+    [self execJSDebounce:jsString action:eventName];
+  } else {
+    [self execJS:jsString];
+  }
 }
 
 /**
@@ -527,7 +532,7 @@
 /**
  * plugin.google.maps.event.CAMERA_*** events
  */
-- (void)triggerCameraEvent: (NSString *)eventName position:(GMSCameraPosition *)position
+- (void)triggerCameraEvent: (NSString *)eventName position:(GMSCameraPosition *)position useDebounce:(BOOL)useDebounce
 {
 
   NSMutableDictionary *target = [NSMutableDictionary dictionary];
@@ -581,7 +586,12 @@
   NSString* jsString = [NSString
                         stringWithFormat:@"javascript:if('%@' in plugin.google.maps){plugin.google.maps['%@']({evtName: '%@', callback: '_onCameraEvent', args: [%@]});}",
                         self.overlayId, self.overlayId, eventName, sourceArrayString];
-  [self execJS:jsString];
+  
+  if (useDebounce) {
+    [self execJSDebounce:jsString action:eventName];
+  } else {
+    [self execJS:jsString];
+  }
 
   [self syncInfoWndPosition];
 }

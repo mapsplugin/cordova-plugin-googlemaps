@@ -34,4 +34,5 @@
 
 - (id)initWithOptions:(NSDictionary *) options;
 - (void)execJS: (NSString *)jsString;
+- (void)execJSDebounce: (NSString *)jsString action:(NSString *)action;
 @end

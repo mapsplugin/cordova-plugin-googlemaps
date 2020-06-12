@@ -11,6 +11,8 @@
 #import <Cordova/CDVJSON.h>
 #endif
 
+float debounceIntervalSec = 0.1;
+NSMutableDictionary *debounceLastTimestampDict;
 
 @implementation PluginViewController
 
@@ -56,6 +58,20 @@
     [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];
   } else if ([self.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
     [self.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:jsString withObject:nil];
+  }
+}
+
+- (void)execJSDebounce:(NSString *)jsString action:(NSString *)action {
+  if (debounceLastTimestampDict == nil) {
+    debounceLastTimestampDict = [[NSMutableDictionary alloc] init];
+  }
+
+  NSNumber *debounceLastTimestamp = [debounceLastTimestampDict objectForKey:action];
+  double currentTimestamp = [[NSDate date] timeIntervalSince1970];
+
+  if (debounceLastTimestamp == nil || currentTimestamp - [debounceLastTimestamp doubleValue] > debounceIntervalSec) {
+    [self execJS:jsString];
+    [debounceLastTimestampDict setValue:[NSNumber numberWithDouble:currentTimestamp] forKey:action];
   }
 }
 
