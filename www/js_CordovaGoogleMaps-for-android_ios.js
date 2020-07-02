@@ -1,4 +1,5 @@
 
+
 if (!window.Promise) {
   window.Promise = require('./Promise');
 }
@@ -123,9 +124,9 @@ function CordovaGoogleMaps(execCmd) {
 
   self.on('isSuspended_changed', function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'pause', []);
+      cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'pause', []);
     } else {
-      cordova_exec(null, null, 'CordovaGoogleMaps', 'resume', []);
+      cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'resume', []);
     }
   });
 }
@@ -526,10 +527,7 @@ CordovaGoogleMaps.prototype.removeDomTree = function(node) {
     if (isRemoved) {
 
 
-      Object.defineProperty(child, '__pluginDomId', {
-        enumerable: false,
-        value: undefined
-      });
+      child.__pluginDomId = undefined;
 
       // If map div, remove the map also.
       if (child.__pluginMapId) {
@@ -626,7 +624,7 @@ CordovaGoogleMaps.prototype.followMapDivPositionOnly = function(opts) {
 
   // If changed, move the map views.
   if (changed || opts.force) {
-    cordova_exec(null, null, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
+    cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'updateMapPositionOnly', [mapRects]);
     return changed;
   }
   return false;
@@ -733,6 +731,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     if (common.isDom(oldDiv)) {
       Object.defineProperty(oldDiv, '__pluginMapId', {
         enumerable: false,
+        writable: true,
         value: undefined
       });
       ele = oldDiv;
@@ -745,10 +744,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
             delete self.domPositions[elemId];
           }
         }
-        Object.defineProperty(ele, '__pluginDomId', {
-          enumerable: false,
-          value: undefined
-        });
+        ele.__pluginDomId = undefined;
         if (ele.classList) {
           ele.classList.remove('_gmaps_cdv_');
         } else if (ele.className) {
@@ -890,10 +886,7 @@ CordovaGoogleMaps.prototype._remove = function(mapId) {
       }
     }
     if (div) {
-      Object.defineProperty(div, '__pluginMapId', {
-        enumerable: false,
-        value: undefined
-      });
+      div.__pluginMapId = undefined;
     }
 
     var keys = Object.keys(self.domPositions);
@@ -949,7 +942,8 @@ function postPanoramaInit(panorama, div, options) {
   // before creating the map view.
   Object.defineProperty(div, '__pluginMapId', {
     enumerable: false,
-    value: mapId
+    value: mapId,
+    writable: true
   });
   var elemId = common.getPluginDomId(div);
 
@@ -1025,7 +1019,8 @@ function postMapInit(map, div, options) {
     // before creating the map view.
     Object.defineProperty(div, '__pluginMapId', {
       enumerable: false,
-      value: mapId
+      value: mapId,
+      writable: true
     });
     var elemId = common.getPluginDomId(div);
 
