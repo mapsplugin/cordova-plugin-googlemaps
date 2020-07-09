@@ -85,7 +85,6 @@ def replaceFiles(matchingPattern, cvtList, useAndroidX) {
 }
 
 android {
-
   // #1. Find (project)/config.xml file,
   //     because ionic capacitor does not copy <preference> nodes
   def configXmlFile = searchFileInParents("config.xml")
@@ -111,12 +110,6 @@ android {
   Properties props = new Properties()
   def isKeyFound = 0
 
-  props.setProperty("GOOGLE_MAPS_ANDROIDX_CORE_VERSION", "1.3.0");
-  props.setProperty("GOOGLE_MAPS_ANDROID_SDK", "maps-sdk-3.0.0-beta");
-  props.setProperty("GOOGLE_MAPS_APP_COMPAT_VERSION", "1.1.0");
-  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_BASEMENT_VERSION", "17.2.1");
-  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_BASE_VERSION", "17.2.1");
-  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_GCM_VERSION", "17.0.0");
   props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION", "16.0.0");
   props.setProperty("GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION", "27.1.1");
   props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION", "16.1.0");
@@ -130,14 +123,9 @@ android {
       isKeyFound = 1
       props.setProperty(name, value)
     }
-    if (name == "GOOGLE_MAPS_ANDROIDX_CORE_VERSION" ||
-        name == "GOOGLE_MAPS_GOOGLE_MAPS_ANDROID_SDK" ||
-        name == "GOOGLE_MAPS_APP_COMPAT_VERSION" ||
-        name == "GOOGLE_MAPS_PLAY_SERVICES_BASEMENT_VERSION" ||
-        name == "GOOGLE_MAPS_PLAY_SERVICES_BASE_VERSION" ||
-        name == "GOOGLE_MAPS_PLAY_SERVICES_GCM_VERSION" ||
-        name == "GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION"||
-        name == "GOOGLE_MAPS_PLAY_SERVICES_VERSION") {
+    if (name == "GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION"||
+        name == "GOOGLE_MAPS_PLAY_SERVICES_VERSION" ||
+        name == "GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION") {
       props.setProperty(name, value)
     }
   }
@@ -164,47 +152,16 @@ android {
     //----------
     // maps SDK
     //----------
-    def libsDirPath = System.getProperty("user.dir")
-    def libsDir = new File("${libsDirPath}/libs/")
-    if (!libsDir.exists()) {
-      libsDir.mkdirs()
-    }
 
-    def mapsSDK = props.getProperty("GOOGLE_MAPS_ANDROID_SDK")
-    def f = new File("${libsDir.absolutePath}/${mapsSDK}.aar")
-    println("---->GOOGLE_MAPS_ANDROID_SDK = " + f.absolutePath);
-    if (!f.exists()) {
-      new URL("https://dl.google.com/dl/geosdk/${mapsSDK}.aar").withInputStream { i ->
-        f.withOutputStream {
-          it << i
-        }
-      }
-    }
-
-    //-------------
-    // dependencies
-    //-------------
-    def ANDROIDX_CORE_VERSION = props.getProperty("GOOGLE_MAPS_ANDROIDX_CORE_VERSION")
-    def APP_COMPAT_VERSION = props.getProperty("GOOGLE_MAPS_APP_COMPAT_VERSION")
-    def PLAY_SERVICES_BASEMENT_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_BASEMENT_VERSION")
-    def PLAY_SERVICES_BASE_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_BASE_VERSION")
-    def PLAY_SERVICES_GCM_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_GCM_VERSION")
-    def PLAY_SERVICES_LOCATION_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION")
-
-    println("---->GOOGLE_MAPS_ANDROIDX_CORE_VERSION = ${ANDROIDX_CORE_VERSION}")
-    println("---->GOOGLE_MAPS_APP_COMPAT_VERSION = ${APP_COMPAT_VERSION}")
-    println("---->GOOGLE_MAPS_PLAY_SERVICES_BASEMENT_VERSION = ${PLAY_SERVICES_BASEMENT_VERSION}")
-    println("---->GOOGLE_MAPS_PLAY_SERVICES_BASE_VERSION = ${PLAY_SERVICES_BASE_VERSION}")
-    println("---->GOOGLE_MAPS_PLAY_SERVICES_GCM_VERSION = ${PLAY_SERVICES_GCM_VERSION}")
-    println("---->GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION = ${PLAY_SERVICES_LOCATION_VERSION}")
     dependencies {
-      implementation name: mapsSDK, ext: 'aar'
-      implementation "androidx.appcompat:appcompat:${APP_COMPAT_VERSION}"
-      implementation "com.google.android.gms:play-services-basement:${PLAY_SERVICES_BASEMENT_VERSION}"
-      implementation "com.google.android.gms:play-services-base:${PLAY_SERVICES_BASE_VERSION}"
-      implementation "com.google.android.gms:play-services-gcm:${PLAY_SERVICES_GCM_VERSION}"
-      implementation "com.google.android.gms:play-services-location:${PLAY_SERVICES_LOCATION_VERSION}"
+      implementation 'com.google.android.libraries.maps:maps:3.1.0-beta'
+      implementation 'com.android.support:multidex:1.0.3'
     }
+
+    defaultConfig {
+      multiDexEnabled true
+    }
+
   } else {
     def PLAY_SERVICES_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION")
     def PLAY_SERVICES_LOCATION_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION")

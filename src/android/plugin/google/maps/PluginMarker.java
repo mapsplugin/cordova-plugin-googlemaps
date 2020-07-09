@@ -1150,8 +1150,8 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface {
           self.pluginMap.objects.remove(markerImgSizeTag);
           self.pluginMap.objects.put(markerImgSizeTag, imageSize);
 
-          result.image.recycle();
-          result.image = null;
+//          result.image.recycle();   // cause crash on maps-sdk-3.1.0-beta
+//          result.image = null;
 
           // The `anchor` of the `icon` property
           if (iconProperty.containsKey("anchor")) {
