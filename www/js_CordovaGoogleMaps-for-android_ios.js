@@ -733,7 +733,7 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       ele = oldDiv;
       while(ele) {
         elemId = ele.__pluginDomId;
-        if (elemId) {
+        if (elemId && (elemId in self.domPositions)) {
           self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
           delete self.domPositions[elemId].containMapIDs[mapId];
 

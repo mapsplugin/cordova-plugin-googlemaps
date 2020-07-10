@@ -809,7 +809,7 @@ Map.prototype.remove = function(callback) {
     active_marker.trigger(event.INFO_CLOSE);
   }
 
-  var clearObj = function(obj) {ƒ
+  var clearObj = function(obj) {
     var ids = Object.keys(obj);
     var id, instance;
     for (var i = 0; i < ids.length; i++) {
