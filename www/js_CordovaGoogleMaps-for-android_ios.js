@@ -729,41 +729,49 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
     var elemId, ele;
 
     if (common.isDom(oldDiv)) {
-      Object.defineProperty(oldDiv, '__pluginMapId', {
-        enumerable: false,
-        writable: true,
-        value: undefined
-      });
+      oldDiv.__pluginMapId = undefined;
       ele = oldDiv;
-      while(ele && ele != document.body.parentNode) {
+      while(ele) {
         elemId = ele.__pluginDomId;
         if (elemId) {
           self.domPositions[elemId].containMapIDs = self.domPositions[elemId].containMapIDs || {};
           delete self.domPositions[elemId].containMapIDs[mapId];
+
+          // If there is no map under this element, remove the '_gmaps_cdv'
           if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
             delete self.domPositions[elemId];
+            common.detachTransparentClass(ele);
           }
         }
         ele.__pluginDomId = undefined;
-        if (ele.classList) {
-          ele.classList.remove('_gmaps_cdv_');
-        } else if (ele.className) {
-          ele.className = ele.className.replace(/_gmaps_cdv_/g, '');
-          ele.className = ele.className.replace(/\s+/g, ' ');
-        }
         ele = ele.parentNode;
       }
     }
 
+    var background = undefined;
     if (common.isDom(newDiv)) {
 
       elemId = common.getPluginDomId(newDiv);
 
       elem = newDiv;
       var isCached;
+      var bg;
       while(elem && elem.nodeType === Node.ELEMENT_NODE) {
         elemId = common.getPluginDomId(elem);
         if (common.shouldWatchByNative(elem)) {
+          if (!common.hasTransparentClass(elem)) {
+            bg = common.getStyle(elem, '--background');
+            if (!bg) {
+              bg = common.getStyle(elem, 'background-color');
+            }
+            bg = (bg || "").trim();
+            background = background || bg;
+
+            // Add _gmaps_cdv_ class
+            common.attachTransparentClass(elem);
+          }
+
+
           if (elem.shadowRoot) {
             elem.shadowRoot.addEventListener('transitionend', self.onTransitionEnd.bind(self), {capture: true});
             elem.shadowRoot.addEventListener('scroll', self.followMaps.bind(self), {capture: true});
@@ -788,6 +796,11 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
       elemId = common.getPluginDomId(newDiv);
       self.domPositions[elemId].isMap = true;
+
+      background = background || '#FFFFFFFF';
+      console.log(`background = ${background}`);
+      background = common.HTMLColor2RGBA(background);
+      plugin.google.maps.environment.setBackgroundColor(background);
     }
   };
 
@@ -895,6 +908,7 @@ CordovaGoogleMaps.prototype._remove = function(mapId) {
       delete self.domPositions[elemId].containMapIDs[mapId];
       if ((Object.keys(self.domPositions[elemId].containMapIDs)).length < 1) {
         delete self.domPositions[elemId];
+//        common.detachTransparentClass(ele);
       }
     });
     self.MAPS[mapId].destroy();
@@ -903,10 +917,19 @@ CordovaGoogleMaps.prototype._remove = function(mapId) {
   delete self.MAPS[mapId];
   map = undefined;
 
+
   // If the app have no map, stop the native timer.
   if ((Object.keys(self.MAPS)).length === 0) {
     common._clearInternalCache();
     self.pause();
+
+    var ele = document.body.parentElement;
+    if (ele.classList) {
+      ele.classList.remove('_gmaps_cdv_');
+    } else if (ele.className) {
+      ele.className = ele.className.replace(/_gmaps_cdv_/g, '');
+      ele.className = ele.className.replace(/\s+/g, ' ');
+    }
   }
 };
 

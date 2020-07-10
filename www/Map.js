@@ -254,9 +254,6 @@ Map.prototype.getMap = function(meta, div, options) {
     _isReady: true
   }, function() {
 
-    //------------------------------------------------------------------------
-    // Clear background colors of map div parents after the map is created
-    //------------------------------------------------------------------------
     var div = self.get('div');
     if (common.isDom(div)) {
 
@@ -278,28 +275,6 @@ Map.prototype.getMap = function(meta, div, options) {
       div.insertBefore(self._layers.info, div.firstChild);
 
 
-      var background = undefined;
-      var bg;
-      while (div.parentNode) {
-        bg = common.getStyle(div, '--background');
-        if (!bg) {
-          bg = common.getStyle(div, 'background-color');
-        }
-        bg = (bg || "").trim();
-        background = background || bg;
-          // console.log(`background = ${background}`);
-        // div.style.backgroundColor = 'rgba(0,0,0,0) !important';
-
-        // Add _gmaps_cdv_ class
-        common.attachTransparentClass(div);
-
-        div = div.parentNode;
-      }
-
-      if (background) {
-        background = common.HTMLColor2RGBA(background);
-        plugin.google.maps.environment.setBackgroundColor(background);
-      }
     }
     cordova.fireDocumentEvent('plugin_touch', {
       force: true
@@ -807,6 +782,7 @@ Map.prototype.remove = function(callback) {
     writable: false
   });
   self.stopAnimation();
+  self.set('div', null);
 
   self.trigger('remove');
   // var div = self.get('div');
@@ -833,7 +809,7 @@ Map.prototype.remove = function(callback) {
     active_marker.trigger(event.INFO_CLOSE);
   }
 
-  var clearObj = function(obj) {
+  var clearObj = function(obj) {ƒ
     var ids = Object.keys(obj);
     var id, instance;
     for (var i = 0; i < ids.length; i++) {
@@ -852,7 +828,6 @@ Map.prototype.remove = function(callback) {
 
   clearObj(self.OVERLAYS);
   clearObj(self.MARKERS);
-  self[SUBSCRIPTIONS_FIELD] = null;
 
 
   var resolver = function(resolve, reject) {
@@ -914,20 +889,22 @@ Map.prototype.setDiv = function(div) {
   var self = this,
     args = [];
 
-  if (!common.isDom(div)) {
-    div = self.get('div');
-    if (common.isDom(div)) {
+  var prevDiv = self.get('div');
+  if (common.isDom(prevDiv)) {
+    prevDiv.__pluginMapId = undefined;
+  }
+
+  if (common.isDom(div)) {
+    var elemId = common.getPluginDomId(div);
+    args.push(elemId);
+
+    if (!div.__pluginMapId) {
       Object.defineProperty(div, '__pluginMapId', {
         enumerable: false,
-        value: undefined
+        writable: true,
+        value: self.__pgmId
       });
     }
-    self.set('div', null);
-  } else {
-    Object.defineProperty(div, '__pluginMapId', {
-      enumerable: false,
-      value: self.__pgmId
-    });
 
     // Insert the infoWindow layer
     if (self._layers.info.parentNode) {
@@ -955,43 +932,9 @@ Map.prototype.setDiv = function(div) {
     div.style.overflow = 'hidden';
     div.style.position = 'relative';
 
-    self.set('div', div);
-
-    if (cordova.platform === 'browser') {
-      return Promise.resolve();
-    }
-
-
-    positionCSS = common.getStyle(div, 'position');
-    if (!positionCSS || positionCSS === 'static') {
-      div.style.position = 'relative';
-    }
-    var elemId = common.getPluginDomId(div);
-    args.push(elemId);
-
-    var background = undefined;
-    var bg;
-    while (div.parentNode) {
-      bg = common.getStyle(div, '--background');
-      if (!bg) {
-        bg = common.getStyle(div, 'background-color');
-      }
-      bg = (bg || "").trim();
-      background = background || bg;
-        // console.log(`background = ${background}`);
-      // div.style.backgroundColor = 'rgba(0,0,0,0) !important';
-
-      // Add _gmaps_cdv_ class
-      common.attachTransparentClass(div);
-
-      div = div.parentNode;
-    }
-
-    if (background) {
-      background = common.HTMLColor2RGBA(background);
-      plugin.google.maps.environment.setBackgroundColor(background);
-    }
   }
+  self.set('div', div);
+
   return (new Promise(function(resolve) {
     self.exec.call(self, function() {
       cordova.fireDocumentEvent('plugin_touch', {

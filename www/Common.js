@@ -734,6 +734,11 @@ function createEvent(eventName, properties) {
   return evt;
 }
 
+function hasTransparentClass(div) {
+  return (div.classList && div.classList.contains('_gmaps_cdv_') ||
+    div.className && div.className.indexOf('_gmaps_cdv_') > -1);
+}
+
 function attachTransparentClass(div) {
 
   if (div.classList && !div.classList.contains('_gmaps_cdv_')) {
@@ -744,36 +749,32 @@ function attachTransparentClass(div) {
 
   if (div.shadowRoot) {
     var styleAttr = div.getAttribute('style') || '';
-    if (styleAttr && styleAttr.indexOf('--ion-background-color') === -1) {
-      styleAttr = styleAttr + ' --ion-background-color: transparent;';
+    if (styleAttr && styleAttr.indexOf('--pgm-background-color') === -1) {
+      styleAttr = styleAttr + ' --ion-background-color: var(--pgm-background-color);';
     }
     div.setAttribute('style', styleAttr);
   }
 }
-// function dettachTransparentClass(root) {
-//
-//   if (div.classList && div.classList.contains('_gmaps_cdv_')) {
-//     div.classList.remove('_gmaps_cdv_');
-//   } else if (div.className && div.className.indexOf('_gmaps_cdv_') === -1) {
-//     div.className = div.className.replace('_gmaps_cdv_', '');
-//   }
-//
-//   var visibilityCSS = getStyle(node, 'visibility');
-//   if (getStyle(div, 'background-color') === 'transparent !important') {
-//     div.style.backgroundColor = undefined;
-//   }
-//   if (getStyle(div, 'background') === 'transparent !important') {
-//     div.style.backgroundColor = undefined;
-//   }
-//   if (getStyle(div, 'background-image') === 'transparent !important') {
-//     div.style.backgroundImage = undefined;
-//   }
-//   if (div.shadowRoot) {
-//     var hiddenChildren = div.querySelectorAll('*');
-//     hiddenChildren = Array.prototype.splice(hiddenChildren, 0);
-//     hiddenChildren.forEach(dettachTransparentClass);
-//   }
-// }
+function detachTransparentClass(div) {
+
+  if (div.classList && div.classList.contains('_gmaps_cdv_')) {
+    div.classList.remove('_gmaps_cdv_');
+  } else if (div.className && div.className.indexOf('_gmaps_cdv_') > -1) {
+    div.className = div.className.replace('_gmaps_cdv_', '');
+  }
+
+  if (div.shadowRoot) {
+    var styleAttr = div.getAttribute('style') || '';
+    if (styleAttr && styleAttr.indexOf('--pgm-background-color') > -1) {
+      styleAttr = styleAttr.replace('--ion-background-color: var(--pgm-background-color);', '');
+    }
+    div.setAttribute('style', styleAttr);
+
+    var hiddenChildren = div.querySelectorAll('*');
+    hiddenChildren = Array.prototype.splice(hiddenChildren, 0);
+    hiddenChildren.forEach(detachTransparentClass);
+  }
+}
 
 module.exports = {
   _clearInternalCache: _clearInternalCache,
@@ -797,8 +798,9 @@ module.exports = {
   getPluginDomId: getPluginDomId,
   hashCode: hashCode,
   createEvent: createEvent,
-  //dettachTransparentClass: dettachTransparentClass,
-  attachTransparentClass: attachTransparentClass
+  detachTransparentClass: detachTransparentClass,
+  attachTransparentClass: attachTransparentClass,
+  hasTransparentClass: hasTransparentClass
 };
 
 if (cordova && cordova.platformId === 'browser') {

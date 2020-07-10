@@ -90,10 +90,11 @@ function pluginInit() {
   var cssAdjuster = document.createElement('style');
   cssAdjuster.setAttribute('type', 'text/css');
   cssAdjuster.innerText = [
-    'html, body, ._gmaps_cdv_ {',
+    '._gmaps_cdv_ {',
     '   background-image: none !important;',
     '   background: rgba(0,0,0,0) none !important;',
     '   background-color: rgba(0,0,0,0) !important;',
+    '   --pgm-background-color: transparent !important;',
     '}',
     '._gmaps_cdv_ .nav-decor {',
     '   background-color: rgba(0,0,0,0) !important;',
