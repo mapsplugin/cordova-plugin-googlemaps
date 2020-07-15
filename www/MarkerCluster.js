@@ -1003,10 +1003,15 @@ Object.defineProperty(MarkerCluster.prototype, '_redraw', {
         }
 
         unionedMarkers.forEach(function (cluster) {
-
+          var number=0;
+          for (var f=0;f<cluster._markerArray.length;f++) {
+            if (typeof cluster._markerArray[f].get('number')!=undefined) {
+              number+=parseInt(cluster._markerArray[f].get('number'));
+            }
+          }
           var icon = self.getClusterIcon(cluster),
             clusterOpts = {
-              'count': cluster.getItemLength(),
+              'count':  (number)? number:cluster.getItemLength(),
               'position': cluster.getBounds().getCenter(),
               '__pgmId': cluster.getId()
             };
