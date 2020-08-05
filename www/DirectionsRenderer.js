@@ -52,10 +52,7 @@ var DirectionsRenderer = function(map, exec, options) {
     value: new BaseArrayClass(),
     writable: false
   });
-  Object.defineProperty(self, 'waypoints', {
-    value: new BaseArrayClass(),
-    writable: false
-  });
+
 
   Object.defineProperty(self, 'pathList', {
     value: new BaseArrayClass(),
