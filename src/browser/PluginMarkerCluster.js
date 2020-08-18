@@ -353,7 +353,7 @@ PluginMarkerCluster.prototype.redrawClusters = function(onSuccess, onError, args
                 }
                 self.pluginMarkers[clusterId_markerId] = STATUS.DELETED;
 
-                console.warn(error.getMessage());
+                console.warn(`Error loading marker`);
                 self.deleteMarkers.push(clusterId_markerId);
                 resolve();
               });
