@@ -102,12 +102,12 @@
 
       // Since this plugin provide own click detection,
       // disable default clickable feature.
-      polyline.tappable = NO;
+      polyline.tappable = [[json valueForKey:@"clickable"] boolValue];
 
       NSString *id = [NSString stringWithFormat:@"polyline_%@", idBase];
       [self.mapCtrl.objects setObject:polyline forKey: id];
       polyline.title = id;
-
+      
       // Run the below code on background thread.
       [self.mapCtrl.executeQueue addOperationWithBlock:^{
 
@@ -121,7 +121,7 @@
           // Keep the properties
           //---------------------------
           NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%@", idBase];
-
+          
           // points
           NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
           [properties setObject:mutablePath forKey:@"mutablePath"];
