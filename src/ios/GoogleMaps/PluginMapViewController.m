@@ -64,11 +64,32 @@
     [self execJS:jsString];
 }
 
+- (void)mapView:(GMSMapView *)mapView didTapOverlay:(GMSOverlay *)overlay {
+    NSLog(@"--> key = %@, did tap an overlay", overlay.title);
+    
+    if (![overlay.title hasPrefix:@"polyline_"]) {
+        return;
+    }
+    
+    NSArray *tmp = [overlay.title componentsSeparatedByString:@"_"];
+    NSString *eventName = [NSString stringWithFormat:@"%@_click", [tmp objectAtIndex:0]];
+    NSString *propertyId = [NSString stringWithFormat:@"polyline_property_%@", [tmp objectAtIndex:1]];
+    NSDictionary *properties = [self.objects objectForKey: propertyId];
+    
+    if (!properties) {
+        NSLog(@"--> object properties not found for key=%@", propertyId);
+        return;
+    }
+
+    GMSCoordinateBounds *bounds = (GMSCoordinateBounds *)[properties objectForKey:@"bounds"];
+
+    [self triggerOverlayEvent: eventName overlayId: overlay.title coordinate: bounds.center];
+}
+
 /**
  * @callback the my location button is clicked.
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
-
 
   if (self.activeMarker) {
     /*
@@ -205,7 +226,7 @@
       continue;
     }
 
-    if ([key hasPrefix:@"polyline_"]) {
+    /*if ([key hasPrefix:@"polyline_"]) {
       geodesic = (NSNumber *)[properties objectForKey:@"geodesic"];
       path = (GMSPath *)[properties objectForKey:@"mutablePath"];
       if ([geodesic boolValue] == YES) {
@@ -216,14 +237,14 @@
           continue;
         }
       } else {
-        touchPoint = [PluginUtil isPointOnTheLine:path coordinate:coordinate projection:self.map.projection];
-        if (CLLocationCoordinate2DIsValid(touchPoint)) {
+          touchPoint = [PluginUtil isPointOnTheLine:path coordinate:coordinate projection:self.map.projection];
+          if (CLLocationCoordinate2DIsValid(touchPoint)) {
           maxZIndex = zIndex;
           hitKey = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
           continue;
         }
       }
-    }
+    }*/
 
     if ([key hasPrefix:@"polygon_"]) {
       path = (GMSPath *)[properties objectForKey:@"mutablePath"];
@@ -234,7 +255,6 @@
         continue;
       }
     }
-
 
     if ([key hasPrefix:@"circle_"]) {
       key = [key stringByReplacingOccurrencesOfString:@"_property" withString:@""];
