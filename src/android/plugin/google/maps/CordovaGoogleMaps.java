@@ -468,14 +468,12 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     String mapId = meta.getString("__pgmId");
     Log.d(TAG, "---> mapId = " + mapId);
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
-    pluginStreetView.privateInitialize(mapId, cordova, webView, null);
-    pluginStreetView.initialize(cordova, webView);
-    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
-    pluginStreetView.self = pluginStreetView;
-
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
     pluginManager.addService(pluginEntry);
 
+    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
+    pluginStreetView.self = pluginStreetView;
+    
     pluginStreetView.getPanorama(args, callbackContext);
   }
 
