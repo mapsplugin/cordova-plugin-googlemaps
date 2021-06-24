@@ -657,10 +657,10 @@ KmlLoader.prototype.parsePolygonTag = function(params, callback) {
           polygonOptions.fillColor = kmlColorToRGBA(node.value);
           break;
         case 'fill':
-          polygonOptions.fill = node.value === '1';
+          polygonOptions.fill = node.value === '1' || node.value === 'true';
           break;
         case 'outline':
-          polygonOptions.outline = node.value === '1';
+          polygonOptions.outline = node.value === '1' || node.value === 'true';
           break;
         }
       });
