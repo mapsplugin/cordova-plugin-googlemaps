@@ -435,6 +435,9 @@ public class MyPluginLayout extends FrameLayout implements ViewTreeObserver.OnSc
       String maxDomId = null;
       RectF rect, rect2, rect3;
       Bundle domInfo = HTMLNodes.get(domId);
+      if (domInfo == null){
+        return null;
+      }
       Bundle zIndexProp;
       int containMapCnt = 0;
       if (domInfo.containsKey("containMapIDs")) {
