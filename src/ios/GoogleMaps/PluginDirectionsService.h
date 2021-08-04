@@ -13,6 +13,5 @@
 @interface PluginDirectionsService : CDVPlugin
 
 @property (nonatomic, strong) NSOperationQueue *executeQueue;
-- (void)getElevationAlongPath:(CDVInvokedUrlCommand*)command;
-- (void)getElevationForLocations:(CDVInvokedUrlCommand*)command;
+- (void)route:(CDVInvokedUrlCommand*)command;
 @end

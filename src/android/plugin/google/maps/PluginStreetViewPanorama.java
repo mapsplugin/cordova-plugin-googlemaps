@@ -1,24 +1,25 @@
 package plugin.google.maps;
 
-import android.app.Activity;
 import android.graphics.Point;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
-import com.google.android.gms.maps.StreetViewPanorama;
-import com.google.android.gms.maps.StreetViewPanoramaOptions;
-import com.google.android.gms.maps.StreetViewPanoramaView;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
-import com.google.android.gms.maps.model.StreetViewPanoramaLink;
-import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
-import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
-import com.google.android.gms.maps.model.StreetViewSource;
+import com.google.android.libraries.maps.OnStreetViewPanoramaReadyCallback;
+import com.google.android.libraries.maps.StreetViewPanorama;
+import com.google.android.libraries.maps.StreetViewPanoramaOptions;
+import com.google.android.libraries.maps.StreetViewPanoramaView;
+import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.StreetViewPanoramaCamera;
+import com.google.android.libraries.maps.model.StreetViewPanoramaLink;
+import com.google.android.libraries.maps.model.StreetViewPanoramaLocation;
+import com.google.android.libraries.maps.model.StreetViewPanoramaOrientation;
+import com.google.android.libraries.maps.model.StreetViewSource;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,49 +31,29 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     StreetViewPanorama.OnStreetViewPanoramaChangeListener,
     StreetViewPanorama.OnStreetViewPanoramaClickListener {
 
-  private Activity mActivity;
   private StreetViewPanoramaView panoramaView;
   private StreetViewPanorama panorama;
-  private String panoramaId;
-  private boolean isVisible = true;
-  private boolean isClickable = true;
-  private final String TAG = "StreetView";
-  private String divId;
-  private int viewDepth = 0;
+  private MetaPluginView meta;
+
+  public StreetViewPanorama getStreetViewPanorama() {
+    return panorama;
+  }
 
   @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
-    super.initialize(cordova, webView);
-    mActivity = cordova.getActivity();
-  }
-
-  public int getViewDepth() {
-    return viewDepth;
-  }
-  public String getDivId() {
-    return this.divId;
-  }
-  public String getOverlayId() {
-    return this.panoramaId;
-  }
   public ViewGroup getView() {
-    return this.panoramaView;
+    return panoramaView;
   }
 
-
-  public boolean getVisible() {
-    return isVisible;
-  }
-  public boolean getClickable() {
-    return isClickable;
-  }
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    JSONObject meta = args.getJSONObject(0);
-    panoramaId = meta.getString("__pgmId");
-    viewDepth = meta.getInt("depth");
+    JSONObject metaJS = args.getJSONObject(0);
+    String panoramaId = metaJS.getString("__pgmId");
+    meta = new MetaPluginView(panoramaId);
+    meta.viewDepth = metaJS.getInt("depth");
+    meta.isVisible = true;
+    meta.isClickable = true;
 
     JSONObject jsOptions = args.getJSONObject(1);
-    divId = args.getString(2);
+    meta.divId = args.getString(2);
 
     StreetViewPanoramaOptions svOptions = new StreetViewPanoramaOptions();
     if (jsOptions.has("camera")) {
@@ -137,13 +118,14 @@ public class PluginStreetViewPanorama extends MyPlugin implements
         svOptions.streetNamesEnabled(controls.getBoolean("streetNames"));
       }
     }
-    panoramaView = new StreetViewPanoramaView(mActivity, svOptions);
-
-    mActivity.runOnUiThread(new Runnable() {
+    activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
+
+        panoramaView = new StreetViewPanoramaView(activity, svOptions);
+
         panoramaView.onCreate(null);
-        panoramaView.setTag(getViewDepth());
+        panoramaView.setTag(meta);
 
         panoramaView.getStreetViewPanoramaAsync(new OnStreetViewPanoramaReadyCallback() {
           @Override
@@ -155,16 +137,26 @@ public class PluginStreetViewPanorama extends MyPlugin implements
             panorama.setOnStreetViewPanoramaChangeListener(PluginStreetViewPanorama.this);
             panorama.setOnStreetViewPanoramaClickListener(PluginStreetViewPanorama.this);
 
+
             // Don't support this because iOS does not support this feature.
             //panorama.setOnStreetViewPanoramaLongClickListener(PluginStreetViewPanorama.this);
 
-
-            mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
+            CordovaGoogleMaps.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
             callbackContext.success();
           }
         });
       }
     });
+  }
+
+  public PluginStreetViewPanorama getInstance(String mapId) {
+    return (PluginStreetViewPanorama) CordovaGoogleMaps.viewPlugins.get(mapId);
+  }
+
+
+  @Override
+  public MetaPluginView getMeta() {
+    return meta;
   }
 
   @Override
@@ -191,167 +183,140 @@ public class PluginStreetViewPanorama extends MyPlugin implements
     //mapCtrl.mPluginLayout.addPluginOverlay(PluginStreetViewPanorama.this);
   }
 
-  public void attachToWebView(JSONArray args, final CallbackContext callbackContext) {
-    mapCtrl.mPluginLayout.addPluginOverlay(this);
-    callbackContext.success();
-  }
-
-  public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) {
-    mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
-    callbackContext.success();
-  }
-
+  @PgmPluginMethod(runOnUiThread = true)
   public void setPanningGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final boolean boolValue = args.getBoolean(0);
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        panorama.setPanningGesturesEnabled(boolValue);
-        callbackContext.success();
-      }
-    });
+    boolean isGestureEnabled = args.getBoolean(1);
+    panorama.setPanningGesturesEnabled(isGestureEnabled);
+    callbackContext.success();
   }
 
+  @PgmPluginMethod(runOnUiThread = true)
   public void setZoomGesturesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final boolean boolValue = args.getBoolean(0);
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        panorama.setZoomGesturesEnabled(boolValue);
-        callbackContext.success();
-      }
-    });
+    boolean isZoomGestureEnabled = args.getBoolean(1);
+    panorama.setZoomGesturesEnabled(isZoomGestureEnabled);
+    callbackContext.success();
   }
 
+  @PgmPluginMethod(runOnUiThread = true)
   public void setNavigationEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final boolean boolValue = args.getBoolean(0);
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        panorama.setUserNavigationEnabled(boolValue);
-        callbackContext.success();
-      }
-    });
+    boolean isNavigationEnabled = args.getBoolean(1);
+    panorama.setUserNavigationEnabled(isNavigationEnabled);
+    callbackContext.success();
   }
 
+  @PgmPluginMethod(runOnUiThread = true)
   public void setStreetNamesEnabled(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final boolean boolValue = args.getBoolean(0);
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        panorama.setStreetNamesEnabled(boolValue);
-        callbackContext.success();
-      }
-    });
+    boolean isStreetNamesEnabled = args.getBoolean(1);
+    panorama.setStreetNamesEnabled(isStreetNamesEnabled);
+    callbackContext.success();
   }
+
+  @PgmPluginMethod(runOnUiThread = true)
   public void setVisible(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final boolean boolValue = args.getBoolean(0);
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        panoramaView.setVisibility(boolValue ? View.VISIBLE : View.INVISIBLE);
-        callbackContext.success();
-      }
-    });
+    boolean isVisible = args.getBoolean(1);
+    panoramaView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+    callbackContext.success();
   }
 
 
+  @PgmPluginMethod(runOnUiThread = true)
   public void setPosition(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
+    JSONObject cameraOpts = args.getJSONObject(1);
+    Object target = cameraOpts.get("target");
 
-        try {
-          JSONObject cameraOpts = args.getJSONObject(0);
-          Object target = cameraOpts.get("target");
+    if (target instanceof JSONObject) {
+      JSONObject targetJson = (JSONObject)target;
+      LatLng position = new LatLng(targetJson.getDouble("lat"), targetJson.getDouble("lng"));
 
-          if (target instanceof JSONObject) {
-            JSONObject targetJson = (JSONObject)target;
-            LatLng position = new LatLng(targetJson.getDouble("lat"), targetJson.getDouble("lng"));
-
-            if (cameraOpts.has("source")) {
-              StreetViewSource source = "OUTDOOR".equals(cameraOpts.getString("source")) ?
-                  StreetViewSource.OUTDOOR : StreetViewSource.DEFAULT;
-              if (cameraOpts.has("radius")) {
-                panorama.setPosition(position, cameraOpts.getInt("radius"), source);
-              } else {
-                panorama.setPosition(position, source);
-              }
-            } else {
-              if (cameraOpts.has("radius")) {
-                panorama.setPosition(position, cameraOpts.getInt("radius"));
-              } else {
-                panorama.setPosition(position);
-              }
-            }
-          } else if (target instanceof String) {
-            panorama.setPosition(cameraOpts.getString("target"));
-          }
-
-          callbackContext.success();
-        } catch (JSONException e) {
-          e.printStackTrace();
-          callbackContext.error("" + e.getMessage());
+      if (cameraOpts.has("source")) {
+        StreetViewSource source = "OUTDOOR".equals(cameraOpts.getString("source")) ?
+            StreetViewSource.OUTDOOR : StreetViewSource.DEFAULT;
+        if (cameraOpts.has("radius")) {
+          panorama.setPosition(position, cameraOpts.getInt("radius"), source);
+        } else {
+          panorama.setPosition(position, source);
+        }
+      } else {
+        if (cameraOpts.has("radius")) {
+          panorama.setPosition(position, cameraOpts.getInt("radius"));
+        } else {
+          panorama.setPosition(position);
         }
       }
-    });
+    } else if (target instanceof String) {
+      panorama.setPosition(cameraOpts.getString("target"));
+    }
+
+    callbackContext.success();
   }
 
+  @PgmPluginMethod(runOnUiThread = true)
   public void setPov(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
+    final JSONObject cameraPosition = args.getJSONObject(1);
 
-        try {
-          final JSONObject cameraPosition = args.getJSONObject(0);
+    StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
+    float bearing = cameraPosition.has("bearing") ? (float) cameraPosition.getDouble("bearing") : currentCamera.bearing;
+    float tilt = cameraPosition.has("tilt") ? (float) cameraPosition.getDouble("tilt") : currentCamera.tilt;
+    float zoom = cameraPosition.has("zoom") ? (float) cameraPosition.getDouble("zoom") : currentCamera.zoom;
+    long duration = cameraPosition.has("duration") ? (long) cameraPosition.getDouble("duration") : 1000;
 
-          StreetViewPanoramaCamera currentCamera = panorama.getPanoramaCamera();
-          float bearing = cameraPosition.has("bearing") ? (float) cameraPosition.getDouble("bearing") : currentCamera.bearing;
-          float tilt = cameraPosition.has("tilt") ? (float) cameraPosition.getDouble("tilt") : currentCamera.tilt;
-          float zoom = cameraPosition.has("zoom") ? (float) cameraPosition.getDouble("zoom") : currentCamera.zoom;
-          long duration = cameraPosition.has("duration") ? (long) cameraPosition.getDouble("duration") : 1000;
+    StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera.Builder()
+                                              .bearing(bearing)
+                                                  .zoom(zoom)
+                                                  .tilt(tilt)
+                                                  .build();
+    panorama.animateTo(newCamera, duration);
 
-          StreetViewPanoramaCamera newCamera = new StreetViewPanoramaCamera.Builder()
-                                                    .bearing(bearing)
-                                                        .zoom(zoom)
-                                                        .tilt(tilt)
-                                                        .build();
-          panorama.animateTo(newCamera, duration);
-
-          callbackContext.success();
-        } catch (Exception e) {
-          e.printStackTrace();
-          callbackContext.error("" + e.getMessage());
-        }
-      }
-    });
+    callbackContext.success();
   }
 
-  public void remove(JSONArray args, final CallbackContext callbackContext) {
-    mapCtrl.mPluginLayout.removePluginOverlay(this.panoramaId);
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        panorama.setOnStreetViewPanoramaLongClickListener(null);
-        panorama.setOnStreetViewPanoramaClickListener(null);
-        panorama.setOnStreetViewPanoramaChangeListener(null);
-        panorama.setOnStreetViewPanoramaCameraChangeListener(null);
+  @PgmPluginMethod(runOnUiThread = true)
+  public void remove(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String panoramaId = args.getString(0);
+    PluginStreetViewPanorama instance = this.getInstance(panoramaId);
+    panorama = instance.getStreetViewPanorama();
 
-        System.gc();
-        Runtime.getRuntime().gc();
-        if (callbackContext != null) {
-          callbackContext.success();
-        }
-        PluginStreetViewPanorama.this.onDestroy();
-      }
-    });
+    CordovaGoogleMaps.mPluginLayout.removePluginOverlay(panoramaId);
+
+    panorama.setOnStreetViewPanoramaLongClickListener(null);
+    panorama.setOnStreetViewPanoramaClickListener(null);
+    panorama.setOnStreetViewPanoramaChangeListener(null);
+    panorama.setOnStreetViewPanoramaCameraChangeListener(null);
+
+    System.gc();
+    Runtime.getRuntime().gc();
+    if (callbackContext != null) {
+      callbackContext.success();
+    }
+    PluginStreetViewPanorama.this.onDestroy();
   }
 
   @Override
@@ -368,6 +333,8 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 //      orientation.put("tilt", svOrientation.tilt);
 //      camera.put("orientation", orientation);
 
+      String panoramaId = this.meta.getPluginId();
+
       String jsonStr = camera.toString(0);
       jsCallback(
           String.format(
@@ -382,7 +349,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   }
 
   private void jsCallback(final String js) {
-    this.mActivity.runOnUiThread(new Runnable() {
+    activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         webView.loadUrl(js);
@@ -392,6 +359,8 @@ public class PluginStreetViewPanorama extends MyPlugin implements
 
   @Override
   public void onStreetViewPanoramaChange(StreetViewPanoramaLocation streetViewPanoramaLocation) {
+    String panoramaId = this.meta.getPluginId();
+
     try {
       String jsonStr = "null";
       if (streetViewPanoramaLocation != null) {
@@ -429,6 +398,7 @@ public class PluginStreetViewPanorama extends MyPlugin implements
   @Override
   public void onStreetViewPanoramaClick(StreetViewPanoramaOrientation streetViewPanoramaOrientation) {
 
+    String panoramaId = this.meta.getPluginId();
     try {
       JSONObject clickInfo  = new JSONObject();
       JSONObject orientation = new JSONObject();

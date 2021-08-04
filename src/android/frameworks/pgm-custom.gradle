@@ -20,7 +20,7 @@ def getConvertListe(useAndroidX) {
 def searchFileInParents(target) {
   def searchPath = target
   for (int i = 0; i < 8; i++) {
-    println(searchPath)
+    // println(searchPath)
     def targetFile = file(searchPath)
     if(!targetFile.canRead()) {
       searchPath = '../' + searchPath;
@@ -83,76 +83,148 @@ def replaceFiles(matchingPattern, cvtList, useAndroidX) {
     replacePackages(file, cvtList, useAndroidX)
   }
 }
+public class PgmEnv {
+  protected def configFilePath;
+  protected def frameworkName;
+  protected def configs;
+
+  PgmEnv(fname) {
+    this.frameworkName = fname;
+    this.configs = new Properties()
+  }
+
+  public getConfigFilePath() {
+    return this.configFilePath;
+  }
+  public getEnvName() {
+    return this.frameworkName;
+  }
+
+  public getConfig(name) {
+    return this.configs.getProperty(name)
+  }
+
+  public getConfigOrDefault(name, defaultValue) {
+    def result = this.configs.getProperty(name)
+    if (result == null) {
+      result = defaultValue;
+    }
+    return result;
+  }
+}
+
+public class PgmCapacitorEnv extends PgmEnv {
+
+
+  PgmCapacitorEnv(configPath) {
+    super("capacitor");
+    this.configFilePath = configPath;
+    this.parseConfigFile();
+  }
+
+  public parseConfigFile() {
+    def jsonFile = new File("${this.configFilePath}")
+
+    def parser = new groovy.json.JsonSlurper()
+    def json = parser.parse(jsonFile)
+
+    if (!json.googlemaps) {
+      throw new Error("Please add googlemaps.GOOGLE_MAPS_ANDROID_API_KEY in capacitor.config.json file")
+    }
+
+    this.configs.clear();
+    for (key in json.googlemaps.keySet()) {
+      this.configs.setProperty(key, json.googlemaps[key])
+    }
+  }
+}
+
+class PgmCordovaEnv extends PgmEnv {
+  PgmCordovaEnv(configPath) {
+    super("cordova");
+    this.configFilePath = configPath;
+    this.parseConfigFile();
+  }
+
+  public parseConfigFile() {
+
+    // parse xml file
+    def is = new FileInputStream("${this.configFilePath}")
+    def widget = new XmlParser().parse(is)
+    if (widget.preference == null) {
+      throw new GradleException("widget is null.")
+    }
+
+    this.configs.clear();
+    widget.preference.each { pref ->
+      def name = pref.attributes().name
+      def value = pref.attributes().value
+      this.configs.setProperty(name, value)
+    }
+    is.close()
+  }
+
+}
+
+def detectEnvironment() {
+  //--------------------------------------------
+  // Decide the framework environment
+  //--------------------------------------------
+
+  def framework = ""
+  def configFilePath = ""
+  def list = [
+    ["capacitor.config.json", "capacitor"],
+    ["config.xml", "cordova"],
+    ["app/src/main/res/xml/config.xml", "cordova"]
+  ]
+
+  def listN = list.size()
+  for (int i = 0; i < listN; i++) {
+    def filePath = searchFileInParents(list[i][0]);
+    if (filePath) {
+      framework = list[i][1]
+      configFilePath = filePath
+      break;
+    }
+  }
+
+
+  def result = null;
+  if ("cordova".equals(framework)) {
+    result = new PgmCordovaEnv(configFilePath);
+  } else if ("capacitor".equals(framework)) {
+    result = new PgmCapacitorEnv(configFilePath);
+  } else {
+    throw new Error("Can not detect the environment")
+  }
+
+  return result;
+}
+
 
 android {
-  // #1. Find (project)/config.xml file,
-  //     because ionic capacitor does not copy <preference> nodes
-  def configXmlFile = searchFileInParents("config.xml")
 
-  if (configXmlFile == null) {
-    // #2. Find (project)/app/src/main/res/xml/config.xml file,
-    //     cordova should copy <preference> to this file
-    configXmlFile = searchFileInParents("app/src/main/res/xml/config.xml")
+  def env = detectEnvironment()
+
+  //----------------------
+  // Retrieve the API key
+  //----------------------
+  def GOOGLE_MAPS_ANDROID_API_KEY = env.getConfig('GOOGLE_MAPS_ANDROID_API_KEY');
+  if (!GOOGLE_MAPS_ANDROID_API_KEY) {
+    throw new Error("Can not found 'GOOGLE_MAPS_ANDROID_API_KEY' in ${env.getConfigFilePath()}")
   }
 
-  if (configXmlFile == null) {
-    throw new GradleException("Can not find config.xml file.")
-  }
-
-  // parse xml file
-  def widget = new XmlParser().parse(configXmlFile)
-  if (widget.preference == null) {
-    throw new GradleException("widget is null.")
-  }
-  if (widget.preference.size() == 0) {
-    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
-  }
-  Properties props = new Properties()
-  def isKeyFound = 0
-
-  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION", "16.0.0");
-  props.setProperty("GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION", "27.1.1");
-  props.setProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION", "16.1.0");
-
-
-  widget.preference.each { pref ->
-    def name = pref.attributes().name
-    def value = pref.attributes().value
-    println("name = " + name);
-    if (name == "GOOGLE_MAPS_ANDROID_API_KEY") {
-      isKeyFound = 1
-      props.setProperty(name, value)
-    }
-    if (name == "GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION"||
-        name == "GOOGLE_MAPS_PLAY_SERVICES_VERSION" ||
-        name == "GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION") {
-      props.setProperty(name, value)
-    }
-  }
-
-
-  if (isKeyFound == 0) {
-    throw new GradleException("Please add '<preference name=\"GOOGLE_MAPS_ANDROID_API_KEY\" />' to the config.xml file.")
-  }
-
+  //------------------------------
+  // Adjust dependenciy libraries
+  //------------------------------
   def hasUseAndroidX = project.ext.has('android.useAndroidX')
   def hasEnableJetifier = project.ext.has('android.enableJetifier')
   def useAndroidX = hasUseAndroidX && hasEnableJetifier &&
           'true' == project.ext.get('android.useAndroidX') &&
           'true' == project.ext.get('android.enableJetifier')
 
-  //-----------------------------------------------
-  // Replace the source code of this plugin
-  //-----------------------------------------------
-  def cvtList = getConvertListe(useAndroidX)
-
-  replaceFiles("**/plugin/google/maps/*.java", cvtList, useAndroidX)
-
   if (useAndroidX) {
-    //----------
-    // maps SDK
-    //----------
-
     dependencies {
       implementation 'com.google.android.libraries.maps:maps:3.1.0-beta'
       implementation 'com.android.support:multidex:1.0.3'
@@ -161,28 +233,34 @@ android {
     defaultConfig {
       multiDexEnabled true
     }
-
   } else {
-    def PLAY_SERVICES_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_VERSION")
-    def PLAY_SERVICES_LOCATION_VERSION = props.getProperty("GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION")
-    def ANDROID_SUPPORT_V4_VERSION = props.getProperty("GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION")
-    println("---->GOOGLE_MAPS_PLAY_SERVICES_VERSION = ${PLAY_SERVICES_VERSION}")
-    println("---->GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION = ${PLAY_SERVICES_LOCATION_VERSION}")
-    println("---->GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION = ${ANDROID_SUPPORT_V4_VERSION}")
+    def PLAY_SERVICES_LOCATION_VERSION = env.getConfigOrDefault("GOOGLE_MAPS_PLAY_SERVICES_LOCATION_VERSION", "16.0.0")
+    def PLAY_SERVICES_VERSION = env.getConfigOrDefault("GOOGLE_MAPS_PLAY_SERVICES_VERSION", "16.1.0")
+    def ANDROID_SUPPORT_V4_VERSION = env.getConfigOrDefault("GOOGLE_MAPS_ANDROID_SUPPORT_V4_VERSION", "27.1.1")
+
     dependencies {
-      implementation "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
       implementation "com.google.android.gms:play-services-location:${PLAY_SERVICES_LOCATION_VERSION}"
+      implementation "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
       implementation "com.android.support:support-core-utils:${ANDROID_SUPPORT_V4_VERSION}"
     }
   }
 
+  //-----------------------------------------------
+  // Replace the source code of this plugin
+  //-----------------------------------------------
+  def cvtList = getConvertListe(useAndroidX)
 
+  replaceFiles("**/plugin/google/maps/*.java", cvtList, useAndroidX)
+
+  //-------------------------------------------
+  // Set the API key into AndroidManifest.xml
+  //-------------------------------------------
   buildTypes {
     debug {
-      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
+      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = GOOGLE_MAPS_ANDROID_API_KEY
     }
     release {
-      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = props.getProperty("GOOGLE_MAPS_ANDROID_API_KEY")
+      manifestPlaceholders.GOOGLE_MAPS_ANDROID_API_KEY = GOOGLE_MAPS_ANDROID_API_KEY
     }
   }
 }

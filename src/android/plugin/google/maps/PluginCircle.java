@@ -1,33 +1,36 @@
 package plugin.google.maps;
 
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.libraries.maps.GoogleMap;
+import com.google.android.libraries.maps.model.Circle;
+import com.google.android.libraries.maps.model.CircleOptions;
+import com.google.android.libraries.maps.model.LatLng;
+import com.google.android.libraries.maps.model.LatLngBounds;
+import com.google.android.libraries.maps.model.Marker;
 
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PluginCircle extends MyPlugin implements MyPluginInterface {
+import java.util.concurrent.ConcurrentHashMap;
 
-  private String circleHashCode;
+public class PluginCircle extends MyPlugin implements IOverlayPlugin {
+
+  private PluginMap pluginMap;
+  public final ConcurrentHashMap<String, MetaCircle> objects = new ConcurrentHashMap<String, MetaCircle>();
 
   /**
    * Create circle
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
   public void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final CircleOptions circleOptions = new CircleOptions();
     int color;
     final JSONObject properties = new JSONObject();
 
-    JSONObject opts = args.getJSONObject(1);
-    final String hashCode = args.getString(2);
-    circleHashCode = hashCode;
+    JSONObject opts = args.getJSONObject(2);
+    final String hashCode = args.getString(3);
+    final String circleId = "circle_" + hashCode;
+    final MetaCircle meta = new MetaCircle(circleId);
 
     if (opts.has("center")) {
       JSONObject center = opts.getJSONObject("center");
@@ -48,13 +51,15 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
       circleOptions.strokeWidth((int)(opts.getDouble("strokeWidth") * density));
     }
     if (opts.has("visible")) {
-      circleOptions.visible(opts.getBoolean("visible"));
+      meta.isVisible = opts.getBoolean("visible");
+      circleOptions.visible(meta.isVisible);
     }
     if (opts.has("zIndex")) {
       circleOptions.zIndex(opts.getInt("zIndex"));
     }
     if (opts.has("clickable")) {
-      properties.put("isClickable", opts.getBoolean("clickable"));
+      meta.isClickable = opts.getBoolean("clickable");
+      properties.put("isClickable", meta.isClickable);
     } else {
       properties.put("isClickable", true);
     }
@@ -63,24 +68,22 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
     // Since this plugin provide own click detection,
     // disable default clickable feature.
     circleOptions.clickable(false);
+    objects.put(circleId, meta);
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Circle circle = map.addCircle(circleOptions);
-        circle.setTag(hashCode);
-        pluginMap.objects.put("circle_" + hashCode, circle);
+        Circle circle = pluginMap.getGoogleMap().addCircle(circleOptions);
+        circle.setTag(circleId);
 
-        pluginMap.objects.put("circle_property_" + hashCode, properties);
-
-        // Recalculate the circle bounds
-        LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circleOptions.getCenter(), circleOptions.getRadius());
-        pluginMap.objects.put("circle_bounds_" + hashCode, bounds);
+        meta.circle = circle;
+        meta.properties = properties;
+        meta.bounds = PluginUtil.getBoundsFromCircle(circleOptions.getCenter(), circleOptions.getRadius());
 
         JSONObject result = new JSONObject();
         try {
           result.put("hashCode", hashCode);
-          result.put("__pgmId", "circle_" + hashCode);
+          result.put("__pgmId", circleId);
           callbackContext.success(result);
         } catch (JSONException e) {
           e.printStackTrace();
@@ -91,181 +94,165 @@ public class PluginCircle extends MyPlugin implements MyPluginInterface {
 
   }
 
+  @Override
+  public void setPluginMap(PluginMap pluginMap) {
+    this.pluginMap = pluginMap;
+  }
+
+  public PluginMap getMapInstance(String mapId) {
+    return (PluginMap) CordovaGoogleMaps.viewPlugins.get(mapId);
+  }
+  public PluginCircle getInstance(String mapId) {
+    PluginMap mapInstance = getMapInstance(mapId);
+    return (PluginCircle) mapInstance.plugins.get(String.format("%s-circle", mapId));
+  }
 
   /**
    * set center
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
-  @SuppressWarnings("unused")
+  @PgmPluginMethod(runOnUiThread = true)
   public void setCenter(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final LatLng center = new LatLng(args.getDouble(1), args.getDouble(2));
-    final Circle circle = this.getCircle(id);
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        // Recalculate the circle bounds
-        String propertyId = "circle_bounds_" + circleHashCode;
-        LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
-        pluginMap.objects.put(propertyId, bounds);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    JSONObject params = args.getJSONObject(2);
 
-        circle.setCenter(center);
-        callbackContext.success();
-      }
-    });
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
+
+    double lat = params.getDouble("lat");
+    double lng = params.getDouble("lng");
+    LatLng center = new LatLng(lat, lng);
+
+    // Recalculate the circle bounds
+    meta.bounds = PluginUtil.getBoundsFromCircle(center, meta.circle.getRadius());
+
+    meta.circle.setCenter(center);
+    callbackContext.success();
   }
 
   /**
    * set fill color
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
-  @SuppressWarnings("unused")
+  @PgmPluginMethod(runOnUiThread = true)
   public void setFillColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
-    this.setInt("setFillColor", id, color, callbackContext);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
+
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
+    meta.circle.setFillColor(color);
+    callbackContext.success();
   }
 
   /**
    * set stroke color
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
-  @SuppressWarnings("unused")
+  @PgmPluginMethod(runOnUiThread = true)
   public void setStrokeColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    int color = PluginUtil.parsePluginColor(args.getJSONArray(1));
-    this.setInt("setStrokeColor", id, color, callbackContext);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
+
+    int color = PluginUtil.parsePluginColor(args.getJSONArray(2));
+    meta.circle.setStrokeColor(color);
+    callbackContext.success();
   }
 
   /**
    * set stroke width
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
-  @SuppressWarnings("unused")
+  @PgmPluginMethod(runOnUiThread = true)
   public void setStrokeWidth(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    float width = (float)(args.getDouble(1) * density);
-    this.setFloat("setStrokeWidth", id, width, callbackContext);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
+
+    float width = (float)(args.getDouble(2) * density);
+    meta.circle.setStrokeWidth(width);
+    callbackContext.success();
   }
 
   /**
    * set radius
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
-  @SuppressWarnings("unused")
+  @PgmPluginMethod(runOnUiThread = true)
   public void setRadius(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final float radius = (float) args.getDouble(1);
-    final Circle circle = this.getCircle(id);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
+    double radius = args.getDouble(2);
+    meta.circle.setRadius(radius);
 
-        // Recalculate the circle bounds
-        String propertyId = "circle_bounds_" + circleHashCode;
-        LatLngBounds bounds = PluginUtil.getBoundsFromCircle(circle.getCenter(), circle.getRadius());
-        pluginMap.objects.put(propertyId, bounds);
-
-        // Update the overlay
-        circle.setRadius(radius);
-        callbackContext.success();
-      }
-    });
-
+    meta.bounds = PluginUtil.getBoundsFromCircle(meta.circle.getCenter(), meta.circle.getRadius());
+    callbackContext.success();
   }
 
   /**
    * set z-index
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
-  @SuppressWarnings("unused")
+  @PgmPluginMethod(runOnUiThread = true)
   public void setZIndex(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    float zIndex = (float) args.getDouble(1);
-    this.setFloat("setZIndex", id, zIndex, callbackContext);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
+
+    float zIndex = (float)args.getDouble(2);
+    meta.circle.setZIndex(zIndex);
+    callbackContext.success();
   }
 
 
   /**
    * Set visibility for the object
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
+  @PgmPluginMethod(runOnUiThread = true)
   public void setVisible(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final boolean isVisible = args.getBoolean(1);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
 
-    final Circle circle = this.getCircle(id);
-
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        circle.setVisible(isVisible);
-      }
-    });
-    String propertyId = "circle_property_" + circleHashCode;
-    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
-    properties.put("isVisible", isVisible);
-    pluginMap.objects.put(propertyId, properties);
+    boolean isVisible = args.getBoolean(2);
+    meta.isVisible = isVisible;
+    meta.circle.setVisible(isVisible);
+    meta.properties.put("isVisible", isVisible);
     callbackContext.success();
   }
 
   /**
    * Set clickable for the object
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
+  @PgmPluginMethod
   public void setClickable(JSONArray args, CallbackContext callbackContext) throws JSONException {
-    String id = args.getString(0);
-    final boolean clickable = args.getBoolean(1);
-    String propertyId = id.replace("circle_", "circle_property_");
-    JSONObject properties = (JSONObject)pluginMap.objects.get(propertyId);
-    properties.put("isClickable", clickable);
-    pluginMap.objects.put(propertyId, properties);
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.get(circleId);
+
+    boolean clickable = args.getBoolean(2);
+    meta.isClickable = clickable;
+    meta.properties.put("isClickable", clickable);
     callbackContext.success();
   }
+
+
   /**
    * Remove the circle
-   * @param args
-   * @param callbackContext
-   * @throws JSONException
    */
+  @PgmPluginMethod(runOnUiThread = true)
   public void remove(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    final String id = args.getString(0);
-    final Circle circle = this.getCircle(id);
-    if (circle == null) {
-      callbackContext.success();
-      return;
-    }
-
-    if (pluginMap.objects != null) {
-      pluginMap.objects.remove("circle_" + circleHashCode);
-      pluginMap.objects.remove("circle_property_" + circleHashCode);
-      pluginMap.objects.remove("circle_property_" + circleHashCode);
-    }
-
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        circle.remove();
-        callbackContext.success();
-      }
-    });
+    String mapId = args.getString(0);
+    String circleId = args.getString(1);
+    PluginCircle instance = getInstance(mapId);
+    MetaCircle meta = instance.objects.remove(circleId);
+    meta.circle.remove();
+    callbackContext.success();
   }
 }

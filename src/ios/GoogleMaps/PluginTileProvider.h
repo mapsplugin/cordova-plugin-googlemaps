@@ -10,13 +10,11 @@
 
 @interface PluginTileProvider : GMSTileLayer
 @property (nonatomic) NSString *tileUrlFormat;
-@property (nonatomic) NSString *wwwPath;
 @property (nonatomic) UIView *webView;
 @property (nonatomic) NSString *mapId;
 @property (nonatomic) NSString *pluginId;
 @property (nonatomic) NSMutableDictionary *tileUrlMap;
 @property (nonatomic) BOOL isDebug;
-@property (nonatomic, strong) NSCache* imgCache;
 @property (nonatomic) NSOperationQueue *executeQueue;
 @property (nonatomic) dispatch_semaphore_t semaphore;
 - (id)initWithOptions:(NSDictionary *) options webView:(UIView *)webView;

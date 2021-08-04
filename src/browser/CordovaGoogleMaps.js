@@ -67,6 +67,31 @@ var stub = function(onSuccess) {
 var CordovaGoogleMaps = {
   resume: stub,
   pause: stub,
+
+  cmd: function(onSuccess, onError, args) {
+    // Command delegator
+    //    All statement for overlay instances come to this method first.
+    var info = args[0];
+    if (!info.mapId) {
+      return onError(new Error('mapId is missing'));
+    }
+    if (!(info.mapId in MAPS)) {
+      return onError(new Error(info.mapId + 'is not found.'));
+    }
+    var map = MAPS[info.mapId];
+    if (info.cmd[0] === '_') {
+      return onError(new Error('Invalid method "' + info.cmd + '".'));
+    }
+    var method;
+    if (info.instance) {
+      method = map._cmd;
+      method.call(map, onSuccess, onError, args);
+    } else {
+      method = map[info.cmd];
+      method.call(map, onSuccess, onError, info.args);
+    }
+  },
+
   getMap: function(onSuccess, onError, args) {
     // memory cleanup
     var mapIDs = Object.keys(MAPS);
@@ -91,14 +116,14 @@ var CordovaGoogleMaps = {
 
     var pluginMap = new (PluginMap.bind.apply(PluginMap, args));
     MAPS[mapId] = pluginMap;
-    var dummyObj = {};
-    var keys = Object.getOwnPropertyNames(PluginMap.prototype).filter(function (p) {
-      return typeof PluginMap.prototype[p] === 'function';
-    });
-    keys.forEach(function(key) {
-      dummyObj[key] = pluginMap[key].bind(pluginMap);
-    });
-    require('cordova/exec/proxy').add(mapId, dummyObj);
+    // var dummyObj = {};
+    // var keys = Object.getOwnPropertyNames(PluginMap.prototype).filter(function (p) {
+    //   return typeof PluginMap.prototype[p] === 'function';
+    // });
+    // keys.forEach(function(key) {
+    //   dummyObj[key] = pluginMap[key].bind(pluginMap);
+    // });
+    // require('cordova/exec/proxy').add(mapId, dummyObj);
 
     pluginMap.one(event.MAP_READY, onSuccess);
     pluginMap.one('load_error', onError);

@@ -8,17 +8,14 @@
 
 #import "CordovaGoogleMaps.h"
 #import "IPluginProtocol.h"
-#import "IPluginView.h"
 #import "PluginStreetViewPanoramaController.h"
 
-@interface PluginStreetViewPanorama : CDVPlugin<IPluginProtocol, IPluginView>
+@interface PluginStreetViewPanorama : CDVPlugin<IPluginProtocol>
 @property (nonatomic, strong) PluginStreetViewPanoramaController* panoramaCtrl;
 @property (nonatomic) BOOL isRemoved;
 @property (nonatomic) BOOL initialized;
 
 - (void)getPanorama:(CDVInvokedUrlCommand*)command;
-- (void)attachToWebView:(CDVInvokedUrlCommand*)command;
-- (void)detachFromWebView:(CDVInvokedUrlCommand*)command;
 - (void)setPov:(CDVInvokedUrlCommand*)command;
 - (void)setPosition:(CDVInvokedUrlCommand*)command;
 - (void)setPanningGesturesEnabled:(CDVInvokedUrlCommand*)command;
@@ -26,5 +23,4 @@
 - (void)setNavigationEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setStreetNamesEnabled:(CDVInvokedUrlCommand*)command;
 - (void)setVisible:(CDVInvokedUrlCommand*)command;
-- (void)remove:(CDVInvokedUrlCommand*)command;
 @end

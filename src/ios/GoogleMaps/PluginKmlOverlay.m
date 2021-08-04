@@ -22,8 +22,7 @@
 -(void)create:(CDVInvokedUrlCommand *)command
 {
 
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-    NSDictionary *json = [command.arguments objectAtIndex:1];
+    NSDictionary *json = [command.arguments objectAtIndex:2];
 
     NSError *error;
 
@@ -47,12 +46,9 @@
         urlStr = [regex stringByReplacingMatchesInString:urlStr options:0 range:NSMakeRange(0, [urlStr length]) withTemplate:@"./"];
 
 
-        // Get the current URL, then calculate the relative path.
-        CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-
-        id webview = cdvViewController.webView;
         NSString *currentURL;
-        NSURL *url = [webview URL];
+        NSURL *url = ((WKWebView *)self.webView).URL;
+        
         currentURL = url.absoluteString;
         if (![[url lastPathComponent] isEqualToString:@"/"]) {
             currentURL = [currentURL stringByReplacingOccurrencesOfString:[url lastPathComponent] withString:@""];
@@ -119,7 +115,6 @@
 
     }];
 
-  }];
 
 }
 
@@ -128,19 +123,6 @@
   NSError *error;
   TBXML *tbxml = [TBXML alloc];// initWithXMLFile:urlStr error:&error];
   
-  // Since ionic local server declines HTTP access for some reason,
-  // replace URL with file path
-  NSBundle *mainBundle = [NSBundle mainBundle];
-  NSString *wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
-  wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
-
-  // urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
-  
-  // ionic 4
-  urlStr = [urlStr stringByReplacingOccurrencesOfString:@"http://localhost:8080" withString: wwwPath];
-  
-  // ionic 5
-  urlStr = [urlStr stringByReplacingOccurrencesOfString:@"ionic://localhost" withString: wwwPath];
   
   
   if ([urlStr hasPrefix:@"http://"] || [urlStr hasPrefix:@"https://"]) {
@@ -176,6 +158,21 @@
           completionBlock(NO, error);
       }
   } else {
+      // Since ionic local server declines HTTP access for some reason,
+      // replace URL with file path
+      NSBundle *mainBundle = [NSBundle mainBundle];
+      NSString *wwwPath;
+      #ifdef PGM_PLATFORM_CAPACITOR
+        wwwPath = [mainBundle pathForResource:@"public/cordova" ofType:@"js"];
+        wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@"/"];
+      #endif
+      #ifdef PGM_PLATFORM_CORDOVA
+        wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+        wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@"/"];
+      #endif
+    
+      urlStr = [urlStr regReplace:@"^.+?://([^/]+)/" replaceTxt:wwwPath options:NSRegularExpressionCaseInsensitive];
+
       tbxml = [tbxml initWithXMLFile:urlStr error:&error];
       NSDictionary *result = [self parseXmlWithTbXml:tbxml];
       completionBlock(YES, result);

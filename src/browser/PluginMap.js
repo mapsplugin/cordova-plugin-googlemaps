@@ -1,6 +1,5 @@
 
 
-
 var utils = require('cordova/utils'),
   event = require('cordova-plugin-googlemaps.event'),
   BaseClass = require('cordova-plugin-googlemaps.BaseClass'),
@@ -261,6 +260,33 @@ function PluginMap(mapId, options) {
 }
 
 utils.extend(PluginMap, BaseClass);
+
+PluginMap.prototype._cmd = function(onSuccess, onError, args) {
+
+  var self = this;
+  var info = args[0];
+  if (!info.instance) {
+    return onError(new Error('info.instance is missing'));
+  }
+  // if (!(info.instance in self.objects)) {
+  //   console.log(self.objects);
+  //   return onError(new Error(info.instance + 'is not found.'));
+  // }
+
+  var tmp = info.instance.split('_');
+  var className;
+  if (info.instance.indexOf('-tileoverlay') > -1) {
+    className = 'tileoverlay';
+  } else {
+    className = (info.instance.split("_"))[0];
+  }
+  var pluginClass = self.PLUGINS[className];
+  if (!pluginClass) {
+    return onError(new Error('Invalid instance id "' + info.instance + '".'));
+  }
+
+  pluginClass[info.cmd].call(pluginClass, onSuccess, onError, info.args);
+};
 
 PluginMap.prototype.setOptions = function(onSuccess, onError, args) {
   var self = this;
@@ -761,28 +787,29 @@ PluginMap.prototype._onCameraEvent = function(evtName) {
 PluginMap.prototype.loadPlugin = function(onSuccess, onError, args) {
   var self = this;
   var className = args[0];
+  var lowerClassName = className.toLowerCase();
 
   var plugin;
-  if (className in self.PLUGINS) {
-    plugin = self.PLUGINS[className];
+  if (lowerClassName in self.PLUGINS) {
+    plugin = self.PLUGINS[lowerClassName];
   } else {
     var OverlayClass = require('cordova-plugin-googlemaps.Plugin' + className);
     plugin = new OverlayClass(this);
-    self.PLUGINS[className] = plugin;
+    self.PLUGINS[lowerClassName] = plugin;
 
-    // Since Cordova involes methods as Window,
-    // the `this` keyword of involved method is Window, not overlay itself.
-    // In order to keep indicate the `this` keyword as overlay itself,
-    // wrap the method.
-    var dummyObj = {};
-    for (var key in OverlayClass.prototype) {
-      if (typeof OverlayClass.prototype[key] === 'function') {
-        dummyObj[key] = plugin[key].bind(plugin);
-      } else {
-        dummyObj[key] = plugin[key];
-      }
-    }
-    require('cordova/exec/proxy').add(self.__pgmId + '-' + className.toLowerCase(), dummyObj);
+    // // Since Cordova involes methods as Window,
+    // // the `this` keyword of involved method is Window, not overlay itself.
+    // // In order to keep indicate the `this` keyword as overlay itself,
+    // // wrap the method.
+    // var dummyObj = {};
+    // for (var key in OverlayClass.prototype) {
+    //   if (typeof OverlayClass.prototype[key] === 'function') {
+    //     dummyObj[key] = plugin[key].bind(plugin);
+    //   } else {
+    //     dummyObj[key] = plugin[key];
+    //   }
+    // }
+    // require('cordova/exec/proxy').add(self.__pgmId + '-' + className.toLowerCase(), dummyObj);
   }
 
   plugin._create.call(plugin, onSuccess, onError, args);

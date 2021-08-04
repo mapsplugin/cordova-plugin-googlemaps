@@ -30,9 +30,6 @@ if (!cordova) {
         window.plugin.google.maps = window.plugin.google.maps || module.exports;
       }
 
-      cordova.exec(null, function (message) {
-        alert(message);
-      }, 'PluginEnvironment', 'isAvailable', ['']);
     }, {
       once: true
     });

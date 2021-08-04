@@ -1,60 +1,43 @@
 package plugin.google.maps;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.RectF;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.libraries.maps.MapsInitializer;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
-import org.apache.cordova.PluginEntry;
-import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
-@SuppressWarnings("deprecation")
-public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver.OnScrollChangedListener{
-  private final String TAG = "GoogleMapsPlugin";
-  private Activity activity;
+public class CordovaGoogleMaps extends MyPlugin implements ViewTreeObserver.OnScrollChangedListener{
   public ViewGroup root;
-  public MyPluginLayout mPluginLayout = null;
+  public static PgmPluginLayer mPluginLayout = null;
   public boolean initialized = false;
-  public PluginManager pluginManager;
   private static final Object timerLock = new Object();
+  public static final HashMap<String, IPluginView> viewPlugins = new HashMap<String, IPluginView>();
 
-  @SuppressLint("NewApi") @Override
+  @Override
   public void initialize(final CordovaInterface cordova, final CordovaWebView webView) {
     super.initialize(cordova, webView);
     if (root != null) {
@@ -62,170 +45,52 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
     LOG.setLogLevel(LOG.DEBUG);
 
-    activity = cordova.getActivity();
     final View view = webView.getView();
     view.getViewTreeObserver().addOnScrollChangedListener(CordovaGoogleMaps.this);
     root = (ViewGroup) view.getParent();
 
-    pluginManager = webView.getPluginManager();
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    activity.runOnUiThread(new Runnable() {
       @SuppressLint("NewApi")
       public void run() {
 
-        // Enable this, webView makes draw cache on the Android action bar issue.
-        //View view = webView.getView();
-        //if (Build.VERSION.SDK_INT >= 21 || "org.xwalk.core.XWalkView".equals(view.getClass().getName())){
-        //  view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        //  Log.d("Layout", "--> view =" + view.isHardwareAccelerated()); //always false
-        //}
-
-
-        // ------------------------------
-        // Check of Google Play Services
-        // ------------------------------
-        int checkGooglePlayServices = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
-
-        Log.d(TAG, "----> checkGooglePlayServices = " + (ConnectionResult.SUCCESS == checkGooglePlayServices));
-
-        if (checkGooglePlayServices != ConnectionResult.SUCCESS) {
-          // google play services is missing!!!!
-          /*
-           * Returns status code indicating whether there was an error. Can be one
-           * of following in ConnectionResult: SUCCESS, SERVICE_MISSING,
-           * SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID.
-           */
-          Log.e(TAG, "---Google Play Services is not available: " + GooglePlayServicesUtil.getErrorString(checkGooglePlayServices));
-
-          boolean isNeedToUpdate = false;
-
-          String errorMsg = PluginUtil.getPgmStrings(activity, "pgm_google_play_error");
-          switch (checkGooglePlayServices) {
-            case ConnectionResult.DEVELOPER_ERROR:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_developer_error");
-              break;
-            case ConnectionResult.INTERNAL_ERROR:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_internal_error");
-              break;
-            case ConnectionResult.INVALID_ACCOUNT:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_invalid_account");
-              break;
-            case ConnectionResult.LICENSE_CHECK_FAILED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_license_check_failed");
-              break;
-            case ConnectionResult.NETWORK_ERROR:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_network_error");
-              break;
-            case ConnectionResult.SERVICE_DISABLED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_disabled");
-              break;
-            case ConnectionResult.SERVICE_INVALID:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_invalid");
-              isNeedToUpdate = true;
-              break;
-            case ConnectionResult.SERVICE_MISSING:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_missing");
-              isNeedToUpdate = true;
-              break;
-            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_service_update_required");
-              isNeedToUpdate = true;
-              break;
-            case ConnectionResult.SIGN_IN_REQUIRED:
-              errorMsg = PluginUtil.getPgmStrings(activity,"pgm_google_play_sign_in_required");
-              break;
-            default:
-              isNeedToUpdate = true;
-              break;
-          }
-
-          final boolean finalIsNeedToUpdate = isNeedToUpdate;
-          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-          alertDialogBuilder
-                  .setMessage(errorMsg)
-                  .setCancelable(false)
-                  .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                      dialog.dismiss();
-                      if (finalIsNeedToUpdate) {
-                        try {
-                          activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
-                        } catch (android.content.ActivityNotFoundException anfe) {
-                          activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
-                        }
-                      }
-                    }
-                  });
-          AlertDialog alertDialog = alertDialogBuilder.create();
-
-          // show it
-          alertDialog.show();
-
-          Log.e(TAG, "Google Play Services is not available.");
-          return;
-        }
-
         webView.getView().setBackgroundColor(Color.TRANSPARENT);
         webView.getView().setOverScrollMode(View.OVER_SCROLL_NEVER);
-        mPluginLayout = new MyPluginLayout(webView, activity);
+        mPluginLayout = new PgmPluginLayer(webView, activity);
         mPluginLayout.stopTimer();
-
-
-        // Check the API key
-        ApplicationInfo appliInfo = null;
-        try {
-          appliInfo = activity.getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (NameNotFoundException e) {}
-
-        String API_KEY = appliInfo.metaData.getString("com.google.android.maps.v2.API_KEY");
-        if ("API_KEY_FOR_ANDROID".equals(API_KEY)) {
-
-          AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-
-          alertDialogBuilder
-                  .setMessage(PluginUtil.getPgmStrings(activity,"pgm_api_key_error"))
-                  .setCancelable(false)
-                  .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                      dialog.dismiss();
-                    }
-                  });
-          AlertDialog alertDialog = alertDialogBuilder.create();
-
-          // show it
-          alertDialog.show();
-        }
-
 
         //------------------------------
         // Initialize Google Maps SDK
         //------------------------------
         if (!initialized) {
           try {
-            MapsInitializer.initialize(cordova.getActivity());
+            MapsInitializer.initialize(activity);
             initialized = true;
           } catch (Exception e) {
-            e.printStackTrace();
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+            alertDialogBuilder
+                    .setMessage(e.getLocalizedMessage())
+                    .setCancelable(false)
+                    .setPositiveButton(PluginUtil.getPgmStrings(activity,"pgm_google_close_button"), new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,int id) {
+                        dialog.dismiss();
+                      }
+                    });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
           }
         }
 
       }
     });
-
-
   }
 
   @Override
   public boolean onOverrideUrlLoading(String url) {
     mPluginLayout.stopTimer();
-    /*
-    this.activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        webView.loadUrl("javascript:if(window.cordova){cordova.fireDocumentEvent('plugin_url_changed', {});}");
-      }
-    });
-    */
     return false;
   }
 
@@ -242,42 +107,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
-  @Override
-  public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
-    cordova.getThreadPool().submit(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          if (action.equals("putHtmlElements")) {
-            CordovaGoogleMaps.this.putHtmlElements(args, callbackContext);
-          } else if ("clearHtmlElements".equals(action)) {
-            CordovaGoogleMaps.this.clearHtmlElements(args, callbackContext);
-          } else if ("pause".equals(action)) {
-            CordovaGoogleMaps.this.pause(args, callbackContext);
-          } else if ("resume".equals(action)) {
-            CordovaGoogleMaps.this.resume(args, callbackContext);
-          } else if ("getMap".equals(action)) {
-            CordovaGoogleMaps.this.getMap(args, callbackContext);
-          } else if ("getPanorama".equals(action)) {
-            CordovaGoogleMaps.this.getPanorama(args, callbackContext);
-          } else if ("removeMap".equals(action)) {
-            CordovaGoogleMaps.this.removeMap(args, callbackContext);
-          } else if ("backHistory".equals(action)) {
-            CordovaGoogleMaps.this.backHistory(args, callbackContext);
-          } else if ("updateMapPositionOnly".equals(action)) {
-            CordovaGoogleMaps.this.updateMapPositionOnly(args, callbackContext);
-          }
-
-        } catch (JSONException e) {
-          e.printStackTrace();
-        }
-      }
-    });
-    return true;
-
-  }
-
+  @PgmPluginMethod(runOnUiThread = true)
   public void updateMapPositionOnly(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     final JSONObject elements = args.getJSONObject(0);
 
@@ -286,7 +117,7 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
     Iterator<String> domIDs = elementsBundle.keySet().iterator();
     String domId;
-    Bundle domInfo, size, currentDomInfo;
+    Bundle domInfo, size;
     while (domIDs.hasNext()) {
       domId = domIDs.next();
       domInfo = elementsBundle.getBundle(domId);
@@ -306,20 +137,18 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     }
     callbackContext.success();
   }
+
+  @PgmPluginMethod(runOnUiThread = true)
   public void backHistory(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    cordova.getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        if (!webView.backHistory()) {
-          // If no more history back, exit the app
-          cordova.getActivity().finish();
-        }
-      }
-    });
+    if (!webView.backHistory()) {
+      // If no more history back, exit the app
+      activity.finish();
+    }
+    callbackContext.success();
   }
 
 
-
+  @PgmPluginMethod
   public synchronized void pause(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     synchronized (timerLock) {
       if (mPluginLayout == null) {
@@ -330,6 +159,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       callbackContext.success();
     }
   }
+
+  @PgmPluginMethod
   public synchronized void resume(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     synchronized (timerLock) {
       if (mPluginLayout == null) {
@@ -345,6 +176,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       webView.getView().setBackgroundColor(Color.TRANSPARENT);
     }
   }
+
+  @PgmPluginMethod
   public void clearHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     if (mPluginLayout == null) {
       callbackContext.success();
@@ -353,6 +186,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     mPluginLayout.clearHtmlElements();
     callbackContext.success();
   }
+
+  @PgmPluginMethod
   public void putHtmlElements(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
     final JSONObject elements = args.getJSONObject(0);
@@ -374,31 +209,45 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   @Override
   public void onReset() {
     super.onReset();
-    if (mPluginLayout == null || mPluginLayout.pluginOverlays == null) {
+    if (mPluginLayout == null) {
       return;
     }
 
-    cordova.getActivity().runOnUiThread(new Runnable() {
+    activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
 
         mPluginLayout.setBackgroundColor(Color.WHITE);
 
-        Set<String> mapIds = mPluginLayout.pluginOverlays.keySet();
+        Set<String> mapIds = viewPlugins.keySet();
         IPluginView pluginOverlay;
 
         // prevent the ConcurrentModificationException error.
         String[] mapIdArray= mapIds.toArray(new String[mapIds.size()]);
+        Semaphore semaphore = new Semaphore(1);
         for (String mapId : mapIdArray) {
-          if (mPluginLayout.pluginOverlays.containsKey(mapId)) {
+          if (viewPlugins.containsKey(mapId)) {
             pluginOverlay = mPluginLayout.removePluginOverlay(mapId);
-            pluginOverlay.remove(null, null);
+
+            try {
+              semaphore.acquire();
+              JSONArray args = new JSONArray();
+              args.put(0, mapId);
+              pluginOverlay.remove(args, new CallbackContext("dummy", webView) {
+                @Override
+                public void sendPluginResult(PluginResult pluginResult) {
+                  semaphore.release();
+                }
+              });
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
             pluginOverlay.onDestroy();
             mPluginLayout.HTMLNodes.remove(mapId);
           }
         }
         mPluginLayout.HTMLNodes.clear();
-        mPluginLayout.pluginOverlays.clear();
+        viewPlugins.clear();
 
         System.gc();
         Runtime.getRuntime().gc();
@@ -407,41 +256,38 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
 
   }
 
+  @PgmPluginMethod
   public void removeMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     String mapId = args.getString(0);
-    if (mPluginLayout.pluginOverlays.containsKey(mapId)) {
-      IPluginView pluginOverlay = mPluginLayout.removePluginOverlay(mapId);
-      if (pluginOverlay != null) {
-        pluginOverlay.remove(null, null);
-        pluginOverlay.onDestroy();
-        mPluginLayout.HTMLNodes.remove(mapId);
-        pluginOverlay = null;
-      }
-
-      try {
-        Field pluginMapField = pluginManager.getClass().getDeclaredField("pluginMap");
-        pluginMapField.setAccessible(true);
-        LinkedHashMap<String, CordovaPlugin> pluginMapInstance = (LinkedHashMap<String, CordovaPlugin>) pluginMapField.get(pluginManager);
-        pluginMapInstance.remove(mapId);
-        Field entryMapField = pluginManager.getClass().getDeclaredField("entryMap");
-        entryMapField.setAccessible(true);
-        LinkedHashMap<String, PluginEntry> entryMapInstance = (LinkedHashMap<String, PluginEntry>) entryMapField.get(pluginManager);
-        entryMapInstance.remove(mapId);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-
-
+    if (!viewPlugins.containsKey(mapId)) {
+      callbackContext.success();
+      return;
     }
 
+    IPluginView viewPlugin = viewPlugins.remove(mapId);
 
+    viewPlugin.remove(null, null);
+    viewPlugin.onDestroy();
+    mPluginLayout.HTMLNodes.remove(mapId);
+
+
+    if (mapId.startsWith("streetview_")) {
+      PluginStreetViewPanorama pluginSV = (PluginStreetViewPanorama)viewPlugin;
+      pluginSV.isRemoved = true;
+    } else {
+      PluginMap pluginMap = (PluginMap)viewPlugin;
+      pluginMap.isRemoved = true;
+    }
+    mPluginLayout.removePluginOverlay(mapId);
+    mPluginLayout.HTMLNodes.remove(mapId);
 
     System.gc();
     Runtime.getRuntime().gc();
     callbackContext.success();
+
   }
 
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  @PgmPluginMethod(runOnUiThread = true)
   public void getMap(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     //------------------------------------------
     // Create an instance of PluginMap class.
@@ -451,32 +297,22 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     PluginMap pluginMap = new PluginMap();
     pluginMap.privateInitialize(mapId, cordova, webView, null);
     pluginMap.initialize(cordova, webView);
-    pluginMap.mapCtrl = CordovaGoogleMaps.this;
-    pluginMap.self = pluginMap;
 
-    PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
-    pluginManager.addService(pluginEntry);
+    viewPlugins.put(mapId, pluginMap);
 
     pluginMap.getMap(args, callbackContext);
   }
 
-
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  @PgmPluginMethod(runOnUiThread = true)
   public void getPanorama(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
     //------------------------------------------
     // Create an instance of PluginStreetView class.
     //------------------------------------------
     JSONObject meta = args.getJSONObject(0);
     String mapId = meta.getString("__pgmId");
-    Log.d(TAG, "---> mapId = " + mapId);
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
     pluginStreetView.privateInitialize(mapId, cordova, webView, null);
     pluginStreetView.initialize(cordova, webView);
-    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
-    pluginStreetView.self = pluginStreetView;
-
-    PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
-    pluginManager.addService(pluginEntry);
 
     pluginStreetView.getPanorama(args, callbackContext);
   }
@@ -485,23 +321,16 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public void onStart() {
     super.onStart();
 
-    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
-    for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
-        pluginEntry.plugin.onStart();
-      }
+    for (IPluginView viewPlugin : viewPlugins.values()) {
+      viewPlugin.onStart();
     }
-
   }
   @Override
   public void onStop() {
     super.onStop();
 
-    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
-    for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
-        pluginEntry.plugin.onStop();
-      }
+    for (IPluginView viewPlugin : viewPlugins.values()) {
+      viewPlugin.onStop();
     }
 
   }
@@ -512,23 +341,17 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
       mPluginLayout.stopTimer();
     }
 
-    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
-    for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
-        pluginEntry.plugin.onPause(multitasking);
-      }
+    for (IPluginView viewPlugin : viewPlugins.values()) {
+      viewPlugin.onPause(multitasking);
     }
 
   }
 
   @Override
   public void onResume(boolean multitasking) {
-    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
-    for (Iterator<PluginEntry> iterator = pluginEntries.iterator(); iterator.hasNext();) {
-      PluginEntry pluginEntry = iterator.next();
-      if (pluginEntry.service.startsWith("map_")) {
-        pluginEntry.plugin.onResume(multitasking);
-      }
+    super.onResume(multitasking);
+    for (IPluginView viewPlugin : viewPlugins.values()) {
+      viewPlugin.onResume(multitasking);
     }
   }
 
@@ -536,11 +359,8 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public void onDestroy() {
     super.onDestroy();
 
-    Collection<PluginEntry>pluginEntries = pluginManager.getPluginEntries();
-    for (PluginEntry pluginEntry: pluginEntries) {
-      if (pluginEntry.service.startsWith("map_")) {
-        pluginEntry.plugin.onDestroy();
-      }
+    for (IPluginView viewPlugin : viewPlugins.values()) {
+      viewPlugin.onDestroy();
     }
 
   }
@@ -553,10 +373,13 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
 
+    /*
+    // TODO: Do we still need this code?
     Handler handler = new Handler();
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
+
         PluginMap pluginMap;
         Collection<PluginEntry> collection =  pluginManager.getPluginEntries();
         for (PluginEntry entry: collection) {
@@ -571,14 +394,121 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
         }
       }
     }, 500);
-    /*
-    // Checks the orientation of the screen
-    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      Toast.makeText(activity, "landscape", Toast.LENGTH_SHORT).show();
-    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-      Toast.makeText(activity, "portrait", Toast.LENGTH_SHORT).show();
-    }
     */
+  }
+
+  @PgmPluginMethod(runOnUiThread = true)
+  public void setBackGroundColor(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+    JSONArray rgba = args.getJSONArray(0);
+    int backgroundColor = Color.WHITE;
+
+    if (rgba != null && rgba.length() == 4) {
+      backgroundColor = PluginUtil.parsePluginColor(rgba);
+    }
+
+    mPluginLayout.setBackgroundColor(backgroundColor);
+    callbackContext.success();
+  }
+
+
+  @PgmPluginMethod
+  public Boolean setEnv(JSONArray args, final CallbackContext callbackContext) {
+    // stub
+    callbackContext.success();
+    return true;
+  }
+
+  @PgmPluginMethod
+  public Boolean getLicenseInfo(JSONArray args, final CallbackContext callbackContext) {
+    callbackContext.success("");
+    return true;
+  }
+
+  @PgmPluginMethod(runOnUiThread = true)
+  public void attachToWebView(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String mapId = args.getString(0);
+    PluginMap instance = (PluginMap)viewPlugins.get(mapId);
+    mPluginLayout.addPluginOverlay(instance);
+    callbackContext.success();
+  }
+
+  @PgmPluginMethod(runOnUiThread = true)
+  public void detachFromWebView(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String mapId = args.getString(0);
+    mPluginLayout.removePluginOverlay(mapId);
+    callbackContext.success();
+  }
+
+
+  @PgmPluginMethod(runOnUiThread = true)
+  public void setDiv(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    String mapId = args.getString(0);
+    PluginMap instance = (PluginMap)viewPlugins.get(mapId);
+
+    if (args.length() == 1) {
+      instance.setDivId(null);
+      mPluginLayout.removePluginOverlay(mapId);
+      callbackContext.success();
+      return;
+    } else {
+      String mapDivId = args.getString(1);
+      instance.setDivId(mapDivId);
+      mPluginLayout.addPluginOverlay(instance);
+      this.resizeMap(args, callbackContext);
+    }
+  }
+
+  @PgmPluginMethod(runOnUiThread = true)
+  public void resizeMap(JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    String mapId = args.getString(0);
+    PluginMap instance = (PluginMap)viewPlugins.get(mapId);
+    String mapDivId = instance.getDivId();
+
+    if (mPluginLayout == null || mapDivId == null) {
+      //Log.d("PluginMap", "---> resizeMap / mPluginLayout = null");
+      callbackContext.success();
+      return;
+    }
+
+    mPluginLayout.needUpdatePosition = true;
+
+    if (!mPluginLayout.HTMLNodes.containsKey(mapDivId)) {
+      Bundle dummyInfo = new Bundle();
+      dummyInfo.putBoolean("isDummy", true);
+      dummyInfo.putDouble("offsetX", 0);
+      dummyInfo.putDouble("offsetY", 3000);
+
+      Bundle dummySize = new Bundle();
+      dummySize.putDouble("left", 0);
+      dummySize.putDouble("top", 3000);
+      dummySize.putDouble("width", 200);
+      dummySize.putDouble("height", 200);
+      dummyInfo.putBundle("size", dummySize);
+      dummySize.putDouble("depth", -999);
+      mPluginLayout.HTMLNodes.put(mapDivId, dummyInfo);
+    }
+
+
+    RectF drawRect = mPluginLayout.HTMLNodeRectFs.get(mapDivId);
+    if (drawRect != null) {
+      final int scrollY = webView.getView().getScrollY();
+
+      int width = (int) drawRect.width();
+      int height = (int) drawRect.height();
+      int x = (int) drawRect.left;
+      int y = (int) drawRect.top + scrollY;
+      ViewGroup.LayoutParams lParams = instance.getView().getLayoutParams();
+      FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) lParams;
+
+      params.width = width;
+      params.height = height;
+      params.leftMargin = x;
+      params.topMargin = y;
+      instance.getView().setLayoutParams(params);
+
+      callbackContext.success();
+    }
   }
 
 }

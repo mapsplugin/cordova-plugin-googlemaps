@@ -11,6 +11,7 @@
 #import "PluginUtil.h"
 #import "TBXML.h"
 #import "IPluginProtocol.h"
+#import <WebKit/WKWebView.h>
 
 @interface PluginKmlOverlay : CDVPlugin<IPluginProtocol>
 

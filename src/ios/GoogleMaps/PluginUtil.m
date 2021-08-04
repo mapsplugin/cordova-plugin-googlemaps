@@ -63,7 +63,7 @@
 - (NSString *)urlencode {
     NSMutableString *output = [NSMutableString string];
     const unsigned char *source = (const unsigned char *)[self UTF8String];
-    int sourceLen = strlen((const char *)source);
+    int sourceLen = (int)strlen((const char *)source);
     for (int i = 0; i < sourceLen; ++i) {
         const unsigned char thisChar = source[i];
         if (thisChar == ' '){
@@ -128,24 +128,6 @@
 @end
 
 
-/*
-@implementation CDVCommandDelegateImpl (GoogleMapsPlugin)
-
-- (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId {
-
-  NSRange pos = [callbackId rangeOfString:@"://"];
-  if (pos.location == NSNotFound) {
-    [self sendPluginResult:result callbackId:callbackId];
-  } else {
-    NSArray *tmp = [callbackId componentsSeparatedByString:@"://"];
-    NSString *pluginName = [tmp objectAtIndex:0];
-    CDVPlugin<IPluginProtocol> *plugin = [self getCommandInstance:pluginName];
-    [plugin onHookedPluginResult:result callbackId:callbackId];
-  }
-
-}
-@end
-*/
 
 static char CAAnimationGroupBlockKey;
 @implementation CAAnimationGroup (Blocks)
@@ -359,16 +341,16 @@ static char CAAnimationGroupBlockKey;
   
   double minDistance = 999999999;
   double distance;
-  CLLocationCoordinate2D mostClosePoint;
+  CLLocationCoordinate2D closetPoint = [inspectPoints coordinateAtIndex:0];
 
   for (int i = 0; i < [inspectPoints count]; i++) {
     distance = GMSGeometryDistance([inspectPoints coordinateAtIndex:i], point);
     if (distance < minDistance) {
       minDistance = distance;
-      mostClosePoint = [inspectPoints coordinateAtIndex:i];
+      closetPoint = [inspectPoints coordinateAtIndex:i];
     }
   }
-  return mostClosePoint;
+  return closetPoint;
 }
 
 + (BOOL) isInDebugMode
@@ -494,7 +476,6 @@ static char CAAnimationGroupBlockKey;
   while(pName = [keys nextObject]) {
     urlStr = [urlStr stringByAppendingFormat:@"%@=%@&", pName, [params objectForKey:pName]];
   }
-  NSLog(@"url = %@", urlStr);
   NSURL *url = [NSURL URLWithString: urlStr];
   [PluginUtil getJsonWithURL:url completionBlock: completionBlock];
 }
@@ -537,6 +518,91 @@ static char CAAnimationGroupBlockKey;
   [getTask resume];
 
 
+}
+
++ (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock
+{
+  NSString *urlStr = url.absoluteString;
+  // Since ionic local server declines HTTP access for some reason,
+  // replace URL with file path
+  NSBundle *mainBundle = [NSBundle mainBundle];
+  NSString *wwwPath;
+  #ifdef PGM_PLATFORM_CAPACITOR
+    wwwPath = [mainBundle pathForResource:@"public/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+  #endif
+  #ifdef PGM_PLATFORM_CORDOVA
+    wwwPath = [mainBundle pathForResource:@"www/cordova" ofType:@"js"];
+    wwwPath = [wwwPath stringByReplacingOccurrencesOfString:@"/cordova.js" withString:@""];
+  #endif
+  
+  if ([urlStr containsString:@"assets/"]) {
+    urlStr = [urlStr regReplace:@"^.*assets" replaceTxt:[NSString stringWithFormat:@"%@/assets/", wwwPath] options:NSRegularExpressionCaseInsensitive];
+  }
+  // urlStr = [urlStr stringByReplacingOccurrencesOfString:wwwPath withString: @""];
+  
+  // Some frameworks use own protocol.
+  // Change the url to local path
+  NSRange isLocalhost = [urlStr rangeOfString:@"://localhost"];
+  if (isLocalhost.location != NSNotFound ) {
+    urlStr = [NSString stringWithFormat:@"%@%@", wwwPath, [urlStr substringFromIndex:isLocalhost.location]];
+  }
+
+
+  if ([urlStr hasPrefix:@"file:"] || [urlStr hasPrefix:@"/"]) {
+    NSString *iconPath = [urlStr stringByReplacingOccurrencesOfString:@"file:" withString:@""];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:iconPath]) {
+      NSLog(@"(error)There is no file at '%@'.", iconPath);
+      completionBlock(NO, nil);
+    } else {
+      UIImage *image = [UIImage imageNamed:iconPath];
+      completionBlock(YES, image);
+    }
+    return;
+  }
+
+  NSURLRequest *req = [NSURLRequest requestWithURL:url
+                                       cachePolicy:NSURLRequestReturnCacheDataElseLoad
+                                   timeoutInterval:5];
+  NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:req];
+  if (cachedResponse != nil) {
+    UIImage *image = [[UIImage alloc] initWithData:cachedResponse.data];
+    if (image) {
+      completionBlock(YES, image);
+      return;
+    }
+  }
+
+  NSString *uniqueKey = url.absoluteString;
+  UIImage *image = [[UIImageCache sharedInstance] getCachedImageForKey:uniqueKey];
+  if (image != nil) {
+    completionBlock(YES, image);
+    return;
+  }
+
+
+  //-------------------------------------------------------------
+  // Use NSURLSessionDataTask instead of [NSURLConnection sendAsynchronousRequest]
+  // https://stackoverflow.com/a/20871647
+  //-------------------------------------------------------------
+  NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+  NSURLSessionDataTask *getTask = [session dataTaskWithRequest:req
+                                             completionHandler:^(NSData *data, NSURLResponse *res, NSError *error) {
+                                               [session finishTasksAndInvalidate];
+
+                                               UIImage *image = [UIImage imageWithData:data];
+                                               if (image) {
+                                                 [[UIImageCache sharedInstance] cacheImage:image forKey:uniqueKey];
+                                                 completionBlock(YES, image);
+                                                 return;
+                                               }
+
+                                               completionBlock(NO, nil);
+
+                                             }];
+  [getTask resume];
 }
 
 

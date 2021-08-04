@@ -27,30 +27,20 @@
 }
 
 - (void)attachView:(UIView *)view depth:(NSInteger)depth {
+  if (view.superview) {
+    return;
+  }
   NSArray *subviews = [self subviews];
   int viewCnt = (int)[subviews count];
-  int index = viewCnt;
-  depth += viewCnt;
-
-  NSArray *sortedArray;
-  sortedArray = [subviews sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
-    NSInteger first = ((UIView*)a).tag;
-    NSInteger second = ((UIView*)b).tag;
-    return first - second;
-  }];
-
-
-  for (int i = 0; i < sortedArray.count; i++) {
-    ((UIView *)[sortedArray objectAtIndex:i]).tag = i;
-    
-    if (i > depth) {
-      index = i;
-      break;
+  
+  for (int i = viewCnt - 1; i >= 0; i--) {
+    if (((UIView *)[subviews objectAtIndex:i]).tag < depth) {
+      [self insertSubview:view atIndex: i];
+      return;;
     }
   }
-
-
-  [self insertSubview:view atIndex:index];
+  
+  [self addSubview:view];
 }
 - (void)detachView:(UIView *)view {
   [view removeFromSuperview];

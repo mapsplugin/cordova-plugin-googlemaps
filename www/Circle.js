@@ -18,35 +18,38 @@ var Circle = function (map, circleOptions, _exec) {
     var center = self.get('center');
     center.lat = parseFloat(center.lat, 10);
     center.lng = parseFloat(center.lng, 10);
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setCenter', [self.getId(), center.lat, center.lng]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setCenter', [self.map.getId(), self.getId(), {
+      'lat': center.lat,
+      'lng': center.lng
+    }]);
   });
   self.on('fillColor_changed', function () {
     var color = self.get('fillColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setFillColor', [self.map.getId(), self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
   self.on('strokeColor_changed', function () {
     var color = self.get('strokeColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setStrokeColor', [self.map.getId(), self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
   self.on('strokeWidth_changed', function () {
     var width = self.get('strokeWidth');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setStrokeWidth', [self.map.getId(), self.getId(), width]);
   });
   self.on('clickable_changed', function () {
     var clickable = self.get('clickable');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setClickable', [self.map.getId(), self.getId(), clickable]);
   });
   self.on('radius_changed', function () {
     var radius = self.get('radius');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setRadius', [self.getId(), radius]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setRadius', [self.map.getId(), self.getId(), radius]);
   });
   self.on('zIndex_changed', function () {
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setZIndex', [self.map.getId(), self.getId(), zIndex]);
   });
   self.on('visible_changed', function () {
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.exec.call(self, null, self.errorHandler, 'PluginCircle', 'setVisible', [self.map.getId(), self.getId(), visible]);
   });
 
 };
@@ -133,7 +136,7 @@ Circle.prototype.remove = function (callback) {
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'PluginCircle', 'remove', [self.map.getId(), self.getId()], {
         remove: true
       });
   };

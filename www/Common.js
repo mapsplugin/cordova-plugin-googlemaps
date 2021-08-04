@@ -1,6 +1,5 @@
 
 var BaseArrayClass = require('./BaseArrayClass');
-var utils = require('cordova/utils');
 
 var resolvedPromise = typeof Promise == 'undefined' ? null : Promise.resolve();
 var nextTick = resolvedPromise ? function (fn) {
@@ -556,7 +555,7 @@ function getLatLng(target) {
 function convertToPositionArray(array) {
   array = array || [];
 
-  if (!utils.isArray(array)) {
+  if (!Array.isArray(array)) {
     if (array.type === 'LatLngBounds' || array.southwest && array.northeast) {
       array = [
         array.southwest,

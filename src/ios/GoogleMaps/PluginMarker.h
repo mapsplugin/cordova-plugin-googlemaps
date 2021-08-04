@@ -9,7 +9,7 @@
 #import "CordovaGoogleMaps.h"
 #import "IPluginProtocol.h"
 #import "PluginUtil.h"
-#import "UIImageCache.h"
+#import <WebKit/WKWebView.h>
 
 @interface PluginMarker : CDVPlugin<IPluginProtocol>
 
@@ -19,7 +19,6 @@
 - (void)create:(CDVInvokedUrlCommand*)command;
 - (void)showInfoWindow:(CDVInvokedUrlCommand*)command;
 - (void)hideInfoWindow:(CDVInvokedUrlCommand*)command;
-- (void)getPosition:(CDVInvokedUrlCommand*)command;
 - (void)setSnippet:(CDVInvokedUrlCommand*)command;
 - (void)setTitle:(CDVInvokedUrlCommand*)command;
 - (void)setFlat:(CDVInvokedUrlCommand*)command;
@@ -34,18 +33,19 @@
 - (void)setPosition:(CDVInvokedUrlCommand*)command;
 - (void)setRotation:(CDVInvokedUrlCommand*)command;
 - (void)setAnimation:(CDVInvokedUrlCommand*)command;
-- (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock;
 
 
 // Internal use
 /*
--(void)setMarkerAnimation_:(NSString *)animation marker:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
--(void)setDropAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
--(void)setBounceAnimation_:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
+-(void)_setMarkerAnimation:(NSString *)animation marker:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
+-(void)_setDropAnimation:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
+-(void)_setBounceAnimation:(GMSMarker *)marker pluginResult:(CDVPluginResult *)pluginResult callbackId:(NSString*)callbackId;
 */
 - (void)_create:(NSString *)markerId markerOptions:(NSDictionary *)json callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
--(void)setIcon_:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
+-(void)_setIcon:(GMSMarker *)marker iconProperty:(NSDictionary *)iconProperty callbackBlock:(void (^)(BOOL successed, id resultObj)) callbackBlock;
 -(void)_removeMarker:(GMSMarker *)marker;
 
+
+-(PluginMarker *)_getInstance: (NSString *)mapId;
 
 @end

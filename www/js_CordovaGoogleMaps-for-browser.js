@@ -1,12 +1,12 @@
 
 
 if (!window.Promise) {
-  window.Promise = require('cordova-plugin-googlemaps.Promise');
+  window.Promise = require('cordova-plugin-googlemaps-beta.Promise');
 }
 
-var common = require('cordova-plugin-googlemaps.Common'),
-  Map = require('cordova-plugin-googlemaps.Map'),
-  StreetViewPanorama = require('cordova-plugin-googlemaps.StreetViewPanorama');
+var common = require('cordova-plugin-googlemaps-beta.Common'),
+  Map = require('cordova-plugin-googlemaps-beta.Map'),
+  StreetViewPanorama = require('cordova-plugin-googlemaps-beta.StreetViewPanorama');
 
 
 function nativeCallback(params) {

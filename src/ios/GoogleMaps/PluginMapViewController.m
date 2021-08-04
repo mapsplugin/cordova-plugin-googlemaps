@@ -65,7 +65,7 @@
 }
 
 /**
- * @callback the my location button is clicked.
+ * callback the my location button is clicked.
  */
 - (void)mapView:(GMSMapView *)mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
 
@@ -271,14 +271,14 @@
 
 }
 /**
- * @callback map long_click
+ * callback map long_click
  */
 - (void) mapView:(GMSMapView *)mapView didLongPressAtCoordinate:(CLLocationCoordinate2D)coordinate {
   [self triggerMapEvent:@"map_long_click" coordinate:coordinate];
 }
 
 /**
- * @callback plugin.google.maps.event.CAMERA_MOVE_START
+ * callback plugin.google.maps.event.CAMERA_MOVE_START
  */
 - (void) mapView:(GMSMapView *)mapView willMove:(BOOL)gesture
 {
@@ -292,7 +292,7 @@
 
 
 /**
- * @callback plugin.google.maps.event.CAMERA_MOVE
+ * callback plugin.google.maps.event.CAMERA_MOVE
  */
 - (void)mapView:(GMSMapView *)mapView didChangeCameraPosition:(GMSCameraPosition *)position {
 
@@ -303,7 +303,7 @@
 }
 
 /**
- * @callback plugin.google.maps.event.CAMERA_MOVE_END
+ * callback plugin.google.maps.event.CAMERA_MOVE_END
  */
 - (void) mapView:(GMSMapView *)mapView idleAtCameraPosition:(GMSCameraPosition *)position
 {
@@ -316,7 +316,7 @@
 
 
 /**
- * @callback marker info_click
+ * callback marker info_click
  */
 - (void) mapView:(GMSMapView *)mapView didTapInfoWindowOfMarker:(GMSMarker *)marker
 {
@@ -342,7 +342,7 @@
   }
 }
 /**
- * @callback plugin.google.maps.event.MARKER_DRAG_START
+ * callback plugin.google.maps.event.MARKER_DRAG_START
  */
 - (void) mapView:(GMSMapView *) mapView didBeginDraggingMarker:(GMSMarker *)marker
 {
@@ -355,7 +355,7 @@
   }
 }
 /**
- * @callback plugin.google.maps.event.MARKER_DRAG_END
+ * callback plugin.google.maps.event.MARKER_DRAG_END
  */
 - (void) mapView:(GMSMapView *) mapView didEndDraggingMarker:(GMSMarker *)marker
 {
@@ -368,7 +368,7 @@
   }
 }
 /**
- * @callback plugin.google.maps.event.MARKER_DRAG
+ * callback plugin.google.maps.event.MARKER_DRAG
  */
 - (void) mapView:(GMSMapView *) mapView didDragMarker:(GMSMarker *)marker
 {
@@ -396,7 +396,7 @@
 }
 
 /**
- * @callback plugin.google.maps.event.MARKER_CLICK
+ * callback plugin.google.maps.event.MARKER_CLICK
  */
 - (BOOL)mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker {
 
@@ -936,7 +936,7 @@
                                ^() {return NSTextAlignmentCenter; }, @"center",
                                nil];
 
-    typedef NSTextAlignment (^CaseBlock)();
+    typedef NSTextAlignment (^CaseBlock)(void);
     CaseBlock caseBlock = aligments[textAlignValue];
     if (caseBlock) {
       textAlignment = caseBlock();

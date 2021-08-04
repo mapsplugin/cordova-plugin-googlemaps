@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-googlemaps" version="2.8.0-20200709-2008" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-googlemaps-beta" version="2.8.0-20200716-2258" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
   <name>cordova-plugin-googlemaps</name>
   <js-module name="Promise" src="www/Promise.js" />
   <js-module name="BaseClass" src="www/BaseClass.js">
@@ -200,26 +200,25 @@
       <feature name="PluginLocationService">
         <param name="android-package" value="plugin.google.maps.PluginLocationService"/>
       </feature>
-      <feature name="PluginEnvironment">
-        <param name="android-package" value="plugin.google.maps.PluginEnvironment"/>
-      </feature>
       <feature name="PluginMarkerCluster">
         <param name="android-package" value="plugin.google.maps.PluginMarkerCluster"/>
       </feature>
+      <!--
       <feature name="PluginStreetViewPanorama">
         <param name="android-package" value="plugin.google.maps.PluginStreetViewPanorama"/>
       </feature>
+    -->
     </config-file>
 
     <source-file src="src/android/plugin/google/maps/AsyncGetJsonWithURL.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/AsyncHttpGetInterface.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/AsyncLoadImage.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/AsyncLoadImageInterface.java" target-dir="src/plugin/google/maps"/>
-    <source-file src="src/android/plugin/google/maps/PluginEnvironment.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PgmPluginMethod.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/CordovaGoogleMaps.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/ObjectCache.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/MyPlugin.java" target-dir="src/plugin/google/maps"/>
-    <source-file src="src/android/plugin/google/maps/MyPluginLayout.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/PgmPluginLayer.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/MyPluginInterface.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginCircle.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginGeocoder.java" target-dir="src/plugin/google/maps"/>
@@ -240,6 +239,17 @@
     <source-file src="src/android/plugin/google/maps/PluginMarkerCluster.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/PluginStreetViewPanorama.java" target-dir="src/plugin/google/maps"/>
     <source-file src="src/android/plugin/google/maps/IPluginView.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/AsyncSetOptionsResult.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/AsyncUpdateCameraPositionResult.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/IOverlayPlugin.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaCircle.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaGroundOverlay.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaMarker.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaPluginView.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaPolygon.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaPolyline.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/MetaTileOverlay.java" target-dir="src/plugin/google/maps"/>
+    <source-file src="src/android/plugin/google/maps/UpdateCameraAction.java" target-dir="src/plugin/google/maps"/>
 
     <framework src="src/android/frameworks/tbxml-android.gradle" custom="true" type="gradleReference"/>
     <resource-file src="src/android/frameworks/tbxml-android.aar" target="libs/tbxml-android.aar"/>
@@ -329,9 +339,6 @@
         <param name="onload" value="true"/>
         <param name="onreset" value="true"/>
       </feature>
-      <feature name="PluginEnvironment">
-        <param name="ios-package" value="PluginEnvironment"/>
-      </feature>
       <feature name="PluginGeocoder">
         <param name="ios-package" value="PluginGeocoder"/>
       </feature>
@@ -388,8 +395,6 @@
     <source-file src="src/ios/GoogleMaps/PluginElevationService.m"/>
     <header-file src="src/ios/GoogleMaps/PluginDirectionsService.h"/>
     <source-file src="src/ios/GoogleMaps/PluginDirectionsService.m"/>
-    <header-file src="src/ios/GoogleMaps/PluginEnvironment.h"/>
-    <source-file src="src/ios/GoogleMaps/PluginEnvironment.m"/>
     <header-file src="src/ios/GoogleMaps/CordovaGoogleMaps.h"/>
     <source-file src="src/ios/GoogleMaps/CordovaGoogleMaps.m"/>
     <header-file src="src/ios/GoogleMaps/PluginMapViewController.h"/>
@@ -414,10 +419,8 @@
     <source-file src="src/ios/GoogleMaps/TBXML.m"/>
     <header-file src="src/ios/GoogleMaps/PluginTileOverlay.h"/>
     <source-file src="src/ios/GoogleMaps/PluginTileOverlay.m"/>
-    <header-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.h"/>
-    <source-file src="src/ios/GoogleMaps/MFGoogleMapAdditions/GMSCoordinateBounds+Geometry.m"/>
-    <header-file src="src/ios/GoogleMaps/MyPluginLayer.h"/>
-    <source-file src="src/ios/GoogleMaps/MyPluginLayer.m"/>
+    <header-file src="src/ios/GoogleMaps/PgmPluginLayer.h"/>
+    <source-file src="src/ios/GoogleMaps/PgmPluginLayer.m"/>
     <header-file src="src/ios/GoogleMaps/MyPluginScrollView.h"/>
     <source-file src="src/ios/GoogleMaps/MyPluginScrollView.m"/>
     <header-file src="src/ios/GoogleMaps/PluginMarkerCluster.h"/>
@@ -430,7 +433,6 @@
     <source-file src="src/ios/GoogleMaps/PluginStreetViewPanoramaController.m"/>
     <header-file src="src/ios/GoogleMaps/PluginViewController.h"/>
     <source-file src="src/ios/GoogleMaps/PluginViewController.m"/>
-    <header-file src="src/ios/GoogleMaps/IPluginView.h"/>
     <header-file src="src/ios/GoogleMaps/IPluginProtocol.h"/>
 
     <!-- Base messages -->
@@ -466,6 +468,7 @@
       <string>$LOCATION_WHEN_IN_USE_DESCRIPTION</string>
     </config-file>
 
+<!--
     <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
       <string>$LOCATION_ALWAYS_USAGE_DESCRIPTION</string>
     </config-file>
@@ -491,7 +494,7 @@
         </dict>
       </array>
     </config-file>
-
+-->
     <dependency id="com.googlemaps.ios" url="https://github.com/mapsplugin/cordova-plugin-googlemaps-sdk"  />
 
 <!--

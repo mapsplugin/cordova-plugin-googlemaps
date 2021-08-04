@@ -44,26 +44,33 @@
 }
 
 - (void)setPov:(CDVInvokedUrlCommand *)command {
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
-      [self _setPov:cameraOpts];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      NSDictionary *cameraOpts = [command.arguments objectAtIndex:1];
+      [instance _setPov:cameraOpts];
     }];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 
 - (void)setPosition:(CDVInvokedUrlCommand *)command {
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      NSDictionary *cameraOpts = [command.arguments objectAtIndex:0];
-      [self _setPosition:cameraOpts];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      NSDictionary *cameraOpts = [command.arguments objectAtIndex:1];
+      [instance _setPosition:cameraOpts];
     }];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 - (void)_setPosition:(NSDictionary *)cameraOpts {
@@ -125,80 +132,80 @@
 
 
 - (void)setPanningGesturesEnabled:(CDVInvokedUrlCommand*)command{
-
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      Boolean boolValue = [[command.arguments objectAtIndex:0] boolValue];
-      [self.panoramaCtrl.panoramaView setOrientationGestures:boolValue];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      Boolean boolValue = [[command.arguments objectAtIndex:1] boolValue];
+      [instance.panoramaCtrl.panoramaView setOrientationGestures:boolValue];
     }];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 - (void)setZoomGesturesEnabled:(CDVInvokedUrlCommand*)command {
-
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      Boolean boolValue = [[command.arguments objectAtIndex:0] boolValue];
-      [self.panoramaCtrl.panoramaView setZoomGestures:boolValue];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      Boolean boolValue = [[command.arguments objectAtIndex:1] boolValue];
+      [instance.panoramaCtrl.panoramaView setZoomGestures:boolValue];
     }];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 - (void)setNavigationEnabled:(CDVInvokedUrlCommand*)command {
-
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      Boolean boolValue = ![[command.arguments objectAtIndex:0] boolValue];
-      [self.panoramaCtrl.panoramaView setNavigationLinksHidden:boolValue];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      Boolean boolValue = ![[command.arguments objectAtIndex:1] boolValue];
+      [instance.panoramaCtrl.panoramaView setNavigationLinksHidden:boolValue];
     }];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 - (void)setStreetNamesEnabled:(CDVInvokedUrlCommand*)command {
-
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      Boolean boolValue = ![[command.arguments objectAtIndex:0] boolValue];
-      [self.panoramaCtrl.panoramaView setStreetNamesHidden:boolValue];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      Boolean boolValue = ![[command.arguments objectAtIndex:1] boolValue];
+      [instance.panoramaCtrl.panoramaView setStreetNamesHidden:boolValue];
     }];
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
 - (void)setVisible:(CDVInvokedUrlCommand*)command {
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
+  NSString *viewId = [command.arguments objectAtIndex:0];
+  PluginStreetViewPanorama *instance = [CordovaGoogleMaps getViewPlugin:viewId];
+  
+  [instance.panoramaCtrl.executeQueue addOperationWithBlock:^{
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-      Boolean boolValue = ![[command.arguments objectAtIndex:0] boolValue];
-      [self.panoramaCtrl.view setHidden:boolValue];
-
-      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      Boolean boolValue = ![[command.arguments objectAtIndex:1] boolValue];
+      [instance.panoramaCtrl.view setHidden:boolValue];
     }];
-  }];
-}
-- (void)remove:(CDVInvokedUrlCommand*)command {
-  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer removePluginOverlay:self.panoramaCtrl];
-    self.panoramaCtrl.attached = NO;
-    self.isRemoved = YES;
-    self.panoramaCtrl.view = nil;
-    self.panoramaCtrl = nil;
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
+
 
 - (void)pluginUnload {
 
@@ -209,36 +216,6 @@
     self.panoramaCtrl.panoramaView = nil;
     self.panoramaCtrl = nil;
   }];
-}
-
-- (void)attachToWebView:(CDVInvokedUrlCommand*)command {
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
-
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer addPluginOverlay:self.panoramaCtrl];
-    self.panoramaCtrl.attached = YES;
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  }];
-}
-
-- (void)detachFromWebView:(CDVInvokedUrlCommand*)command {
-
-  [self.panoramaCtrl.executeQueue addOperationWithBlock:^{
-
-    // Load the GoogleMap.m
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    CordovaGoogleMaps *googlemaps = [cdvViewController getCommandInstance:@"CordovaGoogleMaps"];
-    [googlemaps.pluginLayer removePluginOverlay:self.panoramaCtrl];
-    self.panoramaCtrl.attached = NO;
-
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  }];
-
 }
 
 

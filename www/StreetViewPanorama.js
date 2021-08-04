@@ -28,23 +28,23 @@ var StreetViewPanorama = function(streetViewId, _exec) {
   //-----------------------------------------------
   self.on('gesture_panning_changed', function() {
     var booleanValue = self.get('gesture_panning');
-    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setPanningGesturesEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, 'PluginStreetViewPanorama', 'setPanningGesturesEnabled', [self.__pgmId, booleanValue]);
   });
   self.on('gesture_zoom_changed', function() {
     var booleanValue = self.get('gesture_zoom');
-    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setZoomGesturesEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, 'PluginStreetViewPanorama', 'setZoomGesturesEnabled', [self.__pgmId, booleanValue]);
   });
   self.on('control_navigation_changed', function() {
     var booleanValue = self.get('control_navigation');
-    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setNavigationEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, 'PluginStreetViewPanorama', 'setNavigationEnabled', [self.__pgmId, booleanValue]);
   });
   self.on('control_streetNames_changed', function() {
     var booleanValue = self.get('control_streetNames');
-    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setStreetNamesEnabled', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, 'PluginStreetViewPanorama', 'setStreetNamesEnabled', [self.__pgmId, booleanValue]);
   });
   self.on('visible_changed', function() {
     var booleanValue = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.__pgmId, 'setVisible', [booleanValue]);
+    self.exec.call(self, null, self.errorHandler, 'PluginStreetViewPanorama', 'setVisible', [self.__pgmId, booleanValue]);
   });
 };
 
@@ -128,7 +128,7 @@ StreetViewPanorama.prototype.getPanorama = function(meta, panorama, div, options
 
 
     while (div.parentNode) {
-      div.style.backgroundColor = 'rgba(0,0,0,0) !important';
+      // div.style.backgroundColor = 'rgba(0,0,0,0) !important';
 
       common.attachTransparentClass(div);
 
@@ -226,7 +226,7 @@ StreetViewPanorama.prototype.setPosition = function(cameraPosition, callback) {
     if (typeof callback === 'function') {
       callback.call(self);
     }
-  }, self.errorHandler, self.__pgmId, 'setPosition', [cameraPosition], {
+  }, self.errorHandler, 'PluginStreetViewPanorama', 'setPosition', [self.__pgmId, cameraPosition], {
     sync: true
   });
   return this;
@@ -248,7 +248,7 @@ StreetViewPanorama.prototype.setPov = function(pov, callback) {
     if (typeof callback === 'function') {
       callback.call(self);
     }
-  }, self.errorHandler, self.__pgmId, 'setPov', [pov], {
+  }, self.errorHandler, 'PluginStreetViewPanorama', 'setPov', [self.__pgmId, pov], {
     sync: true
   });
   return this;

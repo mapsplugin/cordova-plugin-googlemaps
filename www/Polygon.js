@@ -17,14 +17,14 @@ var Polygon = function (map, polygonOptions, _exec) {
   var pointsProperty = common.createMvcArray(polygonOptions.points);
   pointsProperty.on('set_at', function (index) {
     var value = common.getLatLng(pointsProperty.getAt(index));
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointAt', [polygonId, index, value]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setPointAt', [self.map.getId(), polygonId, index, value]);
   });
   pointsProperty.on('insert_at', function (index) {
     var value = common.getLatLng(pointsProperty.getAt(index));
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertPointAt', [polygonId, index, value]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'insertPointAt', [self.map.getId(), polygonId, index, value]);
   });
   pointsProperty.on('remove_at', function (index) {
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointAt', [polygonId, index]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'removePointAt', [self.map.getId(), polygonId, index]);
   });
 
   Object.defineProperty(self, 'points', {
@@ -51,17 +51,17 @@ var Polygon = function (map, polygonOptions, _exec) {
     }
     array.on('insert_at', function (idx) {
       var value = common.getLatLng(array.getAt(idx));
-      self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertPointOfHoleAt', [polygonId, index, idx, value]);
+      self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'insertPointOfHoleAt', [self.map.getId(), polygonId, index, idx, value]);
     });
     array.on('set_at', function (idx) {
       var value = common.getLatLng(array.getAt(idx));
-      self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPointOfHoleAt', [polygonId, index, idx, value]);
+      self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setPointOfHoleAt', [self.map.getId(), polygonId, index, idx, value]);
     });
     array.on('remove_at', function (idx) {
-      self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'removePointOfHoleAt', [polygonId, index, idx]);
+      self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'removePointOfHoleAt', [self.map.getId(), polygonId, index, idx]);
     });
 
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'insertHoleAt', [polygonId, index, array.getArray()]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'insertHoleAt', [self.map.getId(), polygonId, index, array.getArray()]);
   });
 
   Object.defineProperty(self, 'holes', {
@@ -83,31 +83,31 @@ var Polygon = function (map, polygonOptions, _exec) {
   //-----------------------------------------------
   self.on('clickable_changed', function () {
     var clickable = self.get('clickable');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setClickable', [self.getId(), clickable]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setClickable', [self.map.getId(), self.getId(), clickable]);
   });
   self.on('geodesic_changed', function () {
     var geodesic = self.get('geodesic');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setGeodesic', [self.getId(), geodesic]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setGeodesic', [self.map.getId(), self.getId(), geodesic]);
   });
   self.on('zIndex_changed', function () {
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setZIndex', [self.map.getId(), self.getId(), zIndex]);
   });
   self.on('visible_changed', function () {
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setVisible', [self.map.getId(), self.getId(), visible]);
   });
   self.on('strokeWidth_changed', function () {
     var width = self.get('strokeWidth');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeWidth', [self.getId(), width]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setStrokeWidth', [self.map.getId(), self.getId(), width]);
   });
   self.on('strokeColor_changed', function () {
     var color = self.get('strokeColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setStrokeColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setStrokeColor', [self.map.getId(), self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
   self.on('fillColor_changed', function () {
     var color = self.get('fillColor');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFillColor', [self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
+    self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setFillColor', [self.map.getId(), self.getId(), common.HTMLColor2RGBA(color, 0.75)]);
   });
 
 };
@@ -136,7 +136,7 @@ Polygon.prototype.remove = function (callback) {
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'PluginPolygon', 'remove', [self.map.getId(), self.getId()], {
         remove: true
       });
   };
@@ -159,7 +159,7 @@ Polygon.prototype.setPoints = function (points) {
   for (i = 0; i < points.length; i++) {
     mvcArray.push(common.getLatLng(points[i]), true);
   }
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setPoints', [self.__pgmId, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setPoints', [self.map.getId(), self.__pgmId, mvcArray.getArray()]);
   return self;
 };
 Polygon.prototype.getPoints = function () {
@@ -186,7 +186,7 @@ Polygon.prototype.setHoles = function (holes) {
       mvcArray.push(newHole, true);
     }
   });
-  self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setHoles', [self.__pgmId, mvcArray.getArray()]);
+  self.exec.call(self, null, self.errorHandler, 'PluginPolygon', 'setHoles', [self.map.getId(), self.__pgmId, mvcArray.getArray()]);
   return this;
 };
 Polygon.prototype.getHoles = function () {

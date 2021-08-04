@@ -1,145 +1,160 @@
 package plugin.google.maps;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.TileOverlay;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.PluginEntry;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
-import org.json.JSONException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 
-public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
-  public MyPlugin self = null;
+public class MyPlugin extends CordovaPlugin {
   public final Map<String, Method> methods = new ConcurrentHashMap<String, Method>();
-  protected static ExecutorService executorService = null;
 
-  public CordovaGoogleMaps mapCtrl = null;
-  public GoogleMap map = null;
-  public PluginMap pluginMap = null;
   protected boolean isRemoved = false;
-  protected static float density = Resources.getSystem().getDisplayMetrics().density;
+  public static final float density = Resources.getSystem().getDisplayMetrics().density;
+  public static final ExecutorService executorService = Executors.newCachedThreadPool();
+  protected Handler mainHandler = new Handler(Looper.getMainLooper());
+  protected Activity activity;
+  protected String TAG;
+  private Semaphore semaphore = new Semaphore(10);
 
-  public void setPluginMap(PluginMap pluginMap) {
-    this.pluginMap = pluginMap;
-    this.mapCtrl = pluginMap.mapCtrl;
-    this.map = pluginMap.map;
+
+  MyPlugin() {
+    super();
+    TAG = this.getClass().getSimpleName();
+
+    Method[] classMethods = this.getClass().getMethods();
+    for (Method classMethod : classMethods) {
+      Annotation annotation = classMethod.getAnnotation(PgmPluginMethod.class);
+      if (annotation != null) {
+//        Log.d(TAG, String.format("-->method = %s", classMethod.getName()));
+        methods.put(classMethod.getName(), classMethod);
+      }
+    }
+
   }
-  protected String TAG = "";
 
   @SuppressLint("UseSparseArrays")
   @Override
-  public void initialize(CordovaInterface cordova, final CordovaWebView webView) {
+  public void initialize(CordovaInterface cordova, CordovaWebView webView) {
     super.initialize(cordova, webView);
-    TAG = this.getServiceName();
-    if (executorService == null) {
-      cordova.getThreadPool().execute(new Runnable() {
-        @Override
-        public void run() {
-          executorService = Executors.newCachedThreadPool();
-        }
-      });
-    }
+    activity = cordova.getActivity();
   }
+
+  public String getCurrentUrl() {
+    return webView.getUrl();
+  }
+
+
   @Override
   public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext)  {
-    self = this;
+
+    if (!methods.containsKey(action)) {
+      return false;
+    }
+
     executorService.submit(new Runnable() {
       @Override
       public void run() {
 
         if (isRemoved) {
           // Ignore every execute calls.
+          if (callbackContext != null) {
+            callbackContext.success();
+          }
+          return;
+        }
+
+        try {
+          semaphore.acquire();
+        } catch (InterruptedException e) {
+          callbackContext.error(e.getMessage());
           return;
         }
 
         synchronized (methods) {
-          if (methods.size() == 0) {
-            TAG = MyPlugin.this.getServiceName();
-            if (!TAG.contains("-")) {
-              if (TAG.startsWith("map")) {
-                mapCtrl.mPluginLayout.pluginOverlays.put(TAG, (PluginMap) MyPlugin.this);
-              } else if (TAG.startsWith("streetview")) {
-                mapCtrl.mPluginLayout.pluginOverlays.put(TAG, (PluginStreetViewPanorama) MyPlugin.this);
-              }
-            } else {
-              PluginEntry pluginEntry = new PluginEntry(TAG, MyPlugin.this);
-              pluginMap.plugins.put(TAG, pluginEntry);
-            }
+          final Method method = methods.get(action);
 
+          PgmPluginMethod annotation = method.getAnnotation(PgmPluginMethod.class);
+          if (annotation.runOnUiThread()) {
+            //---------------------------------------------
+            // Execute the method in background thread
+            //---------------------------------------------
+            mainHandler.post(new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  method.invoke(MyPlugin.this, args, new CallbackContext(callbackContext.getCallbackId() + "-dummy", webView) {
+                    @Override
+                    public void sendPluginResult(PluginResult pluginResult) {
+                      super.sendPluginResult(pluginResult);
 
-            //CordovaPlugin plugin = mapCtrl.webView.getPluginManager().getPlugin(this.getServiceName());
-            //    Log.d("MyPlugin", "---> this = " + this);
-            //    Log.d("MyPlugin", "---> plugin = " + plugin);
+                      callbackContext.sendPluginResult(pluginResult);
 
-            Method[] classMethods = self.getClass().getMethods();
-            for (Method classMethod : classMethods) {
-              methods.put(classMethod.getName(), classMethod);
-            }
-          }
-
-
-          //  this.create(args, callbackContext);
-          //  return true;
-          if (methods.containsKey(action)) {
-            if (self.mapCtrl.mPluginLayout.isDebug) {
-              try {
-                if (args != null && args.length() > 0) {
-                  Log.d(TAG, "(debug)action=" + action + " args[0]=" + args.getString(0));
-                } else {
-                  Log.d(TAG, "(debug)action=" + action);
+                      semaphore.release();
+                    }
+                  });
+                } catch (IllegalAccessException e) {
+                  e.printStackTrace();
+                  callbackContext.error("Cannot access to the '" + action + "' method.");
+                } catch (InvocationTargetException e) {
+                  e.printStackTrace();
+                  callbackContext.error("Cannot access to the '" + action + "' method.");
                 }
-              } catch (JSONException e) {
-                e.printStackTrace();
               }
-            }
-            Method method = methods.get(action);
+            });
+          } else {
+            //---------------------------------------------
+            // Execute the method in background thread
+            //---------------------------------------------
             try {
-              if (isRemoved) {
-                // Ignore every execute calls.
-                return;
-              }
-              method.invoke(self, args, callbackContext);
+              method.invoke(MyPlugin.this, args, new CallbackContext(callbackContext.getCallbackId() + "-dummy", webView) {
+                @Override
+                public void sendPluginResult(PluginResult pluginResult) {
+                  super.sendPluginResult(pluginResult);
+
+                  callbackContext.sendPluginResult(pluginResult);
+
+                  semaphore.release();
+                }
+              });
             } catch (IllegalAccessException e) {
               e.printStackTrace();
-              callbackContext.error("Cannot access to the '" + action + "' method.");
             } catch (InvocationTargetException e) {
               e.printStackTrace();
               callbackContext.error("Cannot access to the '" + action + "' method.");
             }
           }
         }
+
       }
     });
     return true;
 
   }
 
-
-  protected void create(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    // dummy
+  public void setRemoved(boolean isRemoved) {
+    this.isRemoved = isRemoved;
   }
 
+  /*
   protected synchronized Circle getCircle(String id) {
     if (!pluginMap.objects.containsKey(id)) {
       //Log.e(TAG, "---> can not find the circle : " + id);
@@ -242,4 +257,5 @@ public class MyPlugin extends CordovaPlugin implements MyPluginInterface {
         "new window.plugin.google.maps.LatLng(" + point.latitude + "," + point.longitude + ")" +
         ")");
   }
+  */
 }

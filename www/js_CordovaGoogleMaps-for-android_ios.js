@@ -711,9 +711,9 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
 
   var __isAttached_changed_callback = function(oldValue, newValue) {
     if (newValue) {
-      cordova_exec(null, null, map.__pgmId, 'attachToWebView', []);
+      cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'attachToWebView', [map.__pgmId]);
     } else {
-      cordova_exec(null, null, map.__pgmId, 'detachFromWebView', []);
+      cordova_exec(null, function(){}, 'CordovaGoogleMaps', 'detachFromWebView', [map.__pgmId]);
     }
   };
   Object.defineProperty(__isAttached_changed_callback, '_protect', {
@@ -798,7 +798,6 @@ CordovaGoogleMaps.prototype.getMap = function(div, mapOptions) {
       self.domPositions[elemId].isMap = true;
 
       background = background || '#FFFFFFFF';
-      console.log(`background = ${background}`);
       background = common.HTMLColor2RGBA(background);
       plugin.google.maps.environment.setBackgroundColor(background);
     }
@@ -972,6 +971,7 @@ function postPanoramaInit(panorama, div, options) {
 
   var elem = div;
   var isCached, zIndexList = [];
+  var depth = 1;
   while(elem && elem.nodeType === Node.ELEMENT_NODE) {
     elemId = common.getPluginDomId(elem);
     if (common.shouldWatchByNative(elem)) {
@@ -987,22 +987,13 @@ function postPanoramaInit(panorama, div, options) {
         containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
       };
       zIndexList.unshift(self.domPositions[elemId].zIndex);
-      self.domPositions[elemId].containMapIDs[mapId] = 1;
+      self.domPositions[elemId].containMapIDs[mapId] = depth;
+      depth++;
     } else {
       self.removeDomTree.call(self, elem);
     }
     elem = elem.parentNode;
   }
-
-  // Calculate the native view z-index
-  var depth = 0;
-  zIndexList.forEach(function(info, idx) {
-    if (!info.isInherit && info.z === 0) {
-      depth *= 10;
-    }
-    depth += (info.z + 1) / (1 << idx) + 0.01;
-  });
-  depth = Math.floor(depth * 10000);
 
   elemId = common.getPluginDomId(div);
   self.domPositions[elemId].isMap = true;
@@ -1050,6 +1041,7 @@ function postMapInit(map, div, options) {
     var elem = div;
     var isCached;
     var zIndexList = [];
+    var depth = 1;
     while(elem && elem.nodeType === Node.ELEMENT_NODE) {
       elemId = common.getPluginDomId(elem);
       if (common.shouldWatchByNative(elem)) {
@@ -1064,23 +1056,15 @@ function postMapInit(map, div, options) {
           overflowY: common.getStyle(elem, 'overflow-y'),
           containMapIDs: (isCached ? self.domPositions[elemId].containMapIDs : {})
         };
-        zIndexList.unshift(self.domPositions[elemId].zIndex);
-        self.domPositions[elemId].containMapIDs[mapId] = 1;
+        // zIndexList.unshift(self.domPositions[elemId].zIndex);
+        self.domPositions[elemId].containMapIDs[mapId] = depth;
+        depth++;
       } else {
         self.removeDomTree.call(self, elem);
       }
       elem = elem.parentNode;
     }
 
-    // Calculate the native view z-index
-    var depth = 0;
-    zIndexList.forEach(function(info, idx) {
-      if (!info.isInherit && info.z === 0) {
-        depth *= 10;
-      }
-      depth += (info.z + 1) / (1 << idx) + 0.01;
-    });
-    depth = Math.floor(depth * 10000);
     args.push({
       __pgmId: mapId,
       depth: depth

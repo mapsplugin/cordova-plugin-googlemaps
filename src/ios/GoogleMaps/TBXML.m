@@ -176,7 +176,7 @@
     if (range.location == 0) {
       bundlePath = [NSString stringWithFormat:@"%@.%@", aXMLFile, aFileExtension];
     } else {
-      bundlePath =[[NSBundle bundleForClass:[self class]] pathForResource:aXMLFile ofType:aFileExtension];
+      bundlePath =[[NSBundle mainBundle] pathForResource:aXMLFile ofType:aFileExtension];
     }
     
     if (!bundlePath) {

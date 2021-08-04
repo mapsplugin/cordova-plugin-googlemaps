@@ -7,9 +7,6 @@
 //
 
 #import "PluginStreetViewPanoramaController.h"
-#if CORDOVA_VERSION_MIN_REQUIRED < __CORDOVA_4_0_0
-#import <Cordova/CDVJSON.h>
-#endif
 
 
 @implementation PluginViewController
@@ -50,7 +47,7 @@
   // Insert setTimeout() in order to prevent the GDC and webView deadlock
   // ( you can not click the ok button of Alert() )
   // https://stackoverflow.com/a/23833841/697856
-  jsString = [NSString stringWithFormat:@"setTimeout(function(){%@}, 0);", jsString];
+//  jsString = [NSString stringWithFormat:@"Promise.resolve().then(function(){ %@ });", jsString];
 
   if ([self.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
     [self.webView performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:jsString];

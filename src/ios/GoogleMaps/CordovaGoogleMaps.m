@@ -10,8 +10,20 @@
 
 @implementation CordovaGoogleMaps
 
+- (instancetype)init {
+  self = [super init];
+  if (viewPlugins == nil) {
+    viewPlugins = [NSMutableDictionary dictionary];
+  }
+  return self;
+}
+
++ (id)getViewPlugin:(NSString *)pluginId {
+  return [viewPlugins objectForKey:pluginId];
+}
 - (void)pluginInitialize
 {
+  self.isSdkAvailable = NO;
 
   self.webView.backgroundColor = [UIColor clearColor];
   self.webView.opaque = NO;
@@ -25,7 +37,25 @@
     //-------------------------------
     // Check the Google Maps API key
     //-------------------------------
-    NSString *APIKey = [((CDVViewController *)self.viewController).settings objectForKey:@"google_maps_ios_api_key"];
+    NSString *APIKey = nil;
+    #ifdef PGM_PLATFORM_CAPACITOR
+      NSBundle *mainBundle = [NSBundle mainBundle];
+      NSString *path = [NSString stringWithFormat:@"%@/capacitor.config.json", [mainBundle bundlePath]];
+      NSString *fileContents = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+      NSData *data = [fileContents dataUsingEncoding:NSUTF8StringEncoding];
+      NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+      if (json != nil) {
+        NSDictionary *properties = [json objectForKey:@"googlemaps"];
+        if (properties != nil) {
+          APIKey = [properties objectForKey:@"GOOGLE_MAPS_IOS_API_KEY"];
+        }
+      }
+    #endif
+
+    #ifdef PGM_PLATFORM_CORDOVA
+      CDVViewController *viewCtrl = (CDVViewController *)self.viewController;
+      APIKey = [viewCtrl.settings objectForKey:@"google_maps_ios_api_key"];
+    #endif
 
     if (APIKey == nil) {
       NSString *errorTitle = [PluginUtil PGM_LOCALIZATION:@"APIKEY_IS_UNDEFINED_TITLE"];
@@ -57,8 +87,10 @@
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 
+
     [GMSServices provideAPIKey:APIKey];
-    
+    self.isSdkAvailable = YES;
+
     NSUserDefaults *myDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"cordova.plugin.googlemaps"];
     [myDefaults setObject:APIKey forKey:@"GOOGLE_MAPS_API_KEY"];
     [myDefaults synchronize];
@@ -67,11 +99,31 @@
   //-------------------------------
   // Plugin initialization
   //-------------------------------
-  self.viewPlugins = [[NSMutableDictionary alloc] init];
 
-  self.pluginLayer = [[MyPluginLayer alloc] initWithWebView:self.webView];
-  self.pluginLayer.backgroundColor = [UIColor whiteColor];
+  self.pluginLayer = [[PgmPluginLayer alloc] initWithWebView:self.webView];
+  self.pluginLayer.backgroundColor = [UIColor clearColor];
   self.pluginLayer.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+  #ifdef PGM_PLATFORM_CAPACITOR
+    // TODO: other plugin's view have to move under the pluginLayer
+    [UIApplication sharedApplication].windows[0].rootViewController.view = self.pluginLayer;
+
+  #endif
+  #ifdef PGM_PLATFORM_CORDOVA
+    NSArray *subViews1 = self.viewController.view.subviews;
+/*
+    UIView *view1;
+    for (int i = 0; i < [subViews1 count]; i++) {
+      view1 = [subViews1 objectAtIndex:i];
+      //NSLog(@"--->remove i=%d class=%@", i, view.class);
+      [view1 removeFromSuperview];
+      [self.pluginLayer addSubview: view1];
+    }
+    [self.viewController.view addSubview:self.pluginLayer]
+ */
+  #endif
+
 
 
   NSArray *subViews = self.viewController.view.subviews;
@@ -83,19 +135,21 @@
     [view removeFromSuperview];
     [self.pluginLayer addSubview: view];
   }
-  [self.viewController.view addSubview:self.pluginLayer];
+  #ifdef PGM_PLATFORM_CORDOVA
+    [self.viewController.view addSubview:self.pluginLayer];
+  #endif
 }
 - (void) didRotate:(id)sender
 {
 
-  NSArray *keys = [self.viewPlugins allKeys];
+  NSArray *keys = [viewPlugins allKeys];
   NSString *key;
-  CDVPlugin<IPluginProtocol, IPluginView> *viewPlugin;
+  CDVPlugin<IPluginProtocol> *viewPlugin;
   PluginMap *pluginMap;
   for (int i = 0; i < keys.count; i++) {
     key = [keys objectAtIndex:i];
-    if ([self.viewPlugins objectForKey:key]) {
-      viewPlugin = [self.viewPlugins objectForKey:key];
+    if ([viewPlugins objectForKey:key]) {
+      viewPlugin = [viewPlugins objectForKey:key];
       if ([viewPlugin isKindOfClass:[PluginMap class]]) {
         pluginMap = (PluginMap *)viewPlugin;
         // Trigger the CAMERA_MOVE_END mandatory
@@ -117,7 +171,7 @@
   [super onReset];
 
   // Reset the background color
-  self.pluginLayer.backgroundColor = [UIColor whiteColor];
+  self.pluginLayer.backgroundColor = [UIColor clearColor];
 
   dispatch_async(dispatch_get_main_queue(), ^{
 
@@ -126,12 +180,12 @@
 
     // Remove old plugins that are used in the previous html.
     NSString *mapId;
-    NSArray *keys=[self.viewPlugins allKeys];
+    NSArray *keys=[viewPlugins allKeys];
     for (int i = 0; i < [keys count]; i++) {
       mapId = [keys objectAtIndex:i];
       [self _destroyMap:mapId];
     }
-    [self.viewPlugins removeAllObjects];
+    [viewPlugins removeAllObjects];
 
     @synchronized(self.pluginLayer.pluginScrollView.HTMLNodes) {
       [self.pluginLayer.pluginScrollView.HTMLNodes removeAllObjects];
@@ -149,19 +203,17 @@
 }
 
 - (void)_destroyMap:(NSString *)mapId {
-  if (![self.viewPlugins objectForKey:mapId]) {
+  if (![viewPlugins objectForKey:mapId]) {
     return;
   }
-  CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
 
-  CDVPlugin<IPluginView> *pluginView = [self.viewPlugins objectForKey:mapId];
+  CDVPlugin *pluginView = [viewPlugins objectForKey:mapId];
   if ([mapId hasPrefix:@"streetview_"]) {
     PluginStreetViewPanorama *pluginSV = (PluginStreetViewPanorama *)pluginView;
     pluginSV.isRemoved = YES;
     //[pluginSV clear:nil];
     [pluginSV pluginUnload];
-    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
+
 
     [self.pluginLayer removePluginOverlay:pluginSV.panoramaCtrl];
     pluginSV.panoramaCtrl.view = nil;
@@ -171,9 +223,6 @@
     pluginMap.isRemoved = YES;
     //[pluginMap clear:nil];
     [pluginMap pluginUnload];
-
-    [cdvViewController.pluginObjects setObject:pluginView forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
 
     [self.pluginLayer removePluginOverlay:pluginMap.mapCtrl];
 
@@ -186,10 +235,102 @@
   }
 
 
-  [self.viewPlugins removeObjectForKey:mapId];
+  [viewPlugins removeObjectForKey:mapId];
 
-  [cdvViewController.pluginObjects removeObjectForKey:mapId];
 }
+
+
+- (void)resizeMap:(CDVInvokedUrlCommand *)command {
+  NSString *mapId = [command.arguments objectAtIndex:0];
+  PluginMap *instance = [CordovaGoogleMaps getViewPlugin:mapId];
+
+  [instance.mapCtrl.executeQueue addOperationWithBlock:^{
+
+    NSString *mapDivId = instance.mapCtrl.divId;
+    if (!mapDivId) {
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      return;
+    }
+
+    // Load the GoogleMap.m
+
+    // Save the map rectangle.
+    if (![self.pluginLayer.pluginScrollView.HTMLNodes objectForKey:instance.mapCtrl.divId]) {
+      NSMutableDictionary *dummyInfo = [[NSMutableDictionary alloc] init];;
+      [dummyInfo setObject:@"{{0,-3000} - {50,50}}" forKey:@"size"];
+      [dummyInfo setObject:[NSNumber numberWithDouble:-999] forKey:@"depth"];
+      [self.pluginLayer.pluginScrollView.HTMLNodes setObject:dummyInfo forKey:instance.mapCtrl.divId];
+    }
+
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self.pluginLayer updateViewPosition:instance.mapCtrl];
+
+      CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    });
+
+  }];
+}
+
+
+
+- (void)setDiv:(CDVInvokedUrlCommand *)command {
+
+  NSString *mapId = [command.arguments objectAtIndex:0];
+  PluginMap *instance = [CordovaGoogleMaps getViewPlugin:mapId];
+
+
+  // Detach the map view
+  if ([command.arguments count] == 1) {
+    [self.pluginLayer removePluginOverlay:instance.mapCtrl];
+    instance.mapCtrl.attached = NO;
+    instance.mapCtrl.view = nil;
+  } else {
+    instance.mapCtrl.view = instance.mapCtrl.map;
+    [self.pluginLayer addPluginOverlay:instance.mapCtrl];
+    NSString *mapDivId = [command.arguments objectAtIndex:1];
+    instance.mapCtrl.divId = mapDivId;
+    instance.mapCtrl.attached = YES;
+    instance.mapCtrl.isRenderedAtOnce = NO; //prevent unexpected animation
+    [self.pluginLayer updateViewPosition:instance.mapCtrl];
+  }
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)attachToWebView:(CDVInvokedUrlCommand*)command {
+  NSString *mapId = [command.arguments objectAtIndex:0];
+  PluginMap *instance = [CordovaGoogleMaps getViewPlugin:mapId];
+
+  [instance.mapCtrl.executeQueue addOperationWithBlock:^{
+
+    [self.pluginLayer addPluginOverlay:instance.mapCtrl];
+    instance.mapCtrl.attached = YES;
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+}
+
+- (void)detachFromWebView:(CDVInvokedUrlCommand*)command {
+  NSString *mapId = [command.arguments objectAtIndex:0];
+  PluginMap *instance = [CordovaGoogleMaps getViewPlugin:mapId];
+
+
+  [instance.mapCtrl.executeQueue addOperationWithBlock:^{
+
+    [self.pluginLayer removePluginOverlay:instance.mapCtrl];
+    instance.mapCtrl.attached = NO;
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [instance.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+
+}
+
+
 /**
  * Remove the map
  */
@@ -204,182 +345,223 @@
 
 }
 
+- (void)setBackGroundColor:(CDVInvokedUrlCommand *)command {
+  NSArray *rgbColor = [command.arguments objectAtIndex:0];
+
+  NSString *clsName;
+  for (UIView *subView in [self.webView subviews]) {
+    clsName = [NSString stringWithFormat:@"%@", subView.class];
+    if ([@"WKScrollView" isEqualToString:clsName]) {
+      subView.backgroundColor = [UIColor clearColor];
+      subView.opaque = NO;
+
+      for (UIView *view in [subView subviews]) {
+        clsName = [NSString stringWithFormat:@"%@", view.class];
+        if ([@"WKContentView" isEqualToString:clsName]) {
+          view.backgroundColor = [UIColor clearColor];
+          view.opaque = NO;
+        }
+      }
+    }
+  }
+  self.pluginLayer.backgroundColor = [rgbColor parsePluginColor];
+
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)getLicenseInfo:(CDVInvokedUrlCommand *)command {
+
+  NSString *txt = [GMSServices openSourceLicenseInfo];
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:txt];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+}
+
+- (void)setEnv:(CDVInvokedUrlCommand *)command {
+  // TODO:
+
+  CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 /**
  * Intialize the map
  */
 - (void)getMap:(CDVInvokedUrlCommand *)command {
+  if (!self.isSdkAvailable) {
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Can not use Google Maps SDK"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  }
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
   }
 
 
-  dispatch_async(dispatch_get_main_queue(), ^{
 
-    CDVViewController *cdvViewController = (CDVViewController*)self.viewController;
-    NSDictionary *meta = [command.arguments objectAtIndex:0];
-    NSString *mapId = [meta objectForKey:@"__pgmId"];
-    NSDictionary *initOptions = [command.arguments objectAtIndex:1];
+  NSDictionary *meta = [command.arguments objectAtIndex:0];
+  NSString *mapId = [meta objectForKey:@"__pgmId"];
+  NSDictionary *initOptions = [command.arguments objectAtIndex:1];
 
-    // Wrapper view
-    PluginMapViewController* viewCtrl = [[PluginMapViewController alloc] initWithOptions:nil];
-    viewCtrl.webView = self.webView;
-    viewCtrl.isFullScreen = YES;
-    viewCtrl.overlayId = mapId;
-    viewCtrl.title = mapId;
-    viewCtrl.divId = nil;
-    [viewCtrl.view setHidden:YES];
+  // Wrapper view
+  PluginMapViewController* viewCtrl = [[PluginMapViewController alloc] initWithOptions:nil];
+  viewCtrl.webView = self.webView;
+  viewCtrl.isFullScreen = YES;
+  viewCtrl.overlayId = mapId;
+  viewCtrl.title = mapId;
+  viewCtrl.divId = nil;
+  [viewCtrl.view setHidden:YES];
 
-    // Create an instance of the Map class everytime.
-    PluginMap *pluginMap = [[PluginMap alloc] init];
-    [pluginMap pluginInitialize];
-    pluginMap.mapCtrl = viewCtrl;
 
-    // Hack:
-    // In order to load the plugin instance of the same class but different names,
-    // register the map plugin instance into the pluginObjects directly.
-    if ([pluginMap respondsToSelector:@selector(setViewController:)]) {
-      [pluginMap setViewController:cdvViewController];
+  // Create an instance of the Map class everytime.
+  PluginMap *pluginMap = [[PluginMap alloc] init];
+
+  [pluginMap setCommandDelegate:self.commandDelegate];
+  [pluginMap setViewController:viewCtrl];
+
+  pluginMap.mapCtrl = viewCtrl;
+
+  [pluginMap pluginInitialize];
+
+  [viewPlugins setObject:pluginMap forKey:mapId];
+
+  CGRect rect = CGRectZero;
+  // Sets the map div id.
+  if ([command.arguments count] == 3) {
+    pluginMap.mapCtrl.divId = [command.arguments objectAtIndex:2];
+    if (pluginMap.mapCtrl.divId != nil) {
+      NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.HTMLNodes objectForKey:pluginMap.mapCtrl.divId];
+      if (domInfo != nil) {
+        rect = CGRectFromString([domInfo objectForKey:@"size"]);
+      }
     }
-    if ([pluginMap respondsToSelector:@selector(setCommandDelegate:)]) {
-      [pluginMap setCommandDelegate:cdvViewController.commandDelegate];
+  }
+
+
+  // Generate an instance of GMSMapView;
+  GMSCameraPosition *camera = nil;
+  int bearing = 0;
+  double angle = 0, zoom = 0;
+  NSDictionary *latLng = nil;
+  double latitude = 0;
+  double longitude = 0;
+  GMSCoordinateBounds *cameraBounds = nil;
+  NSDictionary *cameraOptions = [initOptions valueForKey:@"camera"];
+  if (cameraOptions) {
+
+    if ([cameraOptions valueForKey:@"bearing"] && [cameraOptions valueForKey:@"bearing"] != [NSNull null]) {
+      bearing = (int)[[cameraOptions valueForKey:@"bearing"] integerValue];
+    } else {
+      bearing = 0;
     }
-    [cdvViewController.pluginObjects setObject:pluginMap forKey:mapId];
-    [cdvViewController.pluginsMap setValue:mapId forKey:mapId];
-    [pluginMap pluginInitialize];
 
-    [self.viewPlugins setObject:pluginMap forKey:mapId];
+    if ([cameraOptions valueForKey:@"tilt"] && [cameraOptions valueForKey:@"tilt"] != [NSNull null]) {
+      angle = [[cameraOptions valueForKey:@"tilt"] doubleValue];
+    } else {
+      angle = 0;
+    }
 
-    CGRect rect = CGRectZero;
-    // Sets the map div id.
-    if ([command.arguments count] == 3) {
-      pluginMap.mapCtrl.divId = [command.arguments objectAtIndex:2];
-      if (pluginMap.mapCtrl.divId != nil) {
-        NSDictionary *domInfo = [self.pluginLayer.pluginScrollView.HTMLNodes objectForKey:pluginMap.mapCtrl.divId];
-        if (domInfo != nil) {
-          rect = CGRectFromString([domInfo objectForKey:@"size"]);
+    if ([cameraOptions valueForKey:@"zoom"] && [cameraOptions valueForKey:@"zoom"] != [NSNull null]) {
+      zoom = [[cameraOptions valueForKey:@"zoom"] doubleValue];
+    } else {
+      zoom = 0;
+    }
+    if ([cameraOptions objectForKey:@"target"] && [cameraOptions valueForKey:@"target"] != [NSNull null]) {
+      NSString *targetClsName = [[cameraOptions objectForKey:@"target"] className];
+      if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
+        //--------------------------------------------
+        //  cameraPosition.target = [
+        //    new plugin.google.maps.LatLng(),
+        //    ...
+        //    new plugin.google.maps.LatLng()
+        //  ]
+        //---------------------------------------------
+        int i = 0;
+        NSArray *latLngList = [cameraOptions objectForKey:@"target"];
+        GMSMutablePath *path = [GMSMutablePath path];
+        for (i = 0; i < [latLngList count]; i++) {
+          latLng = [latLngList objectAtIndex:i];
+          latitude = [[latLng valueForKey:@"lat"] doubleValue];
+          longitude = [[latLng valueForKey:@"lng"] doubleValue];
+          [path addLatitude:latitude longitude:longitude];
         }
+
+        cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
+        //CLLocationCoordinate2D center = cameraBounds.center;
+
+        CLLocationCoordinate2D center = GMSGeometryInterpolate(cameraBounds.northEast, cameraBounds.southWest, 0.5);
+        latitude = center.latitude;
+        longitude = center.longitude;
+      } else {
+        //------------------------------------------------------------------
+        //  cameraPosition.target = new plugin.google.maps.LatLng();
+        //------------------------------------------------------------------
+
+        latLng = [cameraOptions objectForKey:@"target"];
+        latitude = [[latLng valueForKey:@"lat"] floatValue];
+        longitude = [[latLng valueForKey:@"lng"] floatValue];
+
       }
     }
+    //[pluginMap.mapCtrl.view setHidden:YES];
+  }
+  camera = [GMSCameraPosition cameraWithLatitude:latitude
+                                       longitude:longitude
+                                            zoom: zoom
+                                         bearing: bearing
+                                    viewingAngle: angle];
 
+  viewCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
+  viewCtrl.view = viewCtrl.map;
 
-    // Generate an instance of GMSMapView;
-    GMSCameraPosition *camera = nil;
-    int bearing = 0;
-    double angle = 0, zoom = 0;
-    NSDictionary *latLng = nil;
-    double latitude = 0;
-    double longitude = 0;
-    GMSCoordinateBounds *cameraBounds = nil;
-    NSDictionary *cameraOptions = [initOptions valueForKey:@"camera"];
-    if (cameraOptions) {
+  //mapType
+  NSString *typeStr = [initOptions valueForKey:@"mapType"];
+  if (typeStr) {
 
-      if ([cameraOptions valueForKey:@"bearing"] && [cameraOptions valueForKey:@"bearing"] != [NSNull null]) {
-        bearing = (int)[[cameraOptions valueForKey:@"bearing"] integerValue];
-      } else {
-        bearing = 0;
-      }
+    NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
+                              ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
+                              ^() {return kGMSTypeSatellite; }, @"MAP_TYPE_SATELLITE",
+                              ^() {return kGMSTypeTerrain; }, @"MAP_TYPE_TERRAIN",
+                              ^() {return kGMSTypeNormal; }, @"MAP_TYPE_NORMAL",
+                              ^() {return kGMSTypeNone; }, @"MAP_TYPE_NONE",
+                              nil];
 
-      if ([cameraOptions valueForKey:@"tilt"] && [cameraOptions valueForKey:@"tilt"] != [NSNull null]) {
-        angle = [[cameraOptions valueForKey:@"tilt"] doubleValue];
-      } else {
-        angle = 0;
-      }
+    typedef GMSMapViewType (^CaseBlock)(void);
+    GMSMapViewType mapType;
+    CaseBlock caseBlock = mapTypes[typeStr];
+    if (caseBlock) {
+      // Change the map type
+      mapType = caseBlock();
 
-      if ([cameraOptions valueForKey:@"zoom"] && [cameraOptions valueForKey:@"zoom"] != [NSNull null]) {
-        zoom = [[cameraOptions valueForKey:@"zoom"] doubleValue];
-      } else {
-        zoom = 0;
-      }
-      if ([cameraOptions objectForKey:@"target"] && [cameraOptions valueForKey:@"target"] != [NSNull null]) {
-        NSString *targetClsName = [[cameraOptions objectForKey:@"target"] className];
-        if ([targetClsName isEqualToString:@"__NSCFArray"] || [targetClsName isEqualToString:@"__NSArrayM"] ) {
-          //--------------------------------------------
-          //  cameraPosition.target = [
-          //    new plugin.google.maps.LatLng(),
-          //    ...
-          //    new plugin.google.maps.LatLng()
-          //  ]
-          //---------------------------------------------
-          int i = 0;
-          NSArray *latLngList = [cameraOptions objectForKey:@"target"];
-          GMSMutablePath *path = [GMSMutablePath path];
-          for (i = 0; i < [latLngList count]; i++) {
-            latLng = [latLngList objectAtIndex:i];
-            latitude = [[latLng valueForKey:@"lat"] doubleValue];
-            longitude = [[latLng valueForKey:@"lng"] doubleValue];
-            [path addLatitude:latitude longitude:longitude];
-          }
-
-          cameraBounds = [[GMSCoordinateBounds alloc] initWithPath:path];
-          //CLLocationCoordinate2D center = cameraBounds.center;
-
-          latitude = cameraBounds.center.latitude;
-          longitude = cameraBounds.center.longitude;
-        } else {
-          //------------------------------------------------------------------
-          //  cameraPosition.target = new plugin.google.maps.LatLng();
-          //------------------------------------------------------------------
-
-          latLng = [cameraOptions objectForKey:@"target"];
-          latitude = [[latLng valueForKey:@"lat"] floatValue];
-          longitude = [[latLng valueForKey:@"lng"] floatValue];
-
-        }
-      }
-      //[pluginMap.mapCtrl.view setHidden:YES];
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        ((GMSMapView *)(viewCtrl.view)).mapType = mapType;
+      }];
     }
-    camera = [GMSCameraPosition cameraWithLatitude:latitude
-                                         longitude:longitude
-                                              zoom: zoom
-                                           bearing: bearing
-                                      viewingAngle: angle];
-
-    viewCtrl.map = [GMSMapView mapWithFrame:rect camera:camera];
-    viewCtrl.view = viewCtrl.map;
-
-    //mapType
-    NSString *typeStr = [initOptions valueForKey:@"mapType"];
-    if (typeStr) {
-
-      NSDictionary *mapTypes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                ^() {return kGMSTypeHybrid; }, @"MAP_TYPE_HYBRID",
-                                ^() {return kGMSTypeSatellite; }, @"MAP_TYPE_SATELLITE",
-                                ^() {return kGMSTypeTerrain; }, @"MAP_TYPE_TERRAIN",
-                                ^() {return kGMSTypeNormal; }, @"MAP_TYPE_NORMAL",
-                                ^() {return kGMSTypeNone; }, @"MAP_TYPE_NONE",
-                                nil];
-
-      typedef GMSMapViewType (^CaseBlock)();
-      GMSMapViewType mapType;
-      CaseBlock caseBlock = mapTypes[typeStr];
-      if (caseBlock) {
-        // Change the map type
-        mapType = caseBlock();
-
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          ((GMSMapView *)(viewCtrl.view)).mapType = mapType;
-        }];
-      }
-    }
-    viewCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  }
+  viewCtrl.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
 
-    //indoor display
-    ((GMSMapView *)(viewCtrl.view)).delegate = viewCtrl;
-    ((GMSMapView *)(viewCtrl.view)).indoorDisplay.delegate = viewCtrl;
-    [self.pluginLayer addPluginOverlay:viewCtrl];
+  //indoor display
+  ((GMSMapView *)(viewCtrl.view)).delegate = viewCtrl;
+  ((GMSMapView *)(viewCtrl.view)).indoorDisplay.delegate = viewCtrl;
+  [self.pluginLayer addPluginOverlay:viewCtrl];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [pluginMap getMap:command];
-    });
-
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [pluginMap getMap:command];
   });
+
 }
 
 /**
  * Intialize the panorama
  */
 - (void)getPanorama:(CDVInvokedUrlCommand *)command {
+  if (!self.isSdkAvailable) {
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Can not use Google Maps SDK"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    return;
+  }
   if (self.pluginLayer != nil) {
     self.pluginLayer.isSuspended = false;
   }
@@ -411,13 +593,19 @@
       [pluginStreetView setViewController:cdvViewController];
     }
     if ([pluginStreetView respondsToSelector:@selector(setCommandDelegate:)]) {
-      [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];
+       #ifdef PGM_PLATFORM_CAPACITOR
+        [pluginStreetView setCommandDelegate:self.commandDelegate];
+        pluginStreetView.webView = self.webView;
+       #endif
+       #ifdef PGM_PLATFORM_CORDOVA
+        [pluginStreetView setCommandDelegate:cdvViewController.commandDelegate];
+       #endif
     }
-    [cdvViewController.pluginObjects setObject:pluginStreetView forKey:panoramaId];
-    [cdvViewController.pluginsMap setValue:panoramaId forKey:panoramaId];
+
+
     [pluginStreetView pluginInitialize];
 
-    [self.viewPlugins setObject:pluginStreetView forKey:panoramaId];
+    [viewPlugins setObject:pluginStreetView forKey:panoramaId];
 
     CGRect rect = CGRectZero;
     // Sets the panorama div id.
@@ -521,13 +709,13 @@
     /*
      if (self.pluginLayer.needUpdatePosition) {
      self.pluginLayer.needUpdatePosition = NO;
-     NSArray *keys=[self.viewPlugins allKeys];
+     NSArray *keys=[viewPlugins allKeys];
      NSString *mapId;
      PluginMap *pluginMap;
 
      for (int i = 0; i < [keys count]; i++) {
      mapId = [keys objectAtIndex:i];
-     pluginMap = [self.viewPlugins objectForKey:mapId];
+     pluginMap = [viewPlugins objectForKey:mapId];
      [self.pluginLayer updateViewPosition:pluginMap.mapCtrl];
      }
      }

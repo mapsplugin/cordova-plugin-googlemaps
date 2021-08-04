@@ -15,19 +15,19 @@ var TileOverlay = function (map, tileOverlayOptions, _exec) {
   //-----------------------------------------------
   self.on('fadeIn_changed', function () {
     var fadeIn = self.get('fadeIn');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setFadeIn', [self.getId(), fadeIn]);
+    self.exec.call(self, null, self.errorHandler, 'PluginTileOverlay', 'setFadeIn', [self.map.getId(), self.getId(), fadeIn]);
   });
   self.on('opacity_changed', function () {
     var opacity = self.get('opacity');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setOpacity', [self.getId(), opacity]);
+    self.exec.call(self, null, self.errorHandler, 'PluginTileOverlay', 'setOpacity', [self.map.getId(), self.getId(), opacity]);
   });
   self.on('zIndex_changed', function () {
     var zIndex = self.get('zIndex');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setZIndex', [self.getId(), zIndex]);
+    self.exec.call(self, null, self.errorHandler, 'PluginTileOverlay', 'setZIndex', [self.map.getId(), self.getId(), zIndex]);
   });
   self.on('visible_changed', function () {
     var visible = self.get('visible');
-    self.exec.call(self, null, self.errorHandler, self.getPluginName(), 'setVisible', [self.getId(), visible]);
+    self.exec.call(self, null, self.errorHandler, 'PluginTileOverlay', 'setVisible', [self.map.getId(), self.getId(), visible]);
   });
 };
 
@@ -103,7 +103,7 @@ TileOverlay.prototype.remove = function (callback) {
         resolve.call(self);
       },
       reject.bind(self),
-      self.getPluginName(), 'remove', [self.getId()], {
+      'PluginTileOverlay', 'remove', [self.map.getId(), self.getId()], {
         remove: true
       });
   };

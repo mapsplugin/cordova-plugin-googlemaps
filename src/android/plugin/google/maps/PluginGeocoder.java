@@ -4,7 +4,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.libraries.maps.model.LatLngBounds;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
