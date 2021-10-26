@@ -509,6 +509,11 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     });
   }
 
+  /*
+   //***************************************************************************
+   // Google Maps SDK for Android v3 beta causes crash for these processes.
+   // Tmporally commented out
+   //***************************************************************************
   @Override
   public void onStart() {
     super.onStart();
@@ -543,6 +548,7 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
     }
     //mapCtrl.mPluginLayout.addPluginOverlay(PluginMap.this);
   }
+  */
 
   private class AdjustInitCamera implements Runnable {
     private JSONObject mParams;
