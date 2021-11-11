@@ -449,14 +449,18 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     JSONObject meta = args.getJSONObject(0);
     String mapId = meta.getString("__pgmId");
     PluginMap pluginMap = new PluginMap();
-    pluginMap.privateInitialize(mapId, cordova, webView, null);
-    pluginMap.initialize(cordova, webView);
-    pluginMap.mapCtrl = CordovaGoogleMaps.this;
-    pluginMap.self = pluginMap;
+    
+    //ATW removed these 2 lines to make app work with cordova 10 as per issue 2872
+    //pluginMap.privateInitialize(mapId, cordova, webView, null);
+    //pluginMap.initialize(cordova, webView);
+    //pluginMap.mapCtrl = CordovaGoogleMaps.this;
+    //pluginMap.self = pluginMap;
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginMap);
     pluginManager.addService(pluginEntry);
 
+    pluginMap.mapCtrl = CordovaGoogleMaps.this;
+    pluginMap.self = pluginMap;
     pluginMap.getMap(args, callbackContext);
   }
 
@@ -470,14 +474,21 @@ public class CordovaGoogleMaps extends CordovaPlugin implements ViewTreeObserver
     String mapId = meta.getString("__pgmId");
     Log.d(TAG, "---> mapId = " + mapId);
     PluginStreetViewPanorama pluginStreetView = new PluginStreetViewPanorama();
-    pluginStreetView.privateInitialize(mapId, cordova, webView, null);
-    pluginStreetView.initialize(cordova, webView);
-    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
-    pluginStreetView.self = pluginStreetView;
+        
+    //ATW removed these 2 lines to make app work with cordova 10 as per issue 2872
+    //pluginStreetView.privateInitialize(mapId, cordova, webView, null);
+    //pluginStreetView.initialize(cordova, webView);
+
 
     PluginEntry pluginEntry = new PluginEntry(mapId, pluginStreetView);
     pluginManager.addService(pluginEntry);
 
+    //ATW moved these 2 lines from above the two above to make app work with cordova 10 as per issue 2872
+    pluginStreetView.mapCtrl = CordovaGoogleMaps.this;
+    pluginStreetView.self = pluginStreetView;
+    
+    
+    
     pluginStreetView.getPanorama(args, callbackContext);
   }
 

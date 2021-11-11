@@ -150,7 +150,7 @@ PluginMarker.prototype.__create = function(markerId, pluginOptions, onSuccess, o
         });
       };
       img.onerror = function(error) {
-        console.warn(error.getMessage());
+        console.warn(`Error loading marker`);
         onSuccess(marker, {
           '__pgmId': markerId,
           'width': 20,
