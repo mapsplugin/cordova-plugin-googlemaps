@@ -182,7 +182,7 @@ public class PluginMarker extends MyPlugin implements MyPluginInterface {
       if (!_clearDone) {
         semaphore.acquire();
       }
-    } catch (InterruptedException ignore) {
+    } catch (Exception ignore) {
 
     }
   }
