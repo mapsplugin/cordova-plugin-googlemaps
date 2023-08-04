@@ -1,5 +1,5 @@
 # Cordova GoogleMaps plugin for Android, iOS and Browser v2.7.1
-<small>Android X support and fix white screen</small>
+<small>· Android X support and fix white screen</small>
 
 | Download | Build test (multiple_maps branch)|
 |----------|---------------------------|
