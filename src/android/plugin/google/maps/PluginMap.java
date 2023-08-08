@@ -613,7 +613,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       plugins.put(pluginName, pluginEntry);
       mapCtrl.pluginManager.addService(pluginEntry);
 
-      plugin.cordova = null; // avoid failure caused by repreated initialization
       plugin.privateInitialize(pluginName, cordova, webView, null);
 
       plugin.initialize(cordova, webView);
@@ -667,8 +666,6 @@ public class PluginMap extends MyPlugin implements OnMarkerClickListener,
       pluginMap = PluginMap.this;
       pluginMap.mapCtrl.pluginManager.addService(pluginEntry);
 
-      plugin.cordova = null; // avoid failure caused by repreated initialization
-        
       plugin.privateInitialize(className, cordova, webView, null);
       plugin.initialize(cordova, webView);
       ((MyPluginInterface)plugin).setPluginMap(PluginMap.this);
