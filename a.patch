@@ -1,0 +1,278 @@
+diff --git a/src/ios/GoogleMaps/PluginMap.m b/src/ios/GoogleMaps/PluginMap.m
+index 31605c94..3080fea3 100644
+--- a/src/ios/GoogleMaps/PluginMap.m
++++ b/src/ios/GoogleMaps/PluginMap.m
+@@ -667,7 +667,7 @@
+     }
+ 
+     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+   }];
+ }
+ 
+diff --git a/src/ios/GoogleMaps/PluginMarker.m b/src/ios/GoogleMaps/PluginMarker.m
+index f06e4c65..77b4fb3c 100644
+--- a/src/ios/GoogleMaps/PluginMarker.m
++++ b/src/ios/GoogleMaps/PluginMarker.m
+@@ -73,7 +73,7 @@
+     [createResult setObject:markerId forKey:@"__pgmId"];
+ 
+     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+-      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
++      __weak __auto_type weakSelf = self;
+       [self _create:markerId markerOptions:json callbackBlock:^(BOOL successed, id result) {
+         CDVPluginResult* pluginResult;
+ 
+@@ -93,7 +93,7 @@
+ 
+           pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:createResult ];
+         }
+-        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+       }];
+ 
+     }];
+@@ -255,7 +255,7 @@
+       }
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -270,7 +270,7 @@
+       self.mapCtrl.map.selectedMarker = nil;
+       self.mapCtrl.activeMarker = nil;
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -295,7 +295,7 @@
+     [json setObject:longitude forKey:@"lng"];
+ 
+     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
+-    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+   }];
+ }
+ 
+@@ -319,7 +319,7 @@
+ 
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -338,7 +338,7 @@
+       marker.snippet = [command.arguments objectAtIndex:1];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -358,7 +358,7 @@
+       marker = nil;
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -424,7 +424,7 @@
+     }
+ 
+     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+   }];
+ }
+ 
+@@ -450,7 +450,7 @@
+       } else {
+         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+       }
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+ 
+   }];
+@@ -470,7 +470,7 @@
+       marker.opacity = [[command.arguments objectAtIndex:1] floatValue];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -488,7 +488,7 @@
+       marker.zIndex = [[command.arguments objectAtIndex:1] intValue];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -507,7 +507,7 @@
+       [marker setDraggable:isEnabled];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -530,7 +530,7 @@
+     NSLog(@"--->propertyId = %@", propertyId);
+ 
+     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-    [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+   }];
+ }
+ 
+@@ -560,7 +560,7 @@
+       [self.mapCtrl.objects setObject:properties forKey:propertyId];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -582,7 +582,7 @@
+       [marker setPosition:position];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -601,7 +601,7 @@
+       [marker setFlat: isFlat];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -645,7 +645,7 @@
+       [iconProperty setObject:[rgbColor parsePluginColor] forKey:@"iconColor"];
+     }
+ 
+-    CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
++    __weak __auto_type weakSelf = self;
+     [self setIcon_:marker iconProperty:iconProperty callbackBlock:^(BOOL successed, id resultObj) {
+       CDVPluginResult* pluginResult;
+       if (successed == NO) {
+@@ -653,7 +653,7 @@
+       } else {
+         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+       }
+-      [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -671,7 +671,7 @@
+       [marker setRotation:degrees];
+ 
+       CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-      [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+   }];
+ }
+@@ -686,11 +686,11 @@
+       GMSMarker *marker = [self.mapCtrl.objects objectForKey:markerId];
+ 
+       NSString *animation = [command.arguments objectAtIndex:1];
+-      CDVCommandDelegateImpl *cmdDelegate = (CDVCommandDelegateImpl *)self.commandDelegate;
++      __weak __auto_type weakSelf = self;
+ 
+       [self setMarkerAnimation_:animation marker:marker callbackBlock:^(void) {
+         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+-        [cmdDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+       }];
+     }];
+   }];
+diff --git a/src/ios/GoogleMaps/PluginMarkerCluster.m b/src/ios/GoogleMaps/PluginMarkerCluster.m
+index cbf706ff..a7d61ca3 100644
+--- a/src/ios/GoogleMaps/PluginMarkerCluster.m
++++ b/src/ios/GoogleMaps/PluginMarkerCluster.m
+@@ -453,7 +453,7 @@ const int GEOCELL_GRID_SIZE = 4;
+ - (void) endRedraw:(CDVInvokedUrlCommand*)command {
+   NSLog(@"--->allResults = %@", self.allResults);
+   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:self.allResults];
+-  [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
++  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+ }
+ 
+ - (void) deleteProcess:(NSDictionary *) params  clusterId:(NSString *)clusterId{
+diff --git a/src/ios/GoogleMaps/PluginUtil.h b/src/ios/GoogleMaps/PluginUtil.h
+index d7454edf..d9fc5b72 100644
+--- a/src/ios/GoogleMaps/PluginUtil.h
++++ b/src/ios/GoogleMaps/PluginUtil.h
+@@ -20,7 +20,6 @@
+ #import "IPluginProtocol.h"
+ #import "PluginViewController.h"
+ #import <Cordova/CDVCommandDelegate.h>
+-#import <Cordova/CDVCommandDelegateImpl.h>
+ 
+ typedef void (^MYCompletionHandler)(NSError *error);
+ 
+@@ -49,10 +48,6 @@ typedef void (^MYCompletionHandler)(NSError *error);
+ - (UIImage *)resize:(CGFloat)width height:(CGFloat)height;
+ @end
+ 
+-@interface CDVCommandDelegateImpl (GoogleMapsPlugin)
+-- (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId;
+-@end
+-
+ //
+ // animationDidStop for group animation
+ // http://stackoverflow.com/a/28051909/697856
+diff --git a/src/ios/GoogleMaps/PluginUtil.m b/src/ios/GoogleMaps/PluginUtil.m
+index b2b283d9..096cc861 100644
+--- a/src/ios/GoogleMaps/PluginUtil.m
++++ b/src/ios/GoogleMaps/PluginUtil.m
+@@ -107,26 +107,6 @@
+ 
+ @end
+ 
+-
+-/*
+-@implementation CDVCommandDelegateImpl (GoogleMapsPlugin)
+-
+-- (void)hookSendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId {
+-
+-  NSRange pos = [callbackId rangeOfString:@"://"];
+-  if (pos.location == NSNotFound) {
+-    [self sendPluginResult:result callbackId:callbackId];
+-  } else {
+-    NSArray *tmp = [callbackId componentsSeparatedByString:@"://"];
+-    NSString *pluginName = [tmp objectAtIndex:0];
+-    CDVPlugin<IPluginProtocol> *plugin = [self getCommandInstance:pluginName];
+-    [plugin onHookedPluginResult:result callbackId:callbackId];
+-  }
+-
+-}
+-@end
+-*/
+-
+ static char CAAnimationGroupBlockKey;
+ @implementation CAAnimationGroup (Blocks)
+ 

@@ -453,7 +453,7 @@ const int GEOCELL_GRID_SIZE = 4;
 - (void) endRedraw:(CDVInvokedUrlCommand*)command {
   NSLog(@"--->allResults = %@", self.allResults);
   CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:self.allResults];
-  [(CDVCommandDelegateImpl *)self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void) deleteProcess:(NSDictionary *) params  clusterId:(NSString *)clusterId{
