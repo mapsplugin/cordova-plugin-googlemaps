@@ -85,7 +85,7 @@ For browser platform,
 
 ## Install optional variables (config.xml)
 
-  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **GOOGLE_MAPS_PLAY_SERVICES_VERSION = (16.0.1)**<br>
+  - ![](https://raw.githubusercontent.com/mapsplugin/cordova-plugin-googlemaps/master/images/icon-android.png) **GOOGLE_MAPS_PLAY_SERVICES_VERSION = (18.+)**<br>
     The Google Play Services SDK version.
     _You need to specify the same version number with all other plugins._
     Check out the latest version [here](https://developers.google.com/android/guides/releases).
